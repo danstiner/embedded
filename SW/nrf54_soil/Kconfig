@@ -1,0 +1,30 @@
+mainmenu "nRF54 Soil Moisture Sensor Configuration"
+
+config APP_BATTERY_MONITORING
+	bool "Enable battery voltage monitoring"
+	default y
+	select ADC
+	help
+	  Enable battery voltage monitoring via ADC and voltage divider.
+
+config APP_TEMPERATURE_MONITORING
+	bool "Enable temperature monitoring"
+	default y
+	select SENSOR
+	help
+	  Enable internal die temperature sensor monitoring.
+
+config APP_MEASUREMENT_INTERVAL_SEC
+	int "Measurement interval (seconds)"
+	default 300
+	help
+	  Time between periodic measurements. Device sleeps between readings.
+
+
+choice OPENTHREAD_DEVICE_TYPE
+	default OPENTHREAD_MTD
+endchoice
+
+source "${ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR}/config/nrfconnect/chip-module/Kconfig.features"
+source "${ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR}/config/nrfconnect/chip-module/Kconfig.defaults"
+source "Kconfig.zephyr"

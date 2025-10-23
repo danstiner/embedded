@@ -1,0 +1,97 @@
+/ {
+	/* Define voltage divider on battery input */
+	vbatt {
+		compatible = "voltage-divider";
+		io-channels = <&adc 0>;
+		output-ohms = <22000000>;  /* 22M lower resistor */
+		full-ohms = <44000000>;    /* 22M + 22M = 44M total (1:2 divider) */
+		/* High resistance (22M) minimizes current drain: 4.2V/44M = 95nA */
+	};
+
+	/* Retained RAM for state across System OFF */
+	sram@2003f000 {
+		compatible = "zephyr,memory-region", "mmio-sram";
+		reg = <0x2003f000 0x1000>;
+		zephyr,memory-region = "RetainedMem";
+		status = "okay";
+
+		retainedmem {
+			compatible = "zephyr,retained-ram";
+			status = "okay";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			retention: retention@0 {
+				compatible = "zephyr,retention";
+				status = "okay";
+				reg = <0x0 0x100>;
+			};
+		};
+	};
+
+	aliases {
+		battery-adc = &adc;
+		// Use watchdog wdt31 as the application watchdog
+		watchdog0 = &wdt31;
+	};
+};
+
+/* Configure SAADC for battery voltage measurement */
+&adc {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1_6";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,input-positive = <NRF_SAADC_AIN0>;  /* P0.00 */
+		zephyr,resolution = <12>;
+		zephyr,oversampling = <4>;  /* Average 4 samples for stability */
+	};
+};
+
+/* Enable internal temperature sensor */
+&temp {
+	status = "okay";
+};
+
+/* Keep UART20 for console (it's the default console) */
+&uart20 {
+	status = "okay";
+	current-speed = <115200>;
+};
+
+/* Disable unused peripherals to save power */
+&uart21 {
+	status = "disabled";
+};
+
+&uart22 {
+	status = "disabled";
+};
+
+&uart30 {
+	status = "disabled";
+};
+
+// restore full RRAM and SRAM space - by default some parts are dedicated to FLRP
+&cpuapp_rram {
+	reg = <0x0 DT_SIZE_K(1524)>;
+};
+
+&cpuapp_sram {
+	reg = <0x20000000 DT_SIZE_K(256)>;
+	ranges = <0x0 0x20000000  0x40000>;
+};
+
+// Disable external flash
+&mx25r64 {
+	status = "disabled";
+};
+
+&wdt31 {
+	status = "okay";
+};
