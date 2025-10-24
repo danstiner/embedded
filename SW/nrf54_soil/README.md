@@ -63,17 +63,43 @@ screen /dev/tty.usbmodem0010577860871 115200
 ```
 
 
-## Matter CLI
+## Matter Commissioning
 
-#### Onboarding codes command
+### Setup Credentials
 
-Prints all onboarding codes:
+**QR Code**: `MT:W0GU2OTB00KA0648G00`
+**Manual Pairing Code**: `34970112332`
+**Setup PIN**: `20202021`
+**Discriminator**: `3840`
+
+### Commissioning Instructions
+
+1. **Flash the device** with debug build to see commissioning logs
+2. **Power on** and wait for device to start advertising
+3. **Open your Matter controller app**:
+   - Apple Home: Add Accessory → More Options → scan QR code
+   - Google Home: Add Device → Matter → scan QR code
+   - chip-tool: `chip-tool pairing ble-thread <node-id> hex:<thread-dataset> 20202021 3840`
+
+4. **Follow the prompts** to join your Thread network
+5. **Wait for commissioning to complete** (~30 seconds)
+
+### Viewing Commissioning Info
+
+Use the Matter CLI shell to print onboarding codes:
 ```shell
 uart:~$ matter onboardingcodes none
 QRCode:             MT:W0GU2OTB00KA0648G00
 QRCodeUrl:          https://project-chip.github.io/connectedhomeip/qrcode.html?data=MT%3AW0GU2OTB00KA0648G00
 ManualPairingCode:  34970112332
 ```
+
+### Accessing Temperature Data
+
+Once commissioned, the device exposes:
+- **Temperature Measurement Cluster** (0x0402) on Endpoint 0
+- **MeasuredValue** attribute: Temperature in 0.01°C units (e.g., 2534 = 25.34°C)
+- Updates every 5 seconds (debug) or 5 minutes (release)
 
 
 ## Power Management
@@ -138,6 +164,118 @@ nrf54_soil/
 ```
 
 ## Troubleshooting
+
+### Matter Commissioning Issues
+
+#### Device joins Thread but commissioning times out
+
+**Symptoms**:
+```
+[SVR]Operational advertising failed: 3
+[BLE]ack recv timeout, closing ep
+```
+
+**Possible causes**:
+
+1. **Thread Border Router not reachable**
+   - Verify your Thread Border Router (Google Nest, Apple HomePod, etc.) is online
+   - Check that the Border Router is on the same network as your controller
+   - Try: `uart:~$ ot state` should show `child` or `router`
+
+2. **IPv6 connectivity issue**
+   - Device gets IPv6 address but controller can't reach it
+   - Check logs for `fd42:` prefix addresses
+   - Verify: `uart:~$ ot ipaddr` shows multiple IPv6 addresses
+
+3. **SRP registration timing**
+   - Device advertises before SRP registration completes
+   - Look for `SRP update succeeded` in logs
+   - If missing, Thread network may not have SRP server
+
+4. **Factory reset and retry**
+   ```shell
+   uart:~$ matter factoryreset
+   ```
+   Then flash again and recommission
+
+5. **Check commissioner logs**
+   - iOS/Home app: Check Console app for errors
+   - Android: Use `adb logcat | grep -i matter`
+   - chip-tool: Add `-v` for verbose output
+
+#### Commissioning succeeds but device not controllable
+
+**Check operational discovery**:
+```shell
+uart:~$ matter dns browse _matter._tcp
+```
+
+Should show the device advertising with node ID.
+
+**Verify network connectivity**:
+```shell
+uart:~$ ot ping <border-router-ip>
+```
+
+#### Device won't enter commissioning mode
+
+**Check BLE advertising**:
+```shell
+uart:~$ matter ble adv start
+```
+
+**Factory reset if needed**:
+```shell
+uart:~$ matter factoryreset
+```
+
+### Commissioning Diagnostic Commands
+
+**Check if device is commissioned**:
+```shell
+uart:~$ matter config
+```
+Look for:
+- Fabric ID (should be non-zero if commissioned)
+- Node ID
+- Case Session Established
+
+**Check Thread status**:
+```shell
+uart:~$ ot state          # Should show: child, router, or leader
+uart:~$ ot ipaddr         # List all IPv6 addresses
+uart:~$ ot neighbor table # Show Thread neighbors
+uart:~$ ot netdata show   # Show network data
+```
+
+**Check SRP/DNS-SD status**:
+```shell
+uart:~$ dns service       # Show registered services
+```
+
+**Check operational advertising**:
+```shell
+uart:~$ matter dns resolve <node-id>
+```
+
+**Full diagnostic sequence**:
+```shell
+# 1. Check Thread attachment
+uart:~$ ot state
+uart:~$ ot ipaddr
+
+# 2. Check Matter status
+uart:~$ matter config
+
+# 3. Ping Thread Border Router
+uart:~$ ot ping fd42:77ca:5825::1
+
+# 4. Check SRP
+uart:~$ dns service
+
+# 5. If all fails, factory reset
+uart:~$ matter factoryreset
+```
 
 ### ADC reads 0V or wrong voltage
 - Check voltage divider resistors (should be 100K + 100K)

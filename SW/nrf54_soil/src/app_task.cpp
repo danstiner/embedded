@@ -55,17 +55,14 @@ void ReadTemperatureSensor(struct k_work *work)
 	if (sensor_sample_fetch(temp_dev) == 0) {
 		if (sensor_channel_get(temp_dev, SENSOR_CHAN_DIE_TEMP, &temp_value) == 0) {
 			int16_t temp_hundredths = (temp_value.val1 * 100) + (temp_value.val2 / 10000);
+			temp_hundredths -= 300; // 3 degC offset for IC self-heating
 
-			LOG_INF("Temperature: %d.%02d C (Matter: %d)",
+			LOG_INF("Raw Temperature: %d.%02d C (Adjusted Matter: %d)",
 				temp_value.val1, temp_value.val2 / 10000, temp_hundredths);
 
 			chip::DeviceLayer::PlatformMgr().LockChipStack();
 			chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
 				1, chip::app::DataModel::Nullable<int16_t>(temp_hundredths));
-			MatterReportingAttributeChangeCallback(
-				1,
-				chip::app::Clusters::TemperatureMeasurement::Id,
-				chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Id);
 			chip::DeviceLayer::PlatformMgr().UnlockChipStack();
 		} else {
 			LOG_ERR("Failed to get temperature value");
@@ -112,7 +109,7 @@ CHIP_ERROR AppTask::Init()
 	}
 
 	k_work_init_delayable(&temp_work, ReadTemperatureSensor);
-	k_work_schedule(&temp_work, K_SECONDS(5));
+	k_work_schedule(&temp_work, K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
 
 	return CHIP_NO_ERROR;
 }
