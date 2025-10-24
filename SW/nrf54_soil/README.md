@@ -40,7 +40,7 @@ west build -b nrf54l15dk/nrf54l15/cpuapp
 
 **Release build** (optimized for lowest power):
 ```bash
-west build -b nrf54l15dk/nrf54l15/cpuapp -- -Dtemplate_EXTRA_CONF_FILE=prj_release.conf
+west build -b nrf54l15dk/nrf54l15/cpuapp -- -DEXTRA_CONF_FILE=prj_release.conf
 ```
 
 **Internal build** (only use internal storage)
