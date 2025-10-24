@@ -36,7 +36,7 @@ After converting to C++ for Matter support, investigate size optimizations:
 - Function/data sections with --gc-sections
 - Consider selective C++ usage (only where needed for Matter API)
 - Baseline: C build was 46KB ROM / 11KB RAM
-- Target: Keep under 100KB ROM / 25KB RAM even with Matter
+- Target: Keep under 500KB ROM / 25KB RAM even with Matter
 
 ---
 

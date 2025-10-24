@@ -43,13 +43,13 @@ west build -b nrf54l15dk/nrf54l15/cpuapp
 west build -b nrf54l15dk/nrf54l15/cpuapp -- -DEXTRA_CONF_FILE=prj_release.conf
 ```
 
-**Internal build** (only use internal storage)
+**Internal build** (only uses internal storage)
 
-For the nRF54L15, we can skip external storage and only use the internal RRAM for both boot slots if we compress the images.
+For the nRF54L15, we can skip external storage and use the internal 1.5MB RRAM for both boot slots.
 
 To enable this, set the ``FILE_SUFFIX`` CMake option to ``internal``.
 ```bash
-west build -b nrf54l15dk/nrf54l15/cpuapp -- -DCONFIG_CHIP_DFU_OVER_BT_SMP=y -DFILE_SUFFIX=internal
+west build -b nrf54l15dk/nrf54l15/cpuapp -- -DFILE_SUFFIX=internal
 ```
 
 ### Flash
