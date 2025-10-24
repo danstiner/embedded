@@ -22,10 +22,6 @@ Battery+ ──[LDO]── VDD (powers nRF54L15)
 
 1:2 voltage divider measures up to 4.2V battery. Current drain = Vbat/(2×R).
 
-### Optional
-- LED on GPIO (check DK schematic for led0 alias)
-- Battery (3.0V - 4.2V Li-ion or similar)
-
 ## Build Instructions
 
 ### Prerequisites
