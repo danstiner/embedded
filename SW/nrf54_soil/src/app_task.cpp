@@ -42,26 +42,15 @@ void UnlockOpenThreadTask()
 
 CHIP_ERROR AppTask::Init()
 {
-	printk("AppTask::Init() starting\n");
-	LOG_INF("Initializing Matter stack");
-
-	printk("Calling PlatformMgr().InitChipStack()\n");
 	ReturnErrorOnFailure(PlatformMgr().InitChipStack());
-	printk("PlatformMgr init complete\n");
 
-	printk("Initializing Thread stack\n");
 	ReturnErrorOnFailure(ThreadStackMgr().InitThreadStack());
-	printk("Thread stack init complete\n");
 
-	printk("Initializing Thread network driver\n");
 	sThreadNetworkDriver.Init();
-	printk("Thread network driver init complete\n");
 
-	printk("Setting DAC provider\n");
 	chip::Credentials::SetDeviceAttestationCredentialsProvider(
 		chip::Credentials::Examples::GetExampleDACProvider());
 
-	printk("Initializing server params\n");
 	static chip::CommonCaseDeviceServerInitParams initParams;
 
 	chip::Inet::EndPointStateOpenThread::OpenThreadEndpointInitParam nativeParams;
@@ -74,13 +63,10 @@ CHIP_ERROR AppTask::Init()
 
 	initParams.dataModelProvider = chip::app::CodegenDataModelProviderInstance(initParams.persistentStorageDelegate);
 
-	printk("Starting Matter server\n");
 	ReturnErrorOnFailure(chip::Server::GetInstance().Init(initParams));
 
-	printk("Logging device config\n");
 	ConfigurationMgr().LogDeviceConfig();
 
-	printk("AppTask::Init() complete\n");
 	return CHIP_NO_ERROR;
 }
 

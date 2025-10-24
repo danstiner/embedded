@@ -37,7 +37,7 @@ mcuboot_secondary_pad:
   region: flash_primary
   address: 0xE5000
   size: 0x800
-# Assume at least 34.80% compression
+# Assume at least ~35% compression
 mcuboot_secondary_app:
   region: flash_primary
   address: 0xE5800

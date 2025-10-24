@@ -1,15 +1,4 @@
-#include <zephyr/dt-bindings/adc/nrf-saadc.h>
-
 / {
-	/* Define voltage divider on battery input */
-	vbatt {
-		compatible = "voltage-divider";
-		io-channels = <&adc 0>;
-		output-ohms = <22000000>;  /* 22M lower resistor */
-		full-ohms = <44000000>;    /* 22M + 22M = 44M total (1:2 divider) */
-		/* High resistance (22M) minimizes current drain: 4.2V/44M = 95nA */
-	};
-
 	/* Retained RAM for state across System OFF */
 	sram@2003f000 {
 		compatible = "zephyr,memory-region", "mmio-sram";
@@ -32,30 +21,11 @@
 	};
 
 	aliases {
-		battery-adc = &adc;
-		// Use watchdog wdt31 as the application watchdog
 		watchdog0 = &wdt31;
 	};
 
 	chosen {
 		nordic,pm-ext-flash = &mx25r64;
-	};
-};
-
-/* Configure SAADC for battery voltage measurement */
-&adc {
-	status = "okay";
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	channel@0 {
-		reg = <0>;
-		zephyr,gain = "ADC_GAIN_1_6";
-		zephyr,reference = "ADC_REF_INTERNAL";
-		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
-		zephyr,input-positive = <NRF_SAADC_AIN0>;  /* P0.00 */
-		zephyr,resolution = <12>;
-		zephyr,oversampling = <4>;  /* Average 4 samples for stability */
 	};
 };
 

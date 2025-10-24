@@ -21,10 +21,6 @@ target_sources(app PRIVATE
     src/retained.cpp
 )
 
-target_sources_ifdef(CONFIG_APP_BATTERY_MONITORING app PRIVATE
-    src/battery.cpp
-)
-
 target_include_directories(matter-data-model PUBLIC
     src
 )
