@@ -25,125 +25,123 @@
 using namespace chip;
 
 // Cluster Init Functions
-void emberAfClusterInitCallback(EndpointId endpoint, ClusterId clusterId)
-{
-    switch (clusterId)
-    {
+void emberAfClusterInitCallback(EndpointId endpoint, ClusterId clusterId) {
+  switch (clusterId) {
     case app::Clusters::AccessControl::Id:
-        emberAfAccessControlClusterInitCallback(endpoint);
-        break;
+      emberAfAccessControlClusterInitCallback(endpoint);
+      break;
     case app::Clusters::AdministratorCommissioning::Id:
-        emberAfAdministratorCommissioningClusterInitCallback(endpoint);
-        break;
+      emberAfAdministratorCommissioningClusterInitCallback(endpoint);
+      break;
     case app::Clusters::BasicInformation::Id:
-        emberAfBasicInformationClusterInitCallback(endpoint);
-        break;
+      emberAfBasicInformationClusterInitCallback(endpoint);
+      break;
     case app::Clusters::Descriptor::Id:
-        emberAfDescriptorClusterInitCallback(endpoint);
-        break;
+      emberAfDescriptorClusterInitCallback(endpoint);
+      break;
     case app::Clusters::GeneralCommissioning::Id:
-        emberAfGeneralCommissioningClusterInitCallback(endpoint);
-        break;
+      emberAfGeneralCommissioningClusterInitCallback(endpoint);
+      break;
     case app::Clusters::GeneralDiagnostics::Id:
-        emberAfGeneralDiagnosticsClusterInitCallback(endpoint);
-        break;
+      emberAfGeneralDiagnosticsClusterInitCallback(endpoint);
+      break;
     case app::Clusters::GroupKeyManagement::Id:
-        emberAfGroupKeyManagementClusterInitCallback(endpoint);
-        break;
+      emberAfGroupKeyManagementClusterInitCallback(endpoint);
+      break;
     case app::Clusters::Identify::Id:
-        emberAfIdentifyClusterInitCallback(endpoint);
-        break;
+      emberAfIdentifyClusterInitCallback(endpoint);
+      break;
     case app::Clusters::NetworkCommissioning::Id:
-        emberAfNetworkCommissioningClusterInitCallback(endpoint);
-        break;
+      emberAfNetworkCommissioningClusterInitCallback(endpoint);
+      break;
     case app::Clusters::OtaSoftwareUpdateProvider::Id:
-        emberAfOtaSoftwareUpdateProviderClusterInitCallback(endpoint);
-        break;
+      emberAfOtaSoftwareUpdateProviderClusterInitCallback(endpoint);
+      break;
     case app::Clusters::OtaSoftwareUpdateRequestor::Id:
-        emberAfOtaSoftwareUpdateRequestorClusterInitCallback(endpoint);
-        break;
+      emberAfOtaSoftwareUpdateRequestorClusterInitCallback(endpoint);
+      break;
     case app::Clusters::OperationalCredentials::Id:
-        emberAfOperationalCredentialsClusterInitCallback(endpoint);
-        break;
+      emberAfOperationalCredentialsClusterInitCallback(endpoint);
+      break;
     case app::Clusters::SoilMeasurement::Id:
-        emberAfSoilMeasurementClusterInitCallback(endpoint);
-        break;
+      emberAfSoilMeasurementClusterInitCallback(endpoint);
+      break;
     case app::Clusters::TemperatureMeasurement::Id:
-        emberAfTemperatureMeasurementClusterInitCallback(endpoint);
-        break;
+      emberAfTemperatureMeasurementClusterInitCallback(endpoint);
+      break;
     default:
-        // Unrecognized cluster ID
-        break;
-    }
+      // Unrecognized cluster ID
+      break;
+  }
 }
 
-void __attribute__((weak)) emberAfAccessControlClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfAccessControlClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }
-void __attribute__((weak)) emberAfAdministratorCommissioningClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfAdministratorCommissioningClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }
-void __attribute__((weak)) emberAfBasicInformationClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfBasicInformationClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }
-void __attribute__((weak)) emberAfDescriptorClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfDescriptorClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }
-void __attribute__((weak)) emberAfGeneralCommissioningClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfGeneralCommissioningClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }
-void __attribute__((weak)) emberAfGeneralDiagnosticsClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfGeneralDiagnosticsClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }
-void __attribute__((weak)) emberAfGroupKeyManagementClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfGroupKeyManagementClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }
-void __attribute__((weak)) emberAfIdentifyClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfIdentifyClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }
-void __attribute__((weak)) emberAfNetworkCommissioningClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfNetworkCommissioningClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }
-void __attribute__((weak)) emberAfOtaSoftwareUpdateProviderClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfOtaSoftwareUpdateProviderClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }
-void __attribute__((weak)) emberAfOtaSoftwareUpdateRequestorClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfOtaSoftwareUpdateRequestorClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }
-void __attribute__((weak)) emberAfOperationalCredentialsClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfOperationalCredentialsClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }
-void __attribute__((weak)) emberAfSoilMeasurementClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfSoilMeasurementClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }
-void __attribute__((weak)) emberAfTemperatureMeasurementClusterInitCallback(EndpointId endpoint)
-{
-    // To prevent warning
-    (void) endpoint;
+void __attribute__((weak))
+emberAfTemperatureMeasurementClusterInitCallback(EndpointId endpoint) {
+  // To prevent warning
+  (void)endpoint;
 }

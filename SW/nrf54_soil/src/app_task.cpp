@@ -61,9 +61,9 @@ void ReadTemperatureSensor(struct k_work *work)
 
 			chip::DeviceLayer::PlatformMgr().LockChipStack();
 			chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
-				0, chip::app::DataModel::Nullable<int16_t>(temp_hundredths));
+				1, chip::app::DataModel::Nullable<int16_t>(temp_hundredths));
 			MatterReportingAttributeChangeCallback(
-				0,
+				1,
 				chip::app::Clusters::TemperatureMeasurement::Id,
 				chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Id);
 			chip::DeviceLayer::PlatformMgr().UnlockChipStack();

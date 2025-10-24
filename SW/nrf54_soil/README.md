@@ -34,7 +34,7 @@ Battery+ ──[LDO]── VDD (powers nRF54L15)
 west build -b nrf54l15dk/nrf54l15/cpuapp
 ```
 
-**Release build** (optimized for lowest power):
+**Release build** (optimized for low power):
 ```bash
 west build -b nrf54l15dk/nrf54l15/cpuapp -- -DEXTRA_CONF_FILE=prj_release.conf
 ```
@@ -61,6 +61,20 @@ screen /dev/ttyACM0 115200
 # macOS (find port with: ls /dev/tty.usbmodem*)
 screen /dev/tty.usbmodem0010577860871 115200
 ```
+
+
+## Matter CLI
+
+#### Onboarding codes command
+
+Prints all onboarding codes:
+```shell
+uart:~$ matter onboardingcodes none
+QRCode:             MT:W0GU2OTB00KA0648G00
+QRCodeUrl:          https://project-chip.github.io/connectedhomeip/qrcode.html?data=MT%3AW0GU2OTB00KA0648G00
+ManualPairingCode:  34970112332
+```
+
 
 ## Power Management
 
