@@ -59,8 +59,11 @@ west flash
 
 ### Monitor
 ```bash
-# Connect to UART console (115200 baud)
+# Linux
 screen /dev/ttyACM0 115200
+
+# macOS (find port with: ls /dev/tty.usbmodem*)
+screen /dev/tty.usbmodem0010577860871 115200
 ```
 
 ## Power Management

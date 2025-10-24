@@ -4,14 +4,23 @@
 
 #include "app_task.h"
 
+#include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/sys/printk.h>
 
 LOG_MODULE_REGISTER(app, CONFIG_CHIP_APP_LOG_LEVEL);
 
 int main()
 {
+	LOG_INF("Starting Matter application");
+
+	printk("\n\n*** nRF54 Soil Sensor Starting ***\n");
+	printk("Matter support enabled\n");
+	k_sleep(K_MSEC(100));
+
 	CHIP_ERROR err = AppTask::Instance().StartApp();
 
 	LOG_ERR("Exited with code %" CHIP_ERROR_FORMAT, err.Format());
+	printk("*** FATAL: App exited ***\n");
 	return err == CHIP_NO_ERROR ? EXIT_SUCCESS : EXIT_FAILURE;
 }
