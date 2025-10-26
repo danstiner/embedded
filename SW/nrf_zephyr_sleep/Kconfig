@@ -1,0 +1,15 @@
+mainmenu "nRF54 Deep Sleep Example Configuration"
+
+config APP_WAKEUP_INTERVAL_SEC
+	int "Wakeup interval (seconds)"
+	default 300
+	help
+	  Time between wakeups.
+
+config GRTC_WAKEUP_ENABLE
+	bool "Use GRTC to wake up device from system off"
+	default y
+	help
+	  Enable system off wakeup from GRTC.
+
+source "Kconfig.zephyr"
