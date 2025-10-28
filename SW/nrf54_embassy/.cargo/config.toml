@@ -1,0 +1,10 @@
+[build]
+# Target for nRF54 series (Cortex-M33 with FPU)
+target = "thumbv8m.main-none-eabihf"
+
+[target.thumbv8m.main-none-eabihf]
+# Use probe-rs as the runner for flashing and debugging
+runner = "probe-rs run --chip nRF54L15"
+
+[env]
+DEFMT_LOG = "info"
