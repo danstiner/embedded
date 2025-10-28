@@ -19,7 +19,7 @@ int main()
 	const struct device *const cons = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
 
 	/* Small delay for console to initialize */
-	k_sleep(K_MSEC(100));
+	k_sleep(K_MSEC(10));
 
 	/* Get reset cause */
 	hwinfo_get_reset_cause(&reset_cause);
