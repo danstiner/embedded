@@ -109,7 +109,7 @@ CHIP_ERROR AppTask::Init()
 	}
 
 	k_work_init_delayable(&temp_work, ReadTemperatureSensor);
-	k_work_schedule(&temp_work, K_MSEC(1));
+	k_work_schedule(&temp_work, K_MSEC(100));
 
 	return CHIP_NO_ERROR;
 }
