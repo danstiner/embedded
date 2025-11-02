@@ -1,0 +1,64 @@
+[package]
+edition = "2024"
+name = "soily-esp32-h2"
+rust-version = "1.86"
+publish = false
+version = "0.1.0"
+
+[[bin]]
+name = "my-esp-project"
+path = "./src/bin/main.rs"
+
+[dependencies]
+defmt = "1.0.1"
+esp-bootloader-esp-idf = { version = "0.2.0", features = ["esp32h2"] }
+esp-hal = { version = "=1.0.0-rc.0", features = [
+  "defmt",
+  "esp32h2",
+  "unstable",
+] }
+
+bleps = { git = "https://github.com/bjoernQ/bleps", package = "bleps", rev = "a5148d8ae679e021b78f53fd33afb8bb35d0b62e", features = [
+  "async",
+  "macros",
+] }
+critical-section = "1.2.0"
+embassy-executor = { version = "0.7.0", features = [
+  "defmt",
+  "task-arena-size-20480",
+] }
+embassy-time = { version = "0.4.0", features = ["defmt"] }
+embedded-io = { version = "0.6.1", features = ["defmt-03"] }
+embedded-io-async = { version = "0.6.1", features = ["defmt-03"] }
+esp-alloc = { version = "0.8.0", features = ["defmt"] }
+esp-backtrace = { version = "0.17.0", features = [
+  "defmt",
+  "esp32h2",
+  "exception-handler",
+  "panic-handler",
+] }
+esp-hal-embassy = { version = "0.9.0", features = ["defmt", "esp32h2"] }
+esp-println = { version = "0.15.0", features = ["defmt-espflash", "esp32h2"] }
+esp-wifi = { version = "0.15.0", features = [
+  "ble",
+  "builtin-scheduler",
+  "defmt",
+  "esp-alloc",
+  "esp32h2",
+] }
+static_cell = "2.1.1"
+
+openthread = { git="https://github.com/esp-rs/openthread", rev="0bfc15bcbc4a4ec62a203cc48133215b4da64fea", features = ["udp", "srp", "embassy-net-driver-channel", "defmt"] }
+
+[profile.dev]
+# For debug builds always builds with some optimization.
+opt-level = "s"
+
+[profile.release]
+codegen-units    = 1     # LLVM can perform better optimizations using a single thread
+debug            = 2
+debug-assertions = false
+incremental      = false
+lto              = "fat"
+opt-level        = "s"
+overflow-checks  = false
