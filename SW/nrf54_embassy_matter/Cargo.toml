@@ -1,0 +1,78 @@
+[package]
+name = "nrf54_embassy_matter"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+embassy-executor = { version = "0.9.1", default-features = false, features = ["arch-cortex-m", "executor-thread", "executor-interrupt", "defmt"] }
+embassy-time = { version = "0.5.0", default-features = false, features = ["defmt", "defmt-timestamp-uptime"] }
+embassy-nrf = { version = "0.8", default-features = false, features = ["defmt", "nrf54l15-app-s", "time-driver-rtc1", "gpiote", "unstable-pac", "time"] }
+embassy-futures = "0.1.1"
+embassy-sync = { version = "0.7", features = ["defmt"] }
+defmt = "1.0"
+defmt-rtt = "1.0"
+embedded-alloc = "0.6"
+rs-matter-embassy = { version = "0.1", features = ["nrf54l15-app-s", "openthread", "defmt"] }
+tinyrlibc = { version = "0.5", default-features = false, features = ["strstr", "strcmp", "isupper", "utoa", "strtoul"] }
+nrf-pac = { version = "0.1.0", features = ["nrf54l15-app"] }
+panic-probe = { version = "1.0", features = ["print-defmt"] }
+heapless = "0.8"
+rand_core = "0.9"
+static_cell = "2.1"
+panic-rtt-target = "0.2"
+rtt-target = "0.6"
+
+nrf-sdc = { version = "0.4", default-features = false, features = ["nrf54l15-app-s", "peripheral"] }
+nrf-mpsl = { version = "0.3", default-features = false, optional = true, features = ["nrf54l15-app-s", "critical-section-impl"] }
+
+cortex-m = { version = "0.7", features = ["inline-asm"] }
+cortex-m-rt = "0.7"
+
+[profile.dev]
+# Even in debug builds, we still need to apply some optimization to have usable performance.
+opt-level = "z"
+debug-assertions = true 
+overflow-checks = true
+
+[[bin]]
+name = "light_thread"
+path = "bin/light_thread.rs"
+
+[profile.release]
+codegen-units = 1
+opt-level = "z"
+lto = "fat"
+debug = 2
+debug-assertions = false
+overflow-checks = false
+
+[patch.crates-io]
+#rs-matter = { git = "https://github.com/project-chip/rs-matter" }
+rs-matter = { git = "https://github.com/sysgrok/rs-matter", branch = "next" }
+#rs-matter = { path = "../../../rs-matter/rs-matter" }
+#rs-matter-embassy = { git = "https://github.com/sysgrok/rs-matter-embassy.git", branch = "master" }
+rs-matter-embassy = { path = "/Users/dan/github/sysgrok/rs-matter-embassy/rs-matter-embassy" }
+rs-matter-stack = { git = "https://github.com/sysgrok/rs-matter-stack.git", branch = "next" }
+#rs-matter-stack = { path = "../../../rs-matter-stack" }
+openthread = { git = "https://github.com/sysgrok/openthread.git", branch = "next" }
+#openthread = { version = "0.1", path = "../../../openthread/openthread" }
+#edge-nal = { git = "https://github.com/sysgrok/edge-net" }
+edge-nal = { path = "/Users/dan/github/sysgrok/edge-net/edge-nal" }
+#edge-nal-embassy = { git = "https://github.com/sysgrok/edge-net" }
+edge-nal-embassy = { path = "/Users/dan/github/sysgrok/edge-net/edge-nal-embassy" }
+#edge-mdns = { git = "https://github.com/sysgrok/edge-net" }
+edge-mdns = { path = "/Users/dan/github/sysgrok/edge-net/edge-mdns" }
+#nrf-sdc = { git = "https://github.com/alexmoon/nrf-sdc.git", branch = "nrf54" }
+nrf-sdc = { path = "/Users/dan/github/alexmoon/nrf-sdc/nrf-sdc" }
+nrf-sdc-sys = { path = "/Users/dan/github/alexmoon/nrf-sdc/nrf-sdc-sys" }
+# nrf-mpsl = { git = "https://github.com/alexmoon/nrf-sdc.git", branch = "nrf54" }
+nrf-mpsl = { path = "/Users/dan/github/alexmoon/nrf-sdc/nrf-mpsl" }
+#trouble-host = { version = "0.4", git = "https://github.com/embassy-rs/trouble" }
+#trouble-host = { version = "0.4", path = "../../../trouble/host" }
+nrf-pac = { path = "/Users/dan/github/embassy-rs/nrf-pac" }
+# Use local embassy to enable nRF54L radio support
+embassy-nrf = { path = "/Users/dan/github/embassy-rs/embassy/embassy-nrf" }
+embassy-executor = { path = "/Users/dan/github/embassy-rs/embassy/embassy-executor" }
+embassy-time = { path = "/Users/dan/github/embassy-rs/embassy/embassy-time" }
+embassy-sync = { path = "/Users/dan/github/embassy-rs/embassy/embassy-sync" }
+embassy-futures = { path = "/Users/dan/github/embassy-rs/embassy/embassy-futures" }
