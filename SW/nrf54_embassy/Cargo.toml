@@ -30,12 +30,12 @@ name = "blinky"
 path = "bin/blinky.rs"
 
 [[bin]]
-name = "sleep"
-path = "bin/sleep.rs"
+name = "idle"
+path = "bin/idle.rs"
 
 [[bin]]
-name = "deep_sleep"
-path = "bin/deep_sleep.rs"
+name = "sleep"
+path = "bin/sleep.rs"
 
 [profile.release]
 # LLVM can perform better optimizations using a single thread.
