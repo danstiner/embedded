@@ -18,10 +18,11 @@ use embassy_nrf::interrupt::{InterruptExt, Priority};
 use embassy_nrf::bind_interrupts;
 
 use embassy_executor::{InterruptExecutor, Spawner};
+use embassy_time::Timer;
 
 use embedded_alloc::LlffHeap;
 
-use defmt::{info, unwrap};
+use defmt::{info, debug, unwrap};
 
 use rs_matter_embassy::epoch::epoch;
 use rs_matter_embassy::matter::dm::clusters::basic_info::BasicInfoConfig;
@@ -81,30 +82,36 @@ static RADIO_EXECUTOR: InterruptExecutor = InterruptExecutor::new();
 ///
 /// If - for your platform - this size is not enough, increase it until
 /// the program runs without panics during the stack initialization.
-const BUMP_SIZE: usize = 20500;
+const BUMP_SIZE: usize = 38400;
 
 #[global_allocator]
 static HEAP: LlffHeap = LlffHeap::empty();
 
 #[embassy_executor::main]
 async fn main(_s: Spawner) {
+
+    info!("Starting...");
+
+    // Necessary `nrf-hal` initialization boilerplate
+    let config = embassy_nrf::config::Config::default();
+    // Use Internal oscillator for now
+    // config.hfclk_source = embassy_nrf::config::HfclkSource::ExternalXtal;
+
+    debug!("Initializing embassy-nrf...");
+    #[cfg(debug_assertions)]
+    Timer::after_millis(100).await;
+    let p = embassy_nrf::init(config);
+
     // `rs-matter` uses the `x509` crate which (still) needs a few kilos of heap space
+    debug!("Initializing heap...");
+    #[cfg(debug_assertions)]
+    Timer::after_millis(100).await;
     {
         const HEAP_SIZE: usize = 8192;
 
         static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
         unsafe { HEAP.init(addr_of_mut!(HEAP_MEM) as usize, HEAP_SIZE) }
     }
-
-    // == Step 1: ==
-    // Necessary `nrf-hal` initialization boilerplate
-
-    info!("Starting...");
-
-    let mut config = embassy_nrf::config::Config::default();
-    config.hfclk_source = embassy_nrf::config::HfclkSource::ExternalXtal;
-
-    let p = embassy_nrf::init(config);
 
     // For nRF54L, use a fixed discriminator for now
     // TODO: Implement proper CRACEN RNG support for nRF54L
@@ -115,13 +122,18 @@ async fn main(_s: Spawner) {
 
     // To erase generics, `Matter` takes a rand `fn` rather than a trait or a closure,
     // so we need to initialize the global `rand` fn once
-    // For nRF54L, this uses a placeholder PRNG
+    // For nRF54L, this uses a placeholder PRNG for now
+    debug!("Initializing RNG...");
+    #[cfg(debug_assertions)]
+    Timer::after_millis(100).await;
     nrf_init_rand(0x12345678);
 
-    // == Step 2: ==
     // Allocate the Matter stack.
     // For MCUs, it is best to allocate it statically, so as to avoid program stack blowups (its memory footprint is ~ 35 to 50KB).
     // It is also (currently) a mandatory requirement when the wireless stack variation is used.
+    debug!("Initializing Matter stack...");
+    #[cfg(debug_assertions)]
+    Timer::after_millis(100).await;
     let stack = mk_static!(EmbassyThreadMatterStack<BUMP_SIZE, ()>).init_with(
         EmbassyThreadMatterStack::init(
             &TEST_BASIC_INFO,
@@ -135,6 +147,9 @@ async fn main(_s: Spawner) {
         ),
     );
 
+    debug!("Initializing Thread driver...");
+    #[cfg(debug_assertions)]
+    Timer::after_millis(100).await;
     let (thread_driver, thread_radio_runner) = NrfThreadDriver::new(
         mk_static!(NrfThreadRadioResources, NrfThreadRadioResources::new()),
         p.RADIO,
@@ -170,18 +185,30 @@ async fn main(_s: Spawner) {
     );
 
     // High-priority executor: SWI01, priority level 6
+    debug!("Setting up radio executor...");
+    #[cfg(debug_assertions)]
+    Timer::after_millis(100).await;
+
+    debug!("Setting SWI01 priority to P6...");
     interrupt::SWI01.set_priority(Priority::P6);
+    debug!("Priority set");
+    #[cfg(debug_assertions)]
+    Timer::after_millis(100).await;
 
     // The NRF radio needs to run in a high priority executor
     // because it is lacking hardware MAC-filtering and ACK caps,
     // hence these are emulated in software, so low latency is crucial
-    RADIO_EXECUTOR
-        .start(interrupt::SWI01)
-        .spawn(unwrap!(run_radio(thread_radio_runner)));
+    debug!("Starting RADIO_EXECUTOR...");
+    let spawner = RADIO_EXECUTOR.start(interrupt::SWI01);
+    debug!("Spawning radio task...");
+    spawner.spawn(unwrap!(run_radio(thread_radio_runner)));
+    debug!("Radio executor running");
 
-    // == Step 4: ==
     // Our "light" on-off cluster.
     // It will toggle the light state every 5 seconds
+    debug!("Creating on-off cluster...");
+    #[cfg(debug_assertions)]
+    Timer::after_millis(100).await;
     let on_off = on_off::OnOffHandler::new_standalone(
         Dataver::new_rand(stack.matter().rand()),
         LIGHT_ENDPOINT_ID,
@@ -189,6 +216,9 @@ async fn main(_s: Spawner) {
     );
 
     // Chain our endpoint clusters
+    debug!("Creating handler chain...");
+    #[cfg(debug_assertions)]
+    Timer::after_millis(100).await;
     let handler = EmptyHandler
         // Our on-off cluster, on Endpoint 1
         .chain(
@@ -205,16 +235,21 @@ async fn main(_s: Spawner) {
             Async(desc::DescHandler::new(Dataver::new_rand(stack.matter().rand())).adapt()),
         );
 
+    debug!("Creating persist...");
+    #[cfg(debug_assertions)]
+    Timer::after_millis(100).await;
     let persist = stack
         .create_persist_with_comm_window(DummyKvBlobStore)
         .await
         .unwrap();
 
-    // == Step 5: ==
     // Run the Matter stack with our handler
     // Using `pin!` is completely optional, but reduces the size of the final future
     //
     // This step can be repeated in that the stack can be stopped and started multiple times, as needed.
+    debug!("Running Matter stack...");
+    #[cfg(debug_assertions)]
+    Timer::after_millis(100).await;
     let matter = pin!(stack.run(
         // The Matter stack needs to instantiate `openthread`
         EmbassyThread::new(thread_driver, ieee_eui64, persist.store(), stack),
