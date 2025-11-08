@@ -16,10 +16,10 @@ cargo build --release
 
 ```bash
 # Flash and run with probe-rs
-DEFMT_LOG=debug cargo run
+cargo run
 
 # Or for release
-cargo run --release
+DEFMT_LOG=error cargo run --release
 ```
 
 ## Hardware

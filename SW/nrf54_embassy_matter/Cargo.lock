@@ -2890,7 +2890,7 @@ dependencies = [
 [[package]]
 name = "rs-matter-stack"
 version = "0.1.0"
-source = "git+https://github.com/sysgrok/rs-matter-stack.git?branch=next#820aeec7a0782ba97cf4db12830d7146df0f332a"
+source = "git+https://github.com/sysgrok/rs-matter-stack.git?branch=next#7c0f2b6f48d71d22091248f4244764dd0b1d7f77"
 dependencies = [
  "bitflags 2.10.0",
  "cfg-if",

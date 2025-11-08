@@ -43,9 +43,50 @@ use rs_matter_embassy::wireless::nrf::{
 use rs_matter_embassy::wireless::{EmbassyThread, EmbassyThreadMatterStack};
 
 use defmt_rtt as _;
-use panic_rtt_target as _;
+use panic_probe as _; // Instead of panic_rtt_target
 
 use tinyrlibc as _;
+
+use cortex_m as _;
+
+#[cortex_m_rt::exception]
+unsafe fn BusFault() {
+    defmt::panic!("BusFault!");
+}
+
+#[cortex_m_rt::exception]
+unsafe fn UsageFault() {
+    defmt::error!("UsageFault!");
+    let cfsr = unsafe { (*cortex_m::peripheral::SCB::PTR).cfsr.read() };
+    defmt::error!("CFSR: {:#010x}", cfsr);
+    defmt::panic!("UsageFault!");
+}
+
+#[cortex_m_rt::exception]
+unsafe fn HardFault(ef: &cortex_m_rt::ExceptionFrame) -> ! {
+    defmt::error!("HardFault!");
+    defmt::error!("PC: {:#010x}", ef.pc());
+    defmt::error!("LR: {:#010x}", ef.lr());
+
+    let scb = cortex_m::peripheral::SCB::PTR;
+    unsafe {
+        let cfsr = unsafe { (*scb).cfsr.read() };
+        let hfsr = unsafe { (*scb).hfsr.read() };
+        let mmfar = unsafe { (*scb).mmfar.read() };
+        let bfar = unsafe { (*scb).bfar.read() };
+        defmt::error!("CFSR: {:#010x}", cfsr);
+        defmt::error!("HFSR: {:#010x}", hfsr);
+        defmt::error!("MMFAR: {:#010x}", mmfar);
+        defmt::error!("BFAR: {:#010x}", bfar);
+    }
+    
+    // Print stack pointer values if available
+    let sp: u32;
+    unsafe { core::arch::asm!("mrs {}, MSP", out(reg) sp) };
+    defmt::error!("MSP={:#010x}", sp);
+    
+    panic!("HardFault");
+}
 
 macro_rules! mk_static {
     ($t:ty) => {{
@@ -82,13 +123,14 @@ static RADIO_EXECUTOR: InterruptExecutor = InterruptExecutor::new();
 ///
 /// If - for your platform - this size is not enough, increase it until
 /// the program runs without panics during the stack initialization.
-const BUMP_SIZE: usize = 38400;
+/// Starting with 28000 to avoid early HardFault before main()
+const BUMP_SIZE: usize = 28000;
 
 #[global_allocator]
 static HEAP: LlffHeap = LlffHeap::empty();
 
 #[embassy_executor::main]
-async fn main(_s: Spawner) {
+async fn main(s: Spawner) {
 
     info!("Starting...");
 
@@ -98,20 +140,20 @@ async fn main(_s: Spawner) {
     // config.hfclk_source = embassy_nrf::config::HfclkSource::ExternalXtal;
 
     debug!("Initializing embassy-nrf...");
+    let p = embassy_nrf::init(config);
     #[cfg(debug_assertions)]
     Timer::after_millis(100).await;
-    let p = embassy_nrf::init(config);
 
     // `rs-matter` uses the `x509` crate which (still) needs a few kilos of heap space
-    debug!("Initializing heap...");
-    #[cfg(debug_assertions)]
-    Timer::after_millis(100).await;
     {
         const HEAP_SIZE: usize = 8192;
 
         static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
         unsafe { HEAP.init(addr_of_mut!(HEAP_MEM) as usize, HEAP_SIZE) }
     }
+    debug!("Initializing heap...");
+    #[cfg(debug_assertions)]
+    Timer::after_millis(100).await;
 
     // For nRF54L, use a fixed discriminator for now
     // TODO: Implement proper CRACEN RNG support for nRF54L
@@ -201,6 +243,7 @@ async fn main(_s: Spawner) {
     debug!("Starting RADIO_EXECUTOR...");
     let spawner = RADIO_EXECUTOR.start(interrupt::SWI01);
     debug!("Spawning radio task...");
+    // TODO hack to see if this running on RADIO_EXECUTOR is the hardfault issue
     spawner.spawn(unwrap!(run_radio(thread_radio_runner)));
     debug!("Radio executor running");
 
@@ -262,7 +305,12 @@ async fn main(_s: Spawner) {
     ));
 
     // Run Matter
-    unwrap!(matter.await);
+    let res = matter.await;
+    debug!("Exited early...");
+    debug!("Result: {}", res);
+    #[cfg(debug_assertions)]
+    Timer::after_millis(100).await;
+    unwrap!(res);
 }
 
 /// Basic info about our device
@@ -291,5 +339,6 @@ const NODE: Node = Node {
 
 #[embassy_executor::task]
 async fn run_radio(mut runner: NrfThreadRadioRunner<'static, 'static>) -> ! {
+    debug!("Running radio task...");
     runner.run().await
 }

@@ -23,7 +23,7 @@ panic-rtt-target = "0.2"
 rtt-target = "0.6"
 
 nrf-sdc = { version = "0.4", default-features = false, features = ["nrf54l15-app-s", "peripheral"] }
-nrf-mpsl = { version = "0.3", default-features = false, optional = true, features = ["nrf54l15-app-s", "critical-section-impl"] }
+nrf-mpsl = { version = "0.3", default-features = false, features = ["nrf54l15-app-s", "critical-section-impl"] }
 
 cortex-m = { version = "0.7", features = ["inline-asm"] }
 cortex-m-rt = "0.7"
@@ -37,6 +37,10 @@ overflow-checks = true
 [[bin]]
 name = "light_thread"
 path = "bin/light_thread.rs"
+
+[[bin]]
+name = "minimal"
+path = "bin/minimal.rs"
 
 [profile.release]
 codegen-units = 1
