@@ -43,7 +43,7 @@ use rs_matter_embassy::wireless::nrf::{
 use rs_matter_embassy::wireless::{EmbassyThread, EmbassyThreadMatterStack};
 
 use defmt_rtt as _;
-use panic_probe as _; // Instead of panic_rtt_target
+use panic_rtt_target as _;
 
 use tinyrlibc as _;
 
@@ -69,22 +69,20 @@ unsafe fn HardFault(ef: &cortex_m_rt::ExceptionFrame) -> ! {
     defmt::error!("LR: {:#010x}", ef.lr());
 
     let scb = cortex_m::peripheral::SCB::PTR;
-    unsafe {
-        let cfsr = unsafe { (*scb).cfsr.read() };
-        let hfsr = unsafe { (*scb).hfsr.read() };
-        let mmfar = unsafe { (*scb).mmfar.read() };
-        let bfar = unsafe { (*scb).bfar.read() };
-        defmt::error!("CFSR: {:#010x}", cfsr);
-        defmt::error!("HFSR: {:#010x}", hfsr);
-        defmt::error!("MMFAR: {:#010x}", mmfar);
-        defmt::error!("BFAR: {:#010x}", bfar);
-    }
-    
+    let cfsr = unsafe { (*scb).cfsr.read() };
+    let hfsr = unsafe { (*scb).hfsr.read() };
+    let mmfar = unsafe { (*scb).mmfar.read() };
+    let bfar = unsafe { (*scb).bfar.read() };
+    defmt::error!("CFSR: {:#010x}", cfsr);
+    defmt::error!("HFSR: {:#010x}", hfsr);
+    defmt::error!("MMFAR: {:#010x}", mmfar);
+    defmt::error!("BFAR: {:#010x}", bfar);
+
     // Print stack pointer values if available
     let sp: u32;
     unsafe { core::arch::asm!("mrs {}, MSP", out(reg) sp) };
     defmt::error!("MSP={:#010x}", sp);
-    
+
     panic!("HardFault");
 }
 
@@ -123,14 +121,17 @@ static RADIO_EXECUTOR: InterruptExecutor = InterruptExecutor::new();
 ///
 /// If - for your platform - this size is not enough, increase it until
 /// the program runs without panics during the stack initialization.
-/// Starting with 28000 to avoid early HardFault before main()
-const BUMP_SIZE: usize = 28000;
+/// Increased from 28000 -> 40000 -> 50000 (was using 21132/28000 = 75%)
+const BUMP_SIZE: usize = 50000;
 
 #[global_allocator]
 static HEAP: LlffHeap = LlffHeap::empty();
 
 #[embassy_executor::main]
-async fn main(s: Spawner) {
+async fn main(_s: Spawner) {
+    // CRITICAL: First log to see if we even get to main()
+    // This uses panic_rtt_target which should work even if defmt-rtt fails
+    rtt_target::rprintln!("=== EARLY: Entered main() ===");
 
     info!("Starting...");
 
@@ -243,7 +244,6 @@ async fn main(s: Spawner) {
     debug!("Starting RADIO_EXECUTOR...");
     let spawner = RADIO_EXECUTOR.start(interrupt::SWI01);
     debug!("Spawning radio task...");
-    // TODO hack to see if this running on RADIO_EXECUTOR is the hardfault issue
     spawner.spawn(unwrap!(run_radio(thread_radio_runner)));
     debug!("Radio executor running");
 

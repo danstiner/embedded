@@ -5,12 +5,13 @@
 use core::mem::MaybeUninit;
 use core::ptr::addr_of_mut;
 
-use embassy_executor::Spawner;
+use embassy_executor::{InterruptExecutor, Spawner};
+use embassy_nrf::interrupt;
 use embassy_time::Timer;
 
 use embedded_alloc::LlffHeap;
 
-use defmt::{info, debug};
+use defmt::{info, debug, unwrap};
 
 use defmt_rtt as _;
 use panic_probe as _;
@@ -20,6 +21,13 @@ use nrf_mpsl as _; // Force linking of critical-section implementation
 
 #[global_allocator]
 static HEAP: LlffHeap = LlffHeap::empty();
+
+static RADIO_EXECUTOR: InterruptExecutor = InterruptExecutor::new();
+
+#[interrupt]
+unsafe fn SWI01() {
+    unsafe { RADIO_EXECUTOR.on_interrupt() }
+}
 
 // Removed custom HardFault handler - panic_probe already provides one
 // #[cortex_m_rt::exception]
@@ -61,8 +69,17 @@ static HEAP: LlffHeap = LlffHeap::empty();
 //     unsafe { RADIO_EXECUTOR.on_interrupt() }
 // }
 
+#[embassy_executor::task]
+async fn test_radio_task() {
+    info!("Test radio task started");
+    loop {
+        Timer::after_millis(1000).await;
+        info!("Test radio task tick");
+    }
+}
+
 #[embassy_executor::main]
-async fn main(_spawner: Spawner) {    
+async fn main(_spawner: Spawner) {
     info!("Starting...");
 
     debug!("Initializing heap...");
@@ -74,12 +91,19 @@ async fn main(_spawner: Spawner) {
     }
 
     debug!("Initializing embassy-nrf...");
-    let p = embassy_nrf::init(Default::default());
+    let _p = embassy_nrf::init(Default::default());
     debug!("Initialized embassy-nrf");
 
     // Simple delay to test basic functionality
     Timer::after_millis(100).await;
     info!("Timer worked");
 
+    debug!("Starting RADIO_EXECUTOR...");
+    let spawner = RADIO_EXECUTOR.start(interrupt::SWI01);
+    debug!("Spawning test task...");
+    spawner.spawn(unwrap!(test_radio_task()));
+    debug!("Test task spawned");
+
+    Timer::after_millis(100).await;
     info!("Done");
 }

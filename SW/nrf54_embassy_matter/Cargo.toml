@@ -22,6 +22,8 @@ static_cell = "2.1"
 panic-rtt-target = "0.2"
 rtt-target = "0.6"
 
+trouble-host = { version = "0.5", features = ["gatt"] }
+
 nrf-sdc = { version = "0.4", default-features = false, features = ["nrf54l15-app-s", "peripheral"] }
 nrf-mpsl = { version = "0.3", default-features = false, features = ["nrf54l15-app-s", "critical-section-impl"] }
 
@@ -71,8 +73,8 @@ nrf-sdc = { path = "/Users/dan/github/alexmoon/nrf-sdc/nrf-sdc" }
 nrf-sdc-sys = { path = "/Users/dan/github/alexmoon/nrf-sdc/nrf-sdc-sys" }
 # nrf-mpsl = { git = "https://github.com/alexmoon/nrf-sdc.git", branch = "nrf54" }
 nrf-mpsl = { path = "/Users/dan/github/alexmoon/nrf-sdc/nrf-mpsl" }
-#trouble-host = { version = "0.4", git = "https://github.com/embassy-rs/trouble" }
-#trouble-host = { version = "0.4", path = "../../../trouble/host" }
+trouble-host = { version = "0.5", git = "https://github.com/embassy-rs/trouble" }
+# trouble-host = { path = "/Users/dan/github/embassy-rs/trouble/host" }
 nrf-pac = { path = "/Users/dan/github/embassy-rs/nrf-pac" }
 # Use local embassy to enable nRF54L radio support
 embassy-nrf = { path = "/Users/dan/github/embassy-rs/embassy/embassy-nrf" }
