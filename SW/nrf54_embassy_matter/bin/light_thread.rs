@@ -18,7 +18,6 @@ use embassy_nrf::interrupt::{InterruptExt, Priority};
 use embassy_nrf::bind_interrupts;
 
 use embassy_executor::{InterruptExecutor, Spawner};
-use embassy_time::Timer;
 
 use embedded_alloc::LlffHeap;
 
@@ -99,7 +98,7 @@ bind_interrupts!(struct Irqs {
     CLOCK_POWER => NrfThreadClockInterruptHandler;
     RADIO_0 => NrfThreadHighPrioInterruptHandler;
     TIMER10 => NrfThreadHighPrioInterruptHandler;
-    TIMER20 => NrfThreadHighPrioInterruptHandler;
+    // TIMER20 => NrfThreadHighPrioInterruptHandler;
     GRTC_3 => NrfThreadHighPrioInterruptHandler;
 });
 
@@ -136,25 +135,26 @@ async fn main(_s: Spawner) {
 
     // Necessary `nrf-hal` initialization boilerplate
     let mut config = embassy_nrf::config::Config::default();
-    // Use Internal oscillator for now
+    // TODO #[cfg(feature = "nrf54l")]
+    {
+        config.clock_speed = embassy_nrf::config::ClockSpeed::CK128;
+    }
     config.hfclk_source = embassy_nrf::config::HfclkSource::ExternalXtal;
+    config.lfclk_source = embassy_nrf::config::LfclkSource::ExternalXtal;
 
     debug!("Initializing embassy-nrf...");
     let p = embassy_nrf::init(config);
-    #[cfg(debug_assertions)]
-    Timer::after_millis(100).await;
 
     // `rs-matter` uses the `x509` crate which (still) needs a few kilos of heap space
+    debug!("Initializing heap...");
     {
         const HEAP_SIZE: usize = 8192;
 
         static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
         unsafe { HEAP.init(addr_of_mut!(HEAP_MEM) as usize, HEAP_SIZE) }
     }
-    debug!("Initializing heap...");
-    #[cfg(debug_assertions)]
-    Timer::after_millis(100).await;
 
+    info!("CRACEN start");
     // For nRF54L, use a fixed discriminator for now
     // TODO: Implement proper CRACEN RNG support for nRF54L
     let discriminator = 0x560u16;
@@ -186,8 +186,6 @@ async fn main(_s: Spawner) {
     );
 
     debug!("Initializing Thread driver...");
-    #[cfg(debug_assertions)]
-    Timer::after_millis(100).await;
     let (thread_driver, thread_radio_runner) = NrfThreadDriver::new(
         mk_static!(NrfThreadRadioResources, NrfThreadRadioResources::new()),
         p.RADIO,
@@ -263,8 +261,6 @@ async fn main(_s: Spawner) {
         );
 
     debug!("Creating persist...");
-    #[cfg(debug_assertions)]
-    Timer::after_millis(100).await;
     let persist = stack
         .create_persist_with_comm_window(DummyKvBlobStore)
         .await
@@ -275,8 +271,6 @@ async fn main(_s: Spawner) {
     //
     // This step can be repeated in that the stack can be stopped and started multiple times, as needed.
     debug!("Running Matter stack...");
-    #[cfg(debug_assertions)]
-    Timer::after_millis(100).await;
     let matter = pin!(stack.run(
         // The Matter stack needs to instantiate `openthread`
         EmbassyThread::new(thread_driver, ieee_eui64, persist.store(), stack),
