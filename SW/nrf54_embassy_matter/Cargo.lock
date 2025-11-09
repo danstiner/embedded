@@ -2067,6 +2067,7 @@ dependencies = [
  "cfg-if",
  "cortex-m",
  "critical-section",
+ "defmt 1.0.1",
  "embassy-nrf",
  "embassy-sync",
  "embedded-io",
@@ -2105,6 +2106,7 @@ version = "0.4.0"
 dependencies = [
  "bt-hci 0.6.0",
  "critical-section",
+ "defmt 1.0.1",
  "embassy-hal-internal 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "embassy-nrf",
  "embassy-sync",
@@ -2150,7 +2152,6 @@ dependencies = [
  "rtt-target",
  "static_cell",
  "tinyrlibc",
- "trouble-host 0.5.0",
 ]
 
 [[package]]
@@ -2865,7 +2866,7 @@ dependencies = [
  "scopeguard",
  "sequential-storage",
  "static_cell",
- "trouble-host 0.4.0",
+ "trouble-host",
 ]
 
 [[package]]
@@ -3576,9 +3577,9 @@ dependencies = [
 
 [[package]]
 name = "trouble-host"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78a852f6e193f71732ce3c33661fea2575ba3dac6f48bbe1713059373f96e864"
+checksum = "b5b5d5992d07744e464b294ccf2dd6d96285bd61c267c4e0307d1f7057a8cd7f"
 dependencies = [
  "bt-hci 0.6.0",
  "defmt 1.0.1",
@@ -3590,25 +3591,7 @@ dependencies = [
  "heapless 0.9.1",
  "rand_core 0.6.4",
  "static_cell",
- "trouble-host-macros 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "zerocopy",
-]
-
-[[package]]
-name = "trouble-host"
-version = "0.5.0"
-source = "git+https://github.com/embassy-rs/trouble#bb61f8a0b8e84b4afa175674a56c91b6e545acd3"
-dependencies = [
- "bt-hci 0.6.0",
- "embassy-futures",
- "embassy-sync",
- "embassy-time",
- "embedded-io",
- "futures",
- "heapless 0.9.1",
- "rand_core 0.6.4",
- "static_cell",
- "trouble-host-macros 0.3.0 (git+https://github.com/embassy-rs/trouble)",
+ "trouble-host-macros",
  "zerocopy",
 ]
 
@@ -3617,19 +3600,6 @@ name = "trouble-host-macros"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bcb85bec3a8393c22ca1a7c25c82c2d33689ab412f3487c492fd01a033ede7c2"
-dependencies = [
- "convert_case 0.8.0",
- "darling 0.20.11",
- "proc-macro2",
- "quote",
- "syn 2.0.109",
- "uuid",
-]
-
-[[package]]
-name = "trouble-host-macros"
-version = "0.3.0"
-source = "git+https://github.com/embassy-rs/trouble#bb61f8a0b8e84b4afa175674a56c91b6e545acd3"
 dependencies = [
  "convert_case 0.8.0",
  "darling 0.20.11",

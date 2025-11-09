@@ -44,9 +44,7 @@ use rs_matter_embassy::wireless::{EmbassyThread, EmbassyThreadMatterStack};
 
 use defmt_rtt as _;
 use panic_rtt_target as _;
-
 use tinyrlibc as _;
-
 use cortex_m as _;
 
 #[cortex_m_rt::exception]
@@ -101,6 +99,7 @@ bind_interrupts!(struct Irqs {
     CLOCK_POWER => NrfThreadClockInterruptHandler;
     RADIO_0 => NrfThreadHighPrioInterruptHandler;
     TIMER10 => NrfThreadHighPrioInterruptHandler;
+    TIMER20 => NrfThreadHighPrioInterruptHandler;
     GRTC_3 => NrfThreadHighPrioInterruptHandler;
 });
 
@@ -136,9 +135,9 @@ async fn main(_s: Spawner) {
     info!("Starting...");
 
     // Necessary `nrf-hal` initialization boilerplate
-    let config = embassy_nrf::config::Config::default();
+    let mut config = embassy_nrf::config::Config::default();
     // Use Internal oscillator for now
-    // config.hfclk_source = embassy_nrf::config::HfclkSource::ExternalXtal;
+    config.hfclk_source = embassy_nrf::config::HfclkSource::ExternalXtal;
 
     debug!("Initializing embassy-nrf...");
     let p = embassy_nrf::init(config);
@@ -158,25 +157,21 @@ async fn main(_s: Spawner) {
 
     // For nRF54L, use a fixed discriminator for now
     // TODO: Implement proper CRACEN RNG support for nRF54L
-    let discriminator = 0x500u16;
+    let discriminator = 0x560u16;
 
     // TODO: Get proper IEEE EUI-64 from device
-    let ieee_eui64 = [0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01];
+    let ieee_eui64 = [0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01];
 
     // To erase generics, `Matter` takes a rand `fn` rather than a trait or a closure,
     // so we need to initialize the global `rand` fn once
     // For nRF54L, this uses a placeholder PRNG for now
     debug!("Initializing RNG...");
-    #[cfg(debug_assertions)]
-    Timer::after_millis(100).await;
     nrf_init_rand(0x12345678);
 
     // Allocate the Matter stack.
     // For MCUs, it is best to allocate it statically, so as to avoid program stack blowups (its memory footprint is ~ 35 to 50KB).
     // It is also (currently) a mandatory requirement when the wireless stack variation is used.
     debug!("Initializing Matter stack...");
-    #[cfg(debug_assertions)]
-    Timer::after_millis(100).await;
     let stack = mk_static!(EmbassyThreadMatterStack<BUMP_SIZE, ()>).init_with(
         EmbassyThreadMatterStack::init(
             &TEST_BASIC_INFO,
@@ -228,15 +223,8 @@ async fn main(_s: Spawner) {
     );
 
     // High-priority executor: SWI01, priority level 6
-    debug!("Setting up radio executor...");
-    #[cfg(debug_assertions)]
-    Timer::after_millis(100).await;
-
     debug!("Setting SWI01 priority to P6...");
     interrupt::SWI01.set_priority(Priority::P6);
-    debug!("Priority set");
-    #[cfg(debug_assertions)]
-    Timer::after_millis(100).await;
 
     // The NRF radio needs to run in a high priority executor
     // because it is lacking hardware MAC-filtering and ACK caps,
@@ -250,8 +238,6 @@ async fn main(_s: Spawner) {
     // Our "light" on-off cluster.
     // It will toggle the light state every 5 seconds
     debug!("Creating on-off cluster...");
-    #[cfg(debug_assertions)]
-    Timer::after_millis(100).await;
     let on_off = on_off::OnOffHandler::new_standalone(
         Dataver::new_rand(stack.matter().rand()),
         LIGHT_ENDPOINT_ID,
@@ -260,8 +246,6 @@ async fn main(_s: Spawner) {
 
     // Chain our endpoint clusters
     debug!("Creating handler chain...");
-    #[cfg(debug_assertions)]
-    Timer::after_millis(100).await;
     let handler = EmptyHandler
         // Our on-off cluster, on Endpoint 1
         .chain(
@@ -305,12 +289,7 @@ async fn main(_s: Spawner) {
     ));
 
     // Run Matter
-    let res = matter.await;
-    debug!("Exited early...");
-    debug!("Result: {}", res);
-    #[cfg(debug_assertions)]
-    Timer::after_millis(100).await;
-    unwrap!(res);
+    unwrap!(matter.await);
 }
 
 /// Basic info about our device
