@@ -944,23 +944,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "embassy-embedded-hal"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "554e3e840696f54b4c9afcf28a0f24da431c927f4151040020416e7393d6d0d8"
-dependencies = [
- "embassy-futures",
- "embassy-hal-internal 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "embassy-sync",
- "embedded-hal 0.2.7",
- "embedded-hal 1.0.0",
- "embedded-hal-async",
- "embedded-storage",
- "embedded-storage-async",
- "nb 1.1.0",
-]
-
-[[package]]
 name = "embassy-executor"
 version = "0.9.1"
 dependencies = [
@@ -1061,7 +1044,7 @@ dependencies = [
  "critical-section",
  "defmt 1.0.1",
  "document-features",
- "embassy-embedded-hal 0.5.0",
+ "embassy-embedded-hal",
  "embassy-hal-internal 0.3.0",
  "embassy-sync",
  "embassy-time",
@@ -1093,7 +1076,7 @@ dependencies = [
  "cortex-m-rt",
  "critical-section",
  "document-features",
- "embassy-embedded-hal 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "embassy-embedded-hal",
  "embassy-futures",
  "embassy-hal-internal 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "embassy-sync",
@@ -1620,6 +1603,7 @@ version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1edcd5a338e64688fbdcb7531a846cfd3476a54784dcb918a0844682bc7ada5"
 dependencies = [
+ "defmt 1.0.1",
  "hash32",
  "stable_deref_trait",
 ]
@@ -2135,13 +2119,14 @@ dependencies = [
  "cortex-m-rt",
  "defmt 1.0.1",
  "defmt-rtt",
+ "embassy-embedded-hal",
  "embassy-executor",
  "embassy-futures",
  "embassy-nrf",
  "embassy-sync",
  "embassy-time",
  "embedded-alloc",
- "heapless 0.8.0",
+ "heapless 0.9.1",
  "nrf-mpsl",
  "nrf-pac 0.1.0",
  "nrf-sdc",
@@ -2798,7 +2783,6 @@ dependencies = [
 [[package]]
 name = "rs-matter"
 version = "0.1.1"
-source = "git+https://github.com/sysgrok/rs-matter?branch=next#74b6c8977352a6e3ec32cac0150b0e302af3038f"
 dependencies = [
  "aes",
  "bitflags 2.10.0",
@@ -2872,7 +2856,6 @@ dependencies = [
 [[package]]
 name = "rs-matter-macros"
 version = "0.1.0"
-source = "git+https://github.com/sysgrok/rs-matter?branch=next#74b6c8977352a6e3ec32cac0150b0e302af3038f"
 dependencies = [
  "convert_case 0.6.0",
  "miette",
@@ -2892,7 +2875,6 @@ dependencies = [
 [[package]]
 name = "rs-matter-stack"
 version = "0.1.0"
-source = "git+https://github.com/sysgrok/rs-matter-stack.git?branch=next#7c0f2b6f48d71d22091248f4244764dd0b1d7f77"
 dependencies = [
  "bitflags 2.10.0",
  "cfg-if",
@@ -3578,8 +3560,6 @@ dependencies = [
 [[package]]
 name = "trouble-host"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5b5d5992d07744e464b294ccf2dd6d96285bd61c267c4e0307d1f7057a8cd7f"
 dependencies = [
  "bt-hci 0.6.0",
  "defmt 1.0.1",
@@ -3598,8 +3578,6 @@ dependencies = [
 [[package]]
 name = "trouble-host-macros"
 version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bcb85bec3a8393c22ca1a7c25c82c2d33689ab412f3487c492fd01a033ede7c2"
 dependencies = [
  "convert_case 0.8.0",
  "darling 0.20.11",

@@ -34,7 +34,6 @@ use rs_matter_embassy::matter::dm::{Async, Dataver, EmptyHandler, Endpoint, EpCl
 use rs_matter_embassy::matter::utils::init::InitMaybeUninit;
 use rs_matter_embassy::matter::{clusters, devices, BasicCommData};
 use rs_matter_embassy::rand::nrf::{nrf_init_rand, nrf_rand};
-use rs_matter_embassy::stack::persist::DummyKvBlobStore;
 use rs_matter_embassy::wireless::nrf::{
     NrfThreadClockInterruptHandler, NrfThreadDriver, NrfThreadHighPrioInterruptHandler,
     NrfThreadLowPrioInterruptHandler, NrfThreadRadioResources, NrfThreadRadioRunner,
@@ -157,10 +156,10 @@ async fn main(_s: Spawner) {
     info!("CRACEN start");
     // For nRF54L, use a fixed discriminator for now
     // TODO: Implement proper CRACEN RNG support for nRF54L
-    let discriminator = 0x560u16;
+    let discriminator = 0x570u16;
 
     // TODO: Get proper IEEE EUI-64 from device
-    let ieee_eui64 = [0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01];
+    let ieee_eui64 = [0x02, 0x05, 0x02, 0x00, 0x00, 0x00, 0x00, 0x01];
 
     // To erase generics, `Matter` takes a rand `fn` rather than a trait or a closure,
     // so we need to initialize the global `rand` fn once
@@ -261,8 +260,23 @@ async fn main(_s: Spawner) {
         );
 
     debug!("Creating persist...");
+
+    // Initialize flash for Matter settings persistence
+    // NVS region: last 64KB of flash (see memory.x)
+    const NVS_START: u32 = 0x00000000 + (1524 * 1024) - (64 * 1024);
+    const NVS_END: u32 = 0x00000000 + (1524 * 1024);
+
+    // nRF54L15 uses RRAMC (not NVMC)
+    use embassy_embedded_hal::adapter::BlockingAsync;
+    let rramc = embassy_nrf::rramc::Rramc::new(p.RRAMC);
+    let flash_async = BlockingAsync::new(rramc);
+    let flash_store = rs_matter_embassy::persist::EmbassyKvBlobStore::new(
+        flash_async,
+        NVS_START..NVS_END,
+    );
+
     let persist = stack
-        .create_persist_with_comm_window(DummyKvBlobStore)
+        .create_persist_with_comm_window(flash_store)
         .await
         .unwrap();
 
