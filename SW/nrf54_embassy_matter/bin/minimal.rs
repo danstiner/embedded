@@ -1,109 +1,266 @@
+//! An example utilizing the `EmbassyThreadMatterStack` struct.
+//!
+//! As the name suggests, this Matter stack assembly uses Thread as the main transport,
+//! and thus BLE for commissioning, in non-concurrent commissioning mode
+//! (the IEEE802.15.4 radio and BLE cannot not run at the same time with `embassy-nrf` and `nrf-sdc`).
+//!
+//! The example implements a fictitious Light device (an On-Off Matter cluster).
 #![no_std]
 #![no_main]
 #![recursion_limit = "256"]
 
 use core::mem::MaybeUninit;
+use core::pin::pin;
 use core::ptr::addr_of_mut;
 
-use embassy_executor::{InterruptExecutor, Spawner};
 use embassy_nrf::interrupt;
-use embassy_time::Timer;
+use embassy_nrf::interrupt::{InterruptExt, Priority};
+use embassy_nrf::bind_interrupts;
+
+use embassy_executor::{InterruptExecutor, Spawner};
 
 use embedded_alloc::LlffHeap;
 
 use defmt::{info, debug, unwrap};
 
+use rs_matter_embassy::epoch::epoch;
+use rs_matter_embassy::matter::dm::clusters::basic_info::BasicInfoConfig;
+use rs_matter_embassy::matter::dm::clusters::desc::{self, ClusterHandler as _};
+use rs_matter_embassy::matter::dm::clusters::on_off::test::TestOnOffDeviceLogic;
+use rs_matter_embassy::matter::dm::clusters::on_off::{self, OnOffHooks};
+use rs_matter_embassy::matter::dm::devices::test::{TEST_DEV_ATT, TEST_DEV_COMM, TEST_DEV_DET};
+use rs_matter_embassy::matter::dm::devices::DEV_TYPE_ON_OFF_LIGHT;
+use rs_matter_embassy::matter::dm::{Async, Dataver, EmptyHandler, Endpoint, EpClMatcher, Node};
+use rs_matter_embassy::matter::utils::init::InitMaybeUninit;
+use rs_matter_embassy::matter::{clusters, devices, BasicCommData};
+use rs_matter_embassy::rand::nrf::{nrf54_init_rand, nrf54_rand};
+use rs_matter_embassy::wireless::nrf::{
+    NrfThreadClockInterruptHandler, NrfThreadDriver, NrfThreadHighPrioInterruptHandler,
+    NrfThreadLowPrioInterruptHandler, NrfThreadRadioResources, NrfThreadRadioRunner,
+};
+use rs_matter_embassy::wireless::{EmbassyThread, EmbassyThreadMatterStack};
+
 use defmt_rtt as _;
-use panic_probe as _;
-
+use panic_rtt_target as _;
+use static_cell::StaticCell;
+use tinyrlibc as _;
 use cortex_m as _;
-use nrf_mpsl as _; // Force linking of critical-section implementation
 
-#[global_allocator]
-static HEAP: LlffHeap = LlffHeap::empty();
+#[cortex_m_rt::exception]
+unsafe fn BusFault() {
+    defmt::panic!("BusFault!");
+}
 
-static RADIO_EXECUTOR: InterruptExecutor = InterruptExecutor::new();
+#[cortex_m_rt::exception]
+unsafe fn UsageFault() {
+    defmt::error!("UsageFault!");
+    let cfsr = unsafe { (*cortex_m::peripheral::SCB::PTR).cfsr.read() };
+    defmt::error!("CFSR: {:#010x}", cfsr);
+    defmt::panic!("UsageFault!");
+}
+
+#[cortex_m_rt::exception]
+unsafe fn HardFault(ef: &cortex_m_rt::ExceptionFrame) -> ! {
+    defmt::error!("HardFault!");
+    defmt::error!("PC: {:#010x}", ef.pc());
+    defmt::error!("LR: {:#010x}", ef.lr());
+
+    let scb = cortex_m::peripheral::SCB::PTR;
+    let cfsr = unsafe { (*scb).cfsr.read() };
+    let hfsr = unsafe { (*scb).hfsr.read() };
+    let mmfar = unsafe { (*scb).mmfar.read() };
+    let bfar = unsafe { (*scb).bfar.read() };
+    defmt::error!("CFSR: {:#010x}", cfsr);
+    defmt::error!("HFSR: {:#010x}", hfsr);
+    defmt::error!("MMFAR: {:#010x}", mmfar);
+    defmt::error!("BFAR: {:#010x}", bfar);
+
+    // Print stack pointer values if available
+    let sp: u32;
+    unsafe { core::arch::asm!("mrs {}, MSP", out(reg) sp) };
+    defmt::error!("MSP={:#010x}", sp);
+
+    panic!("HardFault");
+}
+
+bind_interrupts!(struct Irqs {
+    SWI00 => NrfThreadLowPrioInterruptHandler;
+    CLOCK_POWER => NrfThreadClockInterruptHandler;
+    RADIO_0 => NrfThreadHighPrioInterruptHandler;
+    TIMER10 => NrfThreadHighPrioInterruptHandler;
+    GRTC_3 => NrfThreadHighPrioInterruptHandler;
+});
 
 #[interrupt]
 unsafe fn SWI01() {
     unsafe { RADIO_EXECUTOR.on_interrupt() }
 }
 
-// Removed custom HardFault handler - panic_probe already provides one
-// #[cortex_m_rt::exception]
-// unsafe fn HardFault(ef: &cortex_m_rt::ExceptionFrame) -> ! {
-//     defmt::error!("HardFault at PC={:#010x}", ef.pc());
-//     defmt::error!("LR={:#010x}", ef.lr());
-//     defmt::error!("PSR={:#010x}", ef.xpsr());
+static RADIO_EXECUTOR: InterruptExecutor = InterruptExecutor::new();
 
-//     // Print stack pointer values if available
-//     let sp: u32;
-//     unsafe { core::arch::asm!("mrs {}, MSP", out(reg) sp) };
-//     defmt::error!("MSP={:#010x}", sp);
+/// The amount of memory for allocating all `rs-matter-stack` futures created during
+/// the execution of the `run*` methods.
+/// This does NOT include the rest of the Matter stack.
+///
+/// The futures of `rs-matter-stack` created during the execution of the `run*` methods
+/// are allocated in a special way using a small bump allocator which results
+/// in a much lower memory usage by those.
+///
+/// If - for your platform - this size is not enough, increase it until
+/// the program runs without panics during the stack initialization.
+const BUMP_SIZE: usize = 24000;
+const HEAP_SIZE: usize = 8192;
 
-//     panic!("HardFault");
-// }
+static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::zeroed(); HEAP_SIZE];
+static MATTER_STACK: StaticCell<EmbassyThreadMatterStack<BUMP_SIZE, ()>> = StaticCell::new();
+static THREAD_RESOURCES: StaticCell<NrfThreadRadioResources> = StaticCell::new();
 
-// macro_rules! mk_static {
-//     ($t:ty) => {{
-//         static STATIC_CELL: static_cell::StaticCell<$t> = static_cell::StaticCell::new();
-//         STATIC_CELL.uninit()
-//     }};
-//     ($t:ty,$val:expr) => {{
-//         mk_static!($t).write($val)
-//     }};
-// }
-
-// bind_interrupts!(struct Irqs {
-//     SWI00 => NrfThreadLowPrioInterruptHandler;
-//     CLOCK_POWER => NrfThreadClockInterruptHandler;
-//     RADIO_0 => NrfThreadHighPrioInterruptHandler;
-//     TIMER10 => NrfThreadHighPrioInterruptHandler;
-//     GRTC_3 => NrfThreadHighPrioInterruptHandler;
-// });
-
-// static RADIO_EXECUTOR: InterruptExecutor = InterruptExecutor::new();
-
-// #[interrupt]
-// unsafe fn SWI01() {
-//     unsafe { RADIO_EXECUTOR.on_interrupt() }
-// }
-
-#[embassy_executor::task]
-async fn test_radio_task() {
-    info!("Test radio task started");
-    loop {
-        Timer::after_millis(1000).await;
-        info!("Test radio task tick");
-    }
-}
+#[global_allocator]
+static HEAP: LlffHeap = LlffHeap::empty();
 
 #[embassy_executor::main]
-async fn main(_spawner: Spawner) {
+async fn main(_s: Spawner) {
+
     info!("Starting...");
 
+    // Initialize heap FIRST before any other initialization that might allocate
     debug!("Initializing heap...");
     {
-        const HEAP_SIZE: usize = 8192;
-
-        static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
         unsafe { HEAP.init(addr_of_mut!(HEAP_MEM) as usize, HEAP_SIZE) }
     }
 
+    // Necessary `nrf-hal` initialization boilerplate
+    let mut config = embassy_nrf::config::Config::default();
+    // TODO #[cfg(feature = "nrf54l")]
+    {
+        config.clock_speed = embassy_nrf::config::ClockSpeed::CK128;
+    }
+    config.hfclk_source = embassy_nrf::config::HfclkSource::ExternalXtal;
+    config.lfclk_source = embassy_nrf::config::LfclkSource::ExternalXtal;
+
     debug!("Initializing embassy-nrf...");
-    let _p = embassy_nrf::init(Default::default());
-    debug!("Initialized embassy-nrf");
+    let p = embassy_nrf::init(config);
 
-    // Simple delay to test basic functionality
-    Timer::after_millis(100).await;
-    info!("Timer worked");
+    info!("CRACEN start");
+    // For nRF54L, use a fixed discriminator for now
+    // TODO: Implement proper CRACEN RNG support for nRF54L
+    let discriminator = 0x570u16;
 
-    debug!("Starting RADIO_EXECUTOR...");
-    let spawner = RADIO_EXECUTOR.start(interrupt::SWI01);
-    debug!("Spawning test task...");
-    spawner.spawn(unwrap!(test_radio_task()));
-    debug!("Test task spawned");
+    // TODO: Get proper IEEE EUI-64 from device
+    let ieee_eui64 = [0x02, 0x05, 0x02, 0x00, 0x00, 0x00, 0x00, 0x01];
 
-    Timer::after_millis(100).await;
-    info!("Done");
+    // To erase generics, `Matter` takes a rand `fn` rather than a trait or a closure,
+    // so we need to initialize the global `rand` fn once
+    // For nRF54L, this uses a placeholder PRNG for now
+    debug!("Initializing RNG...");
+    nrf54_init_rand(0x12345678);
+
+    // Allocate the Matter stack.
+    // For MCUs, it is best to allocate it statically, so as to avoid program stack blowups (its memory footprint is ~ 35 to 50KB).
+    // It is also (currently) a mandatory requirement when the wireless stack variation is used.
+    debug!("Initializing Matter stack...");
+    let stack = MATTER_STACK.uninit().init_with(
+        EmbassyThreadMatterStack::init(
+            &TEST_BASIC_INFO,
+            BasicCommData {
+                password: TEST_DEV_COMM.password,
+                discriminator,
+            },
+            &TEST_DEV_ATT,
+            epoch,
+            nrf54_rand,
+        )
+    );
+
+    debug!("Creating persist...");
+
+    // Initialize flash for Matter settings persistence
+    // NVS region: last 64KB of flash (see memory.x)
+    const NVS_START: u32 = 0x00000000 + (1524 * 1024) - (64 * 1024);
+    const NVS_END: u32 = 0x00000000 + (1524 * 1024);
+
+    debug!("NVS region: {:#x}..{:#x}", NVS_START, NVS_END);
+
+    // Check what state the NVS region is in after erase
+    {
+        let flash_ptr = NVS_START as *const u32;
+        let first_words: [u32; 8] = unsafe {
+            [
+                flash_ptr.read_volatile(),
+                flash_ptr.add(1).read_volatile(),
+                flash_ptr.add(2).read_volatile(),
+                flash_ptr.add(3).read_volatile(),
+                flash_ptr.add(4).read_volatile(),
+                flash_ptr.add(5).read_volatile(),
+                flash_ptr.add(6).read_volatile(),
+                flash_ptr.add(7).read_volatile(),
+            ]
+        };
+        debug!("First 8 words of NVS: {:08x}", first_words);
+    }
+
+    // nRF54L15 uses RRAMC (not NVMC)
+    use embassy_embedded_hal::adapter::BlockingAsync;
+    let rramc = embassy_nrf::rramc::Rramc::new(p.RRAMC);
+    let flash_async = BlockingAsync::new(rramc);
+    let flash_store = rs_matter_embassy::persist::EmbassyKvBlobStore::new(
+        flash_async,
+        NVS_START..NVS_END,
+    );
+
+    let persist = unwrap!(stack
+        .create_persist_with_comm_window(flash_store)
+        .await);
+    debug!("Persist created successfully");
+
+    // // Run the Matter stack with our handler
+    // // Using `pin!` is completely optional, but reduces the size of the final future
+    // //
+    // // This step can be repeated in that the stack can be stopped and started multiple times, as needed.
+    // debug!("Running Matter stack...");
+    // let matter = pin!(stack.run(
+    //     // The Matter stack needs to instantiate `openthread`
+    //     EmbassyThread::new(thread_driver, ieee_eui64, persist.store(), stack),
+    //     // The Matter stack needs a persister to store its state
+    //     &persist,
+    //     // Our `AsyncHandler` + `AsyncMetadata` impl
+    //     (NODE, handler),
+    //     // No user future to run
+    //     (),
+    // ));
+
+    // // Run Matter
+    // unwrap!(matter.await);
+
+    defmt::error!("Done.");
 }
+
+#[embassy_executor::task]
+async fn run_radio(mut runner: NrfThreadRadioRunner<'static, 'static>) -> ! {
+    debug!("Running radio task...");
+    runner.run().await
+}
+
+/// Basic info about our device
+/// Both the matter stack as well as our mDNS-to-SRP bridge need this, hence extracted out
+const TEST_BASIC_INFO: BasicInfoConfig = BasicInfoConfig {
+    sai: Some(500),
+    ..TEST_DEV_DET
+};
+
+/// Endpoint 0 (the root endpoint) always runs
+/// the hidden Matter system clusters, so we pick ID=1
+const LIGHT_ENDPOINT_ID: u16 = 1;
+
+/// The Matter Light device Node
+const NODE: Node = Node {
+    id: 0,
+    endpoints: &[
+        EmbassyThreadMatterStack::<0, ()>::root_endpoint(),
+        Endpoint {
+            id: LIGHT_ENDPOINT_ID,
+            device_types: devices!(DEV_TYPE_ON_OFF_LIGHT),
+            clusters: clusters!(desc::DescHandler::CLUSTER, TestOnOffDeviceLogic::CLUSTER),
+        },
+    ],
+};
