@@ -135,8 +135,6 @@ async fn main(_s: Spawner) {
     {
         config.clock_speed = embassy_nrf::config::ClockSpeed::CK128;
     }
-    config.hfclk_source = embassy_nrf::config::HfclkSource::ExternalXtal;
-    config.lfclk_source = embassy_nrf::config::LfclkSource::ExternalXtal;
 
     debug!("Initializing embassy-nrf...");
     let p = embassy_nrf::init(config);
