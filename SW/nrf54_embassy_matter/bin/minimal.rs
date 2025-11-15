@@ -41,7 +41,7 @@ use rs_matter_embassy::wireless::nrf::{
 use rs_matter_embassy::wireless::{EmbassyThread, EmbassyThreadMatterStack};
 
 use defmt_rtt as _;
-use panic_rtt_target as _;
+use panic_probe as _;
 use static_cell::StaticCell;
 use tinyrlibc as _;
 use cortex_m as _;
