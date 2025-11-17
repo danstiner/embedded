@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 
-use defmt::info;
+use defmt::{info, debug, error};
 use embassy_executor::Spawner;
 use embassy_nrf::gpio::{Level, Output, OutputDrive};
 use embassy_time::Timer;
@@ -37,7 +37,7 @@ fn print_grtc() {
     let now_high = grtc.cc(0).cch().read().cch(); // Use cch() method
     let now = (now_high as u64) << 32 | now_low as u64;
 
-    info!("GRTC now={}", now);
+    debug!("GRTC now={}", now);
 }
 
 /// Configure GRTC to wake from System OFF after specified ticks
@@ -67,7 +67,7 @@ fn configure_grtc_wakeup(ticks: u64) {
     // intenset(0) controls interrupts for CC[0-15]
     grtc.intenset(0).modify(|w| w.set_compare1(true));
 
-    info!(
+    debug!(
         "GRTC wakeup: now={}, wake={} (+{} ticks = {} sec)",
         now,
         wake_time,
@@ -78,14 +78,6 @@ fn configure_grtc_wakeup(ticks: u64) {
 
 /// Enter System OFF mode - device will reset on wake!
 fn system_off() -> ! {
-    info!("Entering System OFF mode...");
-    print_grtc();
-    cortex_m::asm::delay(10_000_000);
-    print_grtc();
-
-    // Flush defmt messages
-    cortex_m::asm::delay(100_000);
-
     let regulators = &pac::REGULATORS_S;
 
     // Try different ways to write systemoff
@@ -101,9 +93,7 @@ fn system_off() -> ! {
 
     // Will never reach here - device powers off
     loop {
-        print_grtc();
-        cortex_m::asm::delay(10_000_000);
-        info!("Will never reach here - device powers off");
+        error!("Will never reach here - device powers off");
         print_grtc();
         cortex_m::asm::wfi();
     }
@@ -118,26 +108,26 @@ async fn main(_spawner: Spawner) {
 
     let p = embassy_nrf::init(config);
 
-    info!("=== Deep Sleep with GRTC Wake ===");
+    debug!("=== Deep Sleep with GRTC Wake ===");
 
     // LED for status indication
     let mut led = Output::new(p.P2_09, Level::Low, OutputDrive::Standard);
 
     // Flash LED to show we're alive
     led.set_high();
-    Timer::after_millis(100).await;
+    Timer::after_millis(50).await;
     led.set_low();
 
-    info!("Testing GRTC access...");
+    debug!("Testing GRTC access...");
 
     // Test if we can access GRTC
     {
         let grtc = &pac::GRTC_S;
-        info!("GRTC pointer: 0x{:x}", grtc.as_ptr() as usize);
+        debug!("GRTC pointer: 0x{:x}", grtc.as_ptr() as usize);
     }
 
     // Try to start GRTC
-    info!("Starting GRTC...");
+    debug!("Starting GRTC...");
     start_grtc();
     print_grtc();
 
@@ -146,9 +136,12 @@ async fn main(_spawner: Spawner) {
     info!("Configuring wake in {} seconds...", wake_seconds);
     configure_grtc_wakeup(wake_seconds * GRTC_CLOCK_FREQ);
 
-    // Short delay to see the message
-    // Timer::after_millis(10).await;
-
     // Enter System OFF - device resets after GRTC timeout
+    debug!("Entering System OFF mode...");
+    print_grtc();
+
+    // Short delay to see the message
+    Timer::after_millis(1).await;
+
     system_off();
 }
