@@ -13,6 +13,7 @@ const GRTC_CLOCK_FREQ: u64 = 1_000_000;
 /// Start GRTC and configure it to stay active in System OFF
 fn start_grtc() {
     let grtc = &pac::GRTC_S;
+    grtc.clkcfg().modify(|w| w.set_clksel(nrf_pac::grtc::vals::Clksel::LFXO));
     grtc.mode().modify(|w| w.set_syscounteren(true));
     grtc.tasks_start().write_value(1);
 
@@ -69,7 +70,9 @@ fn configure_grtc_wakeup(ticks: u64) {
     let wake_high = (wake_time >> 32) as u32;
 
     grtc.cc(1).ccl().write_value(wake_low);
-    grtc.cc(1).cch().write_value(pac::grtc::regs::Cch(wake_high));
+    grtc.cc(1)
+        .cch()
+        .write_value(pac::grtc::regs::Cch(wake_high));
 
     // Enable ONLY CC[1]
     grtc.cc(1).ccen().write(|w| w.set_active(true));
@@ -79,7 +82,7 @@ fn configure_grtc_wakeup(ticks: u64) {
 }
 
 /// Enter System OFF mode
-fn system_off() -> ! {
+fn system_off(led: &mut Output) -> ! {
     let regulators = &pac::REGULATORS_S;
 
     // Disable RTC30 (embassy time driver)
@@ -112,9 +115,12 @@ fn system_off() -> ! {
     let p1 = &pac::P1_S;
     let p2 = &pac::P2_S;
     for i in 0..32 {
-        p0.pin_cnf(i).modify(|w| w.set_sense(pac::gpio::vals::Sense::DISABLED));
-        p1.pin_cnf(i).modify(|w| w.set_sense(pac::gpio::vals::Sense::DISABLED));
-        p2.pin_cnf(i).modify(|w| w.set_sense(pac::gpio::vals::Sense::DISABLED));
+        p0.pin_cnf(i)
+            .modify(|w| w.set_sense(pac::gpio::vals::Sense::DISABLED));
+        p1.pin_cnf(i)
+            .modify(|w| w.set_sense(pac::gpio::vals::Sense::DISABLED));
+        p2.pin_cnf(i)
+            .modify(|w| w.set_sense(pac::gpio::vals::Sense::DISABLED));
     }
 
     // Ensure all operations complete
@@ -129,7 +135,10 @@ fn system_off() -> ! {
 
     // Should never reach here - blink LED rapidly if we do
     loop {
-        cortex_m::asm::nop();
+        led.set_high();
+        cortex_m::asm::delay(1_000_000);
+        led.set_low();
+        cortex_m::asm::delay(1_000_000);
     }
 }
 
@@ -169,7 +178,9 @@ async fn main(_spawner: Spawner) {
     }
 
     // Clear reset reason
-    pac::RESET_S.resetreas().write_value(pac::reset::regs::Resetreas(0xFFFFFFFF));
+    pac::RESET_S
+        .resetreas()
+        .write_value(pac::reset::regs::Resetreas(0xFFFFFFFF));
 
     // Wait a moment
     Timer::after_millis(500).await;
@@ -189,5 +200,5 @@ async fn main(_spawner: Spawner) {
     Timer::after_millis(100).await;
 
     // Enter System OFF
-    system_off();
+    system_off(&mut led);
 }
