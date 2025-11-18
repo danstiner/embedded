@@ -1,0 +1,55 @@
+[package]
+name = "nrf54"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+embassy-executor = { version = "0.9.1", features = ["arch-cortex-m", "executor-thread", "executor-interrupt"] }
+embassy-time = { version = "0.5.0", features = [] }
+embassy-nrf = { version = "0.8.0", features = ["nrf54l15-app-s", "time-driver-rtc1", "gpiote", "unstable-pac", "time"] }
+nrf-pac = { version = "0.1.0", features = ["nrf54l15-app"] }
+panic-reset = "0.1"
+heapless = "0.9"
+rand_core = "0.9"
+static_cell = "2.1"
+tinyrlibc = { version = "0.5", default-features = false, features = ["strstr", "strcmp", "isupper", "utoa", "strtoul"] }
+
+cortex-m = { version = "0.7", features = ["inline-asm", "critical-section-single-core"] }
+cortex-m-rt = "0.7"
+
+[profile.dev]
+# Even in debug builds, we still need to apply some optimization to have usable performance.
+opt-level = "z"
+debug-assertions = true 
+overflow-checks = true
+
+[[bin]]
+name = "blinky"
+path = "bin/blinky.rs"
+
+[[bin]]
+name = "idle"
+path = "bin/idle.rs"
+
+[[bin]]
+name = "sleep"
+path = "bin/sleep.rs"
+
+[profile.release]
+# LLVM can perform better optimizations using a single thread.
+codegen-units = 1
+opt-level = "z"
+lto = "fat"
+debug = 2
+debug-assertions = false
+overflow-checks = false
+
+[patch.crates-io]
+nrf-pac = { path = "/Users/dan/github/embassy-rs/nrf-pac" }
+embassy-nrf = { path = "/Users/dan/github/embassy-rs/embassy/embassy-nrf" }
+embassy-executor = { path = "/Users/dan/github/embassy-rs/embassy/embassy-executor" }
+embassy-time = { path = "/Users/dan/github/embassy-rs/embassy/embassy-time" }
+embassy-sync = { path = "/Users/dan/github/embassy-rs/embassy/embassy-sync" }
+embassy-futures = { path = "/Users/dan/github/embassy-rs/embassy/embassy-futures" }
+embassy-time-driver = { path = "/Users/dan/github/embassy-rs/embassy/embassy-time-driver" }
+embassy-embedded-hal = { path = "/Users/dan/github/embassy-rs/embassy/embassy-embedded-hal" }

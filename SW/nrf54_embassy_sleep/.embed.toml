@@ -1,0 +1,6 @@
+[default.general]
+chip = "nRF54L15"
+
+# Enable Real Time Transfer for debug output over serial SWD/JTAG
+[default.rtt]
+enabled = false
