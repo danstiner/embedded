@@ -10,7 +10,7 @@ use panic_reset as _;
 /// GRTC runs at 1 MHz, so 1,000,000 ticks = 1 second
 const GRTC_CLOCK_FREQ: u64 = 1_000_000;
 
-const SLEEP_DURATION_S: u64 = 30;
+const SLEEP_DURATION_S: u64 = 2;
 
 /// Start GRTC and configure it to stay active in System OFF
 fn start_grtc() {
@@ -21,13 +21,13 @@ fn start_grtc() {
 
     // Try to set KEEPRUNNING to keep GRTC active during System OFF
     // This register might not be in the PAC yet, so use raw pointer
-    unsafe {
-        let grtc_base = 0x500E_2000 as *mut u32;
-        // KEEPRUNNING register is typically at offset 0x704
-        let keeprunning = grtc_base.add(0x704 / 4);
-        // Set bit 0 to keep GRTC running in System OFF
-        core::ptr::write_volatile(keeprunning, 0x1);
-    }
+    // unsafe {
+    //     let grtc_base = 0x500E_2000 as *mut u32;
+    //     // KEEPRUNNING register is typically at offset 0x704
+    //     let keeprunning = grtc_base.add(0x704 / 4);
+    //     // Set bit 0 to keep GRTC running in System OFF
+    //     core::ptr::write_volatile(keeprunning, 0x1);
+    // }
 }
 
 /// Configure GRTC to wake from System OFF after specified ticks
@@ -39,7 +39,8 @@ fn configure_grtc_wakeup(ticks: u64) {
         grtc.cc(i).ccen().write(|w| w.set_active(false));
     }
 
-    // Disable all interrupts
+    // Disable ALL interrupts
+    // The compare event wakes from System OFF without interrupt!
     grtc.intenclr(0).write(|w| {
         w.set_compare0(true);
         w.set_compare1(true);
@@ -76,11 +77,12 @@ fn configure_grtc_wakeup(ticks: u64) {
         .cch()
         .write_value(pac::grtc::regs::Cch(wake_high));
 
-    // Enable ONLY CC[1]
+    // Enable ONLY CC[1] - no interrupt needed for System OFF wake!
     grtc.cc(1).ccen().write(|w| w.set_active(true));
 
-    // Enable interrupt for CC[1] to wake from System OFF
-    grtc.intenset(0).write(|w| w.set_compare1(true));
+    // Critical: Wait for CC latch
+    // Give time for the compare value to latch properly
+    cortex_m::asm::delay(1000); // ~1ms at typical CPU speed
 }
 
 /// Enter System OFF mode
@@ -156,22 +158,41 @@ async fn main(_spawner: Spawner) {
     // Check reset reason
     let reset_reason = pac::RESET_S.resetreas().read();
 
+    // Debug: Check what reset reasons are set
+    let reset_val = reset_reason.0;
+
     // Indicate reset reason with LED blinks
     if reset_reason.grtc() {
         // Woke from System OFF via GRTC - blink 2 times fast (SUCCESS!)
         for _ in 0..2 {
             led.set_high();
-            Timer::after_millis(50).await;
+            Timer::after_millis(100).await;
             led.set_low();
-            Timer::after_millis(50).await;
+            Timer::after_millis(100).await;
+        }
+    } else if reset_reason.off() {
+        // Woke from System OFF via GPIO - blink 4 times
+        for _ in 0..4 {
+            led.set_high();
+            Timer::after_millis(100).await;
+            led.set_low();
+            Timer::after_millis(100).await;
+        }
+    } else if reset_val == 0 {
+        // No reset reason (weird!) - blink 6 times
+        for _ in 0..6 {
+            led.set_high();
+            Timer::after_millis(100).await;
+            led.set_low();
+            Timer::after_millis(100).await;
         }
     } else {
-        // Normal startup - blink 10 times
-        for _ in 0..10 {
+        // Normal startup - blink 1 time
+        for _ in 0..1 {
             led.set_high();
-            Timer::after_millis(50).await;
+            Timer::after_millis(100).await;
             led.set_low();
-            Timer::after_millis(50).await;
+            Timer::after_millis(100).await;
         }
     }
 
@@ -180,17 +201,18 @@ async fn main(_spawner: Spawner) {
         .resetreas()
         .write_value(pac::reset::regs::Resetreas(0xFFFFFFFF));
 
-    // Wait a moment
-    Timer::after_millis(500).await;
-
-    // Start GRTC
+    // Start GRTC only on first boot (not after wake from System OFF)
+    // When waking from System OFF, GRTC is still running due to KEEPRUNNING
+    // if !reset_reason.grtc() {
     start_grtc();
+    // }
 
-    // Configure wake in 5 seconds
+    // Configure wake time
     configure_grtc_wakeup(SLEEP_DURATION_S * GRTC_CLOCK_FREQ);
 
-    // Small delay
-    Timer::after_millis(100).await;
+    // Small delay seems to be necessary
+    // TODO research why
+    Timer::after_millis(1).await;
 
     // Enter System OFF
     system_off(&mut led);
