@@ -10,6 +10,8 @@ use panic_reset as _;
 /// GRTC runs at 1 MHz, so 1,000,000 ticks = 1 second
 const GRTC_CLOCK_FREQ: u64 = 1_000_000;
 
+const SLEEP_DURATION_S: u64 = 30;
+
 /// Start GRTC and configure it to stay active in System OFF
 fn start_grtc() {
     let grtc = &pac::GRTC_S;
@@ -145,8 +147,7 @@ fn system_off(led: &mut Output) -> ! {
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let mut config = embassy_nrf::config::Config::default();
-    // Use internal RC oscillator instead of external crystal
-    // The LFXO might not stay on during System OFF
+    // LFXO can stay on during System OFF
     config.lfclk_source = embassy_nrf::config::LfclkSource::ExternalXtal;
     let p = embassy_nrf::init(config);
 
@@ -156,24 +157,21 @@ async fn main(_spawner: Spawner) {
     let reset_reason = pac::RESET_S.resetreas().read();
 
     // Indicate reset reason with LED blinks
-    // RESETREAS bit 0 = RESETPIN
-    // RESETREAS bit 18 = OFF (wakeup from System OFF by GRTC)
-    // RESETREAS bit 19 = LPCOMP (wakeup from System OFF by LPCOMP)
-    if reset_reason.0 & (1 << 18) != 0 {
-        // Woke from System OFF via GRTC - blink 5 times (SUCCESS!)
-        for _ in 0..5 {
+    if reset_reason.grtc() {
+        // Woke from System OFF via GRTC - blink 2 times fast (SUCCESS!)
+        for _ in 0..2 {
             led.set_high();
             Timer::after_millis(50).await;
             led.set_low();
             Timer::after_millis(50).await;
         }
     } else {
-        // Normal startup - blink 3 times fast
-        for _ in 0..3 {
+        // Normal startup - blink 10 times
+        for _ in 0..10 {
             led.set_high();
-            Timer::after_millis(100).await;
+            Timer::after_millis(50).await;
             led.set_low();
-            Timer::after_millis(100).await;
+            Timer::after_millis(50).await;
         }
     }
 
@@ -189,12 +187,7 @@ async fn main(_spawner: Spawner) {
     start_grtc();
 
     // Configure wake in 5 seconds
-    configure_grtc_wakeup(5 * GRTC_CLOCK_FREQ);
-
-    // Blink LED once slowly to show we're about to sleep
-    led.set_high();
-    Timer::after_millis(500).await;
-    led.set_low();
+    configure_grtc_wakeup(SLEEP_DURATION_S * GRTC_CLOCK_FREQ);
 
     // Small delay
     Timer::after_millis(100).await;
