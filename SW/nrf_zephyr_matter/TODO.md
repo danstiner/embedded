@@ -57,9 +57,8 @@ This document tracks remaining tasks and future improvements for the nRF54 soil 
 
 ### Power Optimization
 - [ ] Implement proper sleep modes between measurements
-- [ ] Use System OFF with GRTC wakeup (<5µA)
 - [ ] Minimize active time during measurements
-- [ ] Target: <100µA average current
+- [ ] Target: <500µA average current
 
 ### Code Cleanup
 - [ ] Add .clang-format for consistent style
