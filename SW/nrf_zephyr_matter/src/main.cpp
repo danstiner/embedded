@@ -1,7 +1,3 @@
-/*
- * nRF54 Soil Moisture Sensor - Main Entry Point
- */
-
 #include "app_task.h"
 
 #include <zephyr/kernel.h>
