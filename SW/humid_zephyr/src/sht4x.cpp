@@ -96,9 +96,8 @@ bool Sht4x::Read(int16_t &temperature, uint16_t &humidity)
 	// Humidity: 0.01% units (0-10000 = 0-100%)
 	humidity = (hum.val1 * 100) + (hum.val2 / 10000);
 
-	LOG_INF("SHT4X: %d.%02d°C, %d.%02d%% RH (Matter: temp=%d, hum=%d)",
-		temp.val1, temp.val2 / 10000, hum.val1, hum.val2 / 10000,
-		temperature, humidity);
+	LOG_INF("Read %d.%02d°C, %d.%02d%% RH",
+		temp.val1, temp.val2 / 10000, hum.val1, hum.val2 / 10000);
 
 	return true;
 }

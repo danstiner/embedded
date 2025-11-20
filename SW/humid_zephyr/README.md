@@ -24,12 +24,20 @@ west build -b nrf54l15dk/nrf54l15/cpuapp -p
 west build -b nrf54l15dk/nrf54l15/cpuapp -p -- -DEXTRA_CONF_FILE=prj_release.conf
 ```
 
-**Production build** (optimized for low power and only uses internal storage)
+**Production build** (optimized for low power, internal storage only, UART disabled)
 
 The nRF54L15 has enough internal storage (1524KB RRAM) that in release mode we can fit both A/B boot partitions internally, no external flash chip is needed.
 
 ```bash
-west build -b nrf54l15dk/nrf54l15/cpuapp -p -- -DEXTRA_CONF_FILE=prj_release.conf -DEXTRA_CONF_FILE=prj_production.conf -DFILE_SUFFIX=internal
+west build -b nrf54l15dk/nrf54l15/cpuapp -p -- \
+  -DFILE_SUFFIX=internal \
+  -DEXTRA_CONF_FILE=prj_release.conf \
+  -DEXTRA_DTC_OVERLAY_FILE=boards/nrf54l15dk_nrf54l15_cpuapp_release.overlay
+```
+
+**Internal debug build** (internal storage with logging enabled for development):
+```bash
+west build -b nrf54l15dk/nrf54l15/cpuapp -p -- -DFILE_SUFFIX=internal
 ```
 
 ### Flash
@@ -93,7 +101,7 @@ uart:~$ ot dataset active -x
 
 **Commission with BLE-Thread pairing**:
 ```bash
-chip-tool pairing ble-thread 1 <hex-thread-dataset> 20202021 3840
+chip-tool pairing ble-thread 1 hex:<thread-dataset> 20202021 3840
 ```
 
 ### Viewing Commissioning Info

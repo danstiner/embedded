@@ -1,0 +1,8 @@
+/*
+ * MCUboot overlay for using only internal flash
+ */
+
+// Disable external flash for internal builds
+&mx25r64 {
+	status = "disabled";
+};

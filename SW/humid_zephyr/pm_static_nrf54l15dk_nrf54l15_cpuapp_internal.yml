@@ -1,38 +1,38 @@
 mcuboot:
   address: 0x0
-  size: 0xB000
+  size: 0xC000
 mcuboot_pad:
-  address: 0xB000
+  address: 0xC000
   size: 0x800
 
-# 724KB primary app partition, 2KB mcuboot_pad is used for headers
+# 720KB primary app partition, 2KB mcuboot_pad is used for headers
 app:
-  address: 0xB800
-  size: 0xB5000
+  address: 0xC800
+  size: 0xB4000
 mcuboot_primary_app:
-  address: 0xB800
-  size: 0xB5000
+  address: 0xC800
+  size: 0xB4000
   span: [app]
 mcuboot_primary:
-  address: 0xB000
-  size: 0xB5800
+  address: 0xC000
+  size: 0xB4800
   span: [mcuboot_pad, app]
 
-# 724KB secondary app partition, plus 2KB pad for headers
+# 720KB secondary app partition, plus 2KB pad for headers
 mcuboot_secondary_pad:
   address: 0xC0800
   size: 0x800
 mcuboot_secondary_app:
   address: 0xC1000
-  size: 0xB5000
+  size: 0xB4000
 mcuboot_secondary:
   address: 0xC0800
-  size: 0xB5800
+  size: 0xB4800
   span: [mcuboot_secondary_pad, mcuboot_secondary_app]
 
 factory_data:
-  address: 0x176000
+  address: 0x175000
   size: 0x1000
 settings_storage:
-  address: 0x177000
-  size: 0x6000
+  address: 0x176000
+  size: 0x7000

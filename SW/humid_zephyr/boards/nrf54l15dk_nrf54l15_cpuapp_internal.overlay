@@ -1,5 +1,5 @@
-/ {
-};
+/* Internal flash overlay for nRF54L15 DK */
+/* For release builds, add nrf54l15dk_nrf54l15_cpuapp_release.overlay to disable UART */
 
 /* I2C for SHT45 humidity/temperature sensor */
 &i2c21 {
@@ -32,13 +32,9 @@
 	};
 };
 
-/* Keep UART20 for console (it's the default console) */
-&uart20 {
-	status = "okay";
-	current-speed = <115200>;
-};
+/* UART20 enabled for debug builds - release.overlay disables it */
 
-/* Disable unused peripherals to save power */
+/* Disable unused UARTs */
 &uart21 {
 	status = "disabled";
 };
@@ -49,6 +45,36 @@
 
 &uart30 {
 	status = "disabled";
+};
+
+/* Disable SPI00 and external flash - using internal RRAM */
+&spi00 {
+	status = "disabled";
+};
+
+/* Disable NFC - not needed */
+&nfct {
+	status = "disabled";
+};
+
+/* Disable ADC - not needed */
+&adc {
+	status = "disabled";
+};
+
+/* Disable PWM - not needed */
+&pwm20 {
+	status = "disabled";
+};
+
+/* Disable buttons - the internal pull-ups draw current */
+/ {
+	buttons {
+		status = "disabled";
+	};
+	leds {
+		status = "disabled";
+	};
 };
 
 // restore full RRAM and SRAM space - by default some parts are dedicated to FLRP

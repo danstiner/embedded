@@ -21,6 +21,7 @@
 #include <platform/nrfconnect/OTAImageProcessorImpl.h>
 #include <platform/OpenThread/GenericNetworkCommissioningThreadDriver.h>
 #include <platform/ThreadStackManager.h>
+#include <platform/ConnectivityManager.h>
 
 #include "zap-generated/endpoint_config.h"
 
@@ -55,6 +56,19 @@ void LockOpenThreadTask()
 void UnlockOpenThreadTask()
 {
 	ThreadStackMgr().UnlockThreadStack();
+}
+
+CHIP_ERROR ConfigureThreadRole()
+{
+#if CHIP_DEVICE_CONFIG_THREAD_FTD
+	return ConnectivityMgr().SetThreadDeviceType(ConnectivityManager::kThreadDeviceType_Router);
+#elif CONFIG_CHIP_THREAD_SSED
+    return ConnectivityMgr().SetThreadDeviceType(ConnectivityManager::kThreadDeviceType_SynchronizedSleepyEndDevice);
+#elif CONFIG_OPENTHREAD_MTD_SED
+    return ConnectivityMgr().SetThreadDeviceType(ConnectivityManager::kThreadDeviceType_SleepyEndDevice);
+#else
+    return ConnectivityMgr().SetThreadDeviceType(ConnectivityManager::kThreadDeviceType_MinimalEndDevice);
+#endif
 }
 
 } // namespace
@@ -96,6 +110,8 @@ CHIP_ERROR AppTask::Init()
 	ReturnErrorOnFailure(PlatformMgr().InitChipStack());
 
 	ReturnErrorOnFailure(ThreadStackMgr().InitThreadStack());
+
+	ReturnErrorOnFailure(ConfigureThreadRole());
 
 	THREAD_NETWORK_DRIVER.Init();
 
