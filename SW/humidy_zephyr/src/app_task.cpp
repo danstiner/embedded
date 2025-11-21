@@ -32,11 +32,12 @@ using namespace ::chip;
 using namespace ::chip::DeviceLayer;
 
 namespace {
-chip::app::Clusters::NetworkCommissioning::InstanceAndDriver<
-	chip::DeviceLayer::NetworkCommissioning::GenericThreadDriver> sThreadNetworkDriver(0);
 
-const struct device *temp_dev;
-struct k_work_delayable temp_work;
+chip::app::Clusters::NetworkCommissioning::InstanceAndDriver<
+	chip::DeviceLayer::NetworkCommissioning::GenericThreadDriver> thread_network_driver(0);
+
+const struct device *temperature_device;
+struct k_work_delayable measure_work;
 
 void LockOpenThreadTask()
 {
@@ -48,32 +49,50 @@ void UnlockOpenThreadTask()
 	ThreadStackMgr().UnlockThreadStack();
 }
 
-void ReadTemperatureSensor(struct k_work *work)
+bool ReadInternalTemperature(int16_t &matter_temperature)
 {
-	struct sensor_value temp_value;
+	struct sensor_value temperature;
+	int rc;
 
-	if (sensor_sample_fetch(temp_dev) == 0) {
-		if (sensor_channel_get(temp_dev, SENSOR_CHAN_DIE_TEMP, &temp_value) == 0) {
-			int16_t temp_hundredths = (temp_value.val1 * 100) + (temp_value.val2 / 10000);
-			temp_hundredths -= 300; // 3 degC offset for IC self-heating
-
-			LOG_INF("Raw Temperature: %d.%02d C (Adjusted Matter: %d)",
-				temp_value.val1, temp_value.val2 / 10000, temp_hundredths);
-
-			chip::DeviceLayer::PlatformMgr().LockChipStack();
-			chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
-				1, chip::app::DataModel::Nullable<int16_t>(temp_hundredths));
-			chip::DeviceLayer::PlatformMgr().UnlockChipStack();
-		} else {
-			LOG_ERR("Failed to get temperature value");
-		}
-	} else {
-		LOG_ERR("Failed to fetch temperature sample");
+	rc = sensor_sample_fetch(temperature_device);
+	if (rc != 0) {
+		LOG_ERR("Failed to fetch temperature sample: %d", rc);
+		return false;
 	}
 
-	k_work_schedule(&temp_work, K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
+	rc = sensor_channel_get(temperature_device, SENSOR_CHAN_DIE_TEMP, &temperature);
+	if (rc != 0) {
+		LOG_ERR("Failed to read temperature channel: %d", rc);
+		return false;
+	}
+
+	// Convert to Matter format (0.01°C units) and apply calibration offset
+	matter_temperature = (temperature.val1 * 100) + (temperature.val2 / 10000) - 300;
+	// 3°C offset for IC self-heating
+
+	LOG_INF("Temperature: %d.%02d°C (Matter: %d)",
+		temperature.val1, temperature.val2 / 10000, matter_temperature);
+	return true;
 }
+
+void OnMeasureTimer(struct k_work *work)
+{
+	int16_t internal_temperature;
+	bool new_internal_temperature = ReadInternalTemperature(internal_temperature);
+
+	// Update Matter attribute
+	PlatformMgr().LockChipStack();
+	if (new_internal_temperature)
+	{
+		chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
+			1, chip::app::DataModel::Nullable<int16_t>(internal_temperature));
+	}
+	PlatformMgr().UnlockChipStack();
+
+	k_work_schedule(&measure_work, K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
 }
+
+} // namespace
 
 CHIP_ERROR AppTask::Init()
 {
@@ -81,7 +100,7 @@ CHIP_ERROR AppTask::Init()
 
 	ReturnErrorOnFailure(ThreadStackMgr().InitThreadStack());
 
-	sThreadNetworkDriver.Init();
+	thread_network_driver.Init();
 
 	chip::Credentials::SetDeviceAttestationCredentialsProvider(
 		chip::Credentials::Examples::GetExampleDACProvider());
@@ -102,14 +121,15 @@ CHIP_ERROR AppTask::Init()
 
 	ConfigurationMgr().LogDeviceConfig();
 
-	temp_dev = DEVICE_DT_GET(DT_NODELABEL(temp));
-	if (!device_is_ready(temp_dev)) {
-		LOG_ERR("Temperature sensor not ready");
+	// Initialize temperature sensor
+	temperature_device = DEVICE_DT_GET(DT_NODELABEL(temp));
+	if (!device_is_ready(temperature_device)) {
+		LOG_ERR("Temperature sensor device not ready");
 		return CHIP_ERROR_INTERNAL;
 	}
 
-	k_work_init_delayable(&temp_work, ReadTemperatureSensor);
-	k_work_schedule(&temp_work, K_MSEC(100));
+	k_work_init_delayable(&measure_work, OnMeasureTimer);
+	k_work_schedule(&measure_work, K_MSEC(500));
 
 	return CHIP_NO_ERROR;
 }
