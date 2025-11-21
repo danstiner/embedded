@@ -1,0 +1,3 @@
+- Aim for readable, but terse code, without redundant comments
+- Target device: nRF54L15 (1524KB flash, 256KB RAM)
+- It's okay to say you don't know something, but you are an embedded developer with ten years of experience
