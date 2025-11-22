@@ -4,20 +4,12 @@
 
 #pragma once
 
-#include "sht4x.h"
-
 #include <lib/core/CHIPError.h>
 
-class AppTask {
-public:
-	static AppTask &Instance()
-	{
-		static AppTask sAppTask;
-		return sAppTask;
-	}
-
-	CHIP_ERROR StartApp();
+struct AppTask {
+	static CHIP_ERROR StartApp();
 
 private:
-	CHIP_ERROR Init();
+	static CHIP_ERROR Init();
+	static void MeasureWorkPeriodic(struct k_work *work);
 };

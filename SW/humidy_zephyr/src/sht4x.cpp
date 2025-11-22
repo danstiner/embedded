@@ -34,41 +34,39 @@ CHIP_ERROR Sht4x::Init()
 	return err;
 }
 
-void Sht4x::Read()
+bool Sht4x::Read(int16_t &temperature, uint16_t &humidity)
 {
-    struct sensor_value temp, hum;
+	struct sensor_value temp, hum;
+	int rc;
 
-    if (sensor_sample_fetch(sht)) {
-        printf("Failed to fetch sample from SHT4X device\n");
-        return;
-    }
+	rc = sensor_sample_fetch(sht);
+	if (rc != 0) {
+		LOG_ERR("Failed to fetch sample from SHT4X: %d", rc);
+		return false;
+	}
 
-    sensor_channel_get(sht, SENSOR_CHAN_AMBIENT_TEMP, &temp);
-    sensor_channel_get(sht, SENSOR_CHAN_HUMIDITY, &hum);
+	rc = sensor_channel_get(sht, SENSOR_CHAN_AMBIENT_TEMP, &temp);
+	if (rc != 0) {
+		LOG_ERR("Failed to read SHT4X temperature: %d", rc);
+		return false;
+	}
 
-#if CONFIG_APP_USE_HEATER
-    /*
-     * Conditions in which it makes sense to activate the heater
-     * are application/environment specific.
-     *
-     * The heater should not be used above SHT4X_HEATER_MAX_TEMP (65 °C)
-     * as stated in the datasheet.
-     *
-     * The temperature data will not be updated here for obvious reasons.
-     **/
-    if (hum.val1 > CONFIG_APP_HEATER_HUMIDITY_THRESH &&
-        temp.val1 < SHT4X_HEATER_MAX_TEMP) {
-        printf("Activating heater.\n");
+	rc = sensor_channel_get(sht, SENSOR_CHAN_HUMIDITY, &hum);
+	if (rc != 0) {
+		LOG_ERR("Failed to read SHT4X humidity: %d", rc);
+		return false;
+	}
 
-        if (sht4x_fetch_with_heater(sht)) {
-            printf("Failed to fetch sample from SHT4X device\n");
-            return 0;
-        }
+	// Convert to Matter format
+	// Temperature: 0.01°C units
+	temperature = (temp.val1 * 100) + (temp.val2 / 10000);
 
-        sensor_channel_get(sht, SENSOR_CHAN_HUMIDITY, &hum);
-    }
-#endif
+	// Humidity: 0.01% units (0-10000 = 0-100%)
+	humidity = (hum.val1 * 100) + (hum.val2 / 10000);
 
-    LOG_INF("SHT4X: %.2f Temp. [C] ; %0.2f RH [%%]\n", sensor_value_to_double(&temp),
-            sensor_value_to_double(&hum));
+	LOG_INF("SHT4X: %d.%02d°C, %d.%02d%% RH (Matter: temp=%d, hum=%d)",
+		temp.val1, temp.val2 / 10000, hum.val1, hum.val2 / 10000,
+		temperature, humidity);
+
+	return true;
 }

@@ -6,16 +6,15 @@ using namespace chip;
 
 class Sht4x {
 public:
-	static Sht4x &Instance()
-	{
-		static Sht4x instance;
-		return instance;
-	};
-
 	CHIP_ERROR Init();
 
-    void Read();
+	// Read temperature and humidity
+	// Returns true on success, false on error
+	// temperature: in 0.01°C units (Matter format)
+	// humidity: in 0.01% units (0-10000 = 0-100%)
+	// Will activate heater as necessary
+	bool Read(int16_t &temperature, uint16_t &humidity);
 
 private:
-    const struct device *sht;
+	const struct device *sht;
 };

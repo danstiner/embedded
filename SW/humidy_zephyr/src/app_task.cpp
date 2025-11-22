@@ -3,6 +3,7 @@
  */
 
 #include "app_task.h"
+#include "sht4x.h"
 
 #include <app/server/Server.h>
 #include <app/clusters/network-commissioning/network-commissioning.h>
@@ -34,10 +35,11 @@ using namespace ::chip::DeviceLayer;
 namespace {
 
 chip::app::Clusters::NetworkCommissioning::InstanceAndDriver<
-	chip::DeviceLayer::NetworkCommissioning::GenericThreadDriver> thread_network_driver(0);
+	chip::DeviceLayer::NetworkCommissioning::GenericThreadDriver> THREAD_NETWORK_DRIVER(0);
 
 const struct device *temperature_device;
 struct k_work_delayable measure_work;
+Sht4x sht4x;
 
 void LockOpenThreadTask()
 {
@@ -49,50 +51,19 @@ void UnlockOpenThreadTask()
 	ThreadStackMgr().UnlockThreadStack();
 }
 
-bool ReadInternalTemperature(int16_t &matter_temperature)
-{
-	struct sensor_value temperature;
-	int rc;
-
-	rc = sensor_sample_fetch(temperature_device);
-	if (rc != 0) {
-		LOG_ERR("Failed to fetch temperature sample: %d", rc);
-		return false;
-	}
-
-	rc = sensor_channel_get(temperature_device, SENSOR_CHAN_DIE_TEMP, &temperature);
-	if (rc != 0) {
-		LOG_ERR("Failed to read temperature channel: %d", rc);
-		return false;
-	}
-
-	// Convert to Matter format (0.01°C units) and apply calibration offset
-	matter_temperature = (temperature.val1 * 100) + (temperature.val2 / 10000) - 300;
-	// 3°C offset for IC self-heating
-
-	LOG_INF("Temperature: %d.%02d°C (Matter: %d)",
-		temperature.val1, temperature.val2 / 10000, matter_temperature);
-	return true;
-}
-
-void OnMeasureTimer(struct k_work *work)
-{
-	int16_t internal_temperature;
-	bool new_internal_temperature = ReadInternalTemperature(internal_temperature);
-
-	// Update Matter attribute
-	PlatformMgr().LockChipStack();
-	if (new_internal_temperature)
-	{
-		chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
-			1, chip::app::DataModel::Nullable<int16_t>(internal_temperature));
-	}
-	PlatformMgr().UnlockChipStack();
-
-	k_work_schedule(&measure_work, K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
-}
-
 } // namespace
+
+CHIP_ERROR AppTask::StartApp()
+{
+	ReturnErrorOnFailure(Init());
+
+	LOG_INF("Matter server initialized");
+
+	// Use current thread to drive CHIP event loop
+	PlatformMgr().RunEventLoop();
+
+	return CHIP_NO_ERROR;
+}
 
 CHIP_ERROR AppTask::Init()
 {
@@ -100,7 +71,7 @@ CHIP_ERROR AppTask::Init()
 
 	ReturnErrorOnFailure(ThreadStackMgr().InitThreadStack());
 
-	thread_network_driver.Init();
+	THREAD_NETWORK_DRIVER.Init();
 
 	chip::Credentials::SetDeviceAttestationCredentialsProvider(
 		chip::Credentials::Examples::GetExampleDACProvider());
@@ -128,20 +99,35 @@ CHIP_ERROR AppTask::Init()
 		return CHIP_ERROR_INTERNAL;
 	}
 
-	k_work_init_delayable(&measure_work, OnMeasureTimer);
+	// Initialize SHT4x driver
+	ReturnErrorOnFailure(sht4x.Init());
+
+	// Start measurement periodic after short delay
+	// TODO only start once commissioned
+	k_work_init_delayable(&measure_work, AppTask::MeasureWorkPeriodic);
 	k_work_schedule(&measure_work, K_MSEC(500));
 
 	return CHIP_NO_ERROR;
 }
 
-CHIP_ERROR AppTask::StartApp()
+void AppTask::MeasureWorkPeriodic(struct k_work *work)
 {
-	ReturnErrorOnFailure(Init());
+	int16_t temperature;
+	uint16_t humidity;
 
-	LOG_INF("Matter server initialized");
+	// Read SHT4x sensor
+	bool success = sht4x.Read(temperature, humidity);
 
-	// Use current thread to drive CHIP event loop
-	PlatformMgr().RunEventLoop();
+	// Update Matter attributes
+	PlatformMgr().LockChipStack();
+	if (success) {
+		chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
+			1, chip::app::DataModel::Nullable<int16_t>(temperature));
 
-	return CHIP_NO_ERROR;
+		chip::app::Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
+			1, chip::app::DataModel::Nullable<uint16_t>(humidity));
+	}
+	PlatformMgr().UnlockChipStack();
+
+	k_work_schedule(&measure_work, K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
 }
