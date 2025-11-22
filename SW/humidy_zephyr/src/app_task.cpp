@@ -37,7 +37,6 @@ namespace {
 chip::app::Clusters::NetworkCommissioning::InstanceAndDriver<
 	chip::DeviceLayer::NetworkCommissioning::GenericThreadDriver> THREAD_NETWORK_DRIVER(0);
 
-const struct device *temperature_device;
 struct k_work_delayable measure_work;
 Sht4x sht4x;
 
@@ -91,13 +90,6 @@ CHIP_ERROR AppTask::Init()
 	ReturnErrorOnFailure(chip::Server::GetInstance().Init(initParams));
 
 	ConfigurationMgr().LogDeviceConfig();
-
-	// Initialize temperature sensor
-	temperature_device = DEVICE_DT_GET(DT_NODELABEL(temp));
-	if (!device_is_ready(temperature_device)) {
-		LOG_ERR("Temperature sensor device not ready");
-		return CHIP_ERROR_INTERNAL;
-	}
 
 	// Initialize SHT4x driver
 	ReturnErrorOnFailure(sht4x.Init());

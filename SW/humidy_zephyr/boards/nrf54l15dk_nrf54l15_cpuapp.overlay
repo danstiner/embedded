@@ -35,11 +35,6 @@
 	};
 };
 
-/* Enable internal temperature sensor */
-&temp {
-	status = "okay";
-};
-
 /* Keep UART20 for console (it's the default console) */
 &uart20 {
 	status = "okay";
