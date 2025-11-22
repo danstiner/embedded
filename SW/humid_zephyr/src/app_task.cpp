@@ -1,8 +1,5 @@
-/*
- * nRF54 Soil Moisture Sensor - Matter Application Task
- */
-
 #include "app_task.h"
+#include "sht4x.h"
 
 #include <app/server/Server.h>
 #include <app/clusters/network-commissioning/network-commissioning.h>
@@ -33,10 +30,11 @@ using namespace ::chip::DeviceLayer;
 
 namespace {
 chip::app::Clusters::NetworkCommissioning::InstanceAndDriver<
-	chip::DeviceLayer::NetworkCommissioning::GenericThreadDriver> sThreadNetworkDriver(0);
+	chip::DeviceLayer::NetworkCommissioning::GenericThreadDriver> THREAD_NETWORK_DRIVER(0);
 
 const struct device *temp_dev;
-struct k_work_delayable temp_work;
+struct k_work_delayable measure_work;
+Sht4x sht4x;
 
 void LockOpenThreadTask()
 {
@@ -48,7 +46,9 @@ void UnlockOpenThreadTask()
 	ThreadStackMgr().UnlockThreadStack();
 }
 
-void ReadTemperatureSensor(struct k_work *work)
+} // namespace
+
+void AppTask::MeasureWorkPeriodic(struct k_work *work)
 {
 	struct sensor_value temp_value;
 
@@ -57,7 +57,7 @@ void ReadTemperatureSensor(struct k_work *work)
 			int16_t temp_hundredths = (temp_value.val1 * 100) + (temp_value.val2 / 10000);
 			temp_hundredths -= 300; // 3 degC offset for IC self-heating
 
-			LOG_INF("Raw Temperature: %d.%02d C (Adjusted Matter: %d)",
+			LOG_INF("Internal Temperature: %d.%02d C (Adjusted Matter: %d)",
 				temp_value.val1, temp_value.val2 / 10000, temp_hundredths);
 
 			chip::DeviceLayer::PlatformMgr().LockChipStack();
@@ -71,8 +71,36 @@ void ReadTemperatureSensor(struct k_work *work)
 		LOG_ERR("Failed to fetch temperature sample");
 	}
 
-	k_work_schedule(&temp_work, K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
-}
+	int16_t temperature;
+	uint16_t humidity;
+	bool success = false;
+	if (sht4x.Ready()) {
+
+		// Read SHT4x sensor
+		success = sht4x.Read(temperature, humidity);
+	} else {
+		LOG_DBG("Sht4x not ready");
+	}
+
+	// Update Matter attributes
+	PlatformMgr().LockChipStack();
+	if (success) {
+		chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
+			1, chip::app::DataModel::Nullable<int16_t>(temperature));
+
+		// chip::app::Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
+		// 	1, chip::app::DataModel::Nullable<uint16_t>(humidity));
+	} else {
+		// Set to null on error to indicate sensor unavailable
+		chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
+			1, chip::app::DataModel::Nullable<int16_t>());
+
+		// chip::app::Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
+		// 	1, chip::app::DataModel::Nullable<uint16_t>());
+	}
+	PlatformMgr().UnlockChipStack();
+
+	k_work_schedule(&measure_work, K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
 }
 
 CHIP_ERROR AppTask::Init()
@@ -81,7 +109,7 @@ CHIP_ERROR AppTask::Init()
 
 	ReturnErrorOnFailure(ThreadStackMgr().InitThreadStack());
 
-	sThreadNetworkDriver.Init();
+	THREAD_NETWORK_DRIVER.Init();
 
 	chip::Credentials::SetDeviceAttestationCredentialsProvider(
 		chip::Credentials::Examples::GetExampleDACProvider());
@@ -108,8 +136,13 @@ CHIP_ERROR AppTask::Init()
 		return CHIP_ERROR_INTERNAL;
 	}
 
-	k_work_init_delayable(&temp_work, ReadTemperatureSensor);
-	k_work_schedule(&temp_work, K_MSEC(100));
+	// Initialize SHT4x driver
+	ReturnErrorOnFailure(sht4x.Init());
+
+	// Start measurement periodic after short delay
+	// TODO only start once commissioned
+	k_work_init_delayable(&measure_work, AppTask::MeasureWorkPeriodic);
+	k_work_schedule(&measure_work, K_MSEC(500));
 
 	return CHIP_NO_ERROR;
 }
@@ -120,6 +153,7 @@ CHIP_ERROR AppTask::StartApp()
 
 	LOG_INF("Matter server initialized");
 
+	// Use current thread to drive CHIP event loop
 	PlatformMgr().RunEventLoop();
 
 	return CHIP_NO_ERROR;

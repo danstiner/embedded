@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20.0)
 
 find_package(Zephyr HINTS $ENV{ZEPHYR_BASE})
 
-project(nrf54_soil)
+project(humid_zephyr)
 
 # Enable GNU STD support for Matter to use
 include(${ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR}/config/nrfconnect/app/enable-gnu-std.cmake)
@@ -19,6 +19,7 @@ target_sources(app PRIVATE
     src/main.cpp
     src/app_task.cpp
     src/identify_stub.cpp
+    src/sht4x.cpp
 )
 
 target_include_directories(matter-data-model PUBLIC
