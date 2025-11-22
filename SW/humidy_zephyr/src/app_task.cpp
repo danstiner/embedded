@@ -118,8 +118,16 @@ void AppTask::MeasureWorkPeriodic(struct k_work *work)
 
 		chip::app::Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
 			1, chip::app::DataModel::Nullable<uint16_t>(humidity));
+	} else {
+		// Set to null on error to indicate sensor unavailable
+		chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
+			1, chip::app::DataModel::Nullable<int16_t>());
+
+		chip::app::Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
+			1, chip::app::DataModel::Nullable<uint16_t>());
 	}
 	PlatformMgr().UnlockChipStack();
 
+	// Retry on next interval
 	k_work_schedule(&measure_work, K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
 }
