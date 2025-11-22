@@ -9,14 +9,14 @@ mcuboot_pad:
 app:
   address: 0xB800
   size: 0xB5000
-# mcuboot_primary_app:
-#   address: 0xB800
-#   size: 0xB5000
-#   span: [app]
-# mcuboot_primary:
-#   address: 0xB000
-#   size: 0xB5800
-#   span: [mcuboot_pad, app]
+mcuboot_primary_app:
+  address: 0xB800
+  size: 0xB5000
+  span: [app]
+mcuboot_primary:
+  address: 0xB000
+  size: 0xB5800
+  span: [mcuboot_pad, app]
 
 # 724KB secondary app partition, plus 2KB pad for headers
 mcuboot_secondary_pad:
