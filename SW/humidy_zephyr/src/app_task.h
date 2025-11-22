@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "sht4x.h"
+
 #include <lib/core/CHIPError.h>
 
 class AppTask {

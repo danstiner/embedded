@@ -31,19 +31,7 @@ void MatterAdministratorCommissioningPluginServerInitCallback();
 void MatterOperationalCredentialsPluginServerInitCallback();
 void MatterGroupKeyManagementPluginServerInitCallback();
 void MatterTemperatureMeasurementPluginServerInitCallback();
+void MatterRelativeHumidityMeasurementPluginServerInitCallback();
 void MatterSoilMeasurementPluginServerInitCallback();
 
-#define MATTER_PLUGINS_INIT                                   \
-  MatterIdentifyPluginServerInitCallback();                   \
-  MatterDescriptorPluginServerInitCallback();                 \
-  MatterAccessControlPluginServerInitCallback();              \
-  MatterBasicInformationPluginServerInitCallback();           \
-  MatterOtaSoftwareUpdateRequestorPluginServerInitCallback(); \
-  MatterGeneralCommissioningPluginServerInitCallback();       \
-  MatterNetworkCommissioningPluginServerInitCallback();       \
-  MatterGeneralDiagnosticsPluginServerInitCallback();         \
-  MatterAdministratorCommissioningPluginServerInitCallback(); \
-  MatterOperationalCredentialsPluginServerInitCallback();     \
-  MatterGroupKeyManagementPluginServerInitCallback();         \
-  MatterTemperatureMeasurementPluginServerInitCallback();     \
-  MatterSoilMeasurementPluginServerInitCallback();
+#define MATTER_PLUGINS_INIT MatterIdentifyPluginServerInitCallback(); MatterDescriptorPluginServerInitCallback(); MatterAccessControlPluginServerInitCallback(); MatterBasicInformationPluginServerInitCallback(); MatterOtaSoftwareUpdateRequestorPluginServerInitCallback(); MatterGeneralCommissioningPluginServerInitCallback(); MatterNetworkCommissioningPluginServerInitCallback(); MatterGeneralDiagnosticsPluginServerInitCallback(); MatterAdministratorCommissioningPluginServerInitCallback(); MatterOperationalCredentialsPluginServerInitCallback(); MatterGroupKeyManagementPluginServerInitCallback(); MatterTemperatureMeasurementPluginServerInitCallback(); MatterRelativeHumidityMeasurementPluginServerInitCallback(); MatterSoilMeasurementPluginServerInitCallback(); 

@@ -38,6 +38,14 @@ west build -b nrf54l15dk/nrf54l15/cpuapp -- -DFILE_SUFFIX=internal
 west flash
 ```
 
+### Edit Matter Clusters (ZAP Configuration)
+
+To add or modify Matter clusters:
+
+```bash
+west zap-gui
+```
+
 ### Monitor
 ```bash
 # Linux
