@@ -18,7 +18,6 @@ target_include_directories(app PRIVATE
 target_sources(app PRIVATE
     src/main.cpp
     src/app_task.cpp
-    src/retained.cpp
     src/identify_stub.cpp
 )
 
