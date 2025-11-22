@@ -10,7 +10,6 @@ public:
 
 	bool Ready();
 
-
 	// Read temperature and humidity
 	// Returns true on success, false on error
 	// temperature: in 0.01°C units (Matter format)

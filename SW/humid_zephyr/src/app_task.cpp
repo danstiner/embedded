@@ -32,7 +32,6 @@ namespace {
 chip::app::Clusters::NetworkCommissioning::InstanceAndDriver<
 	chip::DeviceLayer::NetworkCommissioning::GenericThreadDriver> THREAD_NETWORK_DRIVER(0);
 
-const struct device *temp_dev;
 struct k_work_delayable measure_work;
 Sht4x sht4x;
 
@@ -50,27 +49,6 @@ void UnlockOpenThreadTask()
 
 void AppTask::MeasureWorkPeriodic(struct k_work *work)
 {
-	struct sensor_value temp_value;
-
-	if (sensor_sample_fetch(temp_dev) == 0) {
-		if (sensor_channel_get(temp_dev, SENSOR_CHAN_DIE_TEMP, &temp_value) == 0) {
-			int16_t temp_hundredths = (temp_value.val1 * 100) + (temp_value.val2 / 10000);
-			temp_hundredths -= 300; // 3 degC offset for IC self-heating
-
-			LOG_INF("Internal Temperature: %d.%02d C (Adjusted Matter: %d)",
-				temp_value.val1, temp_value.val2 / 10000, temp_hundredths);
-
-			chip::DeviceLayer::PlatformMgr().LockChipStack();
-			chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
-				1, chip::app::DataModel::Nullable<int16_t>(temp_hundredths));
-			chip::DeviceLayer::PlatformMgr().UnlockChipStack();
-		} else {
-			LOG_ERR("Failed to get temperature value");
-		}
-	} else {
-		LOG_ERR("Failed to fetch temperature sample");
-	}
-
 	int16_t temperature;
 	uint16_t humidity;
 	bool success = false;
@@ -87,16 +65,14 @@ void AppTask::MeasureWorkPeriodic(struct k_work *work)
 	if (success) {
 		chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
 			1, chip::app::DataModel::Nullable<int16_t>(temperature));
-
-		// chip::app::Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
-		// 	1, chip::app::DataModel::Nullable<uint16_t>(humidity));
+		chip::app::Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
+			1, chip::app::DataModel::Nullable<uint16_t>(humidity));
 	} else {
 		// Set to null on error to indicate sensor unavailable
 		chip::app::Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
 			1, chip::app::DataModel::Nullable<int16_t>());
-
-		// chip::app::Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
-		// 	1, chip::app::DataModel::Nullable<uint16_t>());
+		chip::app::Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
+			1, chip::app::DataModel::Nullable<uint16_t>());
 	}
 	PlatformMgr().UnlockChipStack();
 
@@ -129,12 +105,6 @@ CHIP_ERROR AppTask::Init()
 	ReturnErrorOnFailure(chip::Server::GetInstance().Init(initParams));
 
 	ConfigurationMgr().LogDeviceConfig();
-
-	temp_dev = DEVICE_DT_GET(DT_NODELABEL(temp));
-	if (!device_is_ready(temp_dev)) {
-		LOG_ERR("Temperature sensor not ready");
-		return CHIP_ERROR_INTERNAL;
-	}
 
 	// Initialize SHT4x driver
 	ReturnErrorOnFailure(sht4x.Init());
