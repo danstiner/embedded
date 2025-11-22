@@ -1,7 +1,5 @@
-mainmenu "nRF54 Soil Moisture Sensor Configuration"
-
 config APP_TEMPERATURE_MONITORING
-	bool "Enable temperature monitoring"
+	bool "Enable internal temperature monitoring"
 	default y
 	select SENSOR
 	help
