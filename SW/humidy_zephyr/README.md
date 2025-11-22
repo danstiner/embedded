@@ -1,4 +1,4 @@
-# nRF54 Soil Moisture Sensor
+# nRF54 Humidity Sensor
 
 Low power humidity and water sensor utilizing the nRF54L15.
 
@@ -16,12 +16,12 @@ Low power humidity and water sensor utilizing the nRF54L15.
 
 **Debug build** (with logging and console):
 ```bash
-west build -b nrf54l15dk/nrf54l15/cpuapp
+west build -b nrf54l15dk/nrf54l15/cpuapp -p
 ```
 
 **Release build** (optimized for low power):
 ```bash
-west build -b nrf54l15dk/nrf54l15/cpuapp -- -DEXTRA_CONF_FILE=prj_release.conf
+west build -b nrf54l15dk/nrf54l15/cpuapp -p -- -DEXTRA_CONF_FILE=prj_release.conf
 ```
 
 **Internal build** (only uses internal storage)
@@ -30,7 +30,7 @@ For the nRF54L15, we can skip external storage and use the internal 1.5MB RRAM f
 
 To enable this, set the ``FILE_SUFFIX`` CMake option to ``internal``.
 ```bash
-west build -b nrf54l15dk/nrf54l15/cpuapp -- -DFILE_SUFFIX=internal
+west build -b nrf54l15dk/nrf54l15/cpuapp -p -- -DEXTRA_CONF_FILE=prj_release.conf -DFILE_SUFFIX=internal
 ```
 
 ### Flash
