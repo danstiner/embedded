@@ -20,6 +20,7 @@ target_sources(app PRIVATE
     src/app_task.cpp
     src/identify_stub.cpp
     src/sht4x.cpp
+    src/commissioning_window.cpp
 )
 
 target_include_directories(matter-data-model PUBLIC
