@@ -3,6 +3,11 @@
 
 #include <app/server/Server.h>
 #include <app/clusters/network-commissioning/network-commissioning.h>
+#include <app/clusters/ota-requestor/BDXDownloader.h>
+#include <app/clusters/ota-requestor/DefaultOTARequestor.h>
+#include <app/clusters/ota-requestor/DefaultOTARequestorDriver.h>
+#include <app/clusters/ota-requestor/DefaultOTARequestorStorage.h>
+#include <app/clusters/ota-requestor/OTARequestorInterface.h>
 #include <app/reporting/reporting.h>
 #include <app/util/attribute-storage.h>
 #include <app-common/zap-generated/attributes/Accessors.h>
@@ -13,6 +18,7 @@
 #include <lib/core/CHIPError.h>
 #include <lib/support/CodeUtils.h>
 #include <platform/CHIPDeviceLayer.h>
+#include <platform/nrfconnect/OTAImageProcessorImpl.h>
 #include <platform/OpenThread/GenericNetworkCommissioningThreadDriver.h>
 #include <platform/ThreadStackManager.h>
 
@@ -31,6 +37,12 @@ using namespace ::chip::DeviceLayer;
 namespace {
 chip::app::Clusters::NetworkCommissioning::InstanceAndDriver<
 	chip::DeviceLayer::NetworkCommissioning::GenericThreadDriver> THREAD_NETWORK_DRIVER(0);
+
+// OTA Requestor
+chip::DefaultOTARequestorStorage sOTARequestorStorage;
+chip::DeviceLayer::DefaultOTARequestorDriver sOTARequestorDriver;
+chip::BDXDownloader sBDXDownloader;
+chip::DefaultOTARequestor sOTARequestor;
 
 struct k_work_delayable measure_work;
 Sht4x sht4x;
@@ -105,6 +117,15 @@ CHIP_ERROR AppTask::Init()
 	ReturnErrorOnFailure(chip::Server::GetInstance().Init(initParams));
 
 	ConfigurationMgr().LogDeviceConfig();
+
+	// Initialize OTA Requestor
+	static chip::DeviceLayer::OTAImageProcessorImpl sOTAImageProcessor;
+	sOTAImageProcessor.SetOTADownloader(&sBDXDownloader);
+	sBDXDownloader.SetImageProcessorDelegate(&sOTAImageProcessor);
+	sOTARequestorStorage.Init(chip::Server::GetInstance().GetPersistentStorage());
+	sOTARequestor.Init(chip::Server::GetInstance(), sOTARequestorStorage, sOTARequestorDriver, sBDXDownloader);
+	sOTARequestorDriver.Init(&sOTARequestor, &sOTAImageProcessor);
+	chip::SetRequestorInstance(&sOTARequestor);
 
 	// Initialize SHT4x driver
 	ReturnErrorOnFailure(sht4x.Init());
