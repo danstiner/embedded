@@ -64,6 +64,22 @@ screen /dev/tty.usbmodem0010577860871 115200
 **Setup PIN**: `20202021`
 **Discriminator**: `3840`
 
+### chip-tool Setup (macOS)
+
+If using `chip-tool` for commissioning or OTA updates on macOS, you need to install a developer profile for Bluetooth access:
+
+1. **Download and install** the "Bluetooth Central Matter Client Developer Mode" profile:
+   - Visit: https://developer.apple.com/bug-reporting/profiles-and-logs/
+   - Download: "Bluetooth Central Matter Client Developer Mode profile"
+   - Install via: System Settings → Privacy & Security → Profiles
+
+2. **Restart your Mac** for the profile to take effect
+
+3. **Grant Bluetooth permissions** to Terminal:
+   - System Settings → Privacy & Security → Bluetooth → Enable for Terminal
+
+**Reference**: [Matter Darwin Guide](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/darwin.md#using-chip-tool-on-macos-or-chip-tool-on-ios)
+
 ### Commissioning Instructions
 
 1. **Flash the device** with debug build to see commissioning logs
@@ -71,10 +87,28 @@ screen /dev/tty.usbmodem0010577860871 115200
 3. **Open your Matter controller app**:
    - Apple Home: Add Accessory → More Options → scan QR code
    - Google Home: Add Device → Matter → scan QR code
-   - chip-tool: `chip-tool pairing ble-thread <node-id> hex:<thread-dataset> 20202021 3840`
+   - chip-tool: See below for chip-tool commissioning steps
 
 4. **Follow the prompts** to join your Thread network
 5. **Wait for commissioning to complete** (~30 seconds)
+
+#### Using chip-tool
+
+**Get Thread credentials** from your network:
+```bash
+# From serial console of already-commissioned device
+uart:~$ ot dataset active -x
+```
+
+**Commission with BLE-Thread pairing**:
+```bash
+chip-tool pairing ble-thread 1 <hex-thread-dataset> 20202021 3840
+```
+
+Example:
+```bash
+chip-tool pairing ble-thread 1 000300000D01025DCE0208A938D7761EDC29A90E08000068846A48AC5B0510640354B208FEECE2C85A4B547ECE5F68030D4E4553542D50414E2D354443450708FD4277CA582500000410FF2A5D7A90FE55098B33A342F8EDCE580C0402A0F77835060004001FFFE0 20202021 3840
+```
 
 ### Viewing Commissioning Info
 
@@ -108,21 +142,16 @@ OTA is enabled by default with:
 
 1. **Make your code changes**
 
-2. **Increment version** in `VERSION` file:
-   ```bash
-   echo "1.1.0" > VERSION
-   ```
-
-3. **Build with new version**:
+2. **Build with new version**:
    ```bash
    west build -b nrf54l15dk/nrf54l15/cpuapp -p -- \
      -DEXTRA_CONF_FILE=prj_release.conf \
      -DCONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION='"1.1.0"'
    ```
 
-4. **OTA image location**:
+3. **OTA image location**:
    ```
-   build/zephyr/matter.ota
+   build/matter.ota
    ```
 
 ### Performing OTA Update via Matter
@@ -130,13 +159,13 @@ OTA is enabled by default with:
 #### Prerequisites
 - Device commissioned and operational on Thread network
 - `chip-tool` or `chip-ota-provider-app` installed
-- Matter OTA image file (`matter.ota`)
+- Matter OTA image file (`build/matter.ota`)
 
 #### Method 1: Using chip-ota-provider-app (Recommended)
 
 1. **Start the OTA provider** on your development machine:
    ```bash
-   chip-ota-provider-app --filepath build/zephyr/matter.ota --port 5580
+   chip-ota-provider-app --filepath build/matter.ota
    ```
 
 2. **Commission the OTA provider** to the same Matter fabric (use node ID 2):
