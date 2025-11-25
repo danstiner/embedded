@@ -28,6 +28,7 @@ void MatterPowerSourcePluginServerInitCallback();
 void MatterGeneralCommissioningPluginServerInitCallback();
 void MatterNetworkCommissioningPluginServerInitCallback();
 void MatterGeneralDiagnosticsPluginServerInitCallback();
+void MatterThreadNetworkDiagnosticsPluginServerInitCallback();
 void MatterAdministratorCommissioningPluginServerInitCallback();
 void MatterOperationalCredentialsPluginServerInitCallback();
 void MatterGroupKeyManagementPluginServerInitCallback();
@@ -35,4 +36,20 @@ void MatterTemperatureMeasurementPluginServerInitCallback();
 void MatterRelativeHumidityMeasurementPluginServerInitCallback();
 void MatterSoilMeasurementPluginServerInitCallback();
 
-#define MATTER_PLUGINS_INIT MatterIdentifyPluginServerInitCallback(); MatterDescriptorPluginServerInitCallback(); MatterAccessControlPluginServerInitCallback(); MatterBasicInformationPluginServerInitCallback(); MatterOtaSoftwareUpdateRequestorPluginServerInitCallback(); MatterPowerSourcePluginServerInitCallback(); MatterGeneralCommissioningPluginServerInitCallback(); MatterNetworkCommissioningPluginServerInitCallback(); MatterGeneralDiagnosticsPluginServerInitCallback(); MatterAdministratorCommissioningPluginServerInitCallback(); MatterOperationalCredentialsPluginServerInitCallback(); MatterGroupKeyManagementPluginServerInitCallback(); MatterTemperatureMeasurementPluginServerInitCallback(); MatterRelativeHumidityMeasurementPluginServerInitCallback(); MatterSoilMeasurementPluginServerInitCallback(); 
+#define MATTER_PLUGINS_INIT                                    \
+  MatterIdentifyPluginServerInitCallback();                    \
+  MatterDescriptorPluginServerInitCallback();                  \
+  MatterAccessControlPluginServerInitCallback();               \
+  MatterBasicInformationPluginServerInitCallback();            \
+  MatterOtaSoftwareUpdateRequestorPluginServerInitCallback();  \
+  MatterPowerSourcePluginServerInitCallback();                 \
+  MatterGeneralCommissioningPluginServerInitCallback();        \
+  MatterNetworkCommissioningPluginServerInitCallback();        \
+  MatterGeneralDiagnosticsPluginServerInitCallback();          \
+  MatterThreadNetworkDiagnosticsPluginServerInitCallback();    \
+  MatterAdministratorCommissioningPluginServerInitCallback();  \
+  MatterOperationalCredentialsPluginServerInitCallback();      \
+  MatterGroupKeyManagementPluginServerInitCallback();          \
+  MatterTemperatureMeasurementPluginServerInitCallback();      \
+  MatterRelativeHumidityMeasurementPluginServerInitCallback(); \
+  MatterSoilMeasurementPluginServerInitCallback();
