@@ -1,10 +1,13 @@
+#include <zephyr/kernel.h>
+
+#ifdef CONFIG_SHELL
+
 #include <app/server/CommissioningWindowManager.h>
 #include <app/server/Server.h>
 #include <lib/core/CHIPError.h>
 #include <lib/support/CodeUtils.h>
 #include <platform/CHIPDeviceLayer.h>
 
-#include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/shell/shell.h>
 
@@ -69,3 +72,5 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 SHELL_CMD_REGISTER(commissioning, &commissioning_cmds, "Commissioning window commands", NULL);
 
 } // namespace
+
+#endif // CONFIG_SHELL
