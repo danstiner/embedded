@@ -2125,6 +2125,9 @@ endpoint 0 {
     callback attribute dataVersion;
     callback attribute stableDataVersion;
     callback attribute leaderRouterId;
+    callback attribute txTotalCount;
+    callback attribute txRetryCount;
+    callback attribute rxTotalCount;
     callback attribute securityPolicy;
     callback attribute channelPage0Mask;
     callback attribute operationalDatasetComponents;

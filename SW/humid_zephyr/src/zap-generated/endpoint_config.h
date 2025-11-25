@@ -54,7 +54,7 @@
   {}
 
 // This is an array of EmberAfAttributeMetadata structures.
-#define GENERATED_ATTRIBUTE_COUNT 135
+#define GENERATED_ATTRIBUTE_COUNT 138
 #define GENERATED_ATTRIBUTES                                                   \
   {                                                                            \
     /* Endpoint: 0, Cluster: Descriptor (server) */                            \
@@ -287,6 +287,12 @@
         {ZAP_EMPTY_DEFAULT(), 0x0000000D, 1, ZAP_TYPE(INT8U),                  \
          ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE) |                                \
              ZAP_ATTRIBUTE_MASK(NULLABLE)}, /* LeaderRouterId */               \
+        {ZAP_EMPTY_DEFAULT(), 0x00000016, 4, ZAP_TYPE(INT32U),                 \
+         ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE)}, /* TxTotalCount */             \
+        {ZAP_EMPTY_DEFAULT(), 0x00000021, 4, ZAP_TYPE(INT32U),                 \
+         ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE)}, /* TxRetryCount */             \
+        {ZAP_EMPTY_DEFAULT(), 0x00000027, 4, ZAP_TYPE(INT32U),                 \
+         ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE)}, /* RxTotalCount */             \
         {ZAP_EMPTY_DEFAULT(), 0x0000003B, 0, ZAP_TYPE(STRUCT),                 \
          ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE) |                                \
              ZAP_ATTRIBUTE_MASK(NULLABLE)}, /* SecurityPolicy */               \
@@ -640,7 +646,7 @@
       /* Endpoint: 0, Cluster: Thread Network Diagnostics (server) */ \
       .clusterId = 0x00000035, \
       .attributes = ZAP_ATTRIBUTE_INDEX(75), \
-      .attributeCount = 21, \
+      .attributeCount = 24, \
       .clusterSize = 6, \
       .mask = ZAP_CLUSTER_MASK(SERVER), \
       .functions = NULL, \
@@ -652,7 +658,7 @@
   { \
       /* Endpoint: 0, Cluster: Administrator Commissioning (server) */ \
       .clusterId = 0x0000003C, \
-      .attributes = ZAP_ATTRIBUTE_INDEX(96), \
+      .attributes = ZAP_ATTRIBUTE_INDEX(99), \
       .attributeCount = 5, \
       .clusterSize = 4, \
       .mask = ZAP_CLUSTER_MASK(SERVER), \
@@ -665,7 +671,7 @@
   { \
       /* Endpoint: 0, Cluster: Operational Credentials (server) */ \
       .clusterId = 0x0000003E, \
-      .attributes = ZAP_ATTRIBUTE_INDEX(101), \
+      .attributes = ZAP_ATTRIBUTE_INDEX(104), \
       .attributeCount = 8, \
       .clusterSize = 6, \
       .mask = ZAP_CLUSTER_MASK(SERVER), \
@@ -678,7 +684,7 @@
   { \
       /* Endpoint: 0, Cluster: Group Key Management (server) */ \
       .clusterId = 0x0000003F, \
-      .attributes = ZAP_ATTRIBUTE_INDEX(109), \
+      .attributes = ZAP_ATTRIBUTE_INDEX(112), \
       .attributeCount = 6, \
       .clusterSize = 0, \
       .mask = ZAP_CLUSTER_MASK(SERVER), \
@@ -691,7 +697,7 @@
   { \
       /* Endpoint: 1, Cluster: Identify (server) */ \
       .clusterId = 0x00000003, \
-      .attributes = ZAP_ATTRIBUTE_INDEX(115), \
+      .attributes = ZAP_ATTRIBUTE_INDEX(118), \
       .attributeCount = 4, \
       .clusterSize = 9, \
       .mask = ZAP_CLUSTER_MASK(SERVER) | ZAP_CLUSTER_MASK(INIT_FUNCTION) | ZAP_CLUSTER_MASK(ATTRIBUTE_CHANGED_FUNCTION), \
@@ -704,7 +710,7 @@
   { \
       /* Endpoint: 1, Cluster: Descriptor (server) */ \
       .clusterId = 0x0000001D, \
-      .attributes = ZAP_ATTRIBUTE_INDEX(119), \
+      .attributes = ZAP_ATTRIBUTE_INDEX(122), \
       .attributeCount = 6, \
       .clusterSize = 0, \
       .mask = ZAP_CLUSTER_MASK(SERVER), \
@@ -717,7 +723,7 @@
   { \
       /* Endpoint: 1, Cluster: Temperature Measurement (server) */ \
       .clusterId = 0x00000402, \
-      .attributes = ZAP_ATTRIBUTE_INDEX(125), \
+      .attributes = ZAP_ATTRIBUTE_INDEX(128), \
       .attributeCount = 5, \
       .clusterSize = 12, \
       .mask = ZAP_CLUSTER_MASK(SERVER), \
@@ -730,7 +736,7 @@
   { \
       /* Endpoint: 1, Cluster: Relative Humidity Measurement (server) */ \
       .clusterId = 0x00000405, \
-      .attributes = ZAP_ATTRIBUTE_INDEX(130), \
+      .attributes = ZAP_ATTRIBUTE_INDEX(133), \
       .attributeCount = 5, \
       .clusterSize = 12, \
       .mask = ZAP_CLUSTER_MASK(SERVER), \
