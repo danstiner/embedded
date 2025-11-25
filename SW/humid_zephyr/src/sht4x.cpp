@@ -15,23 +15,25 @@ CHIP_ERROR Sht4x::Init()
 	CHIP_ERROR err = CHIP_NO_ERROR;
 
 	LOG_DBG("Initialize sensirion_sht4x");
-
+	
 	sht = DEVICE_DT_GET_ANY(sensirion_sht4x);
 
-//     if (!device_is_ready(sht))
-//     {
-//         return CHIP_ERROR_INTERNAL;
-//     }
+    if (!device_is_ready(sht))
+    {
+		// TODO handle failure more gracefully
+        return CHIP_NO_ERROR;
+    }
 
-// #if CONFIG_APP_SHT4X_HEATER
-// 	struct sensor_value heater_p;
-// 	struct sensor_value heater_d;
 
-// 	heater_p.val1 = CONFIG_APP_HEATER_PULSE_POWER;
-// 	heater_d.val1 = !!CONFIG_APP_HEATER_PULSE_DURATION_LONG;
-// 	sensor_attr_set(sht, SENSOR_CHAN_ALL, SENSOR_ATTR_SHT4X_HEATER_POWER, &heater_p);
-// 	sensor_attr_set(sht, SENSOR_CHAN_ALL, SENSOR_ATTR_SHT4X_HEATER_DURATION, &heater_d);
-// #endif
+#if APP_SHT4X_USE_HEATER
+	struct sensor_value heater_p;
+	struct sensor_value heater_d;
+
+	heater_p.val1 = CONFIG_SHT4X_HEATER_PULSE_POWER;
+	heater_d.val1 = !!CONFIG_SHT4X_HEATER_PULSE_DURATION_LONG;
+	sensor_attr_set(sht, SENSOR_CHAN_ALL, SENSOR_ATTR_SHT4X_HEATER_POWER, &heater_p);
+	sensor_attr_set(sht, SENSOR_CHAN_ALL, SENSOR_ATTR_SHT4X_HEATER_DURATION, &heater_d);
+#endif
 
 	return err;
 }
@@ -63,6 +65,29 @@ bool Sht4x::Read(int16_t &temperature, uint16_t &humidity)
 		LOG_ERR("Failed to read SHT4X humidity: %d", rc);
 		return false;
 	}
+
+#if CONFIG_SHT4X_USE_HEATER
+		/*
+		 * Conditions in which it makes sense to activate the heater
+		 * are application/environment specific.
+		 *
+		 * The heater should not be used above SHT4X_HEATER_MAX_TEMP (65 °C)
+		 * as stated in the datasheet.
+		 *
+		 * The temperature data will not be updated here for obvious reasons.
+		 **/
+		if (hum.val1 > CONFIG_SHT4X_HEATER_HUMIDITY_THRESH &&
+		    temp.val1 < SHT4X_HEATER_MAX_TEMP_C) {
+			LOG_INF("Activating heater");
+
+			if (sht4x_fetch_with_heater(sht)) {
+				LOG_ERR("Failed to fetch sample from SHT4X device");
+				return false;
+			}
+
+			sensor_channel_get(sht, SENSOR_CHAN_HUMIDITY, &hum);
+		}
+#endif
 
 	// Convert to Matter format
 	// Temperature: 0.01°C units

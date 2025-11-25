@@ -4,6 +4,9 @@
 
 using namespace chip;
 
+// Above this temperature the heater should not be used
+#define SHT4X_HEATER_MAX_TEMP_C 65
+
 class Sht4x {
 public:
 	CHIP_ERROR Init();
