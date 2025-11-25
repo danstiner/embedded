@@ -1,6 +1,6 @@
 # nRF54 Humidity Sensor
 
-Low power humidity and water sensor utilizing the nRF54L15.
+Low power sensor for relative humidity, temperature, and water leaks utilizing the nRF54L15 microcontroller.
 
 ## Hardware Requirements
 
@@ -12,38 +12,29 @@ Low power humidity and water sensor utilizing the nRF54L15.
 ### Prerequisites
 - nRF Connect SDK v2.6.0 or later installed
 
-### Build
+### Builds
 
-**Debug build** (with logging and console):
+**Debug build** (with logging and console, uses external flash for second boot slot):
 ```bash
 west build -b nrf54l15dk/nrf54l15/cpuapp -p
 ```
 
-**Release build** (optimized for low power):
+**Release build** (optimized for low power, uses external flash for second boot slot):
 ```bash
 west build -b nrf54l15dk/nrf54l15/cpuapp -p -- -DEXTRA_CONF_FILE=prj_release.conf
 ```
 
-**Internal build** (only uses internal storage)
+**Production build** (optimized for low power and only uses internal storage)
 
-For the nRF54L15, we can skip external storage and use the internal 1.5MB RRAM for both boot slots.
+The nRF54L15 has enough internal storage (1524KB RRAM) that in release mode we can fit both A/B boot partitions internally, no external flash chip is needed.
 
-To enable this, set the ``FILE_SUFFIX`` CMake option to ``internal``.
 ```bash
-west build -b nrf54l15dk/nrf54l15/cpuapp -p -- -DEXTRA_CONF_FILE=prj_release.conf -DFILE_SUFFIX=internal
+west build -b nrf54l15dk/nrf54l15/cpuapp -p -- -DEXTRA_CONF_FILE=prj_release.conf -DEXTRA_CONF_FILE=prj_production.conf -DFILE_SUFFIX=internal
 ```
 
 ### Flash
 ```bash
 west flash
-```
-
-### Edit Matter Clusters (ZAP Configuration)
-
-To add or modify Matter clusters:
-
-```bash
-west zap-gui
 ```
 
 ### Monitor
@@ -143,11 +134,9 @@ OTA is enabled by default with:
 1. **Make your code changes**
 
 2. **Build with new version**:
-   ```bash
-   west build -b nrf54l15dk/nrf54l15/cpuapp -p -- \
-     -DEXTRA_CONF_FILE=prj_release.conf \
-     -DCONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION='"1.1.0"'
-   ```
+
+Update VERSION
+Do a pristine build (The generated CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION defaults to VERSION, but does not update when VERSION is changed)
 
 3. **OTA image location**:
    ```
@@ -181,10 +170,17 @@ OTA is enabled by default with:
      2 0
    ```
 
+
+chip-tool otasoftwareupdaterequestor write default-otaproviders '[{"fabricIndex": 1, "providerNodeID": 2, "endpoint": 0}]' 1 0
+
 4. **Announce the OTA provider** to your device (assuming device is node 1):
    ```bash
-   chip-tool otasoftwareupdaterequestor announce-ota-provider 2 0 0 0 1 0
+   chip-tool otasoftwareupdaterequestor announce-otaprovider 2 0 0 0 1 0
    ```
+
+   chip-tool otasoftwareupdaterequestor read default-otaproviders 1 0
+
+chip-tool basicinformation read software-version-string 1 0
 
 5. **Monitor the update** via device serial console:
    ```bash
@@ -258,72 +254,12 @@ To manually trigger rollback (via serial console):
 uart:~$ mcuboot confirm 0  # Reject current, revert to previous
 ```
 
-### OTA Power Consumption
+## Development
 
-For battery-powered deployment:
-- **Idle**: <1µA (external flash in deep power-down)
-- **During OTA download**: ~5-15mA for 1-5 minutes (rare event)
-- **Annual impact**: Negligible for 1-2 updates per year
+### Modify Matter Clusters
 
-## Power Management
-
-### Normal Operation (Battery Good)
-
-The device operates in a periodic measurement cycle:
-1. **Boot/Wakeup**: Initialize peripherals and check retained RAM
-2. **Measure**: Read temperature and battery voltage (~5-10ms active)
-3. **Sleep**: Enter System OFF mode for 300 seconds (<5µA)
-4. **Repeat**: GRTC timer wakes device for next measurement
-
-## Configuration
-
-### Measurement Interval
-
-Edit `prj.conf` or `prj_release.conf`:
-```
-CONFIG_APP_MEASUREMENT_INTERVAL_SEC=300   # 5 minutes
-```
-
-Or override via Kconfig menuconfig.
-
-### Voltage Divider
-
-Edit `nrf54l15dk_nrf54l15_cpuapp.overlay`:
-```dts
-vbatt {
-    output-ohms = <22000000>;  /* R (lower resistor) */
-    full-ohms = <44000000>;    /* 2×R (total) */
-};
-```
-
-### ADC Pin
-
-Edit `nrf54l15dk_nrf54l15_cpuapp.overlay`:
-```dts
-&adc {
-    channel@0 {
-        zephyr,input-positive = <NRF_SAADC_AIN0>;  /* P0.00 - change as needed */
-    };
-};
-```
-
-## Project Structure
-
-```
-nrf54_soil/
-├── CMakeLists.txt                         # Build configuration
-├── Kconfig                                # Application Kconfig options
-├── prj.conf                               # Debug config (full logging)
-├── prj_release.conf                       # Release config (power optimized)
-├── nrf54l15dk_nrf54l15_cpuapp.overlay    # Device tree (ADC, retention RAM)
-├── src/
-│   ├── main.c                            # Main app with System OFF loop
-│   ├── battery.c                         # Battery monitoring
-│   ├── battery.h                         # Battery API
-│   ├── retained.c                        # Retained RAM management
-│   └── retained.h                        # Retained data structure
-├── VERSION                                # Version tracking
-└── README.md                             # This file
+```bash
+west zap-gui
 ```
 
 ## Troubleshooting
