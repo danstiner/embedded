@@ -33,7 +33,7 @@ use rs_matter_embassy::matter::dm::devices::DEV_TYPE_ON_OFF_LIGHT;
 use rs_matter_embassy::matter::dm::{Async, Dataver, EmptyHandler, Endpoint, EpClMatcher, Node};
 use rs_matter_embassy::matter::utils::init::InitMaybeUninit;
 use rs_matter_embassy::matter::{clusters, devices, BasicCommData};
-use rs_matter_embassy::rand::nrf::{nrf_init_rand, nrf_rand};
+use rs_matter_embassy::rand::nrf::{nrf54_init_rand, nrf54_rand};
 use rs_matter_embassy::wireless::nrf::{
     NrfThreadClockInterruptHandler, NrfThreadDriver, NrfThreadHighPrioInterruptHandler,
     NrfThreadLowPrioInterruptHandler, NrfThreadRadioResources, NrfThreadRadioRunner,
@@ -42,6 +42,7 @@ use rs_matter_embassy::wireless::{EmbassyThread, EmbassyThreadMatterStack};
 
 use defmt_rtt as _;
 use panic_rtt_target as _;
+use static_cell::StaticCell;
 use tinyrlibc as _;
 use cortex_m as _;
 
@@ -82,22 +83,11 @@ unsafe fn HardFault(ef: &cortex_m_rt::ExceptionFrame) -> ! {
     panic!("HardFault");
 }
 
-macro_rules! mk_static {
-    ($t:ty) => {{
-        static STATIC_CELL: static_cell::StaticCell<$t> = static_cell::StaticCell::new();
-        STATIC_CELL.uninit()
-    }};
-    ($t:ty,$val:expr) => {{
-        mk_static!($t).write($val)
-    }};
-}
-
 bind_interrupts!(struct Irqs {
     SWI00 => NrfThreadLowPrioInterruptHandler;
     CLOCK_POWER => NrfThreadClockInterruptHandler;
     RADIO_0 => NrfThreadHighPrioInterruptHandler;
     TIMER10 => NrfThreadHighPrioInterruptHandler;
-    // TIMER20 => NrfThreadHighPrioInterruptHandler;
     GRTC_3 => NrfThreadHighPrioInterruptHandler;
 });
 
@@ -118,19 +108,25 @@ static RADIO_EXECUTOR: InterruptExecutor = InterruptExecutor::new();
 ///
 /// If - for your platform - this size is not enough, increase it until
 /// the program runs without panics during the stack initialization.
-/// Increased from 28000 -> 40000 -> 50000 (was using 21132/28000 = 75%)
-const BUMP_SIZE: usize = 50000;
+const BUMP_SIZE: usize = 24000;
+const HEAP_SIZE: usize = 8192;
+
+static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::zeroed(); HEAP_SIZE];
+static MATTER_STACK: StaticCell<EmbassyThreadMatterStack<BUMP_SIZE, ()>> = StaticCell::new();
+static THREAD_RESOURCES: StaticCell<NrfThreadRadioResources> = StaticCell::new();
 
 #[global_allocator]
 static HEAP: LlffHeap = LlffHeap::empty();
 
 #[embassy_executor::main]
 async fn main(_s: Spawner) {
-    // CRITICAL: First log to see if we even get to main()
-    // This uses panic_rtt_target which should work even if defmt-rtt fails
-    rtt_target::rprintln!("=== EARLY: Entered main() ===");
-
     info!("Starting...");
+
+    // Initialize heap FIRST before any other initialization that might allocate
+    debug!("Initializing heap...");
+    {
+        unsafe { HEAP.init(addr_of_mut!(HEAP_MEM) as usize, HEAP_SIZE) }
+    }
 
     // Necessary `nrf-hal` initialization boilerplate
     let mut config = embassy_nrf::config::Config::default();
@@ -144,49 +140,24 @@ async fn main(_s: Spawner) {
     debug!("Initializing embassy-nrf...");
     let p = embassy_nrf::init(config);
 
-    // `rs-matter` uses the `x509` crate which (still) needs a few kilos of heap space
-    debug!("Initializing heap...");
-    {
-        const HEAP_SIZE: usize = 8192;
-
-        static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
-        unsafe { HEAP.init(addr_of_mut!(HEAP_MEM) as usize, HEAP_SIZE) }
-    }
-
     info!("CRACEN start");
     // For nRF54L, use a fixed discriminator for now
     // TODO: Implement proper CRACEN RNG support for nRF54L
     let discriminator = 0x570u16;
 
     // TODO: Get proper IEEE EUI-64 from device
-    let ieee_eui64 = [0x02, 0x05, 0x02, 0x00, 0x00, 0x00, 0x00, 0x01];
+    let ieee_eui64 = [0x03, 0x05, 0x05, 0x05, 0x00, 0x00, 0x00, 0x01];
 
     // To erase generics, `Matter` takes a rand `fn` rather than a trait or a closure,
     // so we need to initialize the global `rand` fn once
     // For nRF54L, this uses a placeholder PRNG for now
     debug!("Initializing RNG...");
-    nrf_init_rand(0x12345678);
-
-    // Allocate the Matter stack.
-    // For MCUs, it is best to allocate it statically, so as to avoid program stack blowups (its memory footprint is ~ 35 to 50KB).
-    // It is also (currently) a mandatory requirement when the wireless stack variation is used.
-    debug!("Initializing Matter stack...");
-    let stack = mk_static!(EmbassyThreadMatterStack<BUMP_SIZE, ()>).init_with(
-        EmbassyThreadMatterStack::init(
-            &TEST_BASIC_INFO,
-            BasicCommData {
-                password: TEST_DEV_COMM.password,
-                discriminator,
-            },
-            &TEST_DEV_ATT,
-            epoch,
-            nrf_rand,
-        ),
-    );
+    nrf54_init_rand(0x12345678);
 
     debug!("Initializing Thread driver...");
+    let thread_resources = THREAD_RESOURCES.uninit().init_with(NrfThreadRadioResources::new());
     let (thread_driver, thread_radio_runner) = NrfThreadDriver::new(
-        mk_static!(NrfThreadRadioResources, NrfThreadRadioResources::new()),
+        thread_resources,
         p.RADIO,
         p.GRTC,
         p.TIMER10,
@@ -215,8 +186,25 @@ async fn main(_s: Spawner) {
         p.PPIB10_CH3,
         p.PPIB11_CH0,
         p.PPIB21_CH0,
-        stack.matter().rand(),
+        nrf54_rand,
         Irqs,
+    );
+
+    // Allocate the Matter stack.
+    // For MCUs, it is best to allocate it statically, so as to avoid program stack blowups (its memory footprint is ~ 35 to 50KB).
+    // It is also (currently) a mandatory requirement when the wireless stack variation is used.
+    debug!("Initializing Matter stack...");
+    let stack = MATTER_STACK.uninit().init_with(
+        EmbassyThreadMatterStack::init(
+            &TEST_BASIC_INFO,
+            BasicCommData {
+                password: TEST_DEV_COMM.password,
+                discriminator,
+            },
+            &TEST_DEV_ATT,
+            epoch,
+            nrf54_rand,
+        )
     );
 
     // High-priority executor: SWI01, priority level 6
@@ -261,12 +249,11 @@ async fn main(_s: Spawner) {
 
     debug!("Creating persist...");
 
-    // Initialize flash for Matter settings persistence
-    // NVS region: last 64KB of flash (see memory.x)
-    const NVS_START: u32 = 0x00000000 + (1524 * 1024) - (64 * 1024);
+    // Create RRAM store for Matter settings persistence
+    // NVS region: last 24KB of RRAM (see memory.x)
+    const NVS_START: u32 = 0x00000000 + (1524 * 1024) - (24 * 1024);
     const NVS_END: u32 = 0x00000000 + (1524 * 1024);
 
-    // nRF54L15 uses RRAMC (not NVMC)
     use embassy_embedded_hal::adapter::BlockingAsync;
     let rramc = embassy_nrf::rramc::Rramc::new(p.RRAMC);
     let flash_async = BlockingAsync::new(rramc);
@@ -300,10 +287,19 @@ async fn main(_s: Spawner) {
     unwrap!(matter.await);
 }
 
+#[embassy_executor::task]
+async fn run_radio(mut runner: NrfThreadRadioRunner<'static, 'static>) -> ! {
+    debug!("Running radio task...");
+    runner.run().await
+}
+
 /// Basic info about our device
 /// Both the matter stack as well as our mDNS-to-SRP bridge need this, hence extracted out
 const TEST_BASIC_INFO: BasicInfoConfig = BasicInfoConfig {
-    sai: Some(500),
+    // Increase Session Active Interval to accommodate slower crypto operations
+    // The default SPAKE2+ handshake can take several seconds on resource-constrained devices
+    sai: Some(3000),
+    sii: Some(10000),
     ..TEST_DEV_DET
 };
 
@@ -323,9 +319,3 @@ const NODE: Node = Node {
         },
     ],
 };
-
-#[embassy_executor::task]
-async fn run_radio(mut runner: NrfThreadRadioRunner<'static, 'static>) -> ! {
-    debug!("Running radio task...");
-    runner.run().await
-}

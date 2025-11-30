@@ -11,6 +11,7 @@ nrf-pac = { version = "0.1.0", features = ["nrf54l15-app", "defmt"] }
 defmt = "1.0"
 defmt-rtt = "1.0"
 panic-probe = { version = "1.0", features = ["print-defmt"] }
+panic-reset = "0.1"
 heapless = "0.9"
 rand_core = "0.9"
 static_cell = "2.1"
@@ -39,6 +40,14 @@ path = "bin/idle.rs"
 name = "sleep"
 path = "bin/sleep.rs"
 
+[[bin]]
+name = "sleep_no_rtt"
+path = "bin/sleep_no_rtt.rs"
+
+[[bin]]
+name = "sleep_gpio_wake"
+path = "bin/sleep_gpio_wake.rs"
+
 [profile.release]
 # LLVM can perform better optimizations using a single thread.
 codegen-units = 1
@@ -47,3 +56,13 @@ lto = "fat"
 debug = 2
 debug-assertions = false
 overflow-checks = false
+
+[patch.crates-io]
+nrf-pac = { path = "/Users/dan/github/embassy-rs/nrf-pac" }
+embassy-nrf = { path = "/Users/dan/github/embassy-rs/embassy/embassy-nrf" }
+embassy-executor = { path = "/Users/dan/github/embassy-rs/embassy/embassy-executor" }
+embassy-time = { path = "/Users/dan/github/embassy-rs/embassy/embassy-time" }
+embassy-sync = { path = "/Users/dan/github/embassy-rs/embassy/embassy-sync" }
+embassy-futures = { path = "/Users/dan/github/embassy-rs/embassy/embassy-futures" }
+embassy-time-driver = { path = "/Users/dan/github/embassy-rs/embassy/embassy-time-driver" }
+embassy-embedded-hal = { path = "/Users/dan/github/embassy-rs/embassy/embassy-embedded-hal" }

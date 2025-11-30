@@ -109,7 +109,7 @@ static RADIO_EXECUTOR: InterruptExecutor = InterruptExecutor::new();
 /// If - for your platform - this size is not enough, increase it until
 /// the program runs without panics during the stack initialization.
 const BUMP_SIZE: usize = 24000;
-const HEAP_SIZE: usize = 8192;
+const HEAP_SIZE: usize = 16384;
 
 static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::zeroed(); HEAP_SIZE];
 static MATTER_STACK: StaticCell<EmbassyThreadMatterStack<BUMP_SIZE, ()>> = StaticCell::new();
@@ -151,65 +151,44 @@ async fn main(_s: Spawner) {
     // so we need to initialize the global `rand` fn once
     // For nRF54L, this uses a placeholder PRNG for now
     debug!("Initializing RNG...");
-    nrf54_init_rand(0x12345678);
+    // nrf54_init_rand(0x12345678);
 
     // Allocate the Matter stack.
     // For MCUs, it is best to allocate it statically, so as to avoid program stack blowups (its memory footprint is ~ 35 to 50KB).
     // It is also (currently) a mandatory requirement when the wireless stack variation is used.
-    debug!("Initializing Matter stack...");
-    let stack = MATTER_STACK.uninit().init_with(
-        EmbassyThreadMatterStack::init(
-            &TEST_BASIC_INFO,
-            BasicCommData {
-                password: TEST_DEV_COMM.password,
-                discriminator,
-            },
-            &TEST_DEV_ATT,
-            epoch,
-            nrf54_rand,
-        )
-    );
+    // debug!("Initializing Matter stack...");
+    // let stack = MATTER_STACK.uninit().init_with(
+    //     EmbassyThreadMatterStack::init(
+    //         &TEST_BASIC_INFO,
+    //         BasicCommData {
+    //             password: TEST_DEV_COMM.password,
+    //             discriminator,
+    //         },
+    //         &TEST_DEV_ATT,
+    //         epoch,
+    //         nrf54_rand,
+    //     )
+    // );
 
-    debug!("Creating persist...");
+    debug!("Creating settings store...");
 
-    // Initialize flash for Matter settings persistence
-    // NVS region: last 64KB of flash (see memory.x)
-    const NVS_START: u32 = 0x00000000 + (1524 * 1024) - (64 * 1024);
+    // Setup RRAM region for Matter settings persistence
+    // NVS region: last 24KB of RRAM (see memory.x)
+    const NVS_START: u32 = 0x00000000 + (1524 * 1024) - (24 * 1024);
     const NVS_END: u32 = 0x00000000 + (1524 * 1024);
 
-    debug!("NVS region: {:#x}..{:#x}", NVS_START, NVS_END);
+    // use embassy_embedded_hal::adapter::BlockingAsync;
+    // let rramc = embassy_nrf::rramc::Rramc::new(p.RRAMC);
+    // let flash_async = BlockingAsync::new(rramc);
+    // let flash_store = rs_matter_embassy::persist::EmbassyKvBlobStore::new(
+    //     flash_async,
+    //     NVS_START..NVS_END,
+    // );
 
-    // Check what state the NVS region is in after erase
-    {
-        let flash_ptr = NVS_START as *const u32;
-        let first_words: [u32; 8] = unsafe {
-            [
-                flash_ptr.read_volatile(),
-                flash_ptr.add(1).read_volatile(),
-                flash_ptr.add(2).read_volatile(),
-                flash_ptr.add(3).read_volatile(),
-                flash_ptr.add(4).read_volatile(),
-                flash_ptr.add(5).read_volatile(),
-                flash_ptr.add(6).read_volatile(),
-                flash_ptr.add(7).read_volatile(),
-            ]
-        };
-        debug!("First 8 words of NVS: {:08x}", first_words);
-    }
-
-    // nRF54L15 uses RRAMC (not NVMC)
-    use embassy_embedded_hal::adapter::BlockingAsync;
-    let rramc = embassy_nrf::rramc::Rramc::new(p.RRAMC);
-    let flash_async = BlockingAsync::new(rramc);
-    let flash_store = rs_matter_embassy::persist::EmbassyKvBlobStore::new(
-        flash_async,
-        NVS_START..NVS_END,
-    );
-
-    let persist = unwrap!(stack
-        .create_persist_with_comm_window(flash_store)
-        .await);
-    debug!("Persist created successfully");
+    // let persist = unwrap!(stack
+    //     .create_persist_with_comm_window(flash_store)
+    //     .await);
+    // debug!("Persist created successfully");
 
     // // Run the Matter stack with our handler
     // // Using `pin!` is completely optional, but reduces the size of the final future
@@ -230,7 +209,11 @@ async fn main(_s: Spawner) {
     // // Run Matter
     // unwrap!(matter.await);
 
-    defmt::error!("Done.");
+    // Sleep in a loop so the executor doesn't exit
+    loop {
+        info!("Done, sleeping...");
+        embassy_time::Timer::after(embassy_time::Duration::from_secs(3600)).await;
+    }
 }
 
 #[embassy_executor::task]
@@ -242,7 +225,9 @@ async fn run_radio(mut runner: NrfThreadRadioRunner<'static, 'static>) -> ! {
 /// Basic info about our device
 /// Both the matter stack as well as our mDNS-to-SRP bridge need this, hence extracted out
 const TEST_BASIC_INFO: BasicInfoConfig = BasicInfoConfig {
-    sai: Some(500),
+    // Increase Session Active Interval to 5000ms to accommodate slower crypto operations
+    // The default SPAKE2+ handshake can take several seconds on resource-constrained devices
+    sai: Some(5000),
     ..TEST_DEV_DET
 };
 

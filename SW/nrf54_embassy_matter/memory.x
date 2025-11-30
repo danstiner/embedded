@@ -1,7 +1,7 @@
 MEMORY
 {
-  /* Reserve last 64KB for Matter NVS persistence */
-  FLASH : ORIGIN = 0x00000000, LENGTH = 1524K - 64K
-  NVS : ORIGIN = 0x00000000 + 1524K - 64K, LENGTH = 64K
+  /* Reserve last 24KB for Matter NVS persistence */
+  FLASH : ORIGIN = 0x00000000, LENGTH = 1524K - 24K
+  NVS : ORIGIN = 0x00000000 + 1524K - 24K, LENGTH = 24K
   RAM : ORIGIN = 0x20000000, LENGTH = 256K
 }

@@ -58,16 +58,7 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [
-        [
-          "lib_footprint_mismatch|108475000|104000000|64e5b04e-7538-4a47-9bb7-1fffd927acea|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "lib_footprint_mismatch|112537500|109000000|ea9013fa-a244-4a36-830b-2cfd00a53d72|00000000-0000-0000-0000-000000000000",
-          ""
-        ]
-      ],
+      "drc_exclusions": [],
       "meta": {
         "version": 2
       },
@@ -473,14 +464,14 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "Breakout_BQ25570_Cap.kicad_pro",
+    "filename": "Breakout_ADP5091_Cap.kicad_pro",
     "version": 3
   },
   "net_settings": {
     "classes": [
       {
         "bus_width": 12,
-        "clearance": 0.2,
+        "clearance": 0.1524,
         "diff_pair_gap": 0.1524,
         "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.1524,
@@ -497,6 +488,20 @@
         "wire_width": 6
       },
       {
+        "clearance": 0.1524,
+        "diff_pair_gap": 0.1524,
+        "diff_pair_width": 0.1524,
+        "microvia_diameter": 0.508,
+        "microvia_drill": 0.254,
+        "name": "Min",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 0,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.1524,
+        "via_diameter": 0.508,
+        "via_drill": 0.254
+      },
+      {
         "clearance": 0.2,
         "diff_pair_gap": 0.1524,
         "diff_pair_width": 0.1524,
@@ -504,7 +509,7 @@
         "microvia_drill": 0.254,
         "name": "Power",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
-        "priority": 2,
+        "priority": 3,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.4,
         "via_diameter": 0.508,
@@ -518,7 +523,7 @@
         "microvia_drill": 0.254,
         "name": "USB Data",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
-        "priority": 1,
+        "priority": 2,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.2,
         "via_diameter": 0.508,
@@ -532,7 +537,7 @@
         "microvia_drill": 0.254,
         "name": "USB Data Small",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
-        "priority": 0,
+        "priority": 1,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.3,
         "via_diameter": 0.508,
@@ -583,7 +588,7 @@
       "plot": "/Users/dan/Downloads/out/",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "Breakout_BQ25570_Cap.step",
+      "step": "Breakout_ADP5091_Cap.step",
       "svg": "",
       "vrml": ""
     },
@@ -798,7 +803,7 @@
         "version": 0
       },
       "model_mode": 4,
-      "workbook_filename": "Breakout_BQ25570_Cap.wbk"
+      "workbook_filename": "Breakout_ADP5091_Cap.wbk"
     },
     "page_layout_descr_file": "",
     "plot_directory": "",
@@ -819,6 +824,7 @@
     ]
   ],
   "text_variables": {
-    "REVISION": "2025v2"
+    "REVISION": "2025v1",
+    "TITLE": "ADP5091 Solar Harvester Breakout"
   }
 }

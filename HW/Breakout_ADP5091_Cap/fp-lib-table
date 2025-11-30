@@ -1,0 +1,5 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "MountingHoleCompact")(type "KiCad")(uri "${KIPRJMOD}/Components/Mounting/MountingHoleCompact.pretty")(options "")(descr ""))
+  (lib (name "ADP5091ACPZ_1_R7")(type "KiCad")(uri "${KIPRJMOD}/Components/ADP5091ACPZ_1_R7/footprints.pretty")(options "")(descr ""))
+)

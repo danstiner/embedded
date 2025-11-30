@@ -1,6 +1,23 @@
 [default.general]
 chip = "nRF54L15"
 
-# Enable Real Time Transfer for debug output over serial SWD/JTAG
+[default.probe]
+protocol = "Swd"
+speed = 2000
+
 [default.rtt]
+enabled = false
+log_enabled = true
+log_path = "./logs"
+
+[default.gdb]
 enabled = true
+
+[default.flashing]
+enabled = true
+do_chip_erase = true
+
+[default.reset]
+# When flashing is enabled as well, the target will be reset after flashing regardless of this setting.
+enabled = true
+halt_afterwards = true

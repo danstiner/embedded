@@ -5,7 +5,7 @@ Low power sensor for relative humidity, temperature, and water leaks utilizing t
 ## Hardware Requirements
 
 ### Development Board
-- nRF54L15 DK (PCA10156)
+- nRF54L15 DK
 
 ## Build Instructions
 

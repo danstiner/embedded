@@ -1,11 +1,26 @@
 #![no_std]
 #![no_main]
 
+use core::sync::atomic::{AtomicBool, Ordering};
 use embassy_executor::Spawner;
 use embassy_nrf::gpio::{Level, Output, OutputDrive};
+use embassy_nrf::interrupt;
 use embassy_time::Timer;
 use nrf_pac as pac;
 use panic_reset as _;
+
+/// Flag set by GRTC interrupt when debugger is attached
+static GRTC_WAKE_FLAG: AtomicBool = AtomicBool::new(false);
+
+/// GRTC interrupt handler (only used when debugger attached)
+#[interrupt]
+fn GRTC_0() {
+    let grtc = unsafe { &*pac::GRTC_S::ptr() };
+    // Clear the compare event
+    grtc.events_compare(1).write_value(0);
+    // Set wake flag
+    GRTC_WAKE_FLAG.store(true, Ordering::Release);
+}
 
 /// GRTC runs at 1 MHz, so 1,000,000 ticks = 1 second
 const GRTC_CLOCK_FREQ: u64 = 1_000_000;
@@ -19,15 +34,21 @@ fn start_grtc() {
     grtc.mode().modify(|w| w.set_syscounteren(true));
     grtc.tasks_start().write_value(1);
 
-    // Try to set KEEPRUNNING to keep GRTC active during System OFF
-    // This register might not be in the PAC yet, so use raw pointer
-    // unsafe {
-    //     let grtc_base = 0x500E_2000 as *mut u32;
-    //     // KEEPRUNNING register is typically at offset 0x704
-    //     let keeprunning = grtc_base.add(0x704 / 4);
-    //     // Set bit 0 to keep GRTC running in System OFF
-    //     core::ptr::write_volatile(keeprunning, 0x1);
-    // }
+    // Set KEEPRUNNING to keep GRTC active during System OFF
+    // This register is not in the PAC yet, so use raw pointer
+    // Based on nrfx, we need to set the domain bit (bit 0 for domain 0)
+    unsafe {
+        let grtc_base = 0x500E_2000 as *mut u32; // GRTC_S base address
+        // KEEPRUNNING register - need to find correct offset
+        // Try multiple possible offsets
+        for offset in [0x704, 0x700, 0x708] {
+            let keeprunning = grtc_base.add(offset / 4);
+            // Read current value
+            let current = core::ptr::read_volatile(keeprunning);
+            // Set bit 0 (domain 0 keep running request)
+            core::ptr::write_volatile(keeprunning, current | 0x1);
+        }
+    }
 }
 
 /// Configure GRTC to wake from System OFF after specified ticks
@@ -77,16 +98,51 @@ fn configure_grtc_wakeup(ticks: u64) {
         .cch()
         .write_value(pac::grtc::regs::Cch(wake_high));
 
-    // Enable ONLY CC[1] - no interrupt needed for System OFF wake!
+    // Enable ONLY CC[1]
     grtc.cc(1).ccen().write(|w| w.set_active(true));
+
+    // If debugger attached (using WFI instead of System OFF), enable interrupt
+    if is_debugger_attached() {
+        grtc.intenset(0).write(|w| w.set_compare1(true));
+        // Enable GRTC interrupt in NVIC
+        unsafe {
+            cortex_m::peripheral::NVIC::unmask(pac::Interrupt::GRTC_0);
+        }
+    }
 
     // Critical: Wait for CC latch
     // Give time for the compare value to latch properly
     cortex_m::asm::delay(1000); // ~1ms at typical CPU speed
 }
 
-/// Enter System OFF mode
+/// Check if debugger is attached
+fn is_debugger_attached() -> bool {
+    // Check DHCSR register - bit 0 (C_DEBUGEN) indicates debugger attached
+    unsafe {
+        let dhcsr = 0xE000_EDF0 as *const u32;
+        let value = core::ptr::read_volatile(dhcsr);
+        (value & 0x1) != 0
+    }
+}
+
+/// Enter System OFF mode (or WFI if debugger attached)
 fn system_off(led: &mut Output) -> ! {
+    // If debugger attached, use WFI instead of System OFF
+    if is_debugger_attached() {
+        // Keep RTC and GRTC running, just sleep the CPU
+        loop {
+            cortex_m::asm::wfi(); // Wake on GRTC interrupt
+            // Check if GRTC compare event triggered
+            let grtc = &pac::GRTC_S;
+            if grtc.events_compare(1).read() != 0 {
+                // Clear event and reset to trigger wake
+                grtc.events_compare(1).write_value(0);
+                cortex_m::asm::delay(100);
+                unsafe { cortex_m::peripheral::SCB::sys_reset(); }
+            }
+        }
+    }
+
     let regulators = &pac::REGULATORS_S;
 
     // Disable RTC30 (embassy time driver)
@@ -201,11 +257,32 @@ async fn main(_spawner: Spawner) {
         .resetreas()
         .write_value(pac::reset::regs::Resetreas(0xFFFFFFFF));
 
-    // Start GRTC only on first boot (not after wake from System OFF)
-    // When waking from System OFF, GRTC is still running due to KEEPRUNNING
-    // if !reset_reason.grtc() {
+    // If we woke from GRTC, check if it's still running
+    if reset_reason.grtc() {
+        let grtc = &pac::GRTC_S;
+
+        // Read counter to see if it's incrementing
+        grtc.tasks_capture(0).write_value(1);
+        let counter1_low = grtc.cc(0).ccl().read();
+        let counter1_high = grtc.cc(0).cch().read().cch();
+        let counter1 = (counter1_high as u64) << 32 | counter1_low as u64;
+
+        // Blink once if counter is zero (GRTC stopped)
+        if counter1 == 0 {
+            led.set_high();
+            Timer::after_millis(500).await;
+            led.set_low();
+            Timer::after_millis(500).await;
+        }
+
+        // Clear the compare event that woke us
+        grtc.events_compare(1).write_value(0);
+        // Disable the channel
+        grtc.cc(1).ccen().write(|w| w.set_active(false));
+    }
+
+    // Always start GRTC (even after wake)
     start_grtc();
-    // }
 
     // Configure wake time
     configure_grtc_wakeup(SLEEP_DURATION_S * GRTC_CLOCK_FREQ);

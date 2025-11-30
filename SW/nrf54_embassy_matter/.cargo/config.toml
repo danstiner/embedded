@@ -3,7 +3,8 @@
 target = "thumbv8m.main-none-eabihf"
 
 [target.thumbv8m.main-none-eabihf]
-runner = "probe-rs run --chip nRF54L15 --no-catch-reset --no-catch-hardfault --skip-section nvm"
+runner = "probe-rs run --chip nRF54L15 --speed 2000 --no-catch-reset --no-catch-hardfault --skip-section nvm"
 
 [env]
 DEFMT_LOG = "debug"
+DEFMT_RTT_BUFFER_SIZE = "8196"  # Increase from default 1024 bytes

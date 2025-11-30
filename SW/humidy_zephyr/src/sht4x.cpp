@@ -7,7 +7,7 @@
 LOG_MODULE_REGISTER(sht4x, CONFIG_CHIP_APP_LOG_LEVEL);
 
 #if !DT_HAS_COMPAT_STATUS_OKAY(sensirion_sht4x)
-#error "No sensirion,sht4x compatible node found in the device tree"
+// #error "No sensirion,sht4x compatible node found in the device tree"
 #endif
 
 CHIP_ERROR Sht4x::Init()

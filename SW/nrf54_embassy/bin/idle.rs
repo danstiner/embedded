@@ -7,16 +7,19 @@ use embassy_nrf::gpio::{Level, Output, OutputDrive};
 use embassy_time::Timer;
 use {defmt_rtt as _, panic_probe as _};
 
+const IDLE_SEC: u64 = 30;
+
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let p = embassy_nrf::init(Default::default());
 
     info!("Starting idle power usage example");
 
+    let mut i = 0;
     loop {
-        info!("on");
-        Timer::after_millis(100).await;
-        info!("off, idling 5s");
-        Timer::after_millis(4900).await;
+        info!("Iteration: {}, idling {} seconds", i, IDLE_SEC);
+        Timer::after_secs(IDLE_SEC).await;
+
+        i += 1;
     }
 }
