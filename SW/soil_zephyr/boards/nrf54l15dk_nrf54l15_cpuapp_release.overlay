@@ -1,0 +1,14 @@
+/* Release overlay - disable UART for power savings */
+/* UART is controlled via CONFIG_SERIAL=n in prj_release.conf, but we also */
+/* disable it in devicetree to ensure the peripheral is fully powered down */
+
+&uart20 {
+	status = "disabled";
+};
+
+/ {
+	chosen {
+		/delete-property/ zephyr,console;
+		/delete-property/ zephyr,shell-uart;
+	};
+};

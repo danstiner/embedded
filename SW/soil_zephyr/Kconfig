@@ -1,0 +1,7 @@
+config APP_MEASUREMENT_INTERVAL_SEC
+	int "Measurement interval (seconds)"
+	default 300
+	help
+	  Time between periodic measurements. Device sleeps between readings.
+
+source "Kconfig.zephyr"
