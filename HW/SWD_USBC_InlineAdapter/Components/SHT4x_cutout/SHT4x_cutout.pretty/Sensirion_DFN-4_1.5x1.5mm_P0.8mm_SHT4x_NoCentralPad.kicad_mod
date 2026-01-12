@@ -1,0 +1,309 @@
+(footprint "Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(descr "Sensirion, SHT40, SHT41, SHT45, DFN, 4 Pin (https://sensirion.com/media/documents/33FD6951/624C4357/Datasheet_SHT4x.pdf)")
+	(tags "DFN NoLead")
+	(property "Reference" "U3"
+		(at 0 4 0)
+		(layer "F.SilkS")
+		(uuid "f59b704e-c7a3-4cf1-a68a-c239bd2d7794")
+		(effects
+			(font
+				(size 0.75 0.75)
+				(thickness 0.127)
+				(bold yes)
+			)
+		)
+	)
+	(property "Value" "SHT4x"
+		(at 0 1.7 0)
+		(layer "F.Fab")
+		(uuid "e0c9a5f5-ce5c-4da2-9d00-3ec84ee97600")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" "https://sensirion.com/media/documents/33FD6951/624C4357/Datasheet_SHT4x.pdf"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "d9e47228-d774-45d2-bc2b-c979a48d136b")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "Digital Humidity and Temperature Sensor, ±1%RH, ±0.1°C, I2C, 1.08-3.6V, 16bit, DFN-4"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "0d79e96d-bd60-42ce-b15a-f4ef43e5a7bf")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -0.75 -0.86)
+		(end 0.75 -0.86)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "ff318308-64ac-4fec-a424-a0be9df89d05")
+	)
+	(fp_line
+		(start -0.75 0.86)
+		(end 0.75 0.86)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "8907d79b-0748-4d42-b163-f71e9ef6e6e9")
+	)
+	(fp_poly
+		(pts
+			(xy -1.4 -0.9) (xy -1.68 -0.9) (xy -1.4 -1.18) (xy -1.4 -0.9)
+		)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(fill yes)
+		(layer "F.SilkS")
+		(uuid "8d6a9f03-f970-4909-a98a-a262182cf092")
+	)
+	(fp_line
+		(start -1.2 -1)
+		(end -1.2 1)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "1b0aaf52-f4be-4c68-9869-054f19331561")
+	)
+	(fp_line
+		(start -1.2 1)
+		(end 1.2 1)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "20e7d5c2-a0b3-4df9-9272-fdd253edbcc0")
+	)
+	(fp_line
+		(start 1.2 -1)
+		(end -1.2 -1)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "e480e0c7-4e45-4bfa-8013-6ab8a490943e")
+	)
+	(fp_line
+		(start 1.2 1)
+		(end 1.2 -1)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "bdbace8f-7696-4245-9685-82b4b9a44b42")
+	)
+	(fp_line
+		(start -0.75 -0.375)
+		(end -0.375 -0.75)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "a3587cd8-ed41-4497-9f94-a3fa4e195dc4")
+	)
+	(fp_line
+		(start -0.75 0.75)
+		(end -0.75 -0.375)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "2a9b8ce7-cb46-419f-bcc7-c4fac029892e")
+	)
+	(fp_line
+		(start -0.375 -0.75)
+		(end 0.75 -0.75)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "dae0a0aa-ba1c-4dfd-8742-152144d267f1")
+	)
+	(fp_line
+		(start 0.75 -0.75)
+		(end 0.75 0.75)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "4cf97145-e6cc-494d-97d7-43ab7d91cc2a")
+	)
+	(fp_line
+		(start 0.75 0.75)
+		(end -0.75 0.75)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "43fcb02d-ec75-4175-bb93-698b8f77599f")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "e6744407-df1d-4c0f-95c0-4733e5a355c0")
+		(effects
+			(font
+				(size 0.38 0.38)
+				(thickness 0.06)
+			)
+		)
+	)
+	(pad "" np_thru_hole custom
+		(at -1.3 0 90)
+		(size 1.8 0.508)
+		(drill oval 1.8 0.508)
+		(layers "*.Mask")
+		(options
+			(clearance outline)
+			(anchor rect)
+		)
+		(primitives)
+		(uuid "4e1d5547-1b4d-4a4f-a66b-4536378bbd14")
+	)
+	(pad "" np_thru_hole custom
+		(at 0 -1.3)
+		(size 1.8 0.508)
+		(drill oval 1.8 0.508)
+		(layers "*.Mask")
+		(options
+			(clearance outline)
+			(anchor rect)
+		)
+		(primitives)
+		(uuid "bfb33bf2-b2a3-4b17-a000-6a439268ace4")
+	)
+	(pad "" np_thru_hole custom
+		(at 0 1.3)
+		(size 1.8 0.508)
+		(drill oval 1.8 0.508)
+		(layers "*.Mask")
+		(options
+			(clearance outline)
+			(anchor rect)
+		)
+		(primitives)
+		(uuid "73ac3254-565a-488b-84dd-4bc55b1b8701")
+	)
+	(pad "" np_thru_hole custom
+		(at 1.3 0 90)
+		(size 1.8 0.508)
+		(drill oval 1.8 0.508)
+		(layers "*.Mask")
+		(options
+			(clearance outline)
+			(anchor rect)
+		)
+		(primitives)
+		(uuid "472418ac-eeca-4dfe-aa8f-b71953373dbd")
+	)
+	(pad "1" smd rect
+		(at -0.7 -0.4)
+		(size 0.5 0.3)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "d8014e1f-dd69-4b3b-a492-e1c061433d2d")
+	)
+	(pad "2" smd rect
+		(at -0.7 0.4)
+		(size 0.5 0.3)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "2ccac439-81e7-4337-90cb-b828b3e2121a")
+	)
+	(pad "3" smd rect
+		(at 0.7 0.4)
+		(size 0.5 0.3)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "aae478fc-6070-4a22-94b3-f504975d550d")
+	)
+	(pad "4" smd rect
+		(at 0.7 -0.4)
+		(size 0.5 0.3)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "f06430de-f32e-4cac-872f-119ab8e06c42")
+	)
+	(zone
+		(net 0)
+		(net_name "")
+		(layer "F.Cu")
+		(uuid "d4293e23-2539-4574-af70-c5af6b5b225b")
+		(hatch edge 0.508)
+		(connect_pads
+			(clearance 0)
+		)
+		(min_thickness 0.254)
+		(filled_areas_thickness no)
+		(keepout
+			(tracks not_allowed)
+			(vias not_allowed)
+			(pads allowed)
+			(copperpour not_allowed)
+			(footprints allowed)
+		)
+		(placement
+			(enabled no)
+			(sheetname "")
+		)
+		(fill
+			(thermal_gap 0.508)
+			(thermal_bridge_width 0.508)
+		)
+		(polygon
+			(pts
+				(xy 0.75 -0.55) (xy 0.45 -0.55) (xy 0.45 -0.25) (xy 0.75 -0.25) (xy 0.75 0.25) (xy 0.45 0.25) (xy 0.45 0.55)
+				(xy 0.75 0.55) (xy 0.75 0.75) (xy -0.75 0.75) (xy -0.75 0.55) (xy -0.45 0.55) (xy -0.45 0.25) (xy -0.75 0.25)
+				(xy -0.75 -0.25) (xy -0.45 -0.25) (xy -0.45 -0.55) (xy -0.75 -0.55) (xy -0.75 -0.75) (xy 0.75 -0.75)
+			)
+		)
+	)
+	(embedded_fonts no)
+	(model "${KICAD9_3DMODEL_DIR}/Sensor_Humidity.3dshapes/Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
