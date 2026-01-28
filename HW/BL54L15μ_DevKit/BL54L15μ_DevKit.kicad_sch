@@ -9662,6 +9662,15 @@
 				(hide yes)
 			)
 		)
+		(property "Part Number" "CIGT201610EH2R2MNE"
+			(at 123.19 133.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "de4f8c5f-e988-4642-8ccd-e71228e5cd54")
 		)
@@ -9797,6 +9806,15 @@
 		)
 		(property "Price" ""
 			(at 100.33 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 100.33 30.48 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10069,6 +10087,15 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part_Number" ""
+			(at 182.88 34.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "3"
 			(uuid "05ed13bf-b548-4498-bc17-10f33d87246c")
 		)
@@ -10173,6 +10200,15 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 153.67 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "1"
@@ -10371,6 +10407,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 22.86 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "BM04B-SRSS-TB"
+			(at 22.86 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 22.86 25.4 0)
 			(effects
 				(font
@@ -10634,6 +10688,15 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part_Number" ""
+			(at 267.97 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "3b8588e7-892b-4f0c-879a-3a6b5fe70d0b")
 		)
@@ -10760,6 +10823,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 53.34 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "BM04B-SRSS-TB"
+			(at 53.34 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 53.34 25.4 0)
 			(effects
 				(font
@@ -10904,7 +10985,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Capacitor, X5R, 16 V, ±20%"
+		(property "Description" "Capacitor, minimum 6.3V rating, 1uF for load switch mode"
 			(at 166.37 162.56 0)
 			(effects
 				(font
@@ -10913,7 +10994,16 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "1276-1182-1-ND"
+		(property "Part Number" "CL10A105KP8NNNC"
+			(at 166.37 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 166.37 162.56 0)
 			(effects
 				(font
@@ -11160,6 +11250,15 @@
 			)
 		)
 		(property "Price" ""
+			(at 210.82 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 210.82 170.18 0)
 			(effects
 				(font
@@ -11477,6 +11576,15 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part_Number" ""
+			(at 229.87 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "83fe82cb-2a6f-4253-8a59-637b94d0b4fb")
 		)
@@ -11544,6 +11652,15 @@
 			)
 		)
 		(property "Digikey Part Number" "1276-6901-1-ND"
+			(at 123.19 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "CIGT201610EH2R2MNE"
 			(at 123.19 146.05 0)
 			(effects
 				(font
@@ -11678,7 +11795,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Capacitor, X5R, 16 V, ±20%"
+		(property "Description" "Capacitor, min 4uF, recommended nominal 10uF, min 6.3V rating"
 			(at 124.46 95.25 0)
 			(effects
 				(font
@@ -11687,7 +11804,16 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "1276-1869-1-ND"
+		(property "Part Number" "CL10A106KP8NNNC"
+			(at 124.46 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 124.46 95.25 0)
 			(effects
 				(font
@@ -11766,7 +11892,16 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "RC0603FR-0747KL"
+		(property "Part Number" "RC0603FR-0747KL"
+			(at 24.13 175.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 24.13 175.26 0)
 			(effects
 				(font
@@ -11911,6 +12046,24 @@
 				(hide yes)
 			)
 		)
+		(property "Part Number" "CL05B103KB5NNNC"
+			(at 68.58 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 68.58 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "54fae92f-394c-470f-b35e-cde79086b85d")
 		)
@@ -11982,6 +12135,24 @@
 			)
 		)
 		(property "Digikey Part Number" "1276-1108-1-ND"
+			(at 143.51 185.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "CL05A225KP5NSNC"
+			(at 143.51 185.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 143.51 185.42 0)
 			(effects
 				(font
@@ -12256,7 +12427,16 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "2195-CM7VT1ALOWESR32.768KHZ9PF20TAQCCT-ND"
+		(property "Part Number" "CM7V-T1A-LOW-ESR-32.768KHZ-9PF-20-TA-QC"
+			(at 238.76 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 238.76 160.02 0)
 			(effects
 				(font
@@ -12344,6 +12524,24 @@
 				(hide yes)
 			)
 		)
+		(property "Part Number" "CL05A105KA5NQNC"
+			(at 38.1 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 38.1 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "9a148113-d229-412d-b745-00980c7011cf")
 		)
@@ -12405,7 +12603,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Capacitor, X5R, 16 V, ±20%"
+		(property "Description" "Capacitor, min 4uF, recommended nominal 10uF, min 6.3V rating"
 			(at 102.87 95.25 0)
 			(effects
 				(font
@@ -12414,7 +12612,16 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "1276-1869-1-ND"
+		(property "Part Number" "CL10A106KP8NNNC"
+			(at 102.87 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 102.87 95.25 0)
 			(effects
 				(font
@@ -12550,7 +12757,16 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Capacitor, X5R, 10 V, ±10%"
+		(property "Description" "Capacitor, nominal 1uF, minimum 6.3V rating, required even if VBUSOUT not used"
+			(at 118.11 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "CL05A105KA5NQNC"
 			(at 118.11 119.38 0)
 			(effects
 				(font
@@ -12560,6 +12776,15 @@
 			)
 		)
 		(property "Digikey Part Number" "1276-1445-1-ND"
+			(at 118.11 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 118.11 119.38 0)
 			(effects
 				(font
@@ -12629,7 +12854,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Capacitor, X5R, 16 V, ±20%"
+		(property "Description" "Capacitor, minimum 6.3V rating, 1uF for load switch mode"
 			(at 154.94 170.18 0)
 			(effects
 				(font
@@ -12638,7 +12863,16 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "1276-1182-1-ND"
+		(property "Part Number" "CL10A105KP8NNNC"
+			(at 154.94 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 154.94 170.18 0)
 			(effects
 				(font
@@ -12828,6 +13062,15 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part_Number" ""
+			(at 248.92 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "c533c6c2-4f64-462b-828c-b95e4bbeea2e")
 		)
@@ -12957,6 +13200,24 @@
 					(color 194 0 0 1)
 				)
 				(justify right)
+			)
+		)
+		(property "Part Number" "150060SS75000"
+			(at 119.38 25.4 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 119.38 25.4 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
 			)
 		)
 		(pin "2"
@@ -13094,6 +13355,15 @@
 		)
 		(property "Price" ""
 			(at 82.55 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 82.55 30.48 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13293,6 +13563,24 @@
 		)
 		(property "Description" "USB Full-Featured Type-C Receptacle connector"
 			(at 96.52 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "USB4056-03-A"
+			(at 96.52 58.42 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 96.52 58.42 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13710,6 +13998,24 @@
 				(hide yes)
 			)
 		)
+		(property "Part Number" "RC0603JR-07330KL"
+			(at 34.29 180.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 34.29 180.34 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "835d2382-2480-4685-aaa8-5445cb8f4198")
 		)
@@ -13730,7 +14036,7 @@
 		(at 250.19 27.94 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -13771,6 +14077,15 @@
 		)
 		(property "Description" "test point"
 			(at 250.19 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 250.19 27.94 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13975,6 +14290,24 @@
 				)
 			)
 		)
+		(property "Part Number" "150060GS75000"
+			(at 162.56 33.02 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 162.56 33.02 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "204f33fb-c5c5-46ac-9008-bb5038fc26cf")
 		)
@@ -14036,7 +14369,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Capacitor, X5R, 16 V, ±20%"
+		(property "Description" "Capacitor, minimum 6.3V rating, 4-20 uF"
 			(at 146.05 121.92 0)
 			(effects
 				(font
@@ -14045,7 +14378,16 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "1276-1869-1-ND"
+		(property "Part Number" "CL10A106KP8NNNC"
+			(at 146.05 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 146.05 121.92 0)
 			(effects
 				(font
@@ -14364,13 +14706,21 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "453-00223R"
-			(at 250.19 910.49 0)
+		(property "Part Number" "453-00223R"
+			(at 195.58 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left top)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 195.58 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 				(hide yes)
 			)
 		)
@@ -14591,6 +14941,24 @@
 				(hide yes)
 			)
 		)
+		(property "Part Number" "CL10A106KP8NNNC"
+			(at 215.9 156.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 215.9 156.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "1498d49f-8a44-4075-8874-ef7e19efaf27")
 		)
@@ -14677,7 +15045,7 @@
 		(at 269.24 27.94 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -14718,6 +15086,15 @@
 		)
 		(property "Description" "test point"
 			(at 269.24 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 269.24 27.94 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14782,6 +15159,15 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 182.88 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 182.88 151.13 0)
 			(effects
 				(font
@@ -15060,6 +15446,15 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part_Number" ""
+			(at 226.06 34.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "3"
 			(uuid "8d24fd0e-868f-4546-a79f-c339402216dc")
 		)
@@ -15151,6 +15546,15 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 127 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "B2B-PH-K-S"
 			(at 127 184.15 0)
 			(effects
 				(font
@@ -15340,8 +15744,17 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "13-RC0402FR-132KLCT-ND"
-			(at 119.38 29.21 0)
+		(property "Part Number" "RC0603FR-07100RL"
+			(at 119.38 33.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 119.38 33.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15541,7 +15954,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Capacitor, X5R, 16 V, ±20%"
+		(property "Description" "Capacitor, min 4uF, recommended nominal 10uF, min 6.3V rating"
 			(at 90.17 95.25 0)
 			(effects
 				(font
@@ -15550,7 +15963,16 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "1276-1869-1-ND"
+		(property "Part Number" "CL10A106KP8NNNC"
+			(at 90.17 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 90.17 95.25 0)
 			(effects
 				(font
@@ -15621,6 +16043,24 @@
 			)
 		)
 		(property "Description" ""
+			(at 31.75 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "150352M173300"
+			(at 31.75 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 31.75 138.43 0)
 			(effects
 				(font
@@ -15974,6 +16414,24 @@
 				(hide yes)
 			)
 		)
+		(property "Part Number" "B2B-PH-K-S"
+			(at 133.35 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Field6" ""
+			(at 133.35 184.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "8d8004d1-7b5d-4d89-b949-9221b6b21782")
 		)
@@ -16116,6 +16574,15 @@
 				(justify right)
 			)
 		)
+		(property "Manufacturer_Part_Number" ""
+			(at 153.67 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "b762e022-b29b-4ccf-8dac-119300c3718e")
 		)
@@ -16177,7 +16644,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Capacitor, X5R, 16 V, ±20%"
+		(property "Description" "Capacitor, minimum 6.3V rating, 4-20 uF"
 			(at 146.05 147.32 0)
 			(effects
 				(font
@@ -16186,7 +16653,16 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "1276-1869-1-ND"
+		(property "Part Number" "CL10A106KP8NNNC"
+			(at 146.05 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 146.05 147.32 0)
 			(effects
 				(font
@@ -16229,7 +16705,7 @@
 				)
 			)
 		)
-		(property "Value" "nPM1300-QEXX"
+		(property "Value" "NPM1304-QEAA"
 			(at 82.55 151.13 0)
 			(do_not_autoplace yes)
 			(effects
@@ -16247,7 +16723,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://docs.nordicsemi.com/bundle/ps_npm1300"
+		(property "Datasheet" "https://docs.nordicsemi.com/bundle/ps_npm1304"
 			(at 82.55 204.47 0)
 			(effects
 				(font
@@ -16266,6 +16742,24 @@
 			)
 		)
 		(property "Digikey Part Number" "1490-NPM1304-QEAA-R7CT-ND"
+			(at 82.55 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "NPM1304-QEAA-R7"
+			(at 82.55 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
 			(at 82.55 148.59 0)
 			(effects
 				(font
@@ -16439,6 +16933,24 @@
 		)
 		(property "Digikey Part Number" "13-RC0402FR-132KLCT-ND"
 			(at 162.56 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "RC0402FR-132KL"
+			(at 162.56 25.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 162.56 25.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)

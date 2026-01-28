@@ -6099,7 +6099,7 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "490-6297-1-ND"
+		(property "Part Number" "GRM155R61A104KA01J"
 			(at 129.54 142.24 0)
 			(effects
 				(font
@@ -6108,7 +6108,25 @@
 				(hide yes)
 			)
 		)
-		(property "Design Guideline" ""
+		(property "Manufacturer_Part_Number" ""
+			(at 129.54 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 129.54 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 129.54 142.24 0)
 			(effects
 				(font
@@ -6329,7 +6347,34 @@
 				(hide yes)
 			)
 		)
-		(property "Design Guideline" ""
+		(property "Part Number" "SM04B-SRSS-TB"
+			(at 36.83 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 36.83 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 36.83 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 36.83 29.21 0)
 			(effects
 				(font
@@ -6432,26 +6477,6 @@
 				(hide yes)
 			)
 		)
-		(property "Mouser Part Number" ""
-			(at 92.71 639.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Mouser Price/Stock" ""
-			(at 92.71 739.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
 		(property "Manufacturer_Name" "Sensirion"
 			(at 92.71 839.7 0)
 			(effects
@@ -6462,7 +6487,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "STCC4-D-R3"
+		(property "Part Number" "STCC4-D-R3"
 			(at 92.71 939.7 0)
 			(effects
 				(font
@@ -6482,6 +6507,33 @@
 			)
 		)
 		(property "Design Guideline" ""
+			(at 66.04 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 66.04 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 66.04 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 66.04 154.94 0)
 			(effects
 				(font
@@ -6651,6 +6703,42 @@
 			)
 		)
 		(property "Digikey Part Number" "1276-6901-1-ND"
+			(at 93.98 85.09 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "CIGT201610EH2R2MNE"
+			(at 93.98 85.09 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 93.98 85.09 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 93.98 85.09 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 93.98 85.09 90)
 			(effects
 				(font
@@ -6862,7 +6950,7 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "490-6297-1-ND"
+		(property "Part Number" "GRM155R61A104KA01J"
 			(at 142.24 95.25 0)
 			(effects
 				(font
@@ -6871,7 +6959,25 @@
 				(hide yes)
 			)
 		)
-		(property "Design Guideline" ""
+		(property "Manufacturer_Part_Number" ""
+			(at 142.24 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 142.24 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 142.24 95.25 0)
 			(effects
 				(font
@@ -7016,7 +7122,7 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "828-BME688CT-ND"
+		(property "Part Number" "BME688"
 			(at 143.51 161.29 0)
 			(effects
 				(font
@@ -7025,7 +7131,25 @@
 				(hide yes)
 			)
 		)
-		(property "Design Guideline" ""
+		(property "Manufacturer_Part_Number" ""
+			(at 143.51 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 143.51 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 143.51 161.29 0)
 			(effects
 				(font
@@ -7357,7 +7481,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Crystal:Crystal_SMD_2012-2Pin_2.0x1.2mm"
+		(property "Footprint" "CM7V_T1A_LOW_ESR_32_768KHZ_9PF_20_TA_QC:XTAL_CM7V-T1A-LOW-ESR-32.768KHZ-9PF-20-TA-QC"
 			(at 236.22 154.94 0)
 			(effects
 				(font
@@ -7385,6 +7509,42 @@
 			)
 		)
 		(property "Digikey Part Number" "2195-CM7VT1ALOWESR32.768KHZ9PF20TAQCCT-ND"
+			(at 236.22 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "CM7V-T1A-LOW-ESR-32.768KHZ-9PF-20-TA-QC"
+			(at 236.22 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 236.22 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 236.22 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 236.22 154.94 0)
 			(effects
 				(font
@@ -7595,7 +7755,7 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "1276-1274-1-ND"
+		(property "Part Number" "CL10A226MP8NUNE"
 			(at 63.5 85.09 0)
 			(effects
 				(font
@@ -7604,7 +7764,25 @@
 				(hide yes)
 			)
 		)
-		(property "Design Guideline" ""
+		(property "Manufacturer_Part_Number" ""
+			(at 63.5 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 63.5 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 63.5 85.09 0)
 			(effects
 				(font
@@ -7683,7 +7861,7 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "490-6297-1-ND"
+		(property "Part Number" "GRM155R61A104KA01J"
 			(at 38.1 143.51 0)
 			(effects
 				(font
@@ -7692,7 +7870,25 @@
 				(hide yes)
 			)
 		)
-		(property "Design Guideline" ""
+		(property "Manufacturer_Part_Number" ""
+			(at 38.1 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 38.1 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 38.1 143.51 0)
 			(effects
 				(font
@@ -7778,6 +7974,33 @@
 			)
 		)
 		(property "Design Guideline" ""
+			(at 232.41 30.48 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 232.41 30.48 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 232.41 30.48 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 232.41 30.48 90)
 			(effects
 				(font
@@ -8008,7 +8231,7 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "4823-NPM2100-QEAA-RCT-ND"
+		(property "Part Number" "NPM2100-QEAA-R"
 			(at 118.11 90.17 0)
 			(effects
 				(font
@@ -8017,7 +8240,25 @@
 				(hide yes)
 			)
 		)
-		(property "Design Guideline" ""
+		(property "Manufacturer_Part_Number" ""
+			(at 118.11 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 118.11 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 118.11 90.17 0)
 			(effects
 				(font
@@ -8207,7 +8448,7 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "490-6297-1-ND"
+		(property "Part Number" "GRM155R61A104KA01J"
 			(at 105.41 158.75 0)
 			(effects
 				(font
@@ -8216,7 +8457,25 @@
 				(hide yes)
 			)
 		)
-		(property "Design Guideline" ""
+		(property "Manufacturer_Part_Number" ""
+			(at 105.41 158.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 105.41 158.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 105.41 158.75 0)
 			(effects
 				(font
@@ -8248,7 +8507,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "a4b017ef-3ec7-4cd3-8678-2f4afd3f747b")
 		(property "Reference" "D1"
 			(at 133.35 29.5274 90)
@@ -8360,6 +8618,51 @@
 			)
 		)
 		(property "Design Guideline" ""
+			(at 129.54 27.94 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "150060SS75000"
+			(at 129.54 27.94 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Color" "Red"
+			(at 135.128 31.496 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(color 194 0 0 1)
+				)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 129.54 27.94 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 129.54 27.94 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 129.54 27.94 90)
 			(effects
 				(font
@@ -8514,26 +8817,6 @@
 				(hide yes)
 			)
 		)
-		(property "Mouser Part Number" ""
-			(at 247.65 609.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Mouser Price/Stock" ""
-			(at 247.65 709.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
 		(property "Manufacturer_Name" "EZURIO"
 			(at 247.65 809.22 0)
 			(effects
@@ -8544,7 +8827,7 @@
 				(hide yes)
 			)
 		)
-		(property "Manufacturer_Part_Number" "453-00223R"
+		(property "Part Number" "453-00223R"
 			(at 247.65 909.22 0)
 			(effects
 				(font
@@ -8563,7 +8846,25 @@
 				(hide yes)
 			)
 		)
-		(property "Design Guideline" ""
+		(property "Manufacturer_Part_Number" ""
+			(at 193.04 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 193.04 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 193.04 114.3 0)
 			(effects
 				(font
@@ -8789,7 +9090,34 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "1276-1192-1-ND"
+		(property "Part Number" "CL10A106KP8NNNC"
+			(at 209.55 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 209.55 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 209.55 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 209.55 154.94 0)
 			(effects
 				(font
@@ -8999,7 +9327,7 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "490-6297-1-ND"
+		(property "Part Number" "GRM155R61A104KA01J"
 			(at 76.2 85.09 0)
 			(effects
 				(font
@@ -9008,7 +9336,25 @@
 				(hide yes)
 			)
 		)
-		(property "Design Guideline" ""
+		(property "Manufacturer_Part_Number" ""
+			(at 76.2 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 76.2 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 76.2 85.09 0)
 			(effects
 				(font
@@ -9288,7 +9634,7 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "1649-SHT45-AD1F-R2CT-ND"
+		(property "Part Number" "SHT45-AD1F-R2"
 			(at 35.56 160.02 0)
 			(effects
 				(font
@@ -9297,7 +9643,25 @@
 				(hide yes)
 			)
 		)
-		(property "Design Guideline" ""
+		(property "Manufacturer_Part_Number" ""
+			(at 35.56 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 35.56 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 35.56 160.02 0)
 			(effects
 				(font
@@ -9400,6 +9764,33 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer_Part_Number" ""
+			(at 49.53 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 49.53 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
+			(at 49.53 85.09 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "aca34161-03e4-4457-a90e-44a5c2d5cf02")
 		)
@@ -9469,7 +9860,34 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "1276-1274-1-ND"
+		(property "Part Number" "CL10A226MP8NUNE"
+			(at 156.21 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 156.21 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 156.21 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 156.21 95.25 0)
 			(effects
 				(font
@@ -9592,7 +10010,34 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "311-100HRCT-ND"
+		(property "Part Number" "RC0603FR-07100RL"
+			(at 129.54 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 129.54 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 129.54 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 129.54 35.56 0)
 			(effects
 				(font
@@ -9878,7 +10323,34 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "1276-1469-1-ND"
+		(property "Part Number" "CL05A225KP5NSNC"
+			(at 138.43 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer_Part_Number" ""
+			(at 138.43 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Part Number" ""
+			(at 138.43 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Mouser Price/Stock" ""
 			(at 138.43 66.04 0)
 			(effects
 				(font

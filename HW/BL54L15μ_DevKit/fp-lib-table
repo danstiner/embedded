@@ -12,4 +12,5 @@
   (lib (name "USB4056_03_A")(type "KiCad")(uri "${KIPRJMOD}/Components/USB4056_03_A")(options "")(descr ""))
   (lib (name "Connector_PinHeader_2.54mm_SilkFree")(type "KiCad")(uri "${KIPRJMOD}/Components/Connector_PinHeader_2.54mm_SilkFree.pretty")(options "")(descr ""))
   (lib (name "Package_QFN")(type "KiCad")(uri "${KIPRJMOD}/Components/Package_QFN.pretty")(options "")(descr ""))
+  (lib (name "CM7V_T1A_LOW_ESR_32_768KHZ_9PF_20_TA_QC")(type "KiCad")(uri "${KIPRJMOD}/Components/CM7V_T1A_LOW_ESR_32_768KHZ_9PF_20_TA_QC")(options "")(descr ""))
 )

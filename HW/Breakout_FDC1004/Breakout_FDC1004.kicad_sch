@@ -3134,6 +3134,105 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer Part Number" "FDC1004DSCR"
+			(at 140.97 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" ""
+			(at 140.97 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Field7" ""
+			(at 140.97 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" ""
+			(at 140.97 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 140.97 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MF" ""
+			(at 140.97 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 140.97 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 140.97 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 140.97 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 140.97 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
+			(at 140.97 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "5"
 			(uuid "30eabbf0-f8f2-4d9f-a7d6-d7a4b052e98c")
 		)
@@ -3330,7 +3429,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1u"
+		(property "Value" "1uF"
 			(at 90.17 90.1699 0)
 			(effects
 				(font
@@ -3366,7 +3465,7 @@
 				(hide yes)
 			)
 		)
-		(property "Availability" ""
+		(property "Manufacturer Part Number" "CL10A105KP8NNNC"
 			(at 86.36 88.9 0)
 			(effects
 				(font
@@ -3375,7 +3474,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description_1" ""
+		(property "Digikey Part Number" ""
 			(at 86.36 88.9 0)
 			(effects
 				(font
@@ -3384,7 +3483,7 @@
 				(hide yes)
 			)
 		)
-		(property "MP" ""
+		(property "Field7" ""
 			(at 86.36 88.9 0)
 			(effects
 				(font
@@ -3393,7 +3492,7 @@
 				(hide yes)
 			)
 		)
-		(property "Package" ""
+		(property "MANUFACTURER" ""
 			(at 86.36 88.9 0)
 			(effects
 				(font
@@ -3402,7 +3501,61 @@
 				(hide yes)
 			)
 		)
-		(property "Price" ""
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 86.36 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MF" ""
+			(at 86.36 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 86.36 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 86.36 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 86.36 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 86.36 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
 			(at 86.36 88.9 0)
 			(effects
 				(font
@@ -3436,15 +3589,15 @@
 		(dnp no)
 		(uuid "17be0add-2a6b-4c48-9a3f-2fef535e20a9")
 		(property "Reference" "R3"
-			(at 186.436 30.48 90)
+			(at 187.96 29.972 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "10k"
-			(at 184.15 30.48 90)
+		(property "Value" "10kΩ"
+			(at 189.23 32.258 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3478,7 +3631,7 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "311-10.0KHRCT-ND"
+		(property "Manufacturer Part Number" "RC0603FR-0710KL"
 			(at 184.15 30.48 90)
 			(effects
 				(font
@@ -3487,8 +3640,8 @@
 				(hide yes)
 			)
 		)
-		(property "Availability" ""
-			(at 184.15 30.48 90)
+		(property "Digikey Part Number" ""
+			(at 184.15 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3496,8 +3649,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description_1" ""
-			(at 184.15 30.48 90)
+		(property "Field7" ""
+			(at 184.15 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3505,8 +3658,8 @@
 				(hide yes)
 			)
 		)
-		(property "MP" ""
-			(at 184.15 30.48 90)
+		(property "MANUFACTURER" ""
+			(at 184.15 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3514,8 +3667,8 @@
 				(hide yes)
 			)
 		)
-		(property "Package" ""
-			(at 184.15 30.48 90)
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 184.15 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3523,8 +3676,53 @@
 				(hide yes)
 			)
 		)
-		(property "Price" ""
-			(at 184.15 30.48 90)
+		(property "MF" ""
+			(at 184.15 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 184.15 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 184.15 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 184.15 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 184.15 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
+			(at 184.15 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3603,6 +3801,105 @@
 				(hide yes)
 			)
 		)
+		(property "Manufacturer Part Number" "SM04B-SRSS-TB"
+			(at 29.21 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" ""
+			(at 29.21 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Field7" ""
+			(at 29.21 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" ""
+			(at 29.21 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 29.21 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MF" ""
+			(at 29.21 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 29.21 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 29.21 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 29.21 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 29.21 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
+			(at 29.21 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "ed02f3db-db77-4915-8143-1c4f1ebf5f92")
 		)
@@ -3649,7 +3946,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "0.1u"
+		(property "Value" "0.1uF"
 			(at 102.87 90.1699 0)
 			(effects
 				(font
@@ -3676,7 +3973,16 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
+		(property "Description" "Decoupling capacitor"
+			(at 99.06 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Part Number" "GRM155R61A104KA01J"
 			(at 99.06 88.9 0)
 			(effects
 				(font
@@ -3694,7 +4000,7 @@
 				(hide yes)
 			)
 		)
-		(property "Availability" ""
+		(property "Field7" ""
 			(at 99.06 88.9 0)
 			(effects
 				(font
@@ -3703,7 +4009,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description_1" ""
+		(property "MANUFACTURER" ""
 			(at 99.06 88.9 0)
 			(effects
 				(font
@@ -3712,7 +4018,7 @@
 				(hide yes)
 			)
 		)
-		(property "MP" ""
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
 			(at 99.06 88.9 0)
 			(effects
 				(font
@@ -3721,7 +4027,7 @@
 				(hide yes)
 			)
 		)
-		(property "Package" ""
+		(property "MF" ""
 			(at 99.06 88.9 0)
 			(effects
 				(font
@@ -3730,7 +4036,43 @@
 				(hide yes)
 			)
 		)
-		(property "Price" ""
+		(property "Manufacturer" ""
+			(at 99.06 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 99.06 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 99.06 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 99.06 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
 			(at 99.06 88.9 0)
 			(effects
 				(font
@@ -3854,6 +4196,96 @@
 				(hide yes)
 			)
 		)
+		(property "Digikey Part Number" ""
+			(at 15.24 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Field7" ""
+			(at 15.24 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" ""
+			(at 15.24 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 15.24 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MF" ""
+			(at 15.24 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 15.24 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 15.24 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 15.24 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 15.24 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
+			(at 15.24 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project ""
 				(path "/997c6132-d469-42f4-b223-4701bc9a501f"
@@ -3908,6 +4340,96 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 128.27 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" ""
+			(at 128.27 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Field7" ""
+			(at 128.27 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" ""
+			(at 128.27 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 128.27 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MF" ""
+			(at 128.27 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 128.27 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 128.27 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 128.27 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 128.27 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
 			(at 128.27 36.83 0)
 			(effects
 				(font
@@ -4092,6 +4614,96 @@
 			)
 		)
 		(property "Price" ""
+			(at 15.24 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" ""
+			(at 15.24 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Field7" ""
+			(at 15.24 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" ""
+			(at 15.24 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 15.24 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MF" ""
+			(at 15.24 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 15.24 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 15.24 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 15.24 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 15.24 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
 			(at 15.24 195.58 0)
 			(effects
 				(font
@@ -4319,15 +4931,15 @@
 		(dnp no)
 		(uuid "8550eb99-66b7-4e0b-b19a-6b9fd9410d68")
 		(property "Reference" "R2"
-			(at 179.578 30.48 90)
+			(at 177.8 29.718 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "10k"
-			(at 181.61 30.48 90)
+		(property "Value" "10kΩ"
+			(at 176.53 32.004 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4361,7 +4973,7 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "311-10.0KHRCT-ND"
+		(property "Manufacturer Part Number" "RC0603FR-0710KL"
 			(at 181.61 30.48 90)
 			(effects
 				(font
@@ -4370,8 +4982,8 @@
 				(hide yes)
 			)
 		)
-		(property "Availability" ""
-			(at 181.61 30.48 90)
+		(property "Digikey Part Number" ""
+			(at 181.61 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4379,8 +4991,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description_1" ""
-			(at 181.61 30.48 90)
+		(property "Field7" ""
+			(at 181.61 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4388,8 +5000,8 @@
 				(hide yes)
 			)
 		)
-		(property "MP" ""
-			(at 181.61 30.48 90)
+		(property "MANUFACTURER" ""
+			(at 181.61 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4397,8 +5009,8 @@
 				(hide yes)
 			)
 		)
-		(property "Package" ""
-			(at 181.61 30.48 90)
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 181.61 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4406,8 +5018,53 @@
 				(hide yes)
 			)
 		)
-		(property "Price" ""
-			(at 181.61 30.48 90)
+		(property "MF" ""
+			(at 181.61 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 181.61 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 181.61 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 181.61 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 181.61 30.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
+			(at 181.61 30.48 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4522,6 +5179,96 @@
 			)
 		)
 		(property "Price" ""
+			(at 281.94 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" ""
+			(at 281.94 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Field7" ""
+			(at 281.94 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" ""
+			(at 281.94 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 281.94 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MF" ""
+			(at 281.94 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 281.94 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 281.94 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 281.94 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 281.94 195.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
 			(at 281.94 195.58 0)
 			(effects
 				(font
@@ -4719,7 +5466,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Light emitting diode"
+		(property "Description" "Light emitting diode, 3.2V forward voltage"
 			(at 236.22 36.83 0)
 			(effects
 				(font
@@ -4737,7 +5484,7 @@
 				(hide yes)
 			)
 		)
-		(property "Availability" ""
+		(property "Manufacturer Part Number" "150060GS75000"
 			(at 236.22 36.83 90)
 			(effects
 				(font
@@ -4746,7 +5493,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description_1" ""
+		(property "Digikey Part Number" ""
 			(at 236.22 36.83 90)
 			(effects
 				(font
@@ -4755,7 +5502,7 @@
 				(hide yes)
 			)
 		)
-		(property "MP" ""
+		(property "Field7" ""
 			(at 236.22 36.83 90)
 			(effects
 				(font
@@ -4764,7 +5511,7 @@
 				(hide yes)
 			)
 		)
-		(property "Package" ""
+		(property "MANUFACTURER" ""
 			(at 236.22 36.83 90)
 			(effects
 				(font
@@ -4773,7 +5520,61 @@
 				(hide yes)
 			)
 		)
-		(property "Price" ""
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 236.22 36.83 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MF" ""
+			(at 236.22 36.83 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 236.22 36.83 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 236.22 36.83 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 236.22 36.83 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 236.22 36.83 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
 			(at 236.22 36.83 90)
 			(effects
 				(font
@@ -5015,7 +5816,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.7k"
+		(property "Value" "100Ω"
 			(at 238.76 30.4799 0)
 			(effects
 				(font
@@ -5051,7 +5852,7 @@
 				(hide yes)
 			)
 		)
-		(property "Availability" ""
+		(property "Manufacturer Part Number" "RC0603FR-07100RL"
 			(at 236.22 29.21 0)
 			(effects
 				(font
@@ -5060,7 +5861,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description_1" ""
+		(property "Digikey Part Number" ""
 			(at 236.22 29.21 0)
 			(effects
 				(font
@@ -5069,7 +5870,7 @@
 				(hide yes)
 			)
 		)
-		(property "MP" ""
+		(property "Field7" ""
 			(at 236.22 29.21 0)
 			(effects
 				(font
@@ -5078,7 +5879,7 @@
 				(hide yes)
 			)
 		)
-		(property "Package" ""
+		(property "MANUFACTURER" ""
 			(at 236.22 29.21 0)
 			(effects
 				(font
@@ -5087,7 +5888,61 @@
 				(hide yes)
 			)
 		)
-		(property "Price" ""
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 236.22 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MF" ""
+			(at 236.22 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 236.22 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 236.22 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 236.22 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 236.22 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
 			(at 236.22 29.21 0)
 			(effects
 				(font
@@ -5158,6 +6013,96 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 85.09 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" ""
+			(at 85.09 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Field7" ""
+			(at 85.09 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" ""
+			(at 85.09 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 85.09 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MF" ""
+			(at 85.09 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 85.09 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 85.09 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 85.09 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 85.09 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
 			(at 85.09 35.56 0)
 			(effects
 				(font
@@ -5285,6 +6230,96 @@
 			)
 		)
 		(property "Price" ""
+			(at 281.94 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Digikey Part Number" ""
+			(at 281.94 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Field7" ""
+			(at 281.94 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" ""
+			(at 281.94 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MAXIMUM_PACKAGE_HEIGHT" ""
+			(at 281.94 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MF" ""
+			(at 281.94 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer" ""
+			(at 281.94 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Manufacturer Product Number" ""
+			(at 281.94 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" ""
+			(at 281.94 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" ""
+			(at 281.94 15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" ""
 			(at 281.94 15.24 0)
 			(effects
 				(font

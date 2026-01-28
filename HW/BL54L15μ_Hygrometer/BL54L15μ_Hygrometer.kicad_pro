@@ -666,6 +666,12 @@
         },
         {
           "group_by": true,
+          "label": "Part Number",
+          "name": "Part Number",
+          "show": true
+        },
+        {
+          "group_by": true,
           "label": "Footprint",
           "name": "Footprint",
           "show": true
@@ -674,22 +680,22 @@
           "group_by": false,
           "label": "Digikey Part Number",
           "name": "Digikey Part Number",
-          "show": true
+          "show": false
         },
         {
-          "group_by": true,
+          "group_by": false,
           "label": "DNP",
           "name": "${DNP}",
           "show": false
         },
         {
-          "group_by": true,
+          "group_by": false,
           "label": "Exclude from BOM",
           "name": "${EXCLUDE_FROM_BOM}",
           "show": false
         },
         {
-          "group_by": true,
+          "group_by": false,
           "label": "Exclude from Board",
           "name": "${EXCLUDE_FROM_BOARD}",
           "show": false
@@ -788,6 +794,12 @@
           "group_by": false,
           "label": "#",
           "name": "${ITEM_NUMBER}",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Color",
+          "name": "Color",
           "show": false
         }
       ],

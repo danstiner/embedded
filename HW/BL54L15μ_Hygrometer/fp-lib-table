@@ -4,4 +4,5 @@
   (lib (name "CIGT201610EH2R2MNE")(type "KiCad")(uri "${KIPRJMOD}/Components/CIGT201610EH2R2MNE/KiCADv6/footprints.pretty")(options "")(descr "0806 (2016 Metric)"))
   (lib (name "SM04B_SRSS_TB")(type "KiCad")(uri "${KIPRJMOD}/Components/SM04B_SRSS_TB/footprints.pretty")(options "")(descr ""))
   (lib (name "STCC4-D-R3")(type "KiCad")(uri "${KIPRJMOD}/Components/STCC4-D-R3/KiCad")(options "")(descr ""))
+  (lib (name "CM7V_T1A_LOW_ESR_32_768KHZ_9PF_20_TA_QC")(type "KiCad")(uri "${KIPRJMOD}/Components/CM7V_T1A_LOW_ESR_32_768KHZ_9PF_20_TA_QC")(options "")(descr ""))
 )
