@@ -4,4 +4,6 @@
   (lib (name "CIGT201610EH2R2MNE")(type "KiCad")(uri "${KIPRJMOD}/Components/CIGT201610EH2R2MNE/KiCADv6/2025-12-04_23-20-16.kicad_sym")(options "")(descr "0806 (2016 Metric)"))
   (lib (name "STCC4-D-R3")(type "KiCad")(uri "${KIPRJMOD}/Components/STCC4-D-R3/KiCad/STCC4-D-R3.kicad_sym")(options "")(descr ""))
   (lib (name "SM04B_SRSS_TB")(type "KiCad")(uri "${KIPRJMOD}/Components/SM04B_SRSS_TB/SM04B_SRSS_TB.kicad_sym")(options "")(descr ""))
+  (lib (name "BME680")(type "KiCad")(uri "${KIPRJMOD}/Components/BME680/BME680.kicad_sym")(options "")(descr ""))
+  (lib (name "Nordic_nPM")(type "KiCad")(uri "${KIPRJMOD}/../Components/Nordic_nPM.kicad_sym")(options "")(descr ""))
 )

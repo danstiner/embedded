@@ -5084,7 +5084,7 @@
 		)
 		(uuid "44fb9bad-6c69-47ed-9c36-943bc9a9c3e5")
 	)
-	(text "CO₂\nSTCC4"
+	(text "CO2\nSTCC4"
 		(exclude_from_sim no)
 		(at 87.63 122.682 0)
 		(effects
@@ -7054,7 +7054,7 @@
 		(at 198.12 35.56 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "19f31363-4dcd-4ff2-b002-4a069f91834c")
@@ -7611,7 +7611,7 @@
 		(at 198.12 22.86 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "37d20f2b-af83-4e00-8ed7-85bb71d745fa")
@@ -7798,7 +7798,7 @@
 		(at 72.39 85.09 90)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -7812,7 +7812,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "VSET-GND"
+		(property "Value" "Jumper_2_Small_Open"
 			(at 73.66 86.3599 90)
 			(effects
 				(font
@@ -7936,7 +7936,7 @@
 		(at 231.14 35.56 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "3e481098-8ade-439c-b704-9105a36ebfa3")
@@ -8068,7 +8068,7 @@
 		(at 265.43 29.21 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "43c33004-a6db-4e3d-a246-abef08c41f33")
@@ -8694,7 +8694,7 @@
 		(at 231.14 29.21 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "616feb97-857c-418d-b5b8-8e55392c5aed")
@@ -9069,7 +9069,7 @@
 		(at 198.12 48.26 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "770170f4-5910-4670-87e1-2800641552dc")
@@ -9307,7 +9307,7 @@
 		(at 231.14 22.86 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "7d8c2fca-eb9e-45eb-8298-21f0fecaeb8f")
@@ -9373,7 +9373,7 @@
 		(at 198.12 41.91 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "7df3384b-c37c-4226-824f-3346cca63691")
@@ -9812,7 +9812,7 @@
 		(at 231.14 41.91 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "8bf70e56-4609-40f9-bf1e-0e0724892e73")
@@ -10091,7 +10091,7 @@
 		(at 265.43 35.56 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "991dc6df-506e-4d6f-80d9-eddb403620af")
@@ -10585,6 +10585,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
+		(fields_autoplaced yes)
 		(uuid "af062857-4cc4-4fd2-8e3a-7d2a836faf41")
 		(property "Reference" "IC1"
 			(at 222.25 106.68 0)
@@ -10603,13 +10604,12 @@
 			)
 		)
 		(property "Footprint" "453-00223R:45300223R"
-			(at 211.328 112.014 0)
+			(at 247.65 209.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left top)
-				(hide yes)
 			)
 		)
 		(property "Datasheet" "https://www.mouser.com/catalog/specsheets/Ezurio_453_00223R_datasheet.pdf"
@@ -10878,7 +10878,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10μF"
+		(property "Value" "10uF"
 			(at 213.36 156.2099 0)
 			(effects
 				(font
@@ -11340,7 +11340,7 @@
 		(at 265.43 22.86 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "c5bf9577-f411-4e28-8c54-2aa9954695c4")
@@ -11609,7 +11609,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "BatteryHolder_Keystone_2468_2xAAA_NoHoles:BatteryHolder_Keystone_2468_2xAAA"
+		(property "Footprint" "Battery:BatteryHolder_Keystone_2468_2xAAA"
 			(at 30.48 78.486 90)
 			(effects
 				(font
@@ -11833,7 +11833,7 @@
 		(at 198.12 29.21 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "d36ede12-158c-4044-8924-68030145b94c")
@@ -11912,7 +11912,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "680Ω"
+		(property "Value" "100Ω"
 			(at 87.884 36.83 0)
 			(effects
 				(font
@@ -11993,7 +11993,7 @@
 				(hide yes)
 			)
 		)
-		(property "Part Number" "RC0603JR-13680RL"
+		(property "Part Number" "RC0603FR-07100RL"
 			(at 83.82 35.56 0)
 			(effects
 				(font
@@ -12428,7 +12428,7 @@
 		(at 231.14 48.26 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "f953b524-2288-420b-9511-188edd4db434")

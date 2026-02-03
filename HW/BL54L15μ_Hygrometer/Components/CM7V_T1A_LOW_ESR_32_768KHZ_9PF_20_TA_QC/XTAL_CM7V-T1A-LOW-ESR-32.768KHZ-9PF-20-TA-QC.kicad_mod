@@ -1,23 +1,179 @@
-
-(footprint XTAL_CM7V-T1A-LOW-ESR-32.768KHZ-9PF-20-TA-QC (layer F.Cu) (tedit 697474CD)
-  (descr "")
-  (attr smd)
-  (fp_text reference REF** (at 0.032 -1.8064 0) (layer F.SilkS)
-    (effects (font (size 0.64 0.64) (thickness 0.15)))
-  )
-  (fp_text value XTAL_CM7V-T1A-LOW-ESR-32.768KHZ-9PF-20-TA-QC (at 15.8816 1.8064 0) (layer F.Fab)
-    (effects (font (size 0.64 0.64) (thickness 0.15)))
-  )
-  (pad 1 smd rect (at -1.25 0.0) (size 1.0 1.8) (layers F.Cu F.Mask F.Paste) (solder_mask_margin 0.102))
-  (pad 2 smd rect (at 1.25 0.0) (size 1.0 1.8) (layers F.Cu F.Mask F.Paste) (solder_mask_margin 0.102))
-  (fp_line (start -1.6 -0.75) (end -1.6 0.75) (layer F.Fab) (width 0.127))
-  (fp_line (start 1.6 -0.75) (end 1.6 0.75) (layer F.Fab) (width 0.127))
-  (fp_line (start -1.6 -0.75) (end 1.6 -0.75) (layer F.Fab) (width 0.127))
-  (fp_line (start -1.6 0.75) (end 1.6 0.75) (layer F.Fab) (width 0.127))
-  (fp_line (start -2.0 -1.15) (end -2.0 1.15) (layer F.CrtYd) (width 0.05))
-  (fp_line (start -2.0 1.15) (end 2.0 1.15) (layer F.CrtYd) (width 0.05))
-  (fp_line (start 2.0 1.15) (end 2.0 -1.15) (layer F.CrtYd) (width 0.05))
-  (fp_line (start 2.0 -1.15) (end -2.0 -1.15) (layer F.CrtYd) (width 0.05))
-  (fp_line (start -0.43 -0.75) (end 0.43 -0.75) (layer F.SilkS) (width 0.127))
-  (fp_line (start -0.43 0.75) (end 0.43 0.75) (layer F.SilkS) (width 0.127))
+(footprint "XTAL_CM7V-T1A-LOW-ESR-32.768KHZ-9PF-20-TA-QC"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 0.032 -1.8064 0)
+		(layer "F.SilkS")
+		(uuid "a5cd1073-8433-4617-b60f-9472f64c1aab")
+		(effects
+			(font
+				(size 0.64 0.64)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "XTAL_CM7V-T1A-LOW-ESR-32.768KHZ-9PF-20-TA-QC"
+		(at 15.8816 1.8064 0)
+		(layer "F.Fab")
+		(uuid "ea572ae8-d512-4b34-b802-1a723d7faaad")
+		(effects
+			(font
+				(size 0.64 0.64)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "e7a54488-7099-48ae-837d-8a848122b6b8")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "d22564af-9925-4f72-8f68-daff3a40328c")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_line
+		(start -0.43 -0.75)
+		(end 0.43 -0.75)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "50081b37-1fe7-496b-b4d4-e32f157ec0c5")
+	)
+	(fp_line
+		(start -0.43 0.75)
+		(end 0.43 0.75)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "f8273eca-d5e9-4a0f-ab51-00e477f0df97")
+	)
+	(fp_line
+		(start -2 -1.15)
+		(end -2 1.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "6d3387b1-8bbd-4260-aa66-36dabd5091c8")
+	)
+	(fp_line
+		(start -2 1.15)
+		(end 2 1.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "ec395ccc-5936-4797-9d4d-bbcbd60a932c")
+	)
+	(fp_line
+		(start 2 -1.15)
+		(end -2 -1.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "f3b5e632-c297-4e6d-a11f-f05c42090a62")
+	)
+	(fp_line
+		(start 2 1.15)
+		(end 2 -1.15)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "c24f15cc-8f0d-41db-bb85-5de533e6c15c")
+	)
+	(fp_line
+		(start -1.6 -0.75)
+		(end -1.6 0.75)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "0616d116-82d6-4902-a372-c67de2de22ec")
+	)
+	(fp_line
+		(start -1.6 -0.75)
+		(end 1.6 -0.75)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "63971b65-fb66-4021-9066-291a4fc82075")
+	)
+	(fp_line
+		(start -1.6 0.75)
+		(end 1.6 0.75)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "e1a263bd-4b48-49be-a4d4-7a044d210e67")
+	)
+	(fp_line
+		(start 1.6 -0.75)
+		(end 1.6 0.75)
+		(stroke
+			(width 0.127)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "915adfb1-7267-4549-a27f-da4840d0c9f7")
+	)
+	(pad "1" smd rect
+		(at -1.25 0)
+		(size 1 1.8)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(solder_mask_margin 0.102)
+		(uuid "1f2868ee-313e-45a8-a2e7-76cb4f7481c4")
+	)
+	(pad "2" smd rect
+		(at 1.25 0)
+		(size 1 1.8)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(solder_mask_margin 0.102)
+		(uuid "253f58ef-b776-4257-8fa4-52ff98ebd86e")
+	)
+	(embedded_fonts no)
+	(model "${KIPRJMOD}/Components/CM7V_T1A_LOW_ESR_32_768KHZ_9PF_20_TA_QC/CM7V-T1A-LOW-ESR-32.768KHZ-9PF-20-TA-QC.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -90 -0 -0)
+		)
+	)
 )
