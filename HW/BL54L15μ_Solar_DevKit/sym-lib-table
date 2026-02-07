@@ -1,0 +1,11 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "453-00223R")(type "KiCad")(uri "${KIPRJMOD}/Components/453-00223R/KiCad/453-00223R.kicad_sym")(options "")(descr "Ezurio nRF54L15u chip "))
+  (lib (name "CIGT201610EH2R2MNE")(type "KiCad")(uri "${KIPRJMOD}/Components/CIGT201610EH2R2MNE/KiCADv6/2025-12-04_23-20-16.kicad_sym")(options "")(descr "0806 (2016 Metric)"))
+  (lib (name "150352M173300")(type "KiCad")(uri "${KIPRJMOD}/Components/150352M173300/WL-SFTW_3528_PLCC6.kicad_sym")(options "")(descr "LED RGB CLEAR 6PLCC SMD 150352M173300 WL-SFTW_3528_PLCC6"))
+  (lib (name "ul_USB4056-03-A")(type "KiCad")(uri "${KIPRJMOD}/Components/ul_USB4056-03-A/ul_USB4056-03-A.kicad_sym")(options "")(descr ""))
+  (lib (name "ul_USB4080-03-A")(type "KiCad")(uri "${KIPRJMOD}/Components/ul_USB4080-03-A/ul_USB4080-03-A.kicad_sym")(options "")(descr ""))
+  (lib (name "Nordic_nPM")(type "KiCad")(uri "${KIPRJMOD}/../Components/Nordic_nPM.kicad_sym")(options "")(descr ""))
+  (lib (name "Qwicc")(type "KiCad")(uri "${KIPRJMOD}/../Components/Qwicc.kicad_sym")(options "")(descr ""))
+  (lib (name "NEH7100BUHP")(type "KiCad")(uri "${KIPRJMOD}/Components/NEH7100BUHP/KiCad/NEH7100BUHP.kicad_sym")(options "")(descr ""))
+)

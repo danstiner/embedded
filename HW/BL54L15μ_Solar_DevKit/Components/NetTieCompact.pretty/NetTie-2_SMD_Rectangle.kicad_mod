@@ -1,0 +1,102 @@
+(footprint "NetTie-2_SMD_Rectangle"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(descr "Net tie, 2 pin, 0.5mm square SMD pads")
+	(tags "net tie")
+	(property "Reference" "NT2"
+		(at 0 -1.2 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "ab0bdd77-6490-43fd-abfd-84c8abde8d5d")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "NetTie_2"
+		(at 0 1.2 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "547b036c-05a3-4e11-be9b-fbb5180006d1")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" "~"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "4ac994fd-67b4-4705-95f1-abf94fc6f7a2")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "Net tie"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "13f13216-c8e9-4e55-a7cd-069f9a14e8fb")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Layout" "via to GND layers"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "e31de1ce-af65-47dc-b5be-393441d74062")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr exclude_from_pos_files exclude_from_bom allow_missing_courtyard)
+	(net_tie_pad_groups "1, 2")
+	(fp_line
+		(start -0.5 -0.25)
+		(end -0.5 0.25)
+		(stroke
+			(width 0.9)
+			(type solid)
+		)
+		(layer "F.Cu")
+		(uuid "f9b89d2c-2c42-4a52-a171-0ce155518d37")
+	)
+	(pad "1" smd rect
+		(at -0.925 0)
+		(size 0.05 0.5)
+		(layers "F.Cu")
+		(uuid "b2e1d659-ebd0-43ae-a923-290c4a2c4047")
+	)
+	(pad "1" smd rect
+		(at -0.075 -0.025)
+		(size 0.05 0.5)
+		(layers "F.Cu")
+		(uuid "185c230b-449b-46d3-993b-b3977e7ae64e")
+	)
+	(pad "2" smd oval
+		(at -0.5 0)
+		(size 0.5 1)
+		(layers "F.Cu")
+		(uuid "af80c243-0a54-4de5-a14d-c91bcc80e62a")
+	)
+	(embedded_fonts no)
+)

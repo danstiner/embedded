@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP NEH7100BUHP
+D Power Management Specialised - PMIC Inductorless energy harvesting PMIC with battery protection, LDO, I2C and USB charging, 140 mA, -40C to +85C
+K
+F https://assets.nexperia.com/documents/data-sheet/NEH7100.pdf
+$ENDCMP
+#
+#End Doc Library
