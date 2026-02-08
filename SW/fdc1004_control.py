@@ -439,22 +439,27 @@ class FDC1004:
             capdac = (conf >> 5) & 0x1F
 
         print(f"\nReading {samples} samples from MEAS{meas_num} (CAPDAC={capdac}):")
-        print("Sample | Raw (24-bit)  | Capacitance (pF) |     Avg (pF) |  Std Dev |  Time")
-        print("-" * 78)
+        header = (f"{'Sample':>6} | {'Raw Hex':>8} | {'Raw (pF)':>9} | "
+                  f"{'Cap (pF)':>10} | {'Avg (pF)':>10} | "
+                  f"{'Std Dev':>7} | {'Time':>5}")
+        print(header)
+        print("-" * len(header))
 
         mean = 0.0
         m2 = 0.0  # Sum of squares of differences from the mean
         valid_count = 0
         cap_samples = []
+        capdac_offset = capdac * self.CAPDAC_STEP_PF
 
         for i in range(samples):
             raw, capacitance, time_ms = self.single_shot_read(meas_num, rate=rate, capdac=capdac)
 
             if raw is None:
-                print(f"{i:6d} | {'TIMEOUT':>13} |                  |              |          | {time_ms:5.0f}ms")
+                print(f"{i:6d} | {'TIMEOUT':>8} | {'':>9} | {'':>10} | {'':>10} | {'':>7} | {time_ms:5.0f}ms")
                 time.sleep(delay)
                 continue
 
+            raw_pf = capacitance - capdac_offset
             cap_samples.append(capacitance)
 
             # Update running statistics (Welford's algorithm)
@@ -470,16 +475,17 @@ class FDC1004:
             print(
                 f"{i:6d} | "
                 f"0x{raw:06X} | "
-                f"{capacitance:16.4f} | "
-                f"{mean:12.4f} | "
-                f"{stddev:8.4f} | "
+                f"{raw_pf:9.4f} | "
+                f"{capacitance:10.4f} | "
+                f"{mean:10.4f} | "
+                f"{stddev:7.4f} | "
                 f"{time_ms:5.0f}ms"
             )
             time.sleep(delay)
 
         if cap_samples:
             stats = compute_stats(cap_samples)
-            print("-" * 78)
+            print("-" * len(header))
             print(f"Summary: {stats['count']} samples, mean={stats['mean']:.4f} pF, "
                   f"std={stats['std']:.4f} pF, range=[{stats['min']:.4f}, {stats['max']:.4f}]")
 
@@ -597,7 +603,7 @@ def cmd_config(args):
     print(f"Configuring MEAS{args.meas}...")
     fdc.configure_measurement(
         meas_num=args.meas,
-        cha=args.cha,
+        cha=args.channel - 1,
         chb=args.chb,
         capdac=args.capdac
     )
@@ -613,17 +619,6 @@ def cmd_read(args):
     if not fdc:
         return 1
 
-    # Configure if requested
-    if args.configure:
-        print(f"Configuring MEAS{args.meas} with channel {args.cha}, CAPDAC={args.capdac}...")
-        fdc.configure_measurement(
-            meas_num=args.meas,
-            cha=args.cha,
-            chb=FDC1004.CHB_DISABLED,
-            capdac=args.capdac
-        )
-        print()
-
     # Map rate string to value
     rate_map = {'100': 0, '200': 1, '400': 3}
     rate = rate_map.get(args.rate, 0)
@@ -633,7 +628,6 @@ def cmd_read(args):
         samples=args.samples,
         delay=args.delay,
         rate=rate,
-        capdac=args.capdac if args.configure else None
     )
 
     return 0
@@ -651,7 +645,7 @@ def cmd_monitor(args):
     if args.configure:
         for i, m in enumerate(meas_nums):
             channel = i % 4  # Use different channels
-            fdc.configure_measurement(m, cha=channel, chb=FDC1004.CHB_DISABLED, capdac=args.capdac)
+            fdc.configure_measurement(m, cha=channel, chb=FDC1004.CHB_CAPDAC, capdac=args.capdac)
 
     rate_map = {'100': 0, '200': 1, '400': 3}
     rate = rate_map.get(args.rate, 0)
@@ -686,7 +680,7 @@ def cmd_characterize(args):
         return 1
 
     meas_num = args.meas
-    channel = args.channel
+    channel = args.channel - 1
 
     print("=" * 60)
     print("=== FDC1004 Probe Characterization ===")
@@ -698,7 +692,7 @@ def cmd_characterize(args):
     print("\n--- Phase 1: Baseline Reading ---")
     print(f"Configuring MEAS{meas_num} with channel CIN{channel+1}, CAPDAC=0...")
 
-    fdc.configure_measurement(meas_num, cha=channel, chb=FDC1004.CHB_DISABLED, capdac=0)
+    fdc.configure_measurement(meas_num, cha=channel, chb=FDC1004.CHB_CAPDAC, capdac=0)
 
     # Take baseline samples at 100Hz (most stable)
     print("Taking baseline samples...")
@@ -733,7 +727,7 @@ def cmd_characterize(args):
     optimal_capdac = None
 
     for capdac in range(32):
-        fdc.configure_measurement(meas_num, cha=channel, chb=FDC1004.CHB_DISABLED, capdac=capdac)
+        fdc.configure_measurement(meas_num, cha=channel, chb=FDC1004.CHB_CAPDAC, capdac=capdac)
         time.sleep(0.05)
 
         samples = fdc.take_samples(meas_num, n=5, delay=0.02, rate=FDC1004.RATE_100HZ, capdac=capdac)
@@ -772,7 +766,7 @@ def cmd_characterize(args):
     print("\n--- Phase 3: Sample Rate Comparison ---")
     print(f"Using CAPDAC={optimal_capdac}, comparing noise at different sample rates...")
 
-    fdc.configure_measurement(meas_num, cha=channel, chb=FDC1004.CHB_DISABLED, capdac=optimal_capdac)
+    fdc.configure_measurement(meas_num, cha=channel, chb=FDC1004.CHB_CAPDAC, capdac=optimal_capdac)
 
     rate_results = []
     rates = [
@@ -810,7 +804,7 @@ def cmd_characterize(args):
     print("\n--- Phase 4: Extended Validation ---")
     print(f"Taking extended samples with optimal settings...")
 
-    fdc.configure_measurement(meas_num, cha=channel, chb=FDC1004.CHB_DISABLED, capdac=optimal_capdac)
+    fdc.configure_measurement(meas_num, cha=channel, chb=FDC1004.CHB_CAPDAC, capdac=optimal_capdac)
 
     # Use best rate or default to 100Hz
     best_rate_val = best_rate['rate_val'] if rate_results else FDC1004.RATE_100HZ
@@ -842,7 +836,7 @@ def cmd_characterize(args):
 
     # Command line for future use
     print("  Command to configure:")
-    print(f"    python fdc1004_control.py config -m {meas_num} --cha {channel} --capdac {optimal_capdac}")
+    print(f"    python fdc1004_control.py config -m {meas_num} -c {channel+1} --capdac {optimal_capdac}")
     print()
     print("  Command to read:")
     rate_str = best_rate['rate'].replace('Hz', '') if rate_results else '100'
@@ -881,12 +875,11 @@ Examples:
   %(prog)s info                          # Show device info and config
   %(prog)s reset                         # Reset FDC1004 device
   %(prog)s reset-ftdi                    # Reset FT232H USB adapter
-  %(prog)s config -m 1 --cha 0 --capdac 10   # Configure MEAS1
+  %(prog)s config -m 1 -c 1 --capdac 10      # Configure MEAS1 on CIN1
   %(prog)s read -m 1 -n 10               # Read 10 samples from MEAS1
-  %(prog)s read -m 1 -n 10 --configure   # Configure and read
   %(prog)s monitor -M 1 2                # Monitor MEAS1 and MEAS2
-  %(prog)s characterize -c 0             # Characterize channel CIN1
-  %(prog)s characterize -c 0 --output results.csv  # Save results to CSV
+  %(prog)s characterize -c 1             # Characterize channel CIN1
+  %(prog)s characterize -c 1 --output results.csv  # Save results to CSV
         """
     )
 
@@ -912,12 +905,14 @@ Examples:
     parser_config = subparsers.add_parser('config', help='Configure measurement parameters')
     parser_config.add_argument('-m', '--meas', type=int, default=1, choices=[1, 2, 3, 4],
                               help='Measurement slot (1-4, default: 1)')
-    parser_config.add_argument('--cha', type=int, default=0, choices=[0, 1, 2, 3],
-                              help='Positive channel CINx (0-3, default: 0 for CIN1)')
-    parser_config.add_argument('--chb', type=int, default=7, choices=[0, 1, 2, 3, 4, 7],
-                              help='Negative channel (0-3=CINx, 4=CAPDAC, 7=disabled, default: 7)')
+    parser_config.add_argument('-c', '--channel', type=int, default=1, choices=[1, 2, 3, 4],
+                              dest='channel',
+                              help='Positive channel CIN1-CIN4 (default: 1)')
+    parser_config.add_argument('--chb', type=int, default=4, choices=[0, 1, 2, 3, 4, 7],
+                              help='Negative channel (0-3=CINx, 4=CAPDAC, 7=disabled, default: 4/CAPDAC)')
     parser_config.add_argument('--capdac', type=int, default=0,
-                              help='CAPDAC offset 0-31 (each step = 3.125pF, default: 0)')
+                              help='CAPDAC offset 0-31, each step = 3.125 pF '
+                                   '(range 0-96.875 pF, default: 0)')
 
     # Read command
     parser_read = subparsers.add_parser('read', help='Read capacitance measurements')
@@ -929,12 +924,6 @@ Examples:
                             help='Delay between samples in seconds (default: 0.1)')
     parser_read.add_argument('--rate', type=str, default='100', choices=['100', '200', '400'],
                             help='Sample rate in Hz (default: 100)')
-    parser_read.add_argument('--configure', action='store_true',
-                            help='Configure measurement before reading')
-    parser_read.add_argument('--cha', type=int, default=0, choices=[0, 1, 2, 3],
-                            help='Channel for configure (default: 0)')
-    parser_read.add_argument('--capdac', type=int, default=0,
-                            help='CAPDAC for configure (default: 0)')
 
     # Monitor command
     parser_monitor = subparsers.add_parser('monitor', help='Monitor multiple measurements')
@@ -947,13 +936,14 @@ Examples:
     parser_monitor.add_argument('--configure', action='store_true',
                                help='Configure measurements before monitoring')
     parser_monitor.add_argument('--capdac', type=int, default=0,
-                               help='CAPDAC for all measurements (default: 0)')
+                               help='CAPDAC offset 0-31, each step = 3.125 pF '
+                                    '(range 0-96.875 pF, default: 0)')
 
     # Characterize command
     parser_char = subparsers.add_parser('characterize',
                                         help='Characterize probe for optimal settings')
-    parser_char.add_argument('-c', '--channel', type=int, default=0, choices=[0, 1, 2, 3],
-                            help='Channel to characterize CINx (0-3, default: 0)')
+    parser_char.add_argument('-c', '--channel', type=int, default=1, choices=[1, 2, 3, 4],
+                            help='Channel to characterize CIN1-CIN4 (default: 1)')
     parser_char.add_argument('-m', '--meas', type=int, default=1, choices=[1, 2, 3, 4],
                             help='Measurement slot to use (default: 1)')
     parser_char.add_argument('--output', type=str, default=None,
