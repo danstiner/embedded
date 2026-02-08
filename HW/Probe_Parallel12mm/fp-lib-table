@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "CapacitiveStrips")(type "KiCad")(uri "${KIPRJMOD}/Components/Probe/CapacitiveStrips.pretty")(options "")(descr ""))
+)
