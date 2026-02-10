@@ -82,6 +82,10 @@
         [
           "silk_overlap|64523819|87475093|cc708424-c024-43a1-8639-c15b5888c147|e20a8efa-f65d-4169-b857-1d6963298a79",
           ""
+        ],
+        [
+          "starved_thermal|58890000|112199500|85f7ab14-bc4b-4e91-805e-ff04f7bef84e|43de1f42-9470-4270-8263-0e4d2a7c900c|F.Cu",
+          ""
         ]
       ],
       "meta": {
@@ -789,7 +793,7 @@
     ]
   ],
   "text_variables": {
-    "REVISION": "2026v1",
-    "TITLE": "BL54L15μ DevKit"
+    "REVISION": "2026v2",
+    "TITLE": "BL54L15μ nPM1304 DevKit"
   }
 }
