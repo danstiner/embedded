@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "FDC1004DSCR")(type "KiCad")(uri "${KIPRJMOD}/Components/FDC1004DSCR/KiCADv6/FDC1004DSCR.kicad_sym")(options "")(descr ""))
+  (lib (name "SM04B_SRSS_TB")(type "KiCad")(uri "${KIPRJMOD}/Components/SM04B_SRSS_TB/SM04B_SRSS_TB.kicad_sym")(options "")(descr ""))
+)
