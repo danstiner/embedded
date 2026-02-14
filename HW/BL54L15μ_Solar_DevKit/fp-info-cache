@@ -1,4 +1,4 @@
-27256633346652684
+27258404461690347
 150352M173300
 WL-SFTW_3528_PLCC6
 
@@ -40165,6 +40165,13 @@ Surface mounted pin header SMD 2x40 2.54mm double row
 0
 80
 80
+Connector_PinHeader_2.54mm_SilkFree
+PinHeader_1x11_P2.54mm_Vertical
+Through hole straight pin header, 1x11, 2.54mm pitch, single row
+Through hole pin header THT 1x11 2.54mm single row
+0
+11
+11
 Connector_PinHeader_2.54mm_SilkFree
 PinHeader_1x12_P2.54mm_Vertical
 Through hole straight pin header, 1x12, 2.54mm pitch, single row
