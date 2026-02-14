@@ -870,7 +870,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin passive line
 				(at 15.24 -30.48 180)
 				(length 5.08)
 				(name "SBU1"
@@ -888,7 +888,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin passive line
 				(at 15.24 -33.02 180)
 				(length 5.08)
 				(name "SBU2"

@@ -48,7 +48,7 @@
         "silk_text_thickness": 0.127,
         "silk_text_upright": false,
         "zones": {
-          "min_clearance": 0.1524
+          "min_clearance": 0.127
         }
       },
       "diff_pair_dimensions": [
@@ -60,7 +60,11 @@
       ],
       "drc_exclusions": [
         [
-          "silk_edge_clearance|55095000|86360000|4a338c0d-b6cb-4513-903d-612bfafe97bc|0f22587f-1b8d-4548-9e36-0593d5a8f467",
+          "silk_edge_clearance|54761000|96088200|4a338c0d-b6cb-4513-903d-612bfafe97bc|f59fcab9-8a37-4b94-a6f2-4058fc6b9e15",
+          ""
+        ],
+        [
+          "silk_edge_clearance|54761000|96088800|4a338c0d-b6cb-4513-903d-612bfafe97bc|8f9e391f-8b96-47fc-a9f5-271a777a2dfa",
           ""
         ],
         [
@@ -80,7 +84,19 @@
           ""
         ],
         [
-          "silk_edge_clearance|64285000|86360000|4a338c0d-b6cb-4513-903d-612bfafe97bc|7c6cab6d-0d72-4da4-897f-b96a82c73993",
+          "silk_edge_clearance|64611000|96088200|4a338c0d-b6cb-4513-903d-612bfafe97bc|38d70689-b722-436d-963b-4edcf40ca812",
+          ""
+        ],
+        [
+          "silk_edge_clearance|68580000|76093200|405d9f57-e263-4f3a-b8ff-70853db3edf3|0009182e-01fa-4d8a-9953-fd0fef3b845f",
+          ""
+        ],
+        [
+          "silk_edge_clearance|68580000|83063200|405d9f57-e263-4f3a-b8ff-70853db3edf3|5a31880a-51e5-4748-9d65-f5e07c6cd352",
+          ""
+        ],
+        [
+          "silk_edge_clearance|68597600|83063200|405d9f57-e263-4f3a-b8ff-70853db3edf3|73d30707-0622-4d7a-ab91-cafd3522d210",
           ""
         ]
       ],
@@ -158,7 +174,7 @@
         "min_microvia_drill": 0.254,
         "min_resolved_spokes": 2,
         "min_silk_clearance": 0.0,
-        "min_text_height": 0.75,
+        "min_text_height": 0.55,
         "min_text_thickness": 0.127,
         "min_through_hole_diameter": 0.254,
         "min_track_width": 0.127,
@@ -214,7 +230,8 @@
       "track_widths": [
         0.0,
         0.127,
-        0.2
+        0.2,
+        0.3
       ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
@@ -250,10 +267,6 @@
         {
           "diameter": 0.4572,
           "drill": 0.254
-        },
-        {
-          "diameter": 0.7112,
-          "drill": 0.508
         }
       ],
       "zones_allow_external_fillets": false
@@ -669,7 +682,7 @@
     ]
   ],
   "text_variables": {
-    "REVISION": "2026v1",
+    "REVISION": "2026r2",
     "TITLE": "SWD over USB-C Adapter"
   }
 }

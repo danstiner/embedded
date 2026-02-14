@@ -6,5 +6,5 @@
   (lib (name "SN74CBTLV3257RGYR")(type "KiCad")(uri "${KIPRJMOD}/Components/SN74CBTLV3257RGYR/SN74CBTLV3257RGYR.kicad_sym")(options "")(descr ""))
   (lib (name "74LV1T87GVH")(type "KiCad")(uri "${KIPRJMOD}/Components/74LV1T87GVH/74LV1T87GVH.kicad_sym")(options "")(descr ""))
   (lib (name "USBC_Connector")(type "KiCad")(uri "${KIPRJMOD}/Components/USBC_Connector.kicad_sym")(options "")(descr ""))
-  (lib (name "USB_C")(type "KiCad")(uri "/Users/dan/Documents/Soily/HW/Components/USB_C.kicad_sym")(options "")(descr ""))
+  (lib (name "USB4056-03-A_REVA2")(type "KiCad")(uri "${KIPRJMOD}/Components/USB4056_03_A/USB4056-03-A_REVA2.kicad_sym")(options "")(descr ""))
 )
