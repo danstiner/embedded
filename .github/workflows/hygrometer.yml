@@ -42,6 +42,11 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_BASEDIR: ${{ github.workspace }}
+      CCACHE_NOHASHDIR: "1"
+      CCACHE_COMPRESS: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,6 +55,18 @@ jobs:
         working-directory: SW
         run: west update --narrow -o=--depth=1
 
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.ccache
+          key: ${{ runner.os }}-ccache-hygrometer-${{ hashFiles('SW/west/west.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-hygrometer-
+            ${{ runner.os }}-ccache-
+
+      - name: Configure ccache
+        run: ccache -M 100M
+
       - name: Build
         working-directory: SW
         run: |
@@ -57,6 +74,10 @@ jobs:
             -b nrf54l15dk/nrf54l15/cpuapp \
             -p always \
             hygrometer
+
+      - name: Show ccache stats
+        if: always()
+        run: ccache --show-stats
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
