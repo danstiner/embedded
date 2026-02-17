@@ -1,16 +1,16 @@
-name: Build humid_zephyr
+name: Build hygrometer
 
 on:
   push:
     paths:
-      - SW/humid_zephyr/**
+      - SW/hygrometer/**
       - SW/west/**
-      - .github/workflows/humid_zephyr.yml
+      - .github/workflows/hygrometer.yml
   pull_request:
     paths:
-      - SW/humid_zephyr/**
+      - SW/hygrometer/**
       - SW/west/**
-      - .github/workflows/humid_zephyr.yml
+      - .github/workflows/hygrometer.yml
 
 jobs:
   resolve-toolchain:
@@ -56,12 +56,12 @@ jobs:
           west build \
             -b nrf54l15dk/nrf54l15/cpuapp \
             -p always \
-            humid_zephyr
+            hygrometer
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: humid_zephyr
+          name: hygrometer
           path: |
             SW/build/merged.hex
             SW/build/matter.ota
