@@ -261,8 +261,16 @@ uart:~$ mcuboot confirm 0  # Reject current, revert to previous
 
 ### Modify Matter Clusters
 
+Open the ZAP GUI to edit cluster configuration:
+
 ```bash
 west zap-gui
+```
+
+After saving changes in the GUI, regenerate the data model source files:
+
+```bash
+west zap-generate -z src/sensor.zap -o src/zap-generated
 ```
 
 ## Troubleshooting
@@ -394,11 +402,6 @@ uart:~$ matter factoryreset
 - Check if DK has led0 alias defined
 - LED feature is optional, won't affect functionality
 - Check DK schematic for LED GPIO
-
-### Build errors
-- Ensure nRF Connect SDK v2.6.0+ is installed
-- Verify ZEPHYR_BASE environment variable
-- Try clean build: `west build -p`
 
 ## Power Consumption
 

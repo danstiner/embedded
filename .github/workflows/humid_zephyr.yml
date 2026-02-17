@@ -1,0 +1,68 @@
+name: Build humid_zephyr
+
+on:
+  push:
+    paths:
+      - SW/humid_zephyr/**
+      - SW/west/**
+      - .github/workflows/humid_zephyr.yml
+  pull_request:
+    paths:
+      - SW/humid_zephyr/**
+      - SW/west/**
+      - .github/workflows/humid_zephyr.yml
+
+jobs:
+  resolve-toolchain:
+    runs-on: ubuntu-24.04
+    outputs:
+      toolchain-tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install west
+        run: pip3 install west
+
+      - name: Fetch NCS (nrf repo only)
+        working-directory: SW
+        run: west update --narrow -o=--depth=1 -n nrf
+
+      - name: Resolve toolchain Docker tag
+        id: tag
+        run: |
+          TAG=$(SW/west/ncs/nrf/scripts/print_toolchain_checksum.sh)
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: resolve-toolchain
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/nrfconnect/sdk-nrf-toolchain:${{ needs.resolve-toolchain.outputs.toolchain-tag }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update west modules
+        working-directory: SW
+        run: west update --narrow -o=--depth=1
+
+      - name: Build
+        working-directory: SW
+        run: |
+          west build \
+            -b nrf54l15dk/nrf54l15/cpuapp \
+            -p always \
+            humid_zephyr
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: humid_zephyr
+          path: |
+            SW/build/merged.hex
+            SW/build/matter.ota
+            SW/build/dfu_application.zip
