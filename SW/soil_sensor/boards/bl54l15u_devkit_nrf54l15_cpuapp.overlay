@@ -1,0 +1,10 @@
+/* Set NPM1304 BUCK2 to 3.0V at boot */
+&npm1304_buck2 {
+	regulator-init-microvolt = <3000000>;
+	regulator-boot-on;
+};
+
+/* Enable NPM1304 LDO1 load switch to power the FDC1004 */
+&npm1304_ldo1 {
+	regulator-boot-on;
+};

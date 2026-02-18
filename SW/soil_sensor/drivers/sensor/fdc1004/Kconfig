@@ -1,0 +1,7 @@
+config FDC1004
+	bool "TI FDC1004 Capacitance-to-Digital Converter"
+	default y
+	depends on DT_HAS_TI_FDC1004_ENABLED
+	select I2C
+	help
+	  Enable driver for TI FDC1004 4-Channel Capacitance-to-Digital Converter.

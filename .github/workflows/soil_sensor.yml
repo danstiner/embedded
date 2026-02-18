@@ -1,0 +1,94 @@
+name: Build soil_sensor
+
+on:
+  push:
+    paths:
+      - SW/soil_sensor/**
+      - SW/boards/nordic/bl54l15u_devkit/**
+      - SW/west/**
+      - .github/workflows/soil_sensor.yml
+  pull_request:
+    paths:
+      - SW/soil_sensor/**
+      - SW/boards/nordic/bl54l15u_devkit/**
+      - SW/west/**
+      - .github/workflows/soil_sensor.yml
+
+jobs:
+  resolve-toolchain:
+    runs-on: ubuntu-24.04
+    outputs:
+      toolchain-tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install west
+        run: pip3 install west
+
+      - name: Fetch NCS (nrf repo only)
+        working-directory: SW
+        run: west update --narrow -o=--depth=1 -n nrf
+
+      - name: Resolve toolchain Docker tag
+        id: tag
+        run: |
+          TAG=$(SW/west/ncs/nrf/scripts/print_toolchain_checksum.sh)
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: resolve-toolchain
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        revision: [2026v1, 2026v2]
+    container:
+      image: ghcr.io/nrfconnect/sdk-nrf-toolchain:${{ needs.resolve-toolchain.outputs.toolchain-tag }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_BASEDIR: ${{ github.workspace }}
+      CCACHE_NOHASHDIR: "1"
+      CCACHE_COMPRESS: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update west modules
+        working-directory: SW
+        run: west update --narrow -o=--depth=1
+
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.ccache
+          key: ${{ runner.os }}-ccache-soil_sensor-${{ hashFiles('SW/west/west.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-soil_sensor-
+            ${{ runner.os }}-ccache-
+
+      - name: Configure ccache
+        run: ccache -M 100M
+
+      - name: Build
+        working-directory: SW
+        run: |
+          west build \
+            -b bl54l15u_devkit@${{ matrix.revision }}/nrf54l15/cpuapp \
+            -p always \
+            soil_sensor \
+            -- -DBOARD_ROOT=$(pwd)
+
+      - name: Show ccache stats
+        if: always()
+        run: ccache --show-stats
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: soil_sensor-${{ matrix.revision }}
+          path: |
+            SW/build/merged.hex
+            SW/build/dfu_application.zip

@@ -1,0 +1,13 @@
+/* 2026v2: FDC1004 on I2C20 (shared PMIC + Qwiic J1 bus, already enabled) */
+&i2c20 {
+	fdc1004: fdc1004@50 {
+		compatible = "ti,fdc1004";
+		reg = <0x50>;
+
+		channel-0 {
+			cha = <1>;   /* CIN2 */
+			chb = <4>;   /* CAPDAC */
+			capdac = <0>;
+		};
+	};
+};

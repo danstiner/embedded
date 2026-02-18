@@ -154,7 +154,7 @@
 			compatible = "nordic,npm1304-charger";
 			term-microvolt = <4100000>;      /* 4.1V for ~90% charge on standard LiPo */
 			term-warm-microvolt = <4000000>; /* 4.0V at warm temp (safer) */
-			current-microamp = <30000>;      /* 30mA charging current */
+			current-microamp = <40000>;      /* 40mA charging current */
 			vbus-limit-microamp = <100000>;  /* 100mA VBUS limit (conservative USB unconfigured) */
 			thermistor-ohms = <0>;           /* NTC disabled */
 			thermistor-beta = <3950>;        /* Required property, ignored when NTC disabled */

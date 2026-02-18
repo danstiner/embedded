@@ -1,0 +1,31 @@
+description: TI FDC1004 4-Channel Capacitance-to-Digital Converter
+
+compatible: "ti,fdc1004"
+
+include: [sensor-device.yaml, i2c-device.yaml]
+
+properties:
+  sample-rate:
+    type: int
+    default: 0
+    description: |
+      Sample rate setting (0=100Hz, 1=200Hz, 3=400Hz).
+
+child-binding:
+  description: Channel measurement configuration
+  properties:
+    cha:
+      type: int
+      required: true
+      description: |
+        Positive channel input (0=CIN1, 1=CIN2, 2=CIN3, 3=CIN4).
+    chb:
+      type: int
+      required: true
+      description: |
+        Negative channel input (0=CIN1, 1=CIN2, 2=CIN3, 3=CIN4, 4=CAPDAC, 7=disabled).
+    capdac:
+      type: int
+      required: true
+      description: |
+        CAPDAC offset value (0-31). Each step adds 3.125 pF offset.

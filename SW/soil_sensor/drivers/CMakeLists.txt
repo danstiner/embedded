@@ -1,0 +1,1 @@
+add_subdirectory_ifdef(CONFIG_FDC1004 sensor/fdc1004)

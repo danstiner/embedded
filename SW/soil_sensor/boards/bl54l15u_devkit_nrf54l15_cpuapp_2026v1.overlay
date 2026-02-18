@@ -1,0 +1,15 @@
+/* 2026v1: FDC1004 on I2C21 (dedicated Qwiic J1 bus) */
+&i2c21 {
+	status = "okay";
+
+	fdc1004: fdc1004@50 {
+		compatible = "ti,fdc1004";
+		reg = <0x50>;
+
+		channel-0 {
+			cha = <1>;   /* CIN2 */
+			chb = <4>;   /* CAPDAC */
+			capdac = <0>;
+		};
+	};
+};
