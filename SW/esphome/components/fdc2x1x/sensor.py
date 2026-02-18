@@ -1,10 +1,11 @@
 import esphome.codegen as cg
-from esphome.components import i2c, sensor
 import esphome.config_validation as cv
 from esphome.const import (
     CONF_ID,
     STATE_CLASS_MEASUREMENT,
 )
+
+from esphome.components import i2c, sensor
 
 CODEOWNERS = ["@danstiner"]
 DEPENDENCIES = ["i2c"]
@@ -15,9 +16,7 @@ CONF_CHANNEL0 = "channel0"
 
 fdc_ns = cg.esphome_ns.namespace("fdc2x1x")
 
-FDC2x1xSensor = fdc_ns.class_(
-    "FDC2x1xSensor", cg.PollingComponent, i2c.I2CDevice
-)
+FDC2x1xSensor = fdc_ns.class_("FDC2x1xSensor", cg.PollingComponent, i2c.I2CDevice)
 
 CONFIG_SCHEMA = (
     cv.Schema(

@@ -11,11 +11,12 @@ Uses the seesaw protocol directly over PyFTDI (no CircuitPython/Blinka).
 Reads capacitive moisture (uint16) and chip temperature (float, degC).
 """
 
-from pyftdi.i2c import I2cController
-import time
 import argparse
-import sys
 import math
+import sys
+import time
+
+from pyftdi.i2c import I2cController
 
 
 class AdafruitSoil:
@@ -25,15 +26,15 @@ class AdafruitSoil:
     ADDR = 0x36
 
     # Seesaw register map: (base, function)
-    REG_HW_ID = (0x00, 0x01)          # 1 byte, expect 0x55
-    REG_VERSION = (0x00, 0x02)         # 4 bytes, uint32
-    REG_TEMPERATURE = (0x00, 0x04)     # 4 bytes, see conversion below
-    REG_RESET = (0x00, 0x7F)           # write 0xFF to reset
-    REG_MOISTURE = (0x0F, 0x10)        # 2 bytes, uint16 (valid <= 4095)
+    REG_HW_ID = (0x00, 0x01)  # 1 byte, expect 0x55
+    REG_VERSION = (0x00, 0x02)  # 4 bytes, uint32
+    REG_TEMPERATURE = (0x00, 0x04)  # 4 bytes, see conversion below
+    REG_RESET = (0x00, 0x7F)  # write 0xFF to reset
+    REG_MOISTURE = (0x0F, 0x10)  # 2 bytes, uint16 (valid <= 4095)
 
     HW_ID_EXPECTED = 0x55
 
-    def __init__(self, i2c_url='ftdi://ftdi:232h/1', i2c_addr=None, frequency=100000):
+    def __init__(self, i2c_url="ftdi://ftdi:232h/1", i2c_addr=None, frequency=100000):
         """Initialize Adafruit Soil Sensor with FT232H I2C bridge"""
         self.i2c = I2cController()
         self.i2c.configure(i2c_url, frequency=frequency)
@@ -74,7 +75,7 @@ class AdafruitSoil:
 
     def moisture_read(self):
         """Read capacitive moisture value (uint16), with retry for out-of-range"""
-        for attempt in range(3):
+        for _attempt in range(3):
             data = self.seesaw_read(*self.REG_MOISTURE, 2, delay=0.005)
             value = (data[0] << 8) | data[1]
             if value <= 4095:
@@ -91,11 +92,11 @@ class AdafruitSoil:
 
 def init_device(args):
     """Initialize and verify Adafruit Soil Sensor"""
-    freq = args.frequency if hasattr(args, 'frequency') else 100000
+    freq = args.frequency if hasattr(args, "frequency") else 100000
 
     try:
         sensor = AdafruitSoil(i2c_addr=args.addr, frequency=freq)
-        print(f"Connected to FT232H at {freq/1000:.0f}kHz")
+        print(f"Connected to FT232H at {freq / 1000:.0f}kHz")
     except Exception as e:
         print(f"Error connecting to FT232H: {e}")
         print("\nMake sure:")
@@ -106,7 +107,10 @@ def init_device(args):
     try:
         hw_id = sensor.read_hw_id()
         if hw_id != AdafruitSoil.HW_ID_EXPECTED:
-            print(f"Warning: unexpected HW ID 0x{hw_id:02X} (expected 0x{AdafruitSoil.HW_ID_EXPECTED:02X})")
+            print(
+                f"Warning: unexpected HW ID 0x{hw_id:02X}"
+                f" (expected 0x{AdafruitSoil.HW_ID_EXPECTED:02X})"
+            )
         else:
             print(f"HW ID: 0x{hw_id:02X} (OK)")
     except Exception as e:
@@ -128,25 +132,25 @@ def compute_stats(samples):
     else:
         std = 0.0
     return {
-        'mean': mean,
-        'std': std,
-        'min': min(samples),
-        'max': max(samples),
+        "mean": mean,
+        "std": std,
+        "min": min(samples),
+        "max": max(samples),
     }
 
 
 def cmd_scan(args):
     """Scan I2C bus for devices"""
     i2c = I2cController()
-    freq = args.frequency if hasattr(args, 'frequency') else 100000
-    i2c.configure('ftdi://ftdi:232h/1', frequency=freq)
+    freq = args.frequency if hasattr(args, "frequency") else 100000
+    i2c.configure("ftdi://ftdi:232h/1", frequency=freq)
 
-    print(f"Scanning I2C bus at {freq/1000:.0f}kHz...")
+    print(f"Scanning I2C bus at {freq / 1000:.0f}kHz...")
     print("     0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F")
 
     found = []
     for row in range(8):
-        print(f"{row*16:02X}: ", end="")
+        print(f"{row * 16:02X}: ", end="")
         for col in range(16):
             addr = row * 16 + col
             if addr < 0x08 or addr > 0x77:
@@ -158,7 +162,7 @@ def cmd_scan(args):
                 port.read(1)
                 print(f"{addr:02X} ", end="")
                 found.append(addr)
-            except:
+            except Exception:
                 print("-- ", end="")
         print()
 
@@ -220,9 +224,10 @@ def cmd_reset(args):
 def cmd_reset_ftdi(args):
     """Reset the FT232H USB adapter"""
     from pyftdi.ftdi import Ftdi
+
     print("Resetting FT232H USB adapter...")
     ftdi = Ftdi()
-    ftdi.open_from_url(url='ftdi://ftdi:232h:1/1')
+    ftdi.open_from_url(url="ftdi://ftdi:232h:1/1")
     ftdi.reset(usb_reset=True)
     ftdi.close()
     print("Done")
@@ -242,9 +247,11 @@ def cmd_read(args):
     m_m2 = 0.0
     count = 0
 
-    header = (f"{'Sample':>6} | {'Temp (C)':>10} | {'Moisture':>10} | "
-              f"{'Avg Temp':>10} | {'Std Temp':>10} | "
-              f"{'Avg Moist':>10} | {'Std Moist':>10}")
+    header = (
+        f"{'Sample':>6} | {'Temp (C)':>10} | {'Moisture':>10} | "
+        f"{'Avg Temp':>10} | {'Std Temp':>10} | "
+        f"{'Avg Moist':>10} | {'Std Moist':>10}"
+    )
     sep = "-" * len(header)
 
     def print_row(idx, temp_c, moisture):
@@ -265,13 +272,15 @@ def cmd_read(args):
         t_std = math.sqrt(t_m2 / (count - 1)) if count > 1 else 0.0
         m_std = math.sqrt(m_m2 / (count - 1)) if count > 1 else 0.0
 
-        print(f"{idx:6d} | {temp_c:10.2f} | {moisture:10d} | "
-              f"{t_mean:10.2f} | {t_std:10.3f} | "
-              f"{m_mean:10.1f} | {m_std:10.1f}")
+        print(
+            f"{idx:6d} | {temp_c:10.2f} | {moisture:10d} | "
+            f"{t_mean:10.2f} | {t_std:10.3f} | "
+            f"{m_mean:10.1f} | {m_std:10.1f}"
+        )
 
     try:
         if args.samples == 0:
-            print(f"Reading continuously (Ctrl+C to stop):")
+            print("Reading continuously (Ctrl+C to stop):")
             print(header)
             print(sep)
             sample = 0
@@ -327,8 +336,18 @@ def cmd_monitor(args):
                 ts = compute_stats(temp_samples)
                 ms = compute_stats(moisture_samples)
                 print(f"\n--- Statistics ({len(temp_samples)} samples) ---")
-                print(f"  Temp (C):  mean={ts['mean']:.2f}  std={ts['std']:.2f}  min={ts['min']:.2f}  max={ts['max']:.2f}")
-                print(f"  Moisture:  mean={ms['mean']:.1f}  std={ms['std']:.1f}  min={ms['min']}  max={ms['max']}")
+                print(
+                    f"  Temp (C):  mean={ts['mean']:.2f}"
+                    f"  std={ts['std']:.2f}"
+                    f"  min={ts['min']:.2f}"
+                    f"  max={ts['max']:.2f}"
+                )
+                print(
+                    f"  Moisture:  mean={ms['mean']:.1f}"
+                    f"  std={ms['std']:.1f}"
+                    f"  min={ms['min']}"
+                    f"  max={ms['max']}"
+                )
                 print()
 
             time.sleep(args.delay)
@@ -338,8 +357,18 @@ def cmd_monitor(args):
             ts = compute_stats(temp_samples)
             ms = compute_stats(moisture_samples)
             print(f"\n\n--- Final Statistics ({len(temp_samples)} samples) ---")
-            print(f"  Temp (C):  mean={ts['mean']:.2f}  std={ts['std']:.2f}  min={ts['min']:.2f}  max={ts['max']:.2f}")
-            print(f"  Moisture:  mean={ms['mean']:.1f}  std={ms['std']:.1f}  min={ms['min']}  max={ms['max']}")
+            print(
+                f"  Temp (C):  mean={ts['mean']:.2f}"
+                f"  std={ts['std']:.2f}"
+                f"  min={ts['min']:.2f}"
+                f"  max={ts['max']:.2f}"
+            )
+            print(
+                f"  Moisture:  mean={ms['mean']:.1f}"
+                f"  std={ms['std']:.1f}"
+                f"  min={ms['min']}"
+                f"  max={ms['max']}"
+            )
         print("\nStopped")
 
     return 0
@@ -348,7 +377,7 @@ def cmd_monitor(args):
 def main():
     """Main CLI entry point"""
     parser = argparse.ArgumentParser(
-        description='Adafruit STEMMA Soil Sensor via FT232H (seesaw protocol)',
+        description="Adafruit STEMMA Soil Sensor via FT232H (seesaw protocol)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -360,41 +389,59 @@ Examples:
   %(prog)s read -n 0                     # Read continuously
   %(prog)s read -n 5 -d 0.5             # 5 samples, 0.5s delay
   %(prog)s monitor                       # Continuous monitoring with stats
-        """
+        """,
     )
 
-    parser.add_argument('-a', '--addr', type=lambda x: int(x, 0), default=0x36,
-                       help='I2C address (default: 0x36)')
-    parser.add_argument('-f', '--frequency', type=int, default=100000,
-                       help='I2C frequency in Hz (default: 100000)')
+    parser.add_argument(
+        "-a", "--addr", type=lambda x: int(x, 0), default=0x36, help="I2C address (default: 0x36)"
+    )
+    parser.add_argument(
+        "-f", "--frequency", type=int, default=100000, help="I2C frequency in Hz (default: 100000)"
+    )
 
-    subparsers = parser.add_subparsers(dest='command', help='Command to execute')
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 
     # Scan command
-    subparsers.add_parser('scan', help='Scan I2C bus for devices')
+    subparsers.add_parser("scan", help="Scan I2C bus for devices")
 
     # Info command
-    subparsers.add_parser('info', help='Show HW ID, firmware version, temp, moisture')
+    subparsers.add_parser("info", help="Show HW ID, firmware version, temp, moisture")
 
     # Reset command
-    subparsers.add_parser('reset', help='Soft reset the soil sensor')
+    subparsers.add_parser("reset", help="Soft reset the soil sensor")
 
     # Reset FTDI command
-    subparsers.add_parser('reset-ftdi', help='Reset the FT232H USB adapter')
+    subparsers.add_parser("reset-ftdi", help="Reset the FT232H USB adapter")
 
     # Read command
-    parser_read = subparsers.add_parser('read', help='Read temperature and moisture')
-    parser_read.add_argument('-n', '--samples', type=int, default=10,
-                            help='Number of samples (0 = continuous, default: 10)')
-    parser_read.add_argument('-d', '--delay', type=float, default=1.0,
-                            help='Delay between samples in seconds (default: 1.0)')
+    parser_read = subparsers.add_parser("read", help="Read temperature and moisture")
+    parser_read.add_argument(
+        "-n",
+        "--samples",
+        type=int,
+        default=10,
+        help="Number of samples (0 = continuous, default: 10)",
+    )
+    parser_read.add_argument(
+        "-d",
+        "--delay",
+        type=float,
+        default=1.0,
+        help="Delay between samples in seconds (default: 1.0)",
+    )
 
     # Monitor command
-    parser_monitor = subparsers.add_parser('monitor', help='Continuous monitoring with statistics')
-    parser_monitor.add_argument('-d', '--delay', type=float, default=1.0,
-                               help='Delay between samples in seconds (default: 1.0)')
-    parser_monitor.add_argument('-i', '--interval', type=int, default=10,
-                               help='Print stats every N samples (default: 10)')
+    parser_monitor = subparsers.add_parser("monitor", help="Continuous monitoring with statistics")
+    parser_monitor.add_argument(
+        "-d",
+        "--delay",
+        type=float,
+        default=1.0,
+        help="Delay between samples in seconds (default: 1.0)",
+    )
+    parser_monitor.add_argument(
+        "-i", "--interval", type=int, default=10, help="Print stats every N samples (default: 10)"
+    )
 
     args = parser.parse_args()
 
@@ -403,12 +450,12 @@ Examples:
         return 1
 
     commands = {
-        'scan': cmd_scan,
-        'info': cmd_info,
-        'reset': cmd_reset,
-        'reset-ftdi': cmd_reset_ftdi,
-        'read': cmd_read,
-        'monitor': cmd_monitor,
+        "scan": cmd_scan,
+        "info": cmd_info,
+        "reset": cmd_reset,
+        "reset-ftdi": cmd_reset_ftdi,
+        "read": cmd_read,
+        "monitor": cmd_monitor,
     }
 
     return commands[args.command](args)

@@ -10,12 +10,13 @@ FDC2x1x (FDC2112/2114/2212/2214) I2C Helper Script via FT232H
 For testing modes and calibration with oscilloscope
 """
 
-from pyftdi.i2c import I2cController
-import time
-import struct
 import argparse
-import sys
 import math
+import struct
+import sys
+import time
+
+from pyftdi.i2c import I2cController
 
 
 def compute_stats(samples):
@@ -27,7 +28,7 @@ def compute_stats(samples):
     """
     n = len(samples)
     if n == 0:
-        return {'mean': 0, 'std': 0, 'min': 0, 'max': 0, 'count': 0}
+        return {"mean": 0, "std": 0, "min": 0, "max": 0, "count": 0}
 
     mean = sum(samples) / n
     if n > 1:
@@ -36,13 +37,7 @@ def compute_stats(samples):
     else:
         std = 0
 
-    return {
-        'mean': mean,
-        'std': std,
-        'min': min(samples),
-        'max': max(samples),
-        'count': n
-    }
+    return {"mean": mean, "std": std, "min": min(samples), "max": max(samples), "count": n}
 
 
 def binary_search_min(lo, hi, test_fn, step=1, verbose=True):
@@ -76,7 +71,7 @@ def binary_search_min(lo, hi, test_fn, step=1, verbose=True):
             print(f"    Binary search: testing 0x{mid:04X} (range 0x{lo:04X}-0x{hi:04X})...")
 
         passed, result = test_fn(mid)
-        results.append({'value': mid, 'passed': passed, **result})
+        results.append({"value": mid, "passed": passed, **result})
 
         if passed:
             optimal = mid
@@ -85,14 +80,15 @@ def binary_search_min(lo, hi, test_fn, step=1, verbose=True):
             lo = mid + step  # Need larger value
 
     # Sort results by value for consistent display
-    results.sort(key=lambda r: r['value'])
+    results.sort(key=lambda r: r["value"])
 
     return optimal, results
+
 
 class FDC2212:
     # I2C Address (default, can be changed with ADDR pin)
     ADDR = 0x2A  # 0x2B if ADDR pin is high
-    
+
     # Register addresses (same for FDC2112/2212/2114/2214)
     REG_DATA_CH0 = 0x00
     REG_DATA_CH1 = 0x02
@@ -155,7 +151,7 @@ class FDC2212:
 
     # MUX_CONFIG register (0x1B) bit fields
     # Bit 15: AUTOSCAN_EN - Enable autoscan mode for multi-channel
-    # Bits 14-13: RR_SEQUENCE - Auto-Scan Sequence 
+    # Bits 14-13: RR_SEQUENCE - Auto-Scan Sequence
     # Bits 2-0: DEGLITCH - Input deglitch filter bandwidth
     MUX_AUTOSCAN_EN = 1 << 15
     # TODO Auto-Scan Sequence Configuration
@@ -213,7 +209,7 @@ class FDC2212:
             1: FDC2212.MUX_DEGLITCH_1MHZ,
             3.3: FDC2212.MUX_DEGLITCH_3_3MHZ,
             10: FDC2212.MUX_DEGLITCH_10MHZ,
-            33: FDC2212.MUX_DEGLITCH_33MHZ
+            33: FDC2212.MUX_DEGLITCH_33MHZ,
         }
         if deglitch_mhz not in deglitch_map:
             raise ValueError("deglitch_mhz must be 1, 3.3, 10, or 33")
@@ -222,8 +218,14 @@ class FDC2212:
         return value
 
     @staticmethod
-    def build_config(active_chan=0, sleep_mode=False, sensor_activate_sel=True,
-                     ref_clk_internal=True, intb_disable=False, high_current=False):
+    def build_config(
+        active_chan=0,
+        sleep_mode=False,
+        sensor_activate_sel=True,
+        ref_clk_internal=True,
+        intb_disable=False,
+        high_current=False,
+    ):
         """Build CONFIG register value
 
         Args:
@@ -256,51 +258,48 @@ class FDC2212:
 
         return value
 
-    def __init__(self, i2c_url='ftdi://ftdi:232h/1', i2c_addr=None, verbose=False):
+    def __init__(self, i2c_url="ftdi://ftdi:232h/1", i2c_addr=None, verbose=False):
         """Initialize FDC2212 with FT232H I2C bridge"""
         self.i2c = I2cController()
         self.i2c.configure(i2c_url, frequency=400000)
         addr = i2c_addr if i2c_addr is not None else self.ADDR
         self.slave = self.i2c.get_port(addr)
         self.verbose = verbose
-        
+
     def write_register(self, reg, value):
         """Write 16-bit value to register"""
-        data = struct.pack('>H', value)  # Big-endian 16-bit
+        data = struct.pack(">H", value)  # Big-endian 16-bit
         self.slave.write_to(reg, data)
         time.sleep(0.01)  # Small delay for register write
-        
+
     def read_register(self, reg):
         """Read 16-bit value from register"""
         data = self.slave.exchange([reg], 2)
-        return struct.unpack('>H', data)[0]
-    
+        return struct.unpack(">H", data)[0]
+
     def read_data(self, channel):
         """Read 28-bit capacitance data from channel (0-3)"""
         if channel < 0 or channel > 3:
             raise ValueError("Channel must be 0-3")
-        
+
         reg = self.REG_DATA_CH0 + (channel * 2)
         msb = self.read_register(reg)
         lsb = self.read_register(reg + 1)
         # Combine into 28-bit value (top 4 bits of MSB are unused)
         return ((msb & 0x0FFF) << 16) | lsb
-    
+
     def check_device_id(self):
         """Verify device ID"""
         mfg_id = self.read_register(self.REG_MANUFACTURER_ID)
         dev_id = self.read_register(self.REG_DEVICE_ID)
         print(f"Manufacturer ID: 0x{mfg_id:04X} (expect 0x5449 for TI)")
-        
+
         # Device ID mapping
-        device_names = {
-            0x3054: "FDC2112/FDC2114",
-            0x3055: "FDC2212/FDC2214"
-        }
-        
+        device_names = {0x3054: "FDC2112/FDC2114", 0x3055: "FDC2212/FDC2214"}
+
         device_name = device_names.get(dev_id, "Unknown")
         print(f"Device ID: 0x{dev_id:04X} - {device_name}")
-        
+
         # Accept both 2-channel and 4-channel variants
         valid_ids = [0x3054, 0x3055]
         if mfg_id == 0x5449 and dev_id in valid_ids:
@@ -308,24 +307,37 @@ class FDC2212:
         else:
             print(f"✗ Unexpected device ID. Expected one of: {[hex(x) for x in valid_ids]}")
             return False
-    
+
     def reset(self):
         """Software reset"""
         self.write_register(self.REG_RESET_DEV, 0x8000)
         time.sleep(0.1)
-    
-    def configure_basic(self, channel=0, rcount=0x8329, settle=0x0020,
-                       # Clock divider options
-                       clock_divider=None, fin_sel=1, fref_div=1,
-                       # Drive current
-                       drive_current=0x8000,
-                       # MUX config options
-                       mux_config=None, autoscan=False, deglitch_mhz=1,
-                       # CONFIG register options
-                       config=None, sleep_mode=False, sensor_activate_sel=False,
-                       ref_clk_internal=True, intb_disable=True, high_current=False,
-                       # Error config
-                       error_config=0x3800):
+
+    def configure_basic(
+        self,
+        channel=0,
+        rcount=0x8329,
+        settle=0x0020,
+        # Clock divider options
+        clock_divider=None,
+        fin_sel=1,
+        fref_div=1,
+        # Drive current
+        drive_current=0x8000,
+        # MUX config options
+        mux_config=None,
+        autoscan=False,
+        deglitch_mhz=1,
+        # CONFIG register options
+        config=None,
+        sleep_mode=False,
+        sensor_activate_sel=False,
+        ref_clk_internal=True,
+        intb_disable=True,
+        high_current=False,
+        # Error config
+        error_config=0x3800,
+    ):
         """
         Configure FDC2x1x for operation
 
@@ -391,8 +403,14 @@ class FDC2212:
 
         # Set main config
         if config is None:
-            config = self.build_config(channel, sleep_mode, sensor_activate_sel,
-                                      ref_clk_internal, intb_disable, high_current)
+            config = self.build_config(
+                channel,
+                sleep_mode,
+                sensor_activate_sel,
+                ref_clk_internal,
+                intb_disable,
+                high_current,
+            )
         self.write_register(self.REG_CONFIG, config)
 
         if self.verbose:
@@ -401,7 +419,7 @@ class FDC2212:
             print(f"  CLOCK_DIV=0x{clock_divider:04X} (FIN_SEL=/{fin_sel}, FREF_DIV={fref_div})")
             print(f"  DRIVE=0x{drive_current:04X}")
             print(f"  MUX=0x{mux_config:04X}, CONFIG=0x{config:04X}, ERR_CFG=0x{error_config:04X}")
-    
+
     def read_status(self):
         """Read and decode status register"""
         status = self.read_register(self.REG_STATUS)
@@ -414,7 +432,7 @@ class FDC2212:
         print(f"  CH0_UNREADCONV: {bool(status & self.STATUS_UNREADCONV_CH0)}")
         print(f"  CH1_UNREADCONV: {bool(status & self.STATUS_UNREADCONV_CH1)}")
         return status
-    
+
     def continuous_read(self, channel=0, samples=10, delay=0.1):
         """Read capacitance data using single-shot mode (sleep between reads)"""
         print(f"\nReading {samples} samples from channel {channel} (single-shot mode):")
@@ -428,7 +446,12 @@ class FDC2212:
         for i in range(samples):
             data, error, time_ms = self.single_shot_read(channel)
             if data is None:
-                print(f"{i:6d} | {'TIMEOUT':>17} |           |             |             | {time_ms:5.0f}ms | {error or ''}")
+                print(
+                    f"{i:6d} | {'TIMEOUT':>17} |"
+                    f"           |             |"
+                    f"             | {time_ms:5.0f}ms"
+                    f" | {error or ''}"
+                )
                 time.sleep(delay)
                 continue
 
@@ -453,7 +476,7 @@ class FDC2212:
                 f"{error_str}"
             )
             time.sleep(delay)
-    
+
     def calibration_sweep(self, channel=0, rcount_values=None):
         """
         Sweep through different RCOUNT values for calibration
@@ -522,8 +545,12 @@ class FDC2212:
                 ready: True if DRDY was set, False if timeout
                 error: None, 'AHW', or 'ALW' if amplitude error on this channel
         """
-        unreadconv_bits = [self.STATUS_UNREADCONV_CH0, self.STATUS_UNREADCONV_CH1,
-                           self.STATUS_UNREADCONV_CH2, self.STATUS_UNREADCONV_CH3]
+        unreadconv_bits = [
+            self.STATUS_UNREADCONV_CH0,
+            self.STATUS_UNREADCONV_CH1,
+            self.STATUS_UNREADCONV_CH2,
+            self.STATUS_UNREADCONV_CH3,
+        ]
         unreadconv_bit = unreadconv_bits[channel]
 
         start = time.time()
@@ -537,9 +564,9 @@ class FDC2212:
             err_chan = (status >> 14) & 0x3
             if err_chan == channel:
                 if status & self.STATUS_ERR_AHW:
-                    error = 'AHW'
+                    error = "AHW"
                 elif status & self.STATUS_ERR_ALW:
-                    error = 'ALW'
+                    error = "ALW"
 
             if status & unreadconv_bit:
                 return True, error
@@ -575,7 +602,7 @@ class FDC2212:
         if not ready:
             elapsed_ms = (time.time() - start) * 1000
             self.enter_sleep()
-            return None, 'TIMEOUT', elapsed_ms
+            return None, "TIMEOUT", elapsed_ms
 
         # Read data
         data = self.read_data(channel)
@@ -615,12 +642,12 @@ def init_device(i2c_addr=None, verbose=False):
         print("  2. pyftdi is installed: pip install pyftdi")
         print("  3. FT232H is properly wired to FDC2212 (SDA, SCL, VCC, GND)")
         return None
-    
+
     print("Verifying device...")
     if not fdc.check_device_id():
         print("✗ Device ID mismatch! Check I2C connections.")
         return None
-    
+
     return fdc
 
 
@@ -655,9 +682,10 @@ def cmd_reset(args):
 def cmd_reset_ftdi(args):
     """Reset the FT232H USB adapter"""
     from pyftdi.ftdi import Ftdi
+
     print("Resetting FT232H USB adapter...")
     ftdi = Ftdi()
-    ftdi.open_from_url(url='ftdi://ftdi:232h:1/1')
+    ftdi.open_from_url(url="ftdi://ftdi:232h:1/1")
     ftdi.reset(usb_reset=True)
     ftdi.close()
     print("Done")
@@ -693,7 +721,7 @@ def cmd_config(args):
         intb_disable=not args.intb_enable,
         high_current=args.high_current,
         # Error config
-        error_config=args.error_config
+        error_config=args.error_config,
     )
     print("✓ Configuration complete")
 
@@ -716,8 +744,7 @@ def cmd_read(args):
         fdc.configure_basic(channel=args.channel, rcount=args.rcount, settle=args.settle)
         print()
 
-    fdc.continuous_read(channel=args.channel, samples=args.samples,
-                        delay=args.delay)
+    fdc.continuous_read(channel=args.channel, samples=args.samples, delay=args.delay)
 
     fdc.enter_sleep()
     return 0
@@ -785,12 +812,7 @@ def cmd_characterize(args):
     interactive = not args.non_interactive
 
     # Results storage for CSV output
-    results = {
-        'idrive': [],
-        'rcount': [],
-        'settle': [],
-        'deglitch': []
-    }
+    results = {"idrive": [], "rcount": [], "settle": [], "deglitch": []}
 
     print("=" * 60)
     print("=== FDC2x1x Probe Characterization ===")
@@ -820,7 +842,7 @@ def cmd_characterize(args):
         fref_div=1,
         deglitch_mhz=10,
         sensor_activate_sel=True,
-        intb_disable=True
+        intb_disable=True,
     )
 
     # Wait for initial settling
@@ -831,12 +853,15 @@ def cmd_characterize(args):
     samples = fdc.take_samples(channel, n=20, delay=0.1)
     stats = compute_stats(samples)
 
-    print(f"  Raw reading: {stats['mean']:.0f} +/- {stats['std']:.1f} (std dev over {stats['count']} samples)")
+    print(
+        f"  Raw reading: {stats['mean']:.0f} +/- {stats['std']:.1f}"
+        f" (std dev over {stats['count']} samples)"
+    )
     print(f"  Range: {stats['min']} - {stats['max']}")
 
     # Estimate tank frequency
-    freq = fdc.estimate_frequency(stats['mean'])
-    print(f"  Tank frequency estimate: ~{freq/1e6:.2f} MHz")
+    freq = fdc.estimate_frequency(stats["mean"])
+    print(f"  Tank frequency estimate: ~{freq / 1e6:.2f} MHz")
 
     if interactive:
         print("\n  >>> OSCILLOSCOPE SETUP (Differential Mode):")
@@ -854,7 +879,7 @@ def cmd_characterize(args):
         print("  >>>   Vertical: ~500mV/div initially, adjust as needed")
         print("  >>>   Trigger: Auto or Normal, edge trigger on signal")
         print("  >>>")
-        print("  >>> Expected: Sinusoidal waveform at ~{:.2f} MHz".format(freq/1e6))
+        print(f"  >>> Expected: Sinusoidal waveform at ~{freq / 1e6:.2f} MHz")
         print("  >>> If no oscillation: check LC tank connections and solder joints")
         print("  >>> If frequency is wrong: verify L and C values match your design")
         input("  >>> Press Enter when ready to continue...")
@@ -927,7 +952,7 @@ def cmd_characterize(args):
                 fref_div=1,
                 deglitch_mhz=10,
                 sensor_activate_sel=True,
-                intb_disable=True
+                intb_disable=True,
             )
 
             time.sleep(0.3)
@@ -955,11 +980,11 @@ def cmd_characterize(args):
                 print("      Invalid input, treating as unstable")
 
             return passed, {
-                'idrive': idrive,
-                'mean': stats['mean'],
-                'std': stats['std'],
-                'vpp': vpp,
-                'status': "Stable" if passed else "Unstable"
+                "idrive": idrive,
+                "mean": stats["mean"],
+                "std": stats["std"],
+                "vpp": vpp,
+                "status": "Stable" if passed else "Unstable",
             }
 
         # IDRIVE range: 0x0800 to 0xF800, step 0x0800 (hardware granularity)
@@ -968,9 +993,9 @@ def cmd_characterize(args):
         )
 
         for r in search_results:
-            r['idrive'] = r.pop('value')
+            r["idrive"] = r.pop("value")
             idrive_results.append(r)
-            results['idrive'].append(r)
+            results["idrive"].append(r)
 
         print(f"\n  Binary search tested {len(search_results)} values (of 31 possible)")
 
@@ -989,7 +1014,7 @@ def cmd_characterize(args):
                 fref_div=1,
                 deglitch_mhz=10,
                 sensor_activate_sel=True,
-                intb_disable=True
+                intb_disable=True,
             )
 
             time.sleep(0.3)
@@ -998,51 +1023,59 @@ def cmd_characterize(args):
 
             print(f"    0x{idrive:04X}: Mean={stats['mean']:.0f}, Std={stats['std']:.1f}")
 
-            idrive_results.append({
-                'idrive': idrive,
-                'mean': stats['mean'],
-                'std': stats['std'],
-                'vpp': None,
-                'status': 'Tested'
-            })
-            results['idrive'].append(idrive_results[-1])
+            idrive_results.append(
+                {
+                    "idrive": idrive,
+                    "mean": stats["mean"],
+                    "std": stats["std"],
+                    "vpp": None,
+                    "status": "Tested",
+                }
+            )
+            results["idrive"].append(idrive_results[-1])
 
         # Only consider results where sensor is actually oscillating (mean > 0)
-        valid_results = [r for r in idrive_results if r['mean'] > 0]
+        valid_results = [r for r in idrive_results if r["mean"] > 0]
 
         if not valid_results:
             print("\n  WARNING: No valid readings detected - sensor may not be oscillating")
             for r in idrive_results:
-                r['status'] = 'No Signal'
+                r["status"] = "No Signal"
         else:
             # Find min std dev among valid readings, then pick lowest IDRIVE within 1.5x of min
-            min_std = min(r['std'] for r in valid_results)
+            min_std = min(r["std"] for r in valid_results)
             threshold = min_std * 1.5
             print(f"\n  Min std dev: {min_std:.1f}, threshold: {threshold:.1f} (1.5x min)")
 
             for r in idrive_results:
-                if r['mean'] == 0:
-                    r['status'] = 'No Signal'
-                elif r['std'] <= threshold:
-                    r['status'] = 'Stable'
+                if r["mean"] == 0:
+                    r["status"] = "No Signal"
+                elif r["std"] <= threshold:
+                    r["status"] = "Stable"
                     if optimal_idrive is None:
-                        optimal_idrive = r['idrive']
-                        r['status'] = 'Optimal'
+                        optimal_idrive = r["idrive"]
+                        r["status"] = "Optimal"
                 else:
-                    r['status'] = 'Unstable'
+                    r["status"] = "Unstable"
 
     # Print summary
     print("\n  IDRIVE Summary:")
     print("  IDRIVE   | Mean         | Std Dev | Vpp    | Status")
     print("  " + "-" * 55)
-    for r in sorted(idrive_results, key=lambda x: x['idrive']):
-        vpp_str = f"{r['vpp']:.1f}V" if r.get('vpp') else "N/A"
-        marker = " <--" if r['status'] == "Optimal" else ""
-        print(f"  0x{r['idrive']:04X}   | {r['mean']:12.0f} | {r['std']:7.1f} | {vpp_str:6} | {r['status']}{marker}")
+    for r in sorted(idrive_results, key=lambda x: x["idrive"]):
+        vpp_str = f"{r['vpp']:.1f}V" if r.get("vpp") else "N/A"
+        marker = " <--" if r["status"] == "Optimal" else ""
+        print(
+            f"  0x{r['idrive']:04X}   | {r['mean']:12.0f}"
+            f" | {r['std']:7.1f} | {vpp_str:6}"
+            f" | {r['status']}{marker}"
+        )
 
     if optimal_idrive is None:
         optimal_idrive = 0x7800  # Fallback to mid-range
-        print(f"\n  WARNING: Could not determine optimal IDRIVE, using default 0x{optimal_idrive:04X}")
+        print(
+            f"\n  WARNING: Could not determine optimal IDRIVE, using default 0x{optimal_idrive:04X}"
+        )
     else:
         print(f"\n  Selected: 0x{optimal_idrive:04X}")
 
@@ -1057,20 +1090,23 @@ def cmd_characterize(args):
         fref_div=1,
         deglitch_mhz=10,
         sensor_activate_sel=True,
-        intb_disable=True
+        intb_disable=True,
     )
     time.sleep(0.5)
     validation_samples = fdc.take_samples(channel, n=50, delay=0.05)
     val_stats = compute_stats(validation_samples)
-    noise_ppm = (val_stats['std'] / val_stats['mean']) * 1e6 if val_stats['mean'] > 0 else 0
+    noise_ppm = (val_stats["std"] / val_stats["mean"]) * 1e6 if val_stats["mean"] > 0 else 0
 
     print(f"    Samples: {val_stats['count']}")
     print(f"    Mean: {val_stats['mean']:.1f}")
     print(f"    Std Dev: {val_stats['std']:.2f} ({noise_ppm:.0f} ppm)")
-    print(f"    Range: {val_stats['min']} - {val_stats['max']} (span: {val_stats['max'] - val_stats['min']})")
+    print(
+        f"    Range: {val_stats['min']} - {val_stats['max']}"
+        f" (span: {val_stats['max'] - val_stats['min']})"
+    )
 
-    if val_stats['std'] > 100:
-        print(f"    WARNING: Std dev > 100, readings may be unstable")
+    if val_stats["std"] > 100:
+        print("    WARNING: Std dev > 100, readings may be unstable")
 
     # =========================================================================
     # Phase 3: RCOUNT Sweep
@@ -1092,24 +1128,20 @@ def cmd_characterize(args):
             fref_div=1,
             deglitch_mhz=10,
             sensor_activate_sel=True,
-            intb_disable=True
+            intb_disable=True,
         )
 
         time.sleep(0.5)
         samples = fdc.take_samples(channel, n=20, delay=0.05)
         stats = compute_stats(samples)
 
-        rcount_results.append({
-            'rcount': rcount,
-            'mean': stats['mean'],
-            'std': stats['std']
-        })
-        results['rcount'].append(rcount_results[-1])
+        rcount_results.append({"rcount": rcount, "mean": stats["mean"], "std": stats["std"]})
+        results["rcount"].append(rcount_results[-1])
 
     print("\n  RCOUNT   | Mean         | Std Dev")
     print("  " + "-" * 40)
     for r in rcount_results:
-        marker = " <-- Max resolution" if r['rcount'] == 0xFFFF else ""
+        marker = " <-- Max resolution" if r["rcount"] == 0xFFFF else ""
         print(f"  0x{r['rcount']:04X}   | {r['mean']:12.0f} | {r['std']:7.1f}{marker}")
 
     optimal_rcount = 0xFFFF  # For max accuracy
@@ -1142,12 +1174,12 @@ def cmd_characterize(args):
         fref_div=1,
         deglitch_mhz=10,
         sensor_activate_sel=True,
-        intb_disable=True
+        intb_disable=True,
     )
     time.sleep(1)
     steady_samples = fdc.take_samples(channel, n=10, delay=0.1)
     steady_stats = compute_stats(steady_samples)
-    steady_mean = steady_stats['mean']
+    steady_mean = steady_stats["mean"]
 
     print(f"  Steady-state reference: {steady_mean:.0f} +/- {steady_stats['std']:.1f}")
     print(f"  Stability threshold: wake std < {steady_stats['std'] * 2:.1f}")
@@ -1156,7 +1188,7 @@ def cmd_characterize(args):
     # Linear sweep - do multiple wake cycles per settle value to measure consistency
     num_trials = 10
     # Stable = wake-up std dev within 2x of steady-state std dev
-    std_threshold = steady_stats['std'] * 2
+    std_threshold = steady_stats["std"] * 2
 
     for settle in settle_values:
         fdc.configure_basic(
@@ -1168,7 +1200,7 @@ def cmd_characterize(args):
             fref_div=1,
             deglitch_mhz=10,
             sensor_activate_sel=True,
-            intb_disable=True
+            intb_disable=True,
         )
 
         settle_time_s = settle / freq if freq > 0 else 0.1
@@ -1198,22 +1230,34 @@ def cmd_characterize(args):
         else:
             status = "Unstable"
 
-        print(f"    0x{settle:04X}: mean={wake_mean:.0f}, std={wake_std:.1f} (steady={steady_stats['std']:.1f}) -> {status}")
+        print(
+            f"    0x{settle:04X}: mean={wake_mean:.0f},"
+            f" std={wake_std:.1f}"
+            f" (steady={steady_stats['std']:.1f})"
+            f" -> {status}"
+        )
 
-        settle_results.append({
-            'settle': settle,
-            'wake_mean': wake_mean,
-            'wake_std': wake_std,
-            'steady_std': steady_stats['std'],
-            'status': status
-        })
-        results['settle'].append(settle_results[-1])
+        settle_results.append(
+            {
+                "settle": settle,
+                "wake_mean": wake_mean,
+                "wake_std": wake_std,
+                "steady_std": steady_stats["std"],
+                "status": status,
+            }
+        )
+        results["settle"].append(settle_results[-1])
 
     print("\n  SETTLE   | Wake Mean    | Wake Std    | Steady Std | Status")
     print("  " + "-" * 60)
-    for r in sorted(settle_results, key=lambda x: x['settle']):
-        marker = " <--" if r['status'] == "Optimal" else ""
-        print(f"  0x{r['settle']:04X}   | {r['wake_mean']:12.0f} | {r['wake_std']:11.1f} | {r['steady_std']:10.1f} | {r['status']}{marker}")
+    for r in sorted(settle_results, key=lambda x: x["settle"]):
+        marker = " <--" if r["status"] == "Optimal" else ""
+        print(
+            f"  0x{r['settle']:04X}   | {r['wake_mean']:12.0f}"
+            f" | {r['wake_std']:11.1f}"
+            f" | {r['steady_std']:10.1f}"
+            f" | {r['status']}{marker}"
+        )
 
     if optimal_settle is None:
         optimal_settle = 0x0100  # Fallback
@@ -1232,12 +1276,12 @@ def cmd_characterize(args):
         fref_div=1,
         deglitch_mhz=10,
         sensor_activate_sel=True,
-        intb_disable=True
+        intb_disable=True,
     )
 
     wake_deltas = []
     num_wake_cycles = 20
-    for i in range(num_wake_cycles):
+    for _i in range(num_wake_cycles):
         fdc.enter_sleep()
         time.sleep(0.1)
         fdc.exit_sleep()
@@ -1249,16 +1293,18 @@ def cmd_characterize(args):
 
     wake_stats = compute_stats(wake_deltas)
     max_delta = max(wake_deltas)
-    failures = sum(1 for d in wake_deltas if d >= steady_stats['std'] * 2)
+    failures = sum(1 for d in wake_deltas if d >= steady_stats["std"] * 2)
 
     print(f"    Wake cycles: {num_wake_cycles}")
-    print(f"    Delta from steady-state:")
+    print("    Delta from steady-state:")
     print(f"      Mean: {wake_stats['mean']:.1f}")
     print(f"      Max: {max_delta:.1f} (threshold: {steady_stats['std'] * 2:.1f})")
     print(f"      Failures (delta >= threshold): {failures}/{num_wake_cycles}")
 
     if failures > 0:
-        print(f"    WARNING: {failures} wake cycles exceeded threshold - consider increasing SETTLE")
+        print(
+            f"    WARNING: {failures} wake cycles exceeded threshold - consider increasing SETTLE"
+        )
 
     # =========================================================================
     # Phase 5: Deglitch Filter Selection
@@ -1301,50 +1347,51 @@ def cmd_characterize(args):
             fref_div=1,
             deglitch_mhz=deglitch,
             sensor_activate_sel=True,
-            intb_disable=True
+            intb_disable=True,
         )
         time.sleep(0.3)
         samples = fdc.take_samples(channel, n=20, delay=0.05)
         stats = compute_stats(samples)
 
-        deglitch_results.append({
-            'deglitch': deglitch,
-            'mean': stats['mean'],
-            'std': stats['std'],
-            'status': 'Pending'
-        })
-        results['deglitch'].append(deglitch_results[-1])
+        deglitch_results.append(
+            {"deglitch": deglitch, "mean": stats["mean"], "std": stats["std"], "status": "Pending"}
+        )
+        results["deglitch"].append(deglitch_results[-1])
 
         print(f"    {deglitch:4} MHz: mean={stats['mean']:.0f}, std={stats['std']:.1f}")
 
     # Only consider results where sensor is actually oscillating
-    valid_results = [r for r in deglitch_results if r['mean'] > 0]
+    valid_results = [r for r in deglitch_results if r["mean"] > 0]
 
     if not valid_results:
         print("\n  WARNING: No valid readings detected")
         for r in deglitch_results:
-            r['status'] = 'No Signal'
+            r["status"] = "No Signal"
         optimal_deglitch = valid_deglitch[0]  # Fallback to first valid option
     else:
         # Pick lowest std dev (best noise performance)
-        min_std = min(r['std'] for r in valid_results)
+        min_std = min(r["std"] for r in valid_results)
         for r in deglitch_results:
-            if r['mean'] == 0:
-                r['status'] = 'No Signal'
-            elif r['std'] == min_std and optimal_deglitch is None:
-                optimal_deglitch = r['deglitch']
-                r['status'] = 'Optimal'
-            elif r['std'] <= min_std * 1.5:
-                r['status'] = 'Good'
+            if r["mean"] == 0:
+                r["status"] = "No Signal"
+            elif r["std"] == min_std and optimal_deglitch is None:
+                optimal_deglitch = r["deglitch"]
+                r["status"] = "Optimal"
+            elif r["std"] <= min_std * 1.5:
+                r["status"] = "Good"
             else:
-                r['status'] = 'Noisier'
+                r["status"] = "Noisier"
 
     print()
     print("  DEGLITCH | Mean         | Std Dev     | Status")
     print("  " + "-" * 50)
     for r in deglitch_results:
-        marker = " <--" if r['status'] == "Optimal" else ""
-        print(f"  {r['deglitch']:4} MHz | {r['mean']:12.0f} | {r['std']:11.1f} | {r['status']}{marker}")
+        marker = " <--" if r["status"] == "Optimal" else ""
+        print(
+            f"  {r['deglitch']:4} MHz | {r['mean']:12.0f}"
+            f" | {r['std']:11.1f}"
+            f" | {r['status']}{marker}"
+        )
 
     print(f"\n  Selected: {optimal_deglitch} MHz (lowest noise)")
 
@@ -1365,7 +1412,7 @@ def cmd_characterize(args):
         fref_div=1,
         deglitch_mhz=optimal_deglitch,
         sensor_activate_sel=True,
-        intb_disable=True
+        intb_disable=True,
     )
 
     # Extended continuous sampling
@@ -1373,11 +1420,14 @@ def cmd_characterize(args):
     time.sleep(0.5)
     continuous_samples = fdc.take_samples(channel, n=100, delay=0.05)
     cont_stats = compute_stats(continuous_samples)
-    cont_noise_ppm = (cont_stats['std'] / cont_stats['mean']) * 1e6 if cont_stats['mean'] > 0 else 0
+    cont_noise_ppm = (cont_stats["std"] / cont_stats["mean"]) * 1e6 if cont_stats["mean"] > 0 else 0
 
     print(f"    Mean: {cont_stats['mean']:.1f}")
     print(f"    Std Dev: {cont_stats['std']:.2f} ({cont_noise_ppm:.0f} ppm)")
-    print(f"    Range: {cont_stats['min']} - {cont_stats['max']} (span: {cont_stats['max'] - cont_stats['min']})")
+    print(
+        f"    Range: {cont_stats['min']} - {cont_stats['max']}"
+        f" (span: {cont_stats['max'] - cont_stats['min']})"
+    )
 
     # Simulated single-shot mode (wake from sleep each time)
     print("\n  Single-shot mode (20 wake cycles)...")
@@ -1391,20 +1441,28 @@ def cmd_characterize(args):
         single_shot_samples.append(fdc.read_data(channel))
 
     ss_stats = compute_stats(single_shot_samples)
-    ss_noise_ppm = (ss_stats['std'] / ss_stats['mean']) * 1e6 if ss_stats['mean'] > 0 else 0
+    ss_noise_ppm = (ss_stats["std"] / ss_stats["mean"]) * 1e6 if ss_stats["mean"] > 0 else 0
 
     print(f"    Mean: {ss_stats['mean']:.1f}")
     print(f"    Std Dev: {ss_stats['std']:.2f} ({ss_noise_ppm:.0f} ppm)")
-    print(f"    Range: {ss_stats['min']} - {ss_stats['max']} (span: {ss_stats['max'] - ss_stats['min']})")
+    print(
+        f"    Range: {ss_stats['min']} - {ss_stats['max']}"
+        f" (span: {ss_stats['max'] - ss_stats['min']})"
+    )
 
     # Compare modes
-    mode_delta = abs(cont_stats['mean'] - ss_stats['mean'])
-    if cont_stats['mean'] > 0:
-        print(f"\n  Continuous vs Single-shot delta: {mode_delta:.1f} ({mode_delta/cont_stats['mean']*1e6:.0f} ppm)")
+    mode_delta = abs(cont_stats["mean"] - ss_stats["mean"])
+    if cont_stats["mean"] > 0:
+        print(
+            f"\n  Continuous vs Single-shot delta:"
+            f" {mode_delta:.1f}"
+            f" ({mode_delta / cont_stats['mean'] * 1e6:.0f}"
+            f" ppm)"
+        )
     else:
         print(f"\n  Continuous vs Single-shot delta: {mode_delta:.1f}")
 
-    if ss_stats['std'] > cont_stats['std'] * 2:
+    if ss_stats["std"] > cont_stats["std"] * 2:
         print("  WARNING: Single-shot mode has significantly more noise than continuous")
         print("           Consider increasing SETTLE count")
 
@@ -1418,9 +1476,13 @@ def cmd_characterize(args):
     print(f"  RCOUNT:    0x{optimal_rcount:04X}")
     print(f"  SETTLE:    0x{optimal_settle:04X}")
     print(f"  DEGLITCH:  {optimal_deglitch} MHz")
-    print(f"  Activation: Low power mode")
+    print("  Activation: Low power mode")
     print()
-    print(f"  Expected noise floor (single-shot): {ss_stats['std']:.1f} counts ({ss_noise_ppm:.0f} ppm)")
+    print(
+        f"  Expected noise floor (single-shot):"
+        f" {ss_stats['std']:.1f} counts"
+        f" ({ss_noise_ppm:.0f} ppm)"
+    )
     print()
 
     # Power estimation
@@ -1432,7 +1494,7 @@ def cmd_characterize(args):
     print(f"    Settling: ~{settle_time_ms:.1f}ms")
     print(f"    Conversion: ~{conversion_time_ms:.1f}ms")
     print()
-    print(f"  Sleep current: ~0.4 uA")
+    print("  Sleep current: ~0.4 uA")
     print(f"  Active current: ~300 uA (during {total_time_ms:.0f}ms measurement)")
     print()
 
@@ -1440,7 +1502,7 @@ def cmd_characterize(args):
     interval_s = 300
     active_fraction = (total_time_ms / 1000) / interval_s
     avg_current_ua = 0.4 + 300 * active_fraction
-    print(f"  At 1 measurement per 5 minutes:")
+    print("  At 1 measurement per 5 minutes:")
     print(f"    Average current: ~{avg_current_ua:.2f} uA")
     cr2032_mah = 220
     life_hours = cr2032_mah * 1000 / avg_current_ua
@@ -1450,34 +1512,61 @@ def cmd_characterize(args):
     # Output CSV if requested
     if args.output:
         import csv
-        with open(args.output, 'w', newline='') as f:
+
+        with open(args.output, "w", newline="") as f:
             writer = csv.writer(f)
 
-            writer.writerow(['Phase', 'Parameter', 'Value', 'Mean', 'StdDev', 'Status'])
+            writer.writerow(["Phase", "Parameter", "Value", "Mean", "StdDev", "Status"])
 
-            for r in results['idrive']:
-                writer.writerow(['IDRIVE', 'idrive', f"0x{r['idrive']:04X}",
-                               r['mean'], r['std'], r['status']])
+            for r in results["idrive"]:
+                writer.writerow(
+                    ["IDRIVE", "idrive", f"0x{r['idrive']:04X}", r["mean"], r["std"], r["status"]]
+                )
 
-            for r in results['rcount']:
-                writer.writerow(['RCOUNT', 'rcount', f"0x{r['rcount']:04X}",
-                               r['mean'], r['std'], ''])
+            for r in results["rcount"]:
+                writer.writerow(
+                    ["RCOUNT", "rcount", f"0x{r['rcount']:04X}", r["mean"], r["std"], ""]
+                )
 
-            for r in results['settle']:
-                writer.writerow(['SETTLE', 'settle', f"0x{r['settle']:04X}",
-                               r['wake_mean'], r['wake_std'], r['status']])
+            for r in results["settle"]:
+                writer.writerow(
+                    [
+                        "SETTLE",
+                        "settle",
+                        f"0x{r['settle']:04X}",
+                        r["wake_mean"],
+                        r["wake_std"],
+                        r["status"],
+                    ]
+                )
 
             # Final config
-            writer.writerow(['FINAL', 'idrive', f"0x{optimal_idrive:04X}", '', '', ''])
-            writer.writerow(['FINAL', 'rcount', f"0x{optimal_rcount:04X}", '', '', ''])
-            writer.writerow(['FINAL', 'settle', f"0x{optimal_settle:04X}", '', '', ''])
-            writer.writerow(['FINAL', 'deglitch', f"{optimal_deglitch}", '', '', ''])
+            writer.writerow(["FINAL", "idrive", f"0x{optimal_idrive:04X}", "", "", ""])
+            writer.writerow(["FINAL", "rcount", f"0x{optimal_rcount:04X}", "", "", ""])
+            writer.writerow(["FINAL", "settle", f"0x{optimal_settle:04X}", "", "", ""])
+            writer.writerow(["FINAL", "deglitch", f"{optimal_deglitch}", "", "", ""])
 
             # Validation results
-            writer.writerow(['VALIDATION', 'continuous_mean', cont_stats['mean'],
-                           cont_stats['std'], cont_noise_ppm, ''])
-            writer.writerow(['VALIDATION', 'single_shot_mean', ss_stats['mean'],
-                           ss_stats['std'], ss_noise_ppm, ''])
+            writer.writerow(
+                [
+                    "VALIDATION",
+                    "continuous_mean",
+                    cont_stats["mean"],
+                    cont_stats["std"],
+                    cont_noise_ppm,
+                    "",
+                ]
+            )
+            writer.writerow(
+                [
+                    "VALIDATION",
+                    "single_shot_mean",
+                    ss_stats["mean"],
+                    ss_stats["std"],
+                    ss_noise_ppm,
+                    "",
+                ]
+            )
 
         print(f"\n  Results saved to: {args.output}")
 
@@ -1488,7 +1577,7 @@ def cmd_characterize(args):
 def main():
     """Main CLI entry point"""
     parser = argparse.ArgumentParser(
-        description='FDC2x1x (FDC2112/2114/2212/2214) I2C Helper Script via FT232H',
+        description="FDC2x1x (FDC2112/2114/2212/2214) I2C Helper Script via FT232H",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -1502,133 +1591,255 @@ Examples:
   %(prog)s sweep -c 0 -r 0x1000 0x8000 0xFFFF  # Custom sweep values
   %(prog)s characterize -c 0            # Characterize probe for optimal settings
   %(prog)s characterize -c 0 --output results.csv  # Save results to CSV
-        """
+        """,
     )
-    
-    parser.add_argument('-a', '--addr', type=lambda x: int(x, 0),
-                       help='I2C address (default: 0x2A, alt: 0x2B)')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                       help='Enable verbose output (show register configuration details)')
 
-    subparsers = parser.add_subparsers(dest='command', help='Command to execute')
-    
+    parser.add_argument(
+        "-a", "--addr", type=lambda x: int(x, 0), help="I2C address (default: 0x2A, alt: 0x2B)"
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Enable verbose output (show register configuration details)",
+    )
+
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
+
     # Info command
-    parser_info = subparsers.add_parser('info', help='Display device information and status')
-    
+    subparsers.add_parser("info", help="Display device information and status")
+
     # Reset command (FDC2x1x device)
-    parser_reset = subparsers.add_parser('reset', help='Reset the FDC2x1x device')
-    parser_reset.add_argument('--no-verify', action='store_true',
-                             help='Skip post-reset verification')
+    parser_reset = subparsers.add_parser("reset", help="Reset the FDC2x1x device")
+    parser_reset.add_argument(
+        "--no-verify", action="store_true", help="Skip post-reset verification"
+    )
 
     # Reset FTDI command (FT232H USB adapter)
-    subparsers.add_parser('reset-ftdi', help='Reset the FT232H USB adapter')
+    subparsers.add_parser("reset-ftdi", help="Reset the FT232H USB adapter")
 
     # Config command
-    parser_config = subparsers.add_parser('config', help='Configure device parameters')
-    parser_config.add_argument('-c', '--channel', type=int, default=0, choices=[0,1,2,3],
-                              help='Channel to configure (default: 0)')
-    parser_config.add_argument('-r', '--rcount', type=lambda x: int(x, 0), default=0x8329,
-                              help='Reference count (hex, default: 0x8329)')
-    parser_config.add_argument('-s', '--settle', type=lambda x: int(x, 0), default=0x0020,
-                              help='Settle count (hex, default: 0x0020)')
+    parser_config = subparsers.add_parser("config", help="Configure device parameters")
+    parser_config.add_argument(
+        "-c",
+        "--channel",
+        type=int,
+        default=0,
+        choices=[0, 1, 2, 3],
+        help="Channel to configure (default: 0)",
+    )
+    parser_config.add_argument(
+        "-r",
+        "--rcount",
+        type=lambda x: int(x, 0),
+        default=0x8329,
+        help="Reference count (hex, default: 0x8329)",
+    )
+    parser_config.add_argument(
+        "-s",
+        "--settle",
+        type=lambda x: int(x, 0),
+        default=0x0020,
+        help="Settle count (hex, default: 0x0020)",
+    )
 
     # Clock divider options
-    parser_config.add_argument('--clock-divider', type=lambda x: int(x, 0), default=None,
-                              help='Clock divider raw value (hex, overrides --fin-sel/--fref-div)')
-    parser_config.add_argument('--fin-sel', type=int, default=1, choices=[1, 2],
-                              help='Sensor frequency select divider (1 or 2, default: 1)')
-    parser_config.add_argument('--fref-div', type=int, default=1,
-                              help='Reference frequency divider (1-1023, default: 1)')
+    parser_config.add_argument(
+        "--clock-divider",
+        type=lambda x: int(x, 0),
+        default=None,
+        help="Clock divider raw value (hex, overrides --fin-sel/--fref-div)",
+    )
+    parser_config.add_argument(
+        "--fin-sel",
+        type=int,
+        default=1,
+        choices=[1, 2],
+        help="Sensor frequency select divider (1 or 2, default: 1)",
+    )
+    parser_config.add_argument(
+        "--fref-div", type=int, default=1, help="Reference frequency divider (1-1023, default: 1)"
+    )
 
-    parser_config.add_argument('--drive-current', type=lambda x: int(x, 0), default=0x8000,
-                              help='Drive current (hex, default: 0x8000)')
+    parser_config.add_argument(
+        "--drive-current",
+        type=lambda x: int(x, 0),
+        default=0x8000,
+        help="Drive current (hex, default: 0x8000)",
+    )
 
     # MUX config options
-    parser_config.add_argument('--mux-config', type=lambda x: int(x, 0), default=None,
-                              help='MUX config raw value (hex, overrides --autoscan/--deglitch)')
-    parser_config.add_argument('--autoscan', action='store_true',
-                              help='Enable autoscan mode for multi-channel')
-    parser_config.add_argument('--deglitch', type=float, default=1, choices=[1, 3.3, 10, 33],
-                              help='Deglitch filter bandwidth in MHz (1/3.3/10/33, default: 1)')
+    parser_config.add_argument(
+        "--mux-config",
+        type=lambda x: int(x, 0),
+        default=None,
+        help="MUX config raw value (hex, overrides --autoscan/--deglitch)",
+    )
+    parser_config.add_argument(
+        "--autoscan", action="store_true", help="Enable autoscan mode for multi-channel"
+    )
+    parser_config.add_argument(
+        "--deglitch",
+        type=float,
+        default=1,
+        choices=[1, 3.3, 10, 33],
+        help="Deglitch filter bandwidth in MHz (1/3.3/10/33, default: 1)",
+    )
 
     # CONFIG register options
-    parser_config.add_argument('--config', type=lambda x: int(x, 0), default=None,
-                              help='CONFIG register raw value (hex, overrides individual flags)')
-    parser_config.add_argument('--sleep-mode', action='store_true',
-                              help='Enable sleep mode (low power)')
-    parser_config.add_argument('--sensor-activate-low-power', action='store_true',
-                              help='Use low power sensor activation (default: full current)')
-    parser_config.add_argument('--ref-clk-external', action='store_true',
-                              help='Use external reference clock via CLKIN (default: internal)')
-    parser_config.add_argument('--intb-enable', action='store_true',
-                              help='Enable INTB pin assertions (default: disabled)')
-    parser_config.add_argument('--high-current', action='store_true',
-                              help='High current sensor driver on CH0 (>1.5mA)')
+    parser_config.add_argument(
+        "--config",
+        type=lambda x: int(x, 0),
+        default=None,
+        help="CONFIG register raw value (hex, overrides individual flags)",
+    )
+    parser_config.add_argument(
+        "--sleep-mode", action="store_true", help="Enable sleep mode (low power)"
+    )
+    parser_config.add_argument(
+        "--sensor-activate-low-power",
+        action="store_true",
+        help="Use low power sensor activation (default: full current)",
+    )
+    parser_config.add_argument(
+        "--ref-clk-external",
+        action="store_true",
+        help="Use external reference clock via CLKIN (default: internal)",
+    )
+    parser_config.add_argument(
+        "--intb-enable", action="store_true", help="Enable INTB pin assertions (default: disabled)"
+    )
+    parser_config.add_argument(
+        "--high-current", action="store_true", help="High current sensor driver on CH0 (>1.5mA)"
+    )
 
-    parser_config.add_argument('--error-config', type=lambda x: int(x, 0), default=0x3800,
-                              help='Error config register (hex, default: 0x3800)')
-    parser_config.add_argument('--read', action='store_true',
-                              help='Read samples after configuring')
-    
+    parser_config.add_argument(
+        "--error-config",
+        type=lambda x: int(x, 0),
+        default=0x3800,
+        help="Error config register (hex, default: 0x3800)",
+    )
+    parser_config.add_argument("--read", action="store_true", help="Read samples after configuring")
+
     # Read command
-    parser_read = subparsers.add_parser('read', help='Read capacitance data (single-shot mode)')
-    parser_read.add_argument('-c', '--channel', type=int, default=0, choices=[0,1,2,3],
-                            help='Channel to read (default: 0)')
-    parser_read.add_argument('-n', '--samples', type=int, default=10,
-                            help='Number of samples (default: 10)')
-    parser_read.add_argument('-d', '--delay', type=float, default=0.5,
-                            help='Delay between samples in seconds (default: 0.5)')
-    parser_read.add_argument('--configure', action='store_true',
-                            help='Configure channel before reading')
-    parser_read.add_argument('-r', '--rcount', type=lambda x: int(x, 0), default=0x8329,
-                            help='Reference count if configuring (hex, default: 0x8329)')
-    parser_read.add_argument('-s', '--settle', type=lambda x: int(x, 0), default=0x0020,
-                            help='Settle count if configuring (hex, default: 0x0020)')
-    
+    parser_read = subparsers.add_parser("read", help="Read capacitance data (single-shot mode)")
+    parser_read.add_argument(
+        "-c",
+        "--channel",
+        type=int,
+        default=0,
+        choices=[0, 1, 2, 3],
+        help="Channel to read (default: 0)",
+    )
+    parser_read.add_argument(
+        "-n", "--samples", type=int, default=10, help="Number of samples (default: 10)"
+    )
+    parser_read.add_argument(
+        "-d",
+        "--delay",
+        type=float,
+        default=0.5,
+        help="Delay between samples in seconds (default: 0.5)",
+    )
+    parser_read.add_argument(
+        "--configure", action="store_true", help="Configure channel before reading"
+    )
+    parser_read.add_argument(
+        "-r",
+        "--rcount",
+        type=lambda x: int(x, 0),
+        default=0x8329,
+        help="Reference count if configuring (hex, default: 0x8329)",
+    )
+    parser_read.add_argument(
+        "-s",
+        "--settle",
+        type=lambda x: int(x, 0),
+        default=0x0020,
+        help="Settle count if configuring (hex, default: 0x0020)",
+    )
+
     # Sweep command
-    parser_sweep = subparsers.add_parser('sweep', help='Perform calibration sweep')
-    parser_sweep.add_argument('-c', '--channel', type=int, default=0, choices=[0,1,2,3],
-                             help='Channel to sweep (default: 0)')
-    parser_sweep.add_argument('-r', '--rcount-values', nargs='+',
-                             help='RCOUNT values to test (hex, e.g., 0x1000 0x8000)')
-    
+    parser_sweep = subparsers.add_parser("sweep", help="Perform calibration sweep")
+    parser_sweep.add_argument(
+        "-c",
+        "--channel",
+        type=int,
+        default=0,
+        choices=[0, 1, 2, 3],
+        help="Channel to sweep (default: 0)",
+    )
+    parser_sweep.add_argument(
+        "-r", "--rcount-values", nargs="+", help="RCOUNT values to test (hex, e.g., 0x1000 0x8000)"
+    )
+
     # Monitor command
-    parser_monitor = subparsers.add_parser('monitor', help='Monitor multiple channels')
-    parser_monitor.add_argument('-C', '--channels', type=int, nargs='+', choices=[0,1,2,3],
-                               help='Channels to monitor (default: 0)')
-    parser_monitor.add_argument('-d', '--delay', type=float, default=0.5,
-                               help='Delay between readings in seconds (default: 0.5)')
-    parser_monitor.add_argument('-r', '--rcount', type=lambda x: int(x, 0), default=0x8329,
-                               help='Reference count (hex, default: 0x8329)')
-    parser_monitor.add_argument('-s', '--settle', type=lambda x: int(x, 0), default=0x0020,
-                               help='Settle count (hex, default: 0x0020)')
+    parser_monitor = subparsers.add_parser("monitor", help="Monitor multiple channels")
+    parser_monitor.add_argument(
+        "-C",
+        "--channels",
+        type=int,
+        nargs="+",
+        choices=[0, 1, 2, 3],
+        help="Channels to monitor (default: 0)",
+    )
+    parser_monitor.add_argument(
+        "-d",
+        "--delay",
+        type=float,
+        default=0.5,
+        help="Delay between readings in seconds (default: 0.5)",
+    )
+    parser_monitor.add_argument(
+        "-r",
+        "--rcount",
+        type=lambda x: int(x, 0),
+        default=0x8329,
+        help="Reference count (hex, default: 0x8329)",
+    )
+    parser_monitor.add_argument(
+        "-s",
+        "--settle",
+        type=lambda x: int(x, 0),
+        default=0x0020,
+        help="Settle count (hex, default: 0x0020)",
+    )
 
     # Characterize command
-    parser_char = subparsers.add_parser('characterize',
-                                        help='Characterize probe for optimal low-power settings')
-    parser_char.add_argument('-c', '--channel', type=int, default=0, choices=[0,1,2,3],
-                            help='Channel to characterize (default: 0)')
-    parser_char.add_argument('--output', type=str, default=None,
-                            help='Save results to CSV file')
-    parser_char.add_argument('--non-interactive', action='store_true',
-                            help='Skip oscilloscope prompts (use reading stability only)')
+    parser_char = subparsers.add_parser(
+        "characterize", help="Characterize probe for optimal low-power settings"
+    )
+    parser_char.add_argument(
+        "-c",
+        "--channel",
+        type=int,
+        default=0,
+        choices=[0, 1, 2, 3],
+        help="Channel to characterize (default: 0)",
+    )
+    parser_char.add_argument("--output", type=str, default=None, help="Save results to CSV file")
+    parser_char.add_argument(
+        "--non-interactive",
+        action="store_true",
+        help="Skip oscilloscope prompts (use reading stability only)",
+    )
 
     args = parser.parse_args()
-    
+
     if not args.command:
         parser.print_help()
         return 1
 
     # Route to appropriate command handler
     commands = {
-        'info': cmd_info,
-        'reset': cmd_reset,
-        'reset-ftdi': cmd_reset_ftdi,
-        'config': cmd_config,
-        'read': cmd_read,
-        'sweep': cmd_sweep,
-        'monitor': cmd_monitor,
-        'characterize': cmd_characterize,
+        "info": cmd_info,
+        "reset": cmd_reset,
+        "reset-ftdi": cmd_reset_ftdi,
+        "config": cmd_config,
+        "read": cmd_read,
+        "sweep": cmd_sweep,
+        "monitor": cmd_monitor,
+        "characterize": cmd_characterize,
     }
 
     return commands[args.command](args)

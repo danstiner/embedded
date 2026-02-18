@@ -1,19 +1,18 @@
 import esphome.codegen as cg
-from esphome.components import i2c, sensor
 import esphome.config_validation as cv
 from esphome.const import (
-    CONF_MOISTURE,
     CONF_ID,
+    CONF_MOISTURE,
     CONF_TEMPERATURE,
     DEVICE_CLASS_MOISTURE,
     DEVICE_CLASS_TEMPERATURE,
     ICON_THERMOMETER,
     ICON_WATER,
-    ICON_WATER_PERCENT,
     STATE_CLASS_MEASUREMENT,
     UNIT_CELSIUS,
-    UNIT_PERCENT,
 )
+
+from esphome.components import i2c, sensor
 
 CODEOWNERS = ["@danstiner"]
 DEPENDENCIES = ["i2c"]
@@ -22,9 +21,7 @@ DEFAULT_I2C_ADDRESS = 0x36
 
 soil_ns = cg.esphome_ns.namespace("adafruit_soil")
 
-StemmaSoilSensor = soil_ns.class_(
-    "StemmaSoilSensor", cg.PollingComponent
-)
+StemmaSoilSensor = soil_ns.class_("StemmaSoilSensor", cg.PollingComponent)
 
 CONFIG_SCHEMA = (
     cv.Schema(

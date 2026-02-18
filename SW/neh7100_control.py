@@ -10,10 +10,11 @@ NEH7100 Solar Energy Harvesting PMIC I2C Control Script via FT232H
 For configuring and monitoring the Nexperia NEH7100 solar PMIC
 """
 
-from pyftdi.i2c import I2cController
-import time
 import argparse
 import sys
+import time
+
+from pyftdi.i2c import I2cController
 
 
 class NEH7100:
@@ -23,15 +24,15 @@ class NEH7100:
     ADDR = 0x3C
 
     # Register addresses
-    REG_PROTECTION = 0x00   # OVP [3:0] + LVD [7:4] thresholds
-    REG_LDO_USB = 0x01      # LDO bypass/ctrl/voltage [7:3] + USB current [2:0]
-    REG_FREQ = 0x03         # Converter frequency bounds
-    REG_BOOST = 0x04        # Boosting factor bounds
-    REG_MPPT = 0x05         # MPPT interval setting
-    REG_CHIP_ID = 0x07      # Product ID (0x15)
-    REG_STATUS = 0x08       # Status flags
-    REG_I_RANGE = 0x09      # Current measurement range
-    REG_I_MEASURED = 0x0A   # Current measurement value
+    REG_PROTECTION = 0x00  # OVP [3:0] + LVD [7:4] thresholds
+    REG_LDO_USB = 0x01  # LDO bypass/ctrl/voltage [7:3] + USB current [2:0]
+    REG_FREQ = 0x03  # Converter frequency bounds
+    REG_BOOST = 0x04  # Boosting factor bounds
+    REG_MPPT = 0x05  # MPPT interval setting
+    REG_CHIP_ID = 0x07  # Product ID (0x15)
+    REG_STATUS = 0x08  # Status flags
+    REG_I_RANGE = 0x09  # Current measurement range
+    REG_I_MEASURED = 0x0A  # Current measurement value
 
     # Expected chip ID
     CHIP_ID = 0x15
@@ -120,20 +121,20 @@ class NEH7100:
     # Current range factors (A per LSB)
     # Table 23 from datasheet
     I_RANGE_FACTORS = {
-        0b00: 70.6e-9,    # 70.6 nA/LSB
-        0b01: 478e-9,     # 478 nA/LSB
-        0b10: 4.71e-6,    # 4.71 uA/LSB
-        0b11: 67.5e-6,    # 67.5 uA/LSB
+        0b00: 70.6e-9,  # 70.6 nA/LSB
+        0b01: 478e-9,  # 478 nA/LSB
+        0b10: 4.71e-6,  # 4.71 uA/LSB
+        0b11: 67.5e-6,  # 67.5 uA/LSB
     }
 
     # Status register bit definitions
-    STATUS_OVP_OUT = 0x10      # Over-voltage protection triggered
-    STATUS_LVD_OUT = 0x08      # Low-voltage detection triggered
-    STATUS_SDF = 0x04          # Shutdown flag
-    STATUS_OCF = 0x02          # Overcurrent flag
-    STATUS_CHIP_OK = 0x01      # Chip OK flag
+    STATUS_OVP_OUT = 0x10  # Over-voltage protection triggered
+    STATUS_LVD_OUT = 0x08  # Low-voltage detection triggered
+    STATUS_SDF = 0x04  # Shutdown flag
+    STATUS_OCF = 0x02  # Overcurrent flag
+    STATUS_CHIP_OK = 0x01  # Chip OK flag
 
-    def __init__(self, i2c_url='ftdi://ftdi:232h/1', i2c_addr=None, frequency=100000):
+    def __init__(self, i2c_url="ftdi://ftdi:232h/1", i2c_addr=None, frequency=100000):
         """Initialize NEH7100 with FT232H I2C bridge
 
         Args:
@@ -191,7 +192,7 @@ class NEH7100:
         """
         # Find closest code
         best_code = None
-        best_diff = float('inf')
+        best_diff = float("inf")
         for code, v in self.OVP_THRESHOLDS.items():
             diff = abs(v - voltage)
             if diff < best_diff:
@@ -220,7 +221,7 @@ class NEH7100:
         """
         # Find closest code
         best_code = None
-        best_diff = float('inf')
+        best_diff = float("inf")
         for code, v in self.LVD_THRESHOLDS.items():
             diff = abs(v - voltage)
             if diff < best_diff:
@@ -252,11 +253,11 @@ class NEH7100:
         voltage = self.LDO_VOLTAGES.get(ldo_code, None)
 
         return {
-            'voltage': voltage,
-            'voltage_code': ldo_code,
-            'bypass': bypass,
-            'ldo_ctrl': ldo_ctrl,
-            'raw': reg
+            "voltage": voltage,
+            "voltage_code": ldo_code,
+            "bypass": bypass,
+            "ldo_ctrl": ldo_ctrl,
+            "raw": reg,
         }
 
     def set_ldo_voltage(self, voltage):
@@ -270,7 +271,7 @@ class NEH7100:
         """
         # Find closest code
         best_code = None
-        best_diff = float('inf')
+        best_diff = float("inf")
         for code, v in self.LDO_VOLTAGES.items():
             diff = abs(v - voltage)
             if diff < best_diff:
@@ -312,7 +313,7 @@ class NEH7100:
         """
         # Find closest code
         best_code = None
-        best_diff = float('inf')
+        best_diff = float("inf")
         for code, ma in self.USB_CURRENT_LIMITS.items():
             diff = abs(ma - current_ma)
             if diff < best_diff:
@@ -343,7 +344,7 @@ class NEH7100:
         """
         # Find closest code
         best_code = None
-        best_diff = float('inf')
+        best_diff = float("inf")
         for code, s in self.MPPT_INTERVALS.items():
             diff = abs(s - seconds)
             if diff < best_diff:
@@ -365,12 +366,12 @@ class NEH7100:
         """
         status = self.read_register(self.REG_STATUS)
         return {
-            'raw': status,
-            'ovp_out': bool(status & self.STATUS_OVP_OUT),
-            'lvd_out': bool(status & self.STATUS_LVD_OUT),
-            'sdf': bool(status & self.STATUS_SDF),
-            'ocf': bool(status & self.STATUS_OCF),
-            'chip_ok': bool(status & self.STATUS_CHIP_OK),
+            "raw": status,
+            "ovp_out": bool(status & self.STATUS_OVP_OUT),
+            "lvd_out": bool(status & self.STATUS_LVD_OUT),
+            "sdf": bool(status & self.STATUS_SDF),
+            "ocf": bool(status & self.STATUS_OCF),
+            "chip_ok": bool(status & self.STATUS_CHIP_OK),
         }
 
     # --- Current Measurement Methods ---
@@ -389,12 +390,12 @@ class NEH7100:
         current_a = i_measured * factor
 
         return {
-            'current_a': current_a,
-            'current_ua': current_a * 1e6,
-            'current_ma': current_a * 1e3,
-            'range_code': range_code,
-            'measured_raw': i_measured,
-            'factor': factor,
+            "current_a": current_a,
+            "current_ua": current_a * 1e6,
+            "current_ma": current_a * 1e3,
+            "range_code": range_code,
+            "measured_raw": i_measured,
+            "factor": factor,
         }
 
     # --- Frequency and Boost Methods ---
@@ -418,11 +419,11 @@ class NEH7100:
 
 def init_device(args):
     """Initialize and verify NEH7100 device"""
-    freq = getattr(args, 'frequency', 100000)
+    freq = getattr(args, "frequency", 100000)
 
     try:
-        neh = NEH7100(i2c_addr=getattr(args, 'addr', None), frequency=freq)
-        print(f"Connected to FT232H at {freq/1000:.0f}kHz")
+        neh = NEH7100(i2c_addr=getattr(args, "addr", None), frequency=freq)
+        print(f"Connected to FT232H at {freq / 1000:.0f}kHz")
     except Exception as e:
         print(f"Error connecting to FT232H: {e}")
         print("\nMake sure:")
@@ -458,7 +459,7 @@ def cmd_info(args):
     ldo = neh.get_ldo_config()
     usb_ma, usb_code = neh.get_usb_current_limit()
     print(f"\nLDO/USB (0x{neh.REG_LDO_USB:02X} = 0x{ldo['raw']:02X}):")
-    if ldo['voltage']:
+    if ldo["voltage"]:
         print(f"  LDO voltage: {ldo['voltage']:.2f}V (code: 0x{ldo['voltage_code']:02X})")
     else:
         print(f"  LDO voltage: Unknown (code: 0x{ldo['voltage_code']:02X})")
@@ -486,8 +487,10 @@ def cmd_info(args):
     status = neh.get_status()
     print(f"\nStatus (0x{neh.REG_STATUS:02X} = 0x{status['raw']:02X}):")
     print(f"  Chip OK:     {status['chip_ok']}")
-    print(f"  OVP out:     {status['ovp_out']} {'(VBAT > ' + f'{ovp_v:.1f}V)' if status['ovp_out'] else ''}")
-    print(f"  LVD out:     {status['lvd_out']} {'(VBAT < ' + f'{lvd_v:.1f}V)' if status['lvd_out'] else ''}")
+    ovp_note = f" (VBAT > {ovp_v:.1f}V)" if status["ovp_out"] else ""
+    lvd_note = f" (VBAT < {lvd_v:.1f}V)" if status["lvd_out"] else ""
+    print(f"  OVP out:     {status['ovp_out']}{ovp_note}")
+    print(f"  LVD out:     {status['lvd_out']}{lvd_note}")
     print(f"  Shutdown:    {status['sdf']}")
     print(f"  Overcurrent: {status['ocf']}")
 
@@ -504,9 +507,10 @@ def cmd_reset(args):
 def cmd_reset_ftdi(args):
     """Reset the FT232H USB adapter"""
     from pyftdi.ftdi import Ftdi
+
     print("Resetting FT232H USB adapter...")
     ftdi = Ftdi()
-    ftdi.open_from_url(url='ftdi://ftdi:232h:1/1')
+    ftdi.open_from_url(url="ftdi://ftdi:232h:1/1")
     ftdi.reset(usb_reset=True)
     ftdi.close()
     print("Done")
@@ -527,8 +531,16 @@ def cmd_status(args):
     print(f"Raw register: 0x{status['raw']:02X}")
     print()
     print(f"  Chip OK:     {'YES' if status['chip_ok'] else 'NO'}")
-    print(f"  OVP Out:     {'HIGH (VBAT > ' + f'{ovp_v:.2f}V)' if status['ovp_out'] else 'LOW (VBAT < ' + f'{ovp_v:.2f}V)'}")
-    print(f"  LVD Out:     {'HIGH (VBAT < ' + f'{lvd_v:.2f}V)' if status['lvd_out'] else 'LOW (VBAT > ' + f'{lvd_v:.2f}V)'}")
+    if status["ovp_out"]:
+        ovp_str = f"HIGH (VBAT > {ovp_v:.2f}V)"
+    else:
+        ovp_str = f"LOW (VBAT < {ovp_v:.2f}V)"
+    if status["lvd_out"]:
+        lvd_str = f"HIGH (VBAT < {lvd_v:.2f}V)"
+    else:
+        lvd_str = f"LOW (VBAT > {lvd_v:.2f}V)"
+    print(f"  OVP Out:     {ovp_str}")
+    print(f"  LVD Out:     {lvd_str}")
     print(f"  Shutdown:    {'YES' if status['sdf'] else 'NO'}")
     print(f"  Overcurrent: {'YES' if status['ocf'] else 'NO'}")
 
@@ -590,16 +602,18 @@ def cmd_current(args):
     current = neh.read_charging_current()
 
     print("\n=== Charging Current ===")
-    print(f"I_RANGE:    0x{current['range_code']:02X} (factor: {current['factor']*1e9:.1f} nA/LSB)")
+    print(
+        f"I_RANGE:    0x{current['range_code']:02X} (factor: {current['factor'] * 1e9:.1f} nA/LSB)"
+    )
     print(f"I_MEASURED: {current['measured_raw']} (raw)")
     print()
 
-    if current['current_ma'] >= 1.0:
+    if current["current_ma"] >= 1.0:
         print(f"Current: {current['current_ma']:.3f} mA")
-    elif current['current_ua'] >= 1.0:
+    elif current["current_ua"] >= 1.0:
         print(f"Current: {current['current_ua']:.3f} uA")
     else:
-        print(f"Current: {current['current_a']*1e9:.1f} nA")
+        print(f"Current: {current['current_a'] * 1e9:.1f} nA")
 
     return 0
 
@@ -611,7 +625,12 @@ def cmd_monitor(args):
         return 1
 
     print("\n=== Monitoring NEH7100 (Ctrl+C to stop) ===")
-    print(f"{'Sample':>6} | {'Current':>12} | {'ChipOK':>6} | {'OVP':>4} | {'LVD':>4} | {'SDF':>4} | {'OCF':>4}")
+    hdr = (
+        f"{'Sample':>6} | {'Current':>12} | "
+        f"{'ChipOK':>6} | {'OVP':>4} | "
+        f"{'LVD':>4} | {'SDF':>4} | {'OCF':>4}"
+    )
+    print(hdr)
     print("-" * 70)
 
     sample = 0
@@ -621,19 +640,21 @@ def cmd_monitor(args):
             current = neh.read_charging_current()
 
             # Format current appropriately
-            if current['current_ma'] >= 1.0:
+            if current["current_ma"] >= 1.0:
                 current_str = f"{current['current_ma']:.3f} mA"
-            elif current['current_ua'] >= 1.0:
+            elif current["current_ua"] >= 1.0:
                 current_str = f"{current['current_ua']:.2f} uA"
             else:
-                current_str = f"{current['current_a']*1e9:.0f} nA"
+                current_str = f"{current['current_a'] * 1e9:.0f} nA"
 
-            print(f"{sample:6d} | {current_str:>12} | "
-                  f"{'YES' if status['chip_ok'] else 'NO':>6} | "
-                  f"{'H' if status['ovp_out'] else 'L':>4} | "
-                  f"{'H' if status['lvd_out'] else 'L':>4} | "
-                  f"{'!' if status['sdf'] else '-':>4} | "
-                  f"{'!' if status['ocf'] else '-':>4}")
+            print(
+                f"{sample:6d} | {current_str:>12} | "
+                f"{'YES' if status['chip_ok'] else 'NO':>6} | "
+                f"{'H' if status['ovp_out'] else 'L':>4} | "
+                f"{'H' if status['lvd_out'] else 'L':>4} | "
+                f"{'!' if status['sdf'] else '-':>4} | "
+                f"{'!' if status['ocf'] else '-':>4}"
+            )
 
             sample += 1
             time.sleep(args.delay)
@@ -647,7 +668,7 @@ def cmd_monitor(args):
 def main():
     """Main CLI entry point"""
     parser = argparse.ArgumentParser(
-        description='NEH7100 Solar Energy Harvesting PMIC I2C Control via FT232H',
+        description="NEH7100 Solar Energy Harvesting PMIC I2C Control via FT232H",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -662,50 +683,64 @@ Examples:
   %(prog)s monitor                       # Continuous monitoring
   %(prog)s monitor -d 0.5                # Monitor with 0.5s interval
   %(prog)s reset-ftdi                    # Reset FT232H USB adapter
-        """
+        """,
     )
 
-    parser.add_argument('-a', '--addr', type=lambda x: int(x, 0),
-                       help='I2C address (default: 0x3C)')
-    parser.add_argument('-f', '--frequency', type=int, default=100000,
-                       help='I2C frequency in Hz (default: 100000, max for NEH7100)')
+    parser.add_argument(
+        "-a", "--addr", type=lambda x: int(x, 0), help="I2C address (default: 0x3C)"
+    )
+    parser.add_argument(
+        "-f",
+        "--frequency",
+        type=int,
+        default=100000,
+        help="I2C frequency in Hz (default: 100000, max for NEH7100)",
+    )
 
-    subparsers = parser.add_subparsers(dest='command', help='Command to execute')
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 
     # Info command
-    subparsers.add_parser('info', help='Display device information and configuration')
+    subparsers.add_parser("info", help="Display device information and configuration")
 
     # Reset command
-    subparsers.add_parser('reset', help='Reset the NEH7100 device (note: not supported via I2C)')
+    subparsers.add_parser(
+        "reset",
+        help="Reset the NEH7100 (note: not supported via I2C)",
+    )
 
     # Reset FTDI command
-    subparsers.add_parser('reset-ftdi', help='Reset the FT232H USB adapter')
+    subparsers.add_parser("reset-ftdi", help="Reset the FT232H USB adapter")
 
     # Status command
-    subparsers.add_parser('status', help='Read real-time status flags')
+    subparsers.add_parser("status", help="Read real-time status flags")
 
     # Current command
-    subparsers.add_parser('current', help='Read charging current')
+    subparsers.add_parser("current", help="Read charging current")
 
     # Config command
-    parser_config = subparsers.add_parser('config', help='Configure device parameters')
-    parser_config.add_argument('--ovp', type=float,
-                              help='Set OVP threshold voltage (2.7-4.5V)')
-    parser_config.add_argument('--lvd', type=float,
-                              help='Set LVD threshold voltage (2.2-3.7V)')
-    parser_config.add_argument('--ldo', type=float,
-                              help='Set LDO output voltage (1.2-3.6V)')
-    parser_config.add_argument('--ldo-bypass', action='store_true',
-                              help='Enable LDO bypass mode')
-    parser_config.add_argument('--usb-current', type=float,
-                              help='Set USB charging current limit in mA (0.5, 1, 2, 10, 50, 100, 150, 200)')
-    parser_config.add_argument('--mppt-interval', type=float,
-                              help='Set MPPT interval in seconds (0.5-64)')
+    parser_config = subparsers.add_parser("config", help="Configure device parameters")
+    parser_config.add_argument("--ovp", type=float, help="Set OVP threshold voltage (2.7-4.5V)")
+    parser_config.add_argument("--lvd", type=float, help="Set LVD threshold voltage (2.2-3.7V)")
+    parser_config.add_argument("--ldo", type=float, help="Set LDO output voltage (1.2-3.6V)")
+    parser_config.add_argument("--ldo-bypass", action="store_true", help="Enable LDO bypass mode")
+    parser_config.add_argument(
+        "--usb-current",
+        type=float,
+        help="Set USB charging current limit in mA (0.5, 1, 2, 10, 50, 100, 150, 200)",
+    )
+    parser_config.add_argument(
+        "--mppt-interval", type=float, help="Set MPPT interval in seconds (0.5-64)"
+    )
 
     # Monitor command
-    parser_monitor = subparsers.add_parser('monitor', help='Continuous status monitoring')
-    parser_monitor.add_argument('-d', '--delay', type=float, default=1.0,
-                               help='Delay between readings in seconds (default: 1.0)')
+    parser_monitor = subparsers.add_parser("monitor", help="Continuous status monitoring")
+    parser_monitor.add_argument(
+        "-d",
+        "--delay",
+        type=float,
+        default=1.0,
+        help="Delay between readings in seconds (default: 1.0)",
+    )
 
     args = parser.parse_args()
 
@@ -715,13 +750,13 @@ Examples:
 
     # Route to appropriate command handler
     commands = {
-        'info': cmd_info,
-        'reset': cmd_reset,
-        'reset-ftdi': cmd_reset_ftdi,
-        'status': cmd_status,
-        'config': cmd_config,
-        'current': cmd_current,
-        'monitor': cmd_monitor,
+        "info": cmd_info,
+        "reset": cmd_reset,
+        "reset-ftdi": cmd_reset_ftdi,
+        "status": cmd_status,
+        "config": cmd_config,
+        "current": cmd_current,
+        "monitor": cmd_monitor,
     }
 
     return commands[args.command](args)

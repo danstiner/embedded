@@ -10,12 +10,13 @@ FDC1004 4-Channel Capacitance-to-Digital Converter I2C Helper Script via FT232H
 For testing and calibration with oscilloscope
 """
 
-from pyftdi.i2c import I2cController
-import time
-import struct
 import argparse
-import sys
 import math
+import struct
+import sys
+import time
+
+from pyftdi.i2c import I2cController
 
 
 def compute_stats(samples):
@@ -27,7 +28,7 @@ def compute_stats(samples):
     """
     n = len(samples)
     if n == 0:
-        return {'mean': 0, 'std': 0, 'min': 0, 'max': 0, 'count': 0}
+        return {"mean": 0, "std": 0, "min": 0, "max": 0, "count": 0}
 
     mean = sum(samples) / n
     if n > 1:
@@ -36,13 +37,7 @@ def compute_stats(samples):
     else:
         std = 0
 
-    return {
-        'mean': mean,
-        'std': std,
-        'min': min(samples),
-        'max': max(samples),
-        'count': n
-    }
+    return {"mean": mean, "std": std, "min": min(samples), "max": max(samples), "count": n}
 
 
 def binary_search_min(lo, hi, test_fn, step=1, verbose=True):
@@ -76,7 +71,7 @@ def binary_search_min(lo, hi, test_fn, step=1, verbose=True):
             print(f"    Binary search: testing {mid} (range {lo}-{hi})...")
 
         passed, result = test_fn(mid)
-        results.append({'value': mid, 'passed': passed, **result})
+        results.append({"value": mid, "passed": passed, **result})
 
         if passed:
             optimal = mid
@@ -85,7 +80,7 @@ def binary_search_min(lo, hi, test_fn, step=1, verbose=True):
             lo = mid + step  # Need larger value
 
     # Sort results by value for consistent display
-    results.sort(key=lambda r: r['value'])
+    results.sort(key=lambda r: r["value"])
 
     return optimal, results
 
@@ -211,20 +206,24 @@ class FDC1004:
         if rate not in [0, 1, 3]:
             raise ValueError("rate must be 0 (100Hz), 1 (200Hz), or 3 (400Hz)")
 
-        value = (rate << 10)
+        value = rate << 10
         if repeat:
             value |= FDC1004.FDC_CONF_REPEAT
 
         if trigger_meas:
-            meas_bits = [FDC1004.FDC_CONF_MEAS1, FDC1004.FDC_CONF_MEAS2,
-                        FDC1004.FDC_CONF_MEAS3, FDC1004.FDC_CONF_MEAS4]
+            meas_bits = [
+                FDC1004.FDC_CONF_MEAS1,
+                FDC1004.FDC_CONF_MEAS2,
+                FDC1004.FDC_CONF_MEAS3,
+                FDC1004.FDC_CONF_MEAS4,
+            ]
             for m in trigger_meas:
                 if 1 <= m <= 4:
                     value |= meas_bits[m - 1]
 
         return value
 
-    def __init__(self, i2c_url='ftdi://ftdi:232h/1', i2c_addr=None, verbose=False):
+    def __init__(self, i2c_url="ftdi://ftdi:232h/1", i2c_addr=None, verbose=False):
         """Initialize FDC1004 with FT232H I2C bridge"""
         self.i2c = I2cController()
         self.i2c.configure(i2c_url, frequency=400000)
@@ -234,14 +233,14 @@ class FDC1004:
 
     def write_register(self, reg, value):
         """Write 16-bit value to register"""
-        data = struct.pack('>H', value)  # Big-endian 16-bit
+        data = struct.pack(">H", value)  # Big-endian 16-bit
         self.slave.write_to(reg, data)
         time.sleep(0.01)  # Small delay for register write
 
     def read_register(self, reg):
         """Read 16-bit value from register"""
         data = self.slave.exchange([reg], 2)
-        return struct.unpack('>H', data)[0]
+        return struct.unpack(">H", data)[0]
 
     def check_device_id(self):
         """Verify device ID"""
@@ -253,7 +252,7 @@ class FDC1004:
         if mfg_id == 0x5449 and dev_id == 0x1004:
             return True
         else:
-            print(f"Unexpected device ID!")
+            print("Unexpected device ID!")
             return False
 
     def reset(self):
@@ -364,8 +363,12 @@ class FDC1004:
                 done: True if measurement completed, False if timeout
                 time_ms: Time waited in milliseconds
         """
-        done_bits = [self.FDC_CONF_DONE1, self.FDC_CONF_DONE2,
-                     self.FDC_CONF_DONE3, self.FDC_CONF_DONE4]
+        done_bits = [
+            self.FDC_CONF_DONE1,
+            self.FDC_CONF_DONE2,
+            self.FDC_CONF_DONE3,
+            self.FDC_CONF_DONE4,
+        ]
         done_bit = done_bits[meas_num - 1]
 
         start = time.time()
@@ -439,9 +442,11 @@ class FDC1004:
             capdac = (conf >> 5) & 0x1F
 
         print(f"\nReading {samples} samples from MEAS{meas_num} (CAPDAC={capdac}):")
-        header = (f"{'Sample':>6} | {'Raw Hex':>8} | {'Raw (pF)':>9} | "
-                  f"{'Cap (pF)':>10} | {'Avg (pF)':>10} | "
-                  f"{'Std Dev':>7} | {'Time':>5}")
+        header = (
+            f"{'Sample':>6} | {'Raw Hex':>8} | {'Raw (pF)':>9} | "
+            f"{'Cap (pF)':>10} | {'Avg (pF)':>10} | "
+            f"{'Std Dev':>7} | {'Time':>5}"
+        )
         print(header)
         print("-" * len(header))
 
@@ -455,7 +460,12 @@ class FDC1004:
             raw, capacitance, time_ms = self.single_shot_read(meas_num, rate=rate, capdac=capdac)
 
             if raw is None:
-                print(f"{i:6d} | {'TIMEOUT':>8} | {'':>9} | {'':>10} | {'':>10} | {'':>7} | {time_ms:5.0f}ms")
+                timeout_str = (
+                    f"{i:6d} | {'TIMEOUT':>8} | {'':>9}"
+                    f" | {'':>10} | {'':>10}"
+                    f" | {'':>7} | {time_ms:5.0f}ms"
+                )
+                print(timeout_str)
                 time.sleep(delay)
                 continue
 
@@ -486,8 +496,10 @@ class FDC1004:
         if cap_samples:
             stats = compute_stats(cap_samples)
             print("-" * len(header))
-            print(f"Summary: {stats['count']} samples, mean={stats['mean']:.4f} pF, "
-                  f"std={stats['std']:.4f} pF, range=[{stats['min']:.4f}, {stats['max']:.4f}]")
+            print(
+                f"Summary: {stats['count']} samples, mean={stats['mean']:.4f} pF, "
+                f"std={stats['std']:.4f} pF, range=[{stats['min']:.4f}, {stats['max']:.4f}]"
+            )
 
     def take_samples(self, meas_num, n=10, delay=0.05, rate=0, capdac=None):
         """Take n samples, return list of capacitance readings"""
@@ -518,8 +530,10 @@ class FDC1004:
         print(f"FDC_CONF (0x0C): 0x{fdc_conf:04X}")
         print(f"  Rate: {rate_hz} Hz")
         print(f"  Repeat: {repeat}")
-        print(f"  DONE flags: MEAS1={bool(fdc_conf & 0x08)}, MEAS2={bool(fdc_conf & 0x04)}, "
-              f"MEAS3={bool(fdc_conf & 0x02)}, MEAS4={bool(fdc_conf & 0x01)}")
+        print(
+            f"  DONE flags: MEAS1={bool(fdc_conf & 0x08)}, MEAS2={bool(fdc_conf & 0x04)}, "
+            f"MEAS3={bool(fdc_conf & 0x02)}, MEAS4={bool(fdc_conf & 0x01)}"
+        )
 
         # Read CONF_MEASx registers
         for i in range(1, 5):
@@ -530,9 +544,11 @@ class FDC1004:
             capdac = (conf >> 5) & 0x1F
             capdac_pf = capdac * 3.125
 
-            chb_str = {0: "CIN1", 1: "CIN2", 2: "CIN3", 3: "CIN4", 4: "CAPDAC", 7: "disabled"}.get(chb, f"reserved({chb})")
+            chb_str = {0: "CIN1", 1: "CIN2", 2: "CIN3", 3: "CIN4", 4: "CAPDAC", 7: "disabled"}.get(
+                chb, f"reserved({chb})"
+            )
             print(f"CONF_MEAS{i} (0x{reg:02X}): 0x{conf:04X}")
-            print(f"  CHA=CIN{cha+1}, CHB={chb_str}, CAPDAC={capdac} ({capdac_pf:.3f}pF)")
+            print(f"  CHA=CIN{cha + 1}, CHB={chb_str}, CAPDAC={capdac} ({capdac_pf:.3f}pF)")
 
 
 def init_device(i2c_addr=None, verbose=False):
@@ -585,9 +601,10 @@ def cmd_reset(args):
 def cmd_reset_ftdi(args):
     """Reset the FT232H USB adapter"""
     from pyftdi.ftdi import Ftdi
+
     print("Resetting FT232H USB adapter...")
     ftdi = Ftdi()
-    ftdi.open_from_url(url='ftdi://ftdi:232h:1/1')
+    ftdi.open_from_url(url="ftdi://ftdi:232h:1/1")
     ftdi.reset(usb_reset=True)
     ftdi.close()
     print("Done")
@@ -602,10 +619,7 @@ def cmd_config(args):
 
     print(f"Configuring MEAS{args.meas}...")
     fdc.configure_measurement(
-        meas_num=args.meas,
-        cha=args.channel - 1,
-        chb=args.chb,
-        capdac=args.capdac
+        meas_num=args.meas, cha=args.channel - 1, chb=args.chb, capdac=args.capdac
     )
     print("Configuration complete")
 
@@ -620,7 +634,7 @@ def cmd_read(args):
         return 1
 
     # Map rate string to value
-    rate_map = {'100': 0, '200': 1, '400': 3}
+    rate_map = {"100": 0, "200": 1, "400": 3}
     rate = rate_map.get(args.rate, 0)
 
     fdc.continuous_read(
@@ -647,7 +661,7 @@ def cmd_monitor(args):
             channel = i % 4  # Use different channels
             fdc.configure_measurement(m, cha=channel, chb=FDC1004.CHB_CAPDAC, capdac=args.capdac)
 
-    rate_map = {'100': 0, '200': 1, '400': 3}
+    rate_map = {"100": 0, "200": 1, "400": 3}
     rate = rate_map.get(args.rate, 0)
 
     print(f"Monitoring MEAS{meas_nums} (Ctrl+C to stop)")
@@ -690,7 +704,7 @@ def cmd_characterize(args):
     # Phase 1: Baseline Reading
     # =========================================================================
     print("\n--- Phase 1: Baseline Reading ---")
-    print(f"Configuring MEAS{meas_num} with channel CIN{channel+1}, CAPDAC=0...")
+    print(f"Configuring MEAS{meas_num} with channel CIN{channel + 1}, CAPDAC=0...")
 
     fdc.configure_measurement(meas_num, cha=channel, chb=FDC1004.CHB_CAPDAC, capdac=0)
 
@@ -706,12 +720,12 @@ def cmd_characterize(args):
     print(f"  Capacitance: {stats['mean']:.4f} +/- {stats['std']:.4f} pF")
     print(f"  Range: [{stats['min']:.4f}, {stats['max']:.4f}] pF")
 
-    baseline_cap = stats['mean']
+    baseline_cap = stats["mean"]
 
     # Check if measurement is in range
     if baseline_cap < -15 or baseline_cap > 115:
-        print(f"  WARNING: Measurement out of typical range (-15 to +115 pF)")
-        print(f"  The FDC1004 measures -15pF to +115pF relative to CAPDAC offset")
+        print("  WARNING: Measurement out of typical range (-15 to +115 pF)")
+        print("  The FDC1004 measures -15pF to +115pF relative to CAPDAC offset")
 
     # =========================================================================
     # Phase 2: CAPDAC Sweep
@@ -730,7 +744,9 @@ def cmd_characterize(args):
         fdc.configure_measurement(meas_num, cha=channel, chb=FDC1004.CHB_CAPDAC, capdac=capdac)
         time.sleep(0.05)
 
-        samples = fdc.take_samples(meas_num, n=5, delay=0.02, rate=FDC1004.RATE_100HZ, capdac=capdac)
+        samples = fdc.take_samples(
+            meas_num, n=5, delay=0.02, rate=FDC1004.RATE_100HZ, capdac=capdac
+        )
         if not samples:
             continue
 
@@ -738,22 +754,30 @@ def cmd_characterize(args):
         offset_pf = capdac * 3.125
 
         # Raw reading (before adding CAPDAC offset back)
-        raw_cap = stats['mean'] - offset_pf
+        raw_cap = stats["mean"] - offset_pf
 
-        capdac_results.append({
-            'capdac': capdac,
-            'offset_pf': offset_pf,
-            'capacitance': stats['mean'],
-            'raw_cap': raw_cap,
-            'std': stats['std']
-        })
+        capdac_results.append(
+            {
+                "capdac": capdac,
+                "offset_pf": offset_pf,
+                "capacitance": stats["mean"],
+                "raw_cap": raw_cap,
+                "std": stats["std"],
+            }
+        )
 
-        print(f"    CAPDAC={capdac:2d} ({offset_pf:6.2f}pF): C={stats['mean']:8.4f}pF, raw={raw_cap:8.4f}pF, std={stats['std']:.4f}")
+        cap_str = (
+            f"    CAPDAC={capdac:2d} ({offset_pf:6.2f}pF):"
+            f" C={stats['mean']:8.4f}pF,"
+            f" raw={raw_cap:8.4f}pF,"
+            f" std={stats['std']:.4f}"
+        )
+        print(cap_str)
 
     # Find CAPDAC that gives raw reading closest to zero (best resolution)
     if capdac_results:
-        best = min(capdac_results, key=lambda r: abs(r['raw_cap']))
-        optimal_capdac = best['capdac']
+        best = min(capdac_results, key=lambda r: abs(r["raw_cap"]))
+        optimal_capdac = best["capdac"]
         print(f"\n  Optimal CAPDAC: {optimal_capdac} ({optimal_capdac * 3.125:.2f}pF offset)")
         print(f"  Raw reading at optimal: {best['raw_cap']:.4f}pF")
     else:
@@ -772,7 +796,7 @@ def cmd_characterize(args):
     rates = [
         (FDC1004.RATE_100HZ, "100Hz"),
         (FDC1004.RATE_200HZ, "200Hz"),
-        (FDC1004.RATE_400HZ, "400Hz")
+        (FDC1004.RATE_400HZ, "400Hz"),
     ]
 
     for rate_val, rate_name in rates:
@@ -781,37 +805,47 @@ def cmd_characterize(args):
             continue
 
         stats = compute_stats(samples)
-        noise_ppm = (stats['std'] / stats['mean']) * 1e6 if stats['mean'] != 0 else 0
+        noise_ppm = (stats["std"] / stats["mean"]) * 1e6 if stats["mean"] != 0 else 0
 
-        rate_results.append({
-            'rate': rate_name,
-            'rate_val': rate_val,
-            'mean': stats['mean'],
-            'std': stats['std'],
-            'noise_ppm': noise_ppm
-        })
+        rate_results.append(
+            {
+                "rate": rate_name,
+                "rate_val": rate_val,
+                "mean": stats["mean"],
+                "std": stats["std"],
+                "noise_ppm": noise_ppm,
+            }
+        )
 
-        print(f"    {rate_name}: mean={stats['mean']:.4f}pF, std={stats['std']:.6f}pF ({noise_ppm:.0f}ppm)")
+        rate_str = (
+            f"    {rate_name}:"
+            f" mean={stats['mean']:.4f}pF,"
+            f" std={stats['std']:.6f}pF"
+            f" ({noise_ppm:.0f}ppm)"
+        )
+        print(rate_str)
 
     # Find best rate (lowest noise)
     if rate_results:
-        best_rate = min(rate_results, key=lambda r: r['std'])
+        best_rate = min(rate_results, key=lambda r: r["std"])
         print(f"\n  Best rate: {best_rate['rate']} (lowest noise)")
 
     # =========================================================================
     # Phase 4: Extended Validation
     # =========================================================================
     print("\n--- Phase 4: Extended Validation ---")
-    print(f"Taking extended samples with optimal settings...")
+    print("Taking extended samples with optimal settings...")
 
     fdc.configure_measurement(meas_num, cha=channel, chb=FDC1004.CHB_CAPDAC, capdac=optimal_capdac)
 
     # Use best rate or default to 100Hz
-    best_rate_val = best_rate['rate_val'] if rate_results else FDC1004.RATE_100HZ
+    best_rate_val = best_rate["rate_val"] if rate_results else FDC1004.RATE_100HZ
 
-    samples = fdc.take_samples(meas_num, n=100, delay=0.02, rate=best_rate_val, capdac=optimal_capdac)
+    samples = fdc.take_samples(
+        meas_num, n=100, delay=0.02, rate=best_rate_val, capdac=optimal_capdac
+    )
     stats = compute_stats(samples)
-    noise_ppm = (stats['std'] / stats['mean']) * 1e6 if stats['mean'] != 0 else 0
+    noise_ppm = (stats["std"] / stats["mean"]) * 1e6 if stats["mean"] != 0 else 0
 
     print(f"  Samples: {stats['count']}")
     print(f"  Mean: {stats['mean']:.4f} pF")
@@ -825,7 +859,7 @@ def cmd_characterize(args):
     print("\n" + "=" * 60)
     print("=== RECOMMENDED CONFIGURATION ===")
     print("=" * 60)
-    print(f"  Channel: CIN{channel+1}")
+    print(f"  Channel: CIN{channel + 1}")
     print(f"  CAPDAC: {optimal_capdac} ({optimal_capdac * 3.125:.2f} pF offset)")
     if rate_results:
         print(f"  Rate: {best_rate['rate']}")
@@ -836,29 +870,35 @@ def cmd_characterize(args):
 
     # Command line for future use
     print("  Command to configure:")
-    print(f"    python fdc1004_control.py config -m {meas_num} -c {channel+1} --capdac {optimal_capdac}")
+    cfg_cmd = (
+        f"    python fdc1004_control.py config"
+        f" -m {meas_num} -c {channel + 1}"
+        f" --capdac {optimal_capdac}"
+    )
+    print(cfg_cmd)
     print()
     print("  Command to read:")
-    rate_str = best_rate['rate'].replace('Hz', '') if rate_results else '100'
+    rate_str = best_rate["rate"].replace("Hz", "") if rate_results else "100"
     print(f"    python fdc1004_control.py read -m {meas_num} -n 10 --rate {rate_str}")
 
     # Output CSV if requested
     if args.output:
         import csv
-        with open(args.output, 'w', newline='') as f:
+
+        with open(args.output, "w", newline="") as f:
             writer = csv.writer(f)
 
-            writer.writerow(['Phase', 'Parameter', 'Value', 'Capacitance', 'StdDev'])
+            writer.writerow(["Phase", "Parameter", "Value", "Capacitance", "StdDev"])
 
             for r in capdac_results:
-                writer.writerow(['CAPDAC', r['capdac'], r['offset_pf'], r['capacitance'], r['std']])
+                writer.writerow(["CAPDAC", r["capdac"], r["offset_pf"], r["capacitance"], r["std"]])
 
             for r in rate_results:
-                writer.writerow(['RATE', r['rate'], '', r['mean'], r['std']])
+                writer.writerow(["RATE", r["rate"], "", r["mean"], r["std"]])
 
-            writer.writerow(['FINAL', 'capdac', optimal_capdac, '', ''])
-            writer.writerow(['FINAL', 'channel', channel, '', ''])
-            writer.writerow(['VALIDATION', 'mean', stats['mean'], '', stats['std']])
+            writer.writerow(["FINAL", "capdac", optimal_capdac, "", ""])
+            writer.writerow(["FINAL", "channel", channel, "", ""])
+            writer.writerow(["VALIDATION", "mean", stats["mean"], "", stats["std"]])
 
         print(f"\n  Results saved to: {args.output}")
 
@@ -868,7 +908,7 @@ def cmd_characterize(args):
 def main():
     """Main CLI entry point"""
     parser = argparse.ArgumentParser(
-        description='FDC1004 4-Channel Capacitance-to-Digital Converter I2C Helper Script via FT232H',
+        description=("FDC1004 Capacitance-to-Digital Converter I2C Helper Script via FT232H"),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -880,74 +920,144 @@ Examples:
   %(prog)s monitor -M 1 2                # Monitor MEAS1 and MEAS2
   %(prog)s characterize -c 1             # Characterize channel CIN1
   %(prog)s characterize -c 1 --output results.csv  # Save results to CSV
-        """
+        """,
     )
 
-    parser.add_argument('-a', '--addr', type=lambda x: int(x, 0),
-                       help='I2C address (default: 0x50)')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                       help='Enable verbose output')
+    parser.add_argument(
+        "-a", "--addr", type=lambda x: int(x, 0), help="I2C address (default: 0x50)"
+    )
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
 
-    subparsers = parser.add_subparsers(dest='command', help='Command to execute')
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 
     # Info command
-    subparsers.add_parser('info', help='Display device information and configuration')
+    subparsers.add_parser("info", help="Display device information and configuration")
 
     # Reset command
-    parser_reset = subparsers.add_parser('reset', help='Reset the FDC1004 device')
-    parser_reset.add_argument('--no-verify', action='store_true',
-                             help='Skip post-reset verification')
+    parser_reset = subparsers.add_parser("reset", help="Reset the FDC1004 device")
+    parser_reset.add_argument(
+        "--no-verify", action="store_true", help="Skip post-reset verification"
+    )
 
     # Reset FTDI command
-    subparsers.add_parser('reset-ftdi', help='Reset the FT232H USB adapter')
+    subparsers.add_parser("reset-ftdi", help="Reset the FT232H USB adapter")
 
     # Config command
-    parser_config = subparsers.add_parser('config', help='Configure measurement parameters')
-    parser_config.add_argument('-m', '--meas', type=int, default=1, choices=[1, 2, 3, 4],
-                              help='Measurement slot (1-4, default: 1)')
-    parser_config.add_argument('-c', '--channel', type=int, default=1, choices=[1, 2, 3, 4],
-                              dest='channel',
-                              help='Positive channel CIN1-CIN4 (default: 1)')
-    parser_config.add_argument('--chb', type=int, default=4, choices=[0, 1, 2, 3, 4, 7],
-                              help='Negative channel (0-3=CINx, 4=CAPDAC, 7=disabled, default: 4/CAPDAC)')
-    parser_config.add_argument('--capdac', type=int, default=0,
-                              help='CAPDAC offset 0-31, each step = 3.125 pF '
-                                   '(range 0-96.875 pF, default: 0)')
+    parser_config = subparsers.add_parser("config", help="Configure measurement parameters")
+    parser_config.add_argument(
+        "-m",
+        "--meas",
+        type=int,
+        default=1,
+        choices=[1, 2, 3, 4],
+        help="Measurement slot (1-4, default: 1)",
+    )
+    parser_config.add_argument(
+        "-c",
+        "--channel",
+        type=int,
+        default=1,
+        choices=[1, 2, 3, 4],
+        dest="channel",
+        help="Positive channel CIN1-CIN4 (default: 1)",
+    )
+    parser_config.add_argument(
+        "--chb",
+        type=int,
+        default=4,
+        choices=[0, 1, 2, 3, 4, 7],
+        help="Negative channel (0-3=CINx, 4=CAPDAC, 7=disabled, default: 4/CAPDAC)",
+    )
+    parser_config.add_argument(
+        "--capdac",
+        type=int,
+        default=0,
+        help="CAPDAC offset 0-31, each step = 3.125 pF (range 0-96.875 pF, default: 0)",
+    )
 
     # Read command
-    parser_read = subparsers.add_parser('read', help='Read capacitance measurements')
-    parser_read.add_argument('-m', '--meas', type=int, default=1, choices=[1, 2, 3, 4],
-                            help='Measurement slot (1-4, default: 1)')
-    parser_read.add_argument('-n', '--samples', type=int, default=10,
-                            help='Number of samples (default: 10)')
-    parser_read.add_argument('-d', '--delay', type=float, default=0.1,
-                            help='Delay between samples in seconds (default: 0.1)')
-    parser_read.add_argument('--rate', type=str, default='100', choices=['100', '200', '400'],
-                            help='Sample rate in Hz (default: 100)')
+    parser_read = subparsers.add_parser("read", help="Read capacitance measurements")
+    parser_read.add_argument(
+        "-m",
+        "--meas",
+        type=int,
+        default=1,
+        choices=[1, 2, 3, 4],
+        help="Measurement slot (1-4, default: 1)",
+    )
+    parser_read.add_argument(
+        "-n", "--samples", type=int, default=10, help="Number of samples (default: 10)"
+    )
+    parser_read.add_argument(
+        "-d",
+        "--delay",
+        type=float,
+        default=0.1,
+        help="Delay between samples in seconds (default: 0.1)",
+    )
+    parser_read.add_argument(
+        "--rate",
+        type=str,
+        default="100",
+        choices=["100", "200", "400"],
+        help="Sample rate in Hz (default: 100)",
+    )
 
     # Monitor command
-    parser_monitor = subparsers.add_parser('monitor', help='Monitor multiple measurements')
-    parser_monitor.add_argument('-M', '--measurements', type=int, nargs='+', choices=[1, 2, 3, 4],
-                               help='Measurements to monitor (default: 1)')
-    parser_monitor.add_argument('-d', '--delay', type=float, default=0.5,
-                               help='Delay between readings in seconds (default: 0.5)')
-    parser_monitor.add_argument('--rate', type=str, default='100', choices=['100', '200', '400'],
-                               help='Sample rate in Hz (default: 100)')
-    parser_monitor.add_argument('--configure', action='store_true',
-                               help='Configure measurements before monitoring')
-    parser_monitor.add_argument('--capdac', type=int, default=0,
-                               help='CAPDAC offset 0-31, each step = 3.125 pF '
-                                    '(range 0-96.875 pF, default: 0)')
+    parser_monitor = subparsers.add_parser("monitor", help="Monitor multiple measurements")
+    parser_monitor.add_argument(
+        "-M",
+        "--measurements",
+        type=int,
+        nargs="+",
+        choices=[1, 2, 3, 4],
+        help="Measurements to monitor (default: 1)",
+    )
+    parser_monitor.add_argument(
+        "-d",
+        "--delay",
+        type=float,
+        default=0.5,
+        help="Delay between readings in seconds (default: 0.5)",
+    )
+    parser_monitor.add_argument(
+        "--rate",
+        type=str,
+        default="100",
+        choices=["100", "200", "400"],
+        help="Sample rate in Hz (default: 100)",
+    )
+    parser_monitor.add_argument(
+        "--configure", action="store_true", help="Configure measurements before monitoring"
+    )
+    parser_monitor.add_argument(
+        "--capdac",
+        type=int,
+        default=0,
+        help="CAPDAC offset 0-31, each step = 3.125 pF (range 0-96.875 pF, default: 0)",
+    )
 
     # Characterize command
-    parser_char = subparsers.add_parser('characterize',
-                                        help='Characterize probe for optimal settings')
-    parser_char.add_argument('-c', '--channel', type=int, default=1, choices=[1, 2, 3, 4],
-                            help='Channel to characterize CIN1-CIN4 (default: 1)')
-    parser_char.add_argument('-m', '--meas', type=int, default=1, choices=[1, 2, 3, 4],
-                            help='Measurement slot to use (default: 1)')
-    parser_char.add_argument('--output', type=str, default=None,
-                            help='Save results to CSV file')
+    parser_char = subparsers.add_parser(
+        "characterize", help="Characterize probe for optimal settings"
+    )
+    parser_char.add_argument(
+        "-c",
+        "--channel",
+        type=int,
+        default=1,
+        choices=[1, 2, 3, 4],
+        help="Channel to characterize CIN1-CIN4 (default: 1)",
+    )
+    parser_char.add_argument(
+        "-m",
+        "--meas",
+        type=int,
+        default=1,
+        choices=[1, 2, 3, 4],
+        help="Measurement slot to use (default: 1)",
+    )
+    parser_char.add_argument("--output", type=str, default=None, help="Save results to CSV file")
 
     args = parser.parse_args()
 
@@ -957,13 +1067,13 @@ Examples:
 
     # Route to appropriate command handler
     commands = {
-        'info': cmd_info,
-        'reset': cmd_reset,
-        'reset-ftdi': cmd_reset_ftdi,
-        'config': cmd_config,
-        'read': cmd_read,
-        'monitor': cmd_monitor,
-        'characterize': cmd_characterize,
+        "info": cmd_info,
+        "reset": cmd_reset,
+        "reset-ftdi": cmd_reset_ftdi,
+        "config": cmd_config,
+        "read": cmd_read,
+        "monitor": cmd_monitor,
+        "characterize": cmd_characterize,
     }
 
     return commands[args.command](args)

@@ -5,7 +5,6 @@ import argparse
 import glob
 import os
 import platform
-import signal
 import subprocess
 import sys
 import time
@@ -17,10 +16,18 @@ def is_bmp_gdb_port(port, gdb="arm-zephyr-eabi-gdb"):
     """Test whether a serial port is the BMP GDB port by running 'monitor version'."""
     try:
         result = subprocess.run(
-            [gdb, "-nx", "-batch",
-             "-ex", f"target extended-remote {port}",
-             "-ex", "monitor version"],
-            capture_output=True, text=True, timeout=5,
+            [
+                gdb,
+                "-nx",
+                "-batch",
+                "-ex",
+                f"target extended-remote {port}",
+                "-ex",
+                "monitor version",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=5,
         )
         return result.returncode == 0
     except (subprocess.TimeoutExpired, FileNotFoundError):
@@ -45,11 +52,15 @@ def find_bmp_ports():
         return None, None
     else:
         # Linux: prefer udev symlinks, fall back to /dev/ttyACM*
-        gdb = "/dev/ttyBmpGdb" if os.path.exists("/dev/ttyBmpGdb") else (
-            "/dev/ttyACM0" if os.path.exists("/dev/ttyACM0") else None
+        gdb = (
+            "/dev/ttyBmpGdb"
+            if os.path.exists("/dev/ttyBmpGdb")
+            else ("/dev/ttyACM0" if os.path.exists("/dev/ttyACM0") else None)
         )
-        rtt = "/dev/ttyBmpTarg" if os.path.exists("/dev/ttyBmpTarg") else (
-            "/dev/ttyACM1" if os.path.exists("/dev/ttyACM1") else None
+        rtt = (
+            "/dev/ttyBmpTarg"
+            if os.path.exists("/dev/ttyBmpTarg")
+            else ("/dev/ttyACM1" if os.path.exists("/dev/ttyACM1") else None)
         )
         return gdb, rtt
 
@@ -119,15 +130,18 @@ def main():
 
     # Flash via access port (target 2) — works even when core is in deep sleep
     print("Flashing via access port...")
-    gdb_batch(gdb, [
-        f"file {elf}",
-        f"target extended-remote {args.gdb_port}",
-        "monitor connect_rst enable",
-        "monitor swdp_scan",
-        "attach 2",
-        "load",
-        "detach",
-    ])
+    gdb_batch(
+        gdb,
+        [
+            f"file {elf}",
+            f"target extended-remote {args.gdb_port}",
+            "monitor connect_rst enable",
+            "monitor swdp_scan",
+            "attach 2",
+            "load",
+            "detach",
+        ],
+    )
 
     # Attach target 1, enable RTT, optionally reset, then continue.
     # RTT must be enabled before reset so BMP captures boot output.
