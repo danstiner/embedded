@@ -14,9 +14,14 @@ Low power sensor for relative humidity, temperature, and water leaks utilizing t
 
 ### Builds
 
-**Debug build** (with logging and console, uses external flash for second boot slot):
+**DevKit debug build**:
 ```bash
-west build -b nrf54l15dk/nrf54l15/cpuapp -p
+west build -b bl54l15u_devkit/nrf54l15/cpuapp --no-sysbuild -p
+```
+
+**Hygrometer board build**:
+```bash
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp --no-sysbuild --pristine
 ```
 
 **Release build** (optimized for low power, uses external flash for second boot slot):
@@ -43,6 +48,10 @@ west build -b nrf54l15dk/nrf54l15/cpuapp -p -- -DFILE_SUFFIX=internal
 ### Flash
 ```bash
 west flash
+```
+
+```
+west flash --runner jlink
 ```
 
 ### Monitor

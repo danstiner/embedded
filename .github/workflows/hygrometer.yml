@@ -4,11 +4,15 @@ on:
   push:
     paths:
       - SW/hygrometer/**
+      - SW/boards/nordic/bl54l15u_devkit/**
+      - SW/boards/nordic/bl54l15u_hygrometer/**
       - SW/west/**
       - .github/workflows/hygrometer.yml
   pull_request:
     paths:
       - SW/hygrometer/**
+      - SW/boards/nordic/bl54l15u_devkit/**
+      - SW/boards/nordic/bl54l15u_hygrometer/**
       - SW/west/**
       - .github/workflows/hygrometer.yml
 
@@ -47,6 +51,15 @@ jobs:
       CCACHE_BASEDIR: ${{ github.workspace }}
       CCACHE_NOHASHDIR: "1"
       CCACHE_COMPRESS: "true"
+    strategy:
+      matrix:
+        include:
+          - board: nrf54l15dk/nrf54l15/cpuapp
+            name: nrf54l15dk
+          - board: bl54l15u_devkit@2026v2/nrf54l15/cpuapp
+            name: bl54l15u_devkit
+          - board: bl54l15u_hygrometer/nrf54l15/cpuapp
+            name: bl54l15u_hygrometer
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,8 +72,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.ccache
-          key: ${{ runner.os }}-ccache-hygrometer-${{ hashFiles('SW/west/west.yml') }}
+          key: ${{ runner.os }}-ccache-hygrometer-${{ matrix.name }}-${{ hashFiles('SW/west/west.yml') }}
           restore-keys: |
+            ${{ runner.os }}-ccache-hygrometer-${{ matrix.name }}-
             ${{ runner.os }}-ccache-hygrometer-
             ${{ runner.os }}-ccache-
 
@@ -71,9 +85,10 @@ jobs:
         working-directory: SW
         run: |
           west build \
-            -b nrf54l15dk/nrf54l15/cpuapp \
+            -b ${{ matrix.board }} \
             -p always \
-            hygrometer
+            hygrometer \
+            -- -DBOARD_ROOT=$(pwd)
 
       - name: Show ccache stats
         if: always()
@@ -82,8 +97,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: hygrometer
+          name: hygrometer-${{ matrix.name }}
           path: |
             SW/build/merged.hex
-            SW/build/matter.ota
             SW/build/dfu_application.zip

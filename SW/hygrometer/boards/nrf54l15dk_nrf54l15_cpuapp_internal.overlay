@@ -77,6 +77,21 @@
 	};
 };
 
+/* Boot status RED LED on P0.13 (active high) */
+/ {
+	boot_led: boot_led {
+		compatible = "gpio-leds";
+		red_led: red_led {
+			gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>;
+			label = "Red Boot LED";
+		};
+	};
+
+	aliases {
+		boot-led = &red_led;
+	};
+};
+
 // restore full RRAM and SRAM space - by default some parts are dedicated to FLRP
 &cpuapp_rram {
 	reg = <0x0 DT_SIZE_K(1524)>;

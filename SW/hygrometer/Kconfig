@@ -43,18 +43,19 @@ config SHT4X_HEATER_LONG_PULSE_DURATION
 	  1.1s. Say 'N' if you want to use the short pulse duration setting, which sets the pulse
 	  time to 0.11s.
 
-if OPENTHREAD
+config APP_HEATER_INTERVAL
+	int "Number of measurement cycles between heater pulses"
+	default 10
+	depends on SHT4X_USE_HEATER
+	help
+	  Fire the heater every N measurements.
 
-choice OPENTHREAD_NORDIC_LIBRARY_CONFIGURATION
-	default OPENTHREAD_NORDIC_LIBRARY_MTD
-endchoice
+config APP_BLE_ADV_INTERVAL_MS
+	int "BLE advertising interval (milliseconds)"
+	default 1000
+	range 20 10240
+	help
+	  Time between BLE advertisement packets in milliseconds.
+	  BLE spec maximum for legacy advertising is 10240ms.
 
-choice OPENTHREAD_DEVICE_TYPE
-	default OPENTHREAD_MTD
-endchoice
-
-endif # OPENTHREAD
-
-source "${ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR}/config/nrfconnect/chip-module/Kconfig.features"
-source "${ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR}/config/nrfconnect/chip-module/Kconfig.defaults"
 source "Kconfig.zephyr"

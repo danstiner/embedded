@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+
+# GPIO for boot LED
+CONFIG_GPIO=y
+
+# ARM MPU
+CONFIG_ARM_MPU=y
+
+# No UART - use RTT for console
+CONFIG_SERIAL=n
+
+# Use Nordic Softdevice Controller (not open-source LL)
+CONFIG_BT_LL_SW_SPLIT=n
