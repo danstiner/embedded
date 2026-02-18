@@ -10,57 +10,59 @@ Low power sensor for relative humidity, temperature, and water leaks utilizing t
 ## Build Instructions
 
 ### Prerequisites
-- nRF Connect SDK v2.6.0 or later installed
+- nRF Connect SDK v3.2 or later
 
 ### Builds
 
-**DevKit debug build**:
+**Hygrometer board** (nPM2100, 2×AAA alkaline):
 ```bash
-west build -b bl54l15u_devkit/nrf54l15/cpuapp --no-sysbuild -p
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=$(pwd)/..
 ```
 
-**Hygrometer board build**:
+**DevKit board** (nPM1304, LiPo, requires revision suffix):
 ```bash
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp --no-sysbuild --pristine
+west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -- -DBOARD_ROOT=$(pwd)/..
 ```
 
-**Release build** (optimized for low power, uses external flash for second boot slot):
+Add `--pristine` (or `-p`) to force a clean rebuild.
+
+### RTT logging
+
+By default, logs go to UART. To use RTT instead (enables Segger J-Link viewer and a shell):
 ```bash
-west build -b nrf54l15dk/nrf54l15/cpuapp -p -- -DEXTRA_CONF_FILE=prj_release.conf
+west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp \
+  --extra-conf overlay-rtt.conf \
+  -- -DBOARD_ROOT=$(pwd)/..
 ```
 
-**Production build** (optimized for low power, internal storage only, UART disabled)
-
-The nRF54L15 has enough internal storage (1524KB RRAM) that in release mode we can fit both A/B boot partitions internally, no external flash chip is needed.
-
-```bash
-west build -b nrf54l15dk/nrf54l15/cpuapp -p -- \
-  -DFILE_SUFFIX=internal \
-  -DEXTRA_CONF_FILE=prj_release.conf \
-  -DEXTRA_DTC_OVERLAY_FILE=boards/nrf54l15dk_nrf54l15_cpuapp_release.overlay
-```
-
-**Internal debug build** (internal storage with logging enabled for development):
-```bash
-west build -b nrf54l15dk/nrf54l15/cpuapp -p -- -DFILE_SUFFIX=internal
-```
+Connect using nRF Connect for VS Code → RTT, or `JLinkRTTViewer`.
 
 ### Flash
 ```bash
 west flash
 ```
 
-```
-west flash --runner jlink
-```
-
-### Monitor
+For a full chip erase before flashing (required on first flash of a new board):
 ```bash
-# Linux
-screen /dev/ttyACM0 115200
+west flash --erase
+```
 
+### Monitor (UART)
+```bash
 # macOS (find port with: ls /dev/tty.usbmodem*)
-screen /dev/tty.usbmodem0010577860871 115200
+screen /dev/tty.usbmodem* 115200
+```
+
+### OTA update
+
+Build a new image, then flash it wirelessly using the SMP BLE transport:
+```bash
+uv run ../ota.py flash
+```
+
+After verifying the new firmware boots correctly, confirm it permanently:
+```bash
+uv run ../ota.py confirm --target <BLE-address>
 ```
 
 ## Matter Commissioning

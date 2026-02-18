@@ -12,6 +12,7 @@
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/mgmt/mcumgr/transport/smp_bt.h>
+#include <nrf_fuel_gauge.h>
 
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 
@@ -26,6 +27,58 @@ static struct gpio_callback button_cb_data;
 /* NPM1304 charger for battery monitoring */
 static const struct device *charger = DEVICE_DT_GET(DT_NODELABEL(npm1304_charger));
 
+/* ---- BTHome v2 ---- */
+#define BTHOME_UUID        0xFCD2
+#define BTHOME_DEVICE_INFO 0x40   /* Unencrypted, BTHome v2 */
+#define BTHOME_OBJ_BATTERY 0x01   /* uint8, 1% */
+#define BTHOME_OBJ_VOLTAGE 0x0C   /* uint16, 0.001 V */
+
+/* BTHome payload: UUID(2) + info(1) + battery%(1+1) + voltage(1+2) = 8 bytes */
+static uint8_t bthome_data[8] = {
+	(uint8_t)(BTHOME_UUID & 0xFF), (uint8_t)(BTHOME_UUID >> 8),
+	BTHOME_DEVICE_INFO,
+	BTHOME_OBJ_BATTERY, 0,
+	BTHOME_OBJ_VOLTAGE, 0, 0,
+};
+
+/* ---- Fuel gauge state ---- */
+static const struct battery_model battery_model = {
+#include "battery_model.inc"
+};
+
+static int64_t fg_ref_time;
+static float fg_voltage_f;
+static float fg_current_f;
+static float fg_temp_f;
+static int32_t fg_charge_status;
+
+static void charge_status_inform(int32_t chg_status)
+{
+	union nrf_fuel_gauge_ext_state_info_data info;
+
+	if (chg_status & BIT(1)) {
+		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_COMPLETE;
+	} else if (chg_status & BIT(2)) {
+		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_TRICKLE;
+	} else if (chg_status & BIT(3)) {
+		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_CC;
+	} else if (chg_status & BIT(4)) {
+		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_CV;
+	} else {
+		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_IDLE;
+	}
+	nrf_fuel_gauge_ext_state_update(NRF_FUEL_GAUGE_EXT_STATE_INFO_CHARGE_STATE_CHANGE, &info);
+}
+
+static void build_bthome_data(uint8_t soc_pct, uint16_t voltage_mv)
+{
+	bthome_data[3] = BTHOME_OBJ_BATTERY;
+	bthome_data[4] = soc_pct;
+	bthome_data[5] = BTHOME_OBJ_VOLTAGE;
+	bthome_data[6] = (uint8_t)(voltage_mv & 0xFF);
+	bthome_data[7] = (uint8_t)(voltage_mv >> 8);
+}
+
 static void log_battery_status(void)
 {
 	if (!device_is_ready(charger)) {
@@ -39,9 +92,17 @@ static void log_battery_status(void)
 
 	sensor_channel_get(charger, SENSOR_CHAN_GAUGE_VOLTAGE, &voltage);
 	sensor_channel_get(charger, SENSOR_CHAN_GAUGE_AVG_CURRENT, &current);
-	sensor_channel_get(charger, SENSOR_CHAN_GAUGE_TEMP, &temp);
+	if (sensor_channel_get(charger, SENSOR_CHAN_GAUGE_TEMP, &temp) < 0) {
+		sensor_channel_get(charger, SENSOR_CHAN_DIE_TEMP, &temp);
+	}
 	sensor_channel_get(charger, (enum sensor_channel)SENSOR_CHAN_NPM13XX_CHARGER_STATUS, &status);
 	sensor_channel_get(charger, (enum sensor_channel)SENSOR_CHAN_NPM13XX_CHARGER_ERROR, &error);
+
+	/* Save float values for fuel gauge */
+	fg_voltage_f = (float)voltage.val1 + (float)voltage.val2 / 1000000.f;
+	fg_current_f = (float)current.val1 + (float)current.val2 / 1000000.f;
+	fg_temp_f    = (float)temp.val1    + (float)temp.val2    / 1000000.f;
+	fg_charge_status = status.val1;
 
 	/* Convert current from uA to mA with sign */
 	int current_ma = current.val1 * 1000 + current.val2 / 1000;
@@ -52,7 +113,7 @@ static void log_battery_status(void)
 		temp.val1, temp.val2 / 1000,
 		status.val1,
 		error.val1);
-	
+
 	/* BCHGCHARGESTATUS register (0x34):
 	 *   Bit 0 = BATTERYDETECTED
 	 *   Bit 1 = COMPLETED
@@ -89,16 +150,19 @@ static void log_battery_status(void)
 	}
 }
 
-/* BLE SMP advertising for DFU */
+/* BLE SMP advertising for DFU, with BTHome service data in main ad */
 static struct k_work advertise_work;
 
+/* Main ad: FLAGS + BTHome service data + name (13 bytes used, 18 bytes free for 15-char name).
+ * Scan response: SMP UUID for DFU discovery. */
 static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
-	BT_DATA_BYTES(BT_DATA_UUID128_ALL, SMP_BT_SVC_UUID_VAL),
+	BT_DATA(BT_DATA_SVC_DATA16, bthome_data, sizeof(bthome_data)),
+	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 };
 
 static const struct bt_data sd[] = {
-	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
+	BT_DATA_BYTES(BT_DATA_UUID128_ALL, SMP_BT_SVC_UUID_VAL),
 };
 
 static void advertise(struct k_work *work)
@@ -265,6 +329,54 @@ int main(void)
 
 	LOG_INF("Press SW1 to toggle LED");
 
+	/* ---- Fuel gauge init ---- */
+	if (device_is_ready(charger)) {
+		struct sensor_value sv;
+		struct nrf_fuel_gauge_init_parameters fg_params = {
+			.model = &battery_model,
+			.opt_params = NULL,
+			.state = NULL,
+		};
+
+		sensor_sample_fetch(charger);
+
+		sensor_channel_get(charger, SENSOR_CHAN_GAUGE_VOLTAGE, &sv);
+		fg_params.v0 = (float)sv.val1 + (float)sv.val2 / 1000000.f;
+		fg_voltage_f = fg_params.v0;
+
+		if (sensor_channel_get(charger, SENSOR_CHAN_GAUGE_TEMP, &sv) < 0) {
+			sensor_channel_get(charger, SENSOR_CHAN_DIE_TEMP, &sv);
+		}
+		fg_params.t0 = (float)sv.val1 + (float)sv.val2 / 1000000.f;
+		fg_temp_f = fg_params.t0;
+
+		sensor_channel_get(charger, SENSOR_CHAN_GAUGE_AVG_CURRENT, &sv);
+		fg_params.i0 = -((float)sv.val1 + (float)sv.val2 / 1000000.f);
+
+		sensor_channel_get(charger, SENSOR_CHAN_GAUGE_DESIRED_CHARGING_CURRENT, &sv);
+		float max_current = (float)sv.val1 + (float)sv.val2 / 1000000.f;
+
+		int fg_ret = nrf_fuel_gauge_init(&fg_params, NULL);
+		if (fg_ret < 0) {
+			LOG_ERR("Fuel gauge init failed: %d", fg_ret);
+		} else {
+			union nrf_fuel_gauge_ext_state_info_data fg_info;
+
+			fg_info.charge_current_limit = max_current;
+			nrf_fuel_gauge_ext_state_update(
+				NRF_FUEL_GAUGE_EXT_STATE_INFO_CHARGE_CURRENT_LIMIT, &fg_info);
+
+			fg_info.charge_term_current = max_current / 10.f;
+			nrf_fuel_gauge_ext_state_update(
+				NRF_FUEL_GAUGE_EXT_STATE_INFO_TERM_CURRENT, &fg_info);
+
+			LOG_INF("Fuel gauge initialized (%s)", nrf_fuel_gauge_version);
+		}
+	} else {
+		LOG_WRN("Charger not ready — fuel gauge skipped");
+	}
+	fg_ref_time = k_uptime_get();
+
 	/* Start BLE SMP advertising for DFU */
 	k_work_init(&advertise_work, advertise);
 	int bt_rc = bt_enable(bt_ready);
@@ -301,11 +413,32 @@ int main(void)
 			LOG_DBG("PIN TEST [%d/%d]: %s HIGH",
 				i + 1, ARRAY_SIZE(test_pins), test_pins[i].name);
 			gpio_pin_set(test_pins[i].port, test_pins[i].pin, 1);
+			/* Inform fuel gauge of low-power sleep period */
+			nrf_fuel_gauge_idle_set(fg_voltage_f, fg_temp_f, 0.050e-3f);
 			k_sleep(K_SECONDS(5));
 			gpio_pin_set(test_pins[i].port, test_pins[i].pin, 0);
 		}
 
 		log_battery_status();
+
+		/* Update fuel gauge and BTHome advertising */
+		static int32_t fg_prev_charge_status = -1;
+		float fg_delta = (float)k_uptime_delta(&fg_ref_time) / 1000.f;
+
+		if (fg_charge_status != fg_prev_charge_status) {
+			fg_prev_charge_status = fg_charge_status;
+			charge_status_inform(fg_charge_status);
+		}
+
+		float soc = nrf_fuel_gauge_process(fg_voltage_f, -fg_current_f, fg_temp_f,
+						   fg_delta, NULL);
+		uint8_t soc_pct = (uint8_t)CLAMP((int)soc, 0, 100);
+		uint16_t voltage_mv = (uint16_t)(fg_voltage_f * 1000.f);
+
+		LOG_INF("SoC: %d%%", (int)soc_pct);
+
+		build_bthome_data(soc_pct, voltage_mv);
+		bt_le_adv_update_data(ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
 	}
 
 	return 0;

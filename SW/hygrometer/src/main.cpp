@@ -21,6 +21,10 @@
 
 #include <zephyr/logging/log.h>
 
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
+#include <nrf_fuel_gauge.h>
+#endif
+
 #include "sht4x.h"
 #include "stcc4.h"
 
@@ -39,15 +43,16 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 #define BTHOME_UUID        0xFCD2
 #define BTHOME_DEVICE_INFO 0x40   /* Unencrypted, BTHome v2 */
 
-/* BTHome object IDs */
+/* BTHome object IDs — must appear in ascending order in payload */
+#define BTHOME_OBJ_BATTERY 0x01  /* uint8, 1% */
 #define BTHOME_OBJ_TEMP     0x02  /* sint16, 0.01 °C */
 #define BTHOME_OBJ_HUMIDITY 0x03  /* uint16, 0.01 % */
 #define BTHOME_OBJ_PRESSURE 0x04  /* uint24, 0.01 hPa */
 #define BTHOME_OBJ_VOLTAGE  0x0C  /* uint16, 0.001 V */
 #define BTHOME_OBJ_CO2      0x12  /* uint16, 1 ppm */
 
-/* Max service data: UUID(2) + info(1) + temp(3) + hum(3) + pressure(4) + co2(3) + voltage(3) = 19 */
-#define SERVICE_DATA_MAX 19
+/* Max service data: UUID(2) + info(1) + battery%(2) + temp(3) + hum(3) + pressure(4) + co2(3) + voltage(3) = 21 */
+#define SERVICE_DATA_MAX 21
 
 static uint8_t service_data[SERVICE_DATA_MAX];
 static size_t service_data_len;
@@ -101,6 +106,27 @@ static const struct device *vbat_dev = DEVICE_DT_GET(DT_NODELABEL(npm1304_charge
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
 static const struct device *sht45_bus = DEVICE_DT_GET(DT_BUS(DT_NODELABEL(sht45)));
 #endif
+
+/* ---- Fuel gauge state ---- */
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
+
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL)
+static const struct battery_model battery_model = {
+#include "battery_model.inc"
+};
+#elif IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_PRIMARY_CELL)
+static const struct battery_model_primary battery_model_primary = {
+#include <battery_models/primary_cell/2SAAA_Alkaline.inc>
+};
+#endif
+
+static int64_t fg_ref_time;
+static bool fg_initialized;
+static float fg_last_soc;
+static float fg_last_v = 3.0f;  /* safe defaults for idle_set before first measurement */
+static float fg_last_t = 25.0f;
+
+#endif /* CONFIG_NRF_FUEL_GAUGE */
 
 /* ---- Helper: convert sensor_value to raw SHT4x ticks ---- */
 static uint16_t temp_to_raw_ticks(const struct sensor_value *val)
@@ -173,11 +199,34 @@ static void sht4x_heater_pulse(void)
 }
 #endif
 
+/* ---- Fuel gauge charge state update (nPM1304 / secondary cell only) ---- */
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL) && \
+    DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_charger), okay)
+static void charge_status_inform(int32_t chg_status)
+{
+	union nrf_fuel_gauge_ext_state_info_data info;
+
+	if (chg_status & BIT(1)) {
+		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_COMPLETE;
+	} else if (chg_status & BIT(2)) {
+		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_TRICKLE;
+	} else if (chg_status & BIT(3)) {
+		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_CC;
+	} else if (chg_status & BIT(4)) {
+		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_CV;
+	} else {
+		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_IDLE;
+	}
+	nrf_fuel_gauge_ext_state_update(NRF_FUEL_GAUGE_EXT_STATE_INFO_CHARGE_STATE_CHANGE, &info);
+}
+#endif
+
 /* ---- Build service data ---- */
 static void build_service_data(const struct sensor_value *temp,
 			       const struct sensor_value *hum,
 			       const struct sensor_value *pressure,
 			       const uint16_t *co2_ppm,
+			       const uint8_t *soc_pct,
 			       const struct sensor_value *voltage)
 {
 	size_t idx = 0;
@@ -187,6 +236,12 @@ static void build_service_data(const struct sensor_value *temp,
 	service_data[idx++] = (uint8_t)(BTHOME_UUID >> 8);
 	/* Device info */
 	service_data[idx++] = BTHOME_DEVICE_INFO;
+
+	/* Battery %: uint8, 1% — OBJ ID 0x01, must precede temp (0x02) */
+	if (soc_pct) {
+		service_data[idx++] = BTHOME_OBJ_BATTERY;
+		service_data[idx++] = *soc_pct;
+	}
 
 	/* Temperature: sint16, factor 0.01 °C */
 	if (temp) {
@@ -255,7 +310,7 @@ static void probe_optional_sensors(void)
 #endif
 }
 
-/* ---- Read battery voltage ---- */
+/* ---- Read battery voltage and update fuel gauge ---- */
 static bool read_battery_voltage(struct sensor_value *voltage)
 {
 #if HAVE_VBAT
@@ -274,6 +329,46 @@ static bool read_battery_voltage(struct sensor_value *voltage)
 		LOG_WRN("Battery voltage get failed: %d", ret);
 		return false;
 	}
+
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
+	if (fg_initialized) {
+		struct sensor_value sv_temp;
+		float v = (float)voltage->val1 + (float)voltage->val2 / 1000000.f;
+		float t, i;
+
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL)
+		sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_TEMP, &sv_temp);
+		t = (float)sv_temp.val1 + (float)sv_temp.val2 / 1000000.f;
+
+		struct sensor_value sv_current;
+		sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_AVG_CURRENT, &sv_current);
+		/* Negate: Zephyr negative=discharging → library positive=discharging */
+		i = -((float)sv_current.val1 + (float)sv_current.val2 / 1000000.f);
+
+		/* Update charge state on change */
+		static int32_t prev_chg = -1;
+		struct sensor_value sv_status;
+		sensor_channel_get(vbat_dev,
+				   (enum sensor_channel)SENSOR_CHAN_NPM13XX_CHARGER_STATUS,
+				   &sv_status);
+		if (sv_status.val1 != prev_chg) {
+			prev_chg = sv_status.val1;
+			charge_status_inform(sv_status.val1);
+		}
+#elif IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_PRIMARY_CELL)
+		sensor_channel_get(vbat_dev, SENSOR_CHAN_DIE_TEMP, &sv_temp);
+		t = (float)sv_temp.val1 + (float)sv_temp.val2 / 1000000.f;
+		/* No current measurement for primary cell; use fixed estimate */
+		i = 5.0e-3f;
+#endif
+
+		float delta = (float)k_uptime_delta(&fg_ref_time) / 1000.f;
+		fg_last_soc = nrf_fuel_gauge_process(v, i, t, delta, NULL);
+		fg_last_v = v;
+		fg_last_t = t;
+		LOG_INF("SoC: %d%%", (int)fg_last_soc);
+	}
+#endif /* CONFIG_NRF_FUEL_GAUGE */
 
 	return true;
 #else
@@ -317,6 +412,68 @@ int main()
 	/* Probe optional sensors */
 	probe_optional_sensors();
 
+	/* ---- Fuel gauge init ---- */
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE) && HAVE_VBAT
+	if (device_is_ready(vbat_dev)) {
+		struct sensor_value sv;
+		struct nrf_fuel_gauge_init_parameters fg_params = {
+			.opt_params = NULL,
+			.state = NULL,
+		};
+
+		sensor_sample_fetch(vbat_dev);
+
+		sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_VOLTAGE, &sv);
+		fg_params.v0 = (float)sv.val1 + (float)sv.val2 / 1000000.f;
+		fg_last_v = fg_params.v0;
+
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL)
+		fg_params.model = &battery_model;
+
+		sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_TEMP, &sv);
+		fg_params.t0 = (float)sv.val1 + (float)sv.val2 / 1000000.f;
+		fg_last_t = fg_params.t0;
+
+		sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_AVG_CURRENT, &sv);
+		fg_params.i0 = -((float)sv.val1 + (float)sv.val2 / 1000000.f);
+
+		struct sensor_value sv_cc;
+		sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_DESIRED_CHARGING_CURRENT, &sv_cc);
+		float max_current = (float)sv_cc.val1 + (float)sv_cc.val2 / 1000000.f;
+#elif IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_PRIMARY_CELL)
+		fg_params.model_primary = &battery_model_primary;
+
+		sensor_channel_get(vbat_dev, SENSOR_CHAN_DIE_TEMP, &sv);
+		fg_params.t0 = (float)sv.val1 + (float)sv.val2 / 1000000.f;
+		fg_last_t = fg_params.t0;
+
+		fg_params.i0 = 0.0f;
+#endif
+
+		int fg_ret = nrf_fuel_gauge_init(&fg_params, NULL);
+		if (fg_ret < 0) {
+			LOG_ERR("Fuel gauge init failed: %d", fg_ret);
+		} else {
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL)
+			union nrf_fuel_gauge_ext_state_info_data fg_info;
+
+			fg_info.charge_current_limit = max_current;
+			nrf_fuel_gauge_ext_state_update(
+				NRF_FUEL_GAUGE_EXT_STATE_INFO_CHARGE_CURRENT_LIMIT, &fg_info);
+
+			fg_info.charge_term_current = max_current / 10.f;
+			nrf_fuel_gauge_ext_state_update(
+				NRF_FUEL_GAUGE_EXT_STATE_INFO_TERM_CURRENT, &fg_info);
+#endif
+			fg_initialized = true;
+			LOG_INF("Fuel gauge initialized (%s)", nrf_fuel_gauge_version);
+		}
+		fg_ref_time = k_uptime_get();
+	} else {
+		LOG_WRN("VBAT device not ready — fuel gauge skipped");
+	}
+#endif /* CONFIG_NRF_FUEL_GAUGE && HAVE_VBAT */
+
 	/* Initialize Bluetooth */
 	int err = bt_enable(NULL);
 	if (err) {
@@ -326,7 +483,7 @@ int main()
 	LOG_INF("Bluetooth initialized");
 
 	/* Build initial service data (empty readings) and start advertising */
-	build_service_data(NULL, NULL, NULL, NULL, NULL);
+	build_service_data(NULL, NULL, NULL, NULL, NULL, NULL);
 	ad[2] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data, service_data_len);
 
 	err = bt_le_adv_start(ADV_PARAM, ad, ARRAY_SIZE(ad), NULL, 0);
@@ -418,18 +575,27 @@ int main()
 		}
 #endif
 
-		/* 4. Read battery voltage */
+		/* 4. Read battery voltage (also updates fuel gauge SoC as side effect) */
 		if (read_battery_voltage(&voltage)) {
 			voltage_ptr = &voltage;
 			LOG_INF("Vbat: %d.%03dV",
 				voltage.val1, voltage.val2 / 1000);
 		}
 
-		/* 5. Rebuild service data with current readings */
-		build_service_data(temp_ptr, hum_ptr, pressure_ptr, co2_ptr,
-				   voltage_ptr);
+		/* 5. Compute SoC for BTHome payload */
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
+		uint8_t soc_u8 = fg_initialized ?
+			(uint8_t)CLAMP((int)fg_last_soc, 0, 100) : 0;
+		uint8_t *soc_ptr = fg_initialized ? &soc_u8 : NULL;
+#else
+		uint8_t *soc_ptr = NULL;
+#endif
 
-		/* 6. Update advertising data */
+		/* 6. Rebuild service data with current readings */
+		build_service_data(temp_ptr, hum_ptr, pressure_ptr, co2_ptr,
+				   soc_ptr, voltage_ptr);
+
+		/* 7. Update advertising data */
 		ad[2] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
 						service_data_len);
 		err = bt_le_adv_update_data(ad, ARRAY_SIZE(ad), NULL, 0);
@@ -437,6 +603,16 @@ int main()
 			LOG_ERR("Advertising update failed (err %d)", err);
 		}
 
+		/* 8. Inform fuel gauge of sleep period, then sleep */
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
+		if (fg_initialized) {
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL)
+			nrf_fuel_gauge_idle_set(fg_last_v, fg_last_t, 0.050e-3f);
+#elif IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_PRIMARY_CELL)
+			nrf_fuel_gauge_idle_set(fg_last_v, fg_last_t, 0.020e-3f);
+#endif
+		}
+#endif
 		k_sleep(K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
 	}
 
