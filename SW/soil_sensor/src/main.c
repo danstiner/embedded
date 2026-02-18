@@ -7,6 +7,7 @@
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/drivers/mfd/npm13xx.h>
 
 /* FDC1004 custom channel */
 #include "../drivers/sensor/fdc1004/fdc1004.h"
@@ -240,6 +241,19 @@ int main(void)
 	}
 
 	LOG_INF("BTHome advertising started");
+
+	/* Set POF threshold to 3.1V (register base=0x01, offset=0x06, value=0x05) */
+	const struct device *pmic = DEVICE_DT_GET_ANY(nordic_npm1304);
+
+	if (pmic && device_is_ready(pmic)) {
+		int ret = mfd_npm13xx_reg_write(pmic, 0x01, 0x06, 0x05);
+
+		if (ret == 0) {
+			LOG_INF("POF threshold set to 3.1V");
+		} else {
+			LOG_WRN("Failed to set POF threshold: %d", ret);
+		}
+	}
 
 	/* Check sensors — non-fatal, DFU and advertising continue without them */
 	if (!device_is_ready(fdc1004)) {

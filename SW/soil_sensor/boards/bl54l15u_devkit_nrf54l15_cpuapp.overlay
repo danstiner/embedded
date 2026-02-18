@@ -1,6 +1,5 @@
-/* Set NPM1304 BUCK2 to 3.0V at boot */
+/* Enable NPM1304 BUCK2 at boot (3.0V set in board DTS) */
 &npm1304_buck2 {
-	regulator-init-microvolt = <3000000>;
 	regulator-boot-on;
 };
 

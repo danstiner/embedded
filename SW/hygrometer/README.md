@@ -5,7 +5,7 @@ Low power sensor for relative humidity, temperature, and water leaks utilizing t
 ## Hardware Requirements
 
 ### Development Board
-- nRF54L15 DK
+- BL54L15u Hygrometer or BL54L15u DevKit
 
 ## Build Instructions
 
@@ -397,17 +397,6 @@ uart:~$ dns service
 # 5. If all fails, factory reset
 uart:~$ matter factoryreset
 ```
-
-### ADC reads 0V or wrong voltage
-- Check voltage divider resistors (should be 100K + 100K)
-- Verify ADC pin connection (P0.00 = AIN0)
-- Measure actual voltage at ADC pin (should be battery/2)
-- Check battery is connected
-
-### Immediate deep sleep on boot
-- Battery voltage is below 2.7V
-- ADC calibration issue
-- Check voltage divider calculation in code
 
 ### No LED blinking
 - Check if DK has led0 alias defined

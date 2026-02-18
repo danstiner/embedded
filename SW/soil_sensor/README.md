@@ -53,7 +53,7 @@ Edit the revision-specific overlay (`boards/bl54l15u_devkit_nrf54l15_cpuapp_2026
 
 ## Building
 
-Requires nRF Connect SDK v3.1.1. The board definition lives in `SW/boards/` (shared across apps).
+Requires nRF Connect SDK v3.2 or later. The board definition lives in `SW/boards/` (shared across apps).
 
 ```sh
 cd soil_sensor
