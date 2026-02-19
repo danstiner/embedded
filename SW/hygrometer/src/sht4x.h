@@ -32,9 +32,9 @@
  *   Duration: 0=long (1s), 1=short (100ms)
  */
 static const uint8_t sht4x_heater_cmd[3][2] = {
-	{ 0x39, 0x32 },  /* high power:   long, short */
-	{ 0x2F, 0x24 },  /* medium power: long, short */
-	{ 0x1E, 0x15 },  /* low power:    long, short */
+	{0x39, 0x32}, /* high power:   long, short */
+	{0x2F, 0x24}, /* medium power: long, short */
+	{0x1E, 0x15}, /* low power:    long, short */
 };
 
 /*
@@ -42,9 +42,8 @@ static const uint8_t sht4x_heater_cmd[3][2] = {
  *   Long:  1100 + 9 = 1109 ms
  *   Short:  110 + 9 =  119 ms
  */
-static const uint32_t sht4x_heater_total_wait_ms[2] = {
-	1100 + SHT4X_MEASURE_TIME_MS, 110 + SHT4X_MEASURE_TIME_MS
-};
+static const uint32_t sht4x_heater_total_wait_ms[2] = {1100 + SHT4X_MEASURE_TIME_MS,
+						       110 + SHT4X_MEASURE_TIME_MS};
 
 /* Sensirion CRC-8: polynomial 0x31, init 0xFF */
 static inline uint8_t sht4x_crc8(const uint8_t *data, size_t len)

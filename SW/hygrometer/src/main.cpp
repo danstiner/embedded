@@ -44,57 +44,55 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 /* Select PMIC watchdog based on which board is active */
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(npm2100_wdt), okay)
 #define PMIC_WDT_NODE DT_NODELABEL(npm2100_wdt)
-#define PMIC_NAME "nPM2100"
+#define PMIC_NAME     "nPM2100"
 #elif DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_wdt), okay)
 #define PMIC_WDT_NODE DT_NODELABEL(npm1304_wdt)
-#define PMIC_NAME "nPM1304"
+#define PMIC_NAME     "nPM1304"
 #endif
 
 /* ---- BTHome v2 constants ---- */
 #define BTHOME_UUID        0xFCD2
-#define BTHOME_DEVICE_INFO 0x40   /* Unencrypted, BTHome v2 */
+#define BTHOME_DEVICE_INFO 0x40 /* Unencrypted, BTHome v2 */
 
 /* BTHome object IDs — must appear in ascending order in payload */
-#define BTHOME_OBJ_BATTERY 0x01  /* uint8, 1% */
-#define BTHOME_OBJ_TEMP     0x02  /* sint16, 0.01 °C */
-#define BTHOME_OBJ_HUMIDITY 0x03  /* uint16, 0.01 % */
-#define BTHOME_OBJ_PRESSURE 0x04  /* uint24, 0.01 hPa */
-#define BTHOME_OBJ_VOLTAGE  0x0C  /* uint16, 0.001 V */
-#define BTHOME_OBJ_CO2      0x12  /* uint16, 1 ppm */
+#define BTHOME_OBJ_BATTERY  0x01 /* uint8, 1% */
+#define BTHOME_OBJ_TEMP     0x02 /* sint16, 0.01 °C */
+#define BTHOME_OBJ_HUMIDITY 0x03 /* uint16, 0.01 % */
+#define BTHOME_OBJ_PRESSURE 0x04 /* uint24, 0.01 hPa */
+#define BTHOME_OBJ_VOLTAGE  0x0C /* uint16, 0.001 V */
+#define BTHOME_OBJ_CO2      0x12 /* uint16, 1 ppm */
 
-/* Max service data: UUID(2) + info(1) + battery%(2) + temp(3) + hum(3) + pressure(4) + co2(3) + voltage(3) = 21 */
+/* Max service data: UUID(2) + info(1) + battery%(2) + temp(3) + hum(3) + pressure(4) + co2(3) +
+ * voltage(3) = 21 */
 #define SERVICE_DATA_MAX 21
 
 /* DFU mode timeout */
-#define DFU_TIMEOUT_SEC  300
+#define DFU_TIMEOUT_SEC 300
 
 /* SMP service UUID (8d53dc1d-1db7-4cd3-868b-8a527460aa84) in little-endian */
-#define SMP_SVC_UUID_BYTES \
-	0x84, 0xaa, 0x60, 0x74, 0x52, 0x8a, \
-	0x8b, 0x86, 0xd3, 0x4c, 0xb7, 0x1d, \
-	0x1d, 0xdc, 0x53, 0x8d
+#define SMP_SVC_UUID_BYTES                                                                         \
+	0x84, 0xaa, 0x60, 0x74, 0x52, 0x8a, 0x8b, 0x86, 0xd3, 0x4c, 0xb7, 0x1d, 0x1d, 0xdc, 0x53,  \
+		0x8d
 
 static uint8_t service_data[SERVICE_DATA_MAX];
 static size_t service_data_len;
 
 /* Convert ms to BLE 0.625ms units */
-#define ADV_INTERVAL_MIN  ((CONFIG_APP_BLE_ADV_INTERVAL_MS * 8) / 5)
-#define ADV_INTERVAL_MAX  (ADV_INTERVAL_MIN + 0x0050)
+#define ADV_INTERVAL_MIN ((CONFIG_APP_BLE_ADV_INTERVAL_MS * 8) / 5)
+#define ADV_INTERVAL_MAX (ADV_INTERVAL_MIN + 0x0050)
 
 /* Non-connectable BTHome advertising parameters */
-#define BTHOME_ADV_PARAM BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_IDENTITY, \
-					  ADV_INTERVAL_MIN, ADV_INTERVAL_MAX, NULL)
+#define BTHOME_ADV_PARAM                                                                           \
+	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_IDENTITY, ADV_INTERVAL_MIN, ADV_INTERVAL_MAX, NULL)
 
 /* Connectable advertising parameters for DFU/SMP mode */
-#define SMP_ADV_PARAM BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN | \
-				       BT_LE_ADV_OPT_USE_IDENTITY, \
-				       BT_GAP_ADV_FAST_INT_MIN_2, \
-				       BT_GAP_ADV_FAST_INT_MAX_2, NULL)
+#define SMP_ADV_PARAM                                                                              \
+	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN | BT_LE_ADV_OPT_USE_IDENTITY,                           \
+			BT_GAP_ADV_FAST_INT_MIN_2, BT_GAP_ADV_FAST_INT_MAX_2, NULL)
 
 static struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR),
-	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME,
-		sizeof(CONFIG_BT_DEVICE_NAME) - 1),
+	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 	BT_DATA(BT_DATA_SVC_DATA16, service_data, 0), /* len updated before adv */
 };
 
@@ -114,8 +112,7 @@ static struct bt_conn *current_conn;
 static void restart_smp_adv_work_handler(struct k_work *work)
 {
 	if (dfu_mode) {
-		int err = bt_le_adv_start(SMP_ADV_PARAM, ad, ARRAY_SIZE(ad),
-					  sd, ARRAY_SIZE(sd));
+		int err = bt_le_adv_start(SMP_ADV_PARAM, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
 		if (err) {
 			LOG_ERR("Failed to restart DFU advertising: %d", err);
 		}
@@ -178,7 +175,7 @@ static const struct battery_model_primary battery_model_primary = {
 static int64_t fg_ref_time;
 static bool fg_initialized;
 static float fg_last_soc;
-static float fg_last_v = 3.0f;  /* safe defaults for idle_set before first measurement */
+static float fg_last_v = 3.0f; /* safe defaults for idle_set before first measurement */
 static float fg_last_t = 25.0f;
 
 #endif /* CONFIG_NRF_FUEL_GAUGE */
@@ -196,8 +193,12 @@ static uint16_t hum_to_raw_ticks(const struct sensor_value *val)
 	/* raw = (RH + 6) * 65535 / 125, where RH is in % */
 	int64_t micro = (int64_t)val->val1 * 1000000 + val->val2;
 	int64_t raw = ((micro + 6000000LL) * 65535LL) / 125000000LL;
-	if (raw < 0) raw = 0;
-	if (raw > 65535) raw = 65535;
+	if (raw < 0) {
+		raw = 0;
+	}
+	if (raw > 65535) {
+		raw = 65535;
+	}
 	return (uint16_t)raw;
 }
 
@@ -234,23 +235,22 @@ static void sht4x_heater_pulse(void)
 		return;
 	}
 
-	if (sht4x_crc8(&buf[0], 2) == buf[2] &&
-	    sht4x_crc8(&buf[3], 2) == buf[5]) {
+	if (sht4x_crc8(&buf[0], 2) == buf[2] && sht4x_crc8(&buf[3], 2) == buf[5]) {
 		struct sensor_value t, h;
 		uint16_t raw_t = ((uint16_t)buf[0] << 8) | buf[1];
 		uint16_t raw_h = ((uint16_t)buf[3] << 8) | buf[4];
 
 		sht4x_raw_to_temp(raw_t, &t);
 		sht4x_raw_to_humidity(raw_h, &h);
-		LOG_INF("SHT4x heater readback: T=%d.%02d°C RH=%d.%02d%%",
-			t.val1, t.val2 / 10000, h.val1, h.val2 / 10000);
+		LOG_INF("SHT4x heater readback: T=%d.%02d°C RH=%d.%02d%%", t.val1, t.val2 / 10000,
+			h.val1, h.val2 / 10000);
 	}
 }
 #endif
 
 /* ---- Fuel gauge charge state update (nPM1304 / secondary cell only) ---- */
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL) && \
-    DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_charger), okay)
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL) &&                                    \
+	DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_charger), okay)
 static void charge_status_inform(int32_t chg_status)
 {
 	union nrf_fuel_gauge_ext_state_info_data info;
@@ -271,12 +271,9 @@ static void charge_status_inform(int32_t chg_status)
 #endif
 
 /* ---- Build service data ---- */
-static void build_service_data(const struct sensor_value *temp,
-			       const struct sensor_value *hum,
-			       const struct sensor_value *pressure,
-			       const uint16_t *co2_ppm,
-			       const uint8_t *soc_pct,
-			       const struct sensor_value *voltage)
+static void build_service_data(const struct sensor_value *temp, const struct sensor_value *hum,
+			       const struct sensor_value *pressure, const uint16_t *co2_ppm,
+			       const uint8_t *soc_pct, const struct sensor_value *voltage)
 {
 	size_t idx = 0;
 
@@ -412,7 +409,7 @@ static bool read_battery_voltage(struct sensor_value *voltage)
 #endif
 
 		float delta = (float)k_uptime_delta(&fg_ref_time) / 1000.f;
-		fg_last_soc = nrf_fuel_gauge_process(v, i, t, delta, NULL);
+		fg_last_soc = nrf_fuel_gauge_process(v, i, t, delta, nullptr);
 		fg_last_v = v;
 		fg_last_t = t;
 		LOG_INF("SoC: %d%%", (int)fg_last_soc);
@@ -436,8 +433,8 @@ static void fuel_gauge_init(void)
 
 	struct sensor_value sv;
 	struct nrf_fuel_gauge_init_parameters fg_params = {
-		.opt_params = NULL,
-		.state = NULL,
+		.opt_params = nullptr,
+		.state = nullptr,
 	};
 
 	sensor_sample_fetch(vbat_dev);
@@ -469,7 +466,7 @@ static void fuel_gauge_init(void)
 	fg_params.i0 = 0.0f;
 #endif
 
-	int fg_ret = nrf_fuel_gauge_init(&fg_params, NULL);
+	int fg_ret = nrf_fuel_gauge_init(&fg_params, nullptr);
 	if (fg_ret < 0) {
 		LOG_ERR("Fuel gauge init failed: %d", fg_ret);
 		return;
@@ -479,12 +476,11 @@ static void fuel_gauge_init(void)
 	union nrf_fuel_gauge_ext_state_info_data fg_info;
 
 	fg_info.charge_current_limit = max_current;
-	nrf_fuel_gauge_ext_state_update(
-		NRF_FUEL_GAUGE_EXT_STATE_INFO_CHARGE_CURRENT_LIMIT, &fg_info);
+	nrf_fuel_gauge_ext_state_update(NRF_FUEL_GAUGE_EXT_STATE_INFO_CHARGE_CURRENT_LIMIT,
+					&fg_info);
 
 	fg_info.charge_term_current = max_current / 10.f;
-	nrf_fuel_gauge_ext_state_update(
-		NRF_FUEL_GAUGE_EXT_STATE_INFO_TERM_CURRENT, &fg_info);
+	nrf_fuel_gauge_ext_state_update(NRF_FUEL_GAUGE_EXT_STATE_INFO_TERM_CURRENT, &fg_info);
 #endif
 
 	fg_initialized = true;
@@ -503,8 +499,8 @@ static FUNC_NORETURN void enter_system_off(void)
 		k_sleep(K_MSEC(50));
 	}
 
-	int err = z_nrf_grtc_wakeup_prepare(
-		(uint64_t)CONFIG_APP_MEASUREMENT_INTERVAL_SEC * USEC_PER_SEC);
+	int err = z_nrf_grtc_wakeup_prepare((uint64_t)CONFIG_APP_MEASUREMENT_INTERVAL_SEC *
+					    USEC_PER_SEC);
 	if (err < 0) {
 		LOG_ERR("GRTC wakeup prepare failed: %d", err);
 	}
@@ -536,7 +532,7 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	LOG_INF("Disconnected (reason %u)", reason);
 	if (current_conn) {
 		bt_conn_unref(current_conn);
-		current_conn = NULL;
+		current_conn = nullptr;
 	}
 
 	/* Restart SMP advertising if still in DFU mode. Deferred to the system
@@ -592,14 +588,14 @@ static void run_dfu_mode(void)
 static void run_measurement(void)
 {
 	struct sensor_value temp, hum;
-	struct sensor_value *temp_ptr = NULL;
-	struct sensor_value *hum_ptr = NULL;
+	struct sensor_value *temp_ptr = nullptr;
+	struct sensor_value *hum_ptr = nullptr;
 	struct sensor_value pressure;
-	struct sensor_value *pressure_ptr = NULL;
+	struct sensor_value *pressure_ptr = nullptr;
 	uint16_t co2_ppm;
-	uint16_t *co2_ptr = NULL;
+	uint16_t *co2_ptr = nullptr;
 	struct sensor_value voltage;
-	struct sensor_value *voltage_ptr = NULL;
+	struct sensor_value *voltage_ptr = nullptr;
 
 	/* 1. Read SHT45 */
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
@@ -612,8 +608,7 @@ static void run_measurement(void)
 			temp_ptr = &temp;
 			hum_ptr = &hum;
 
-			LOG_INF("SHT45: T=%d.%02d°C RH=%d.%02d%%",
-				temp.val1, temp.val2 / 10000,
+			LOG_INF("SHT45: T=%d.%02d°C RH=%d.%02d%%", temp.val1, temp.val2 / 10000,
 				hum.val1, hum.val2 / 10000);
 
 #if IS_ENABLED(CONFIG_SHT4X_USE_HEATER)
@@ -650,8 +645,7 @@ static void run_measurement(void)
 		if (ret == 0) {
 			sensor_channel_get(bme688_dev, SENSOR_CHAN_PRESS, &pressure);
 			pressure_ptr = &pressure;
-			LOG_INF("BME688: P=%d.%03d kPa",
-				pressure.val1, pressure.val2 / 1000);
+			LOG_INF("BME688: P=%d.%03d kPa", pressure.val1, pressure.val2 / 1000);
 		} else {
 			LOG_WRN("BME688 fetch failed: %d", ret);
 		}
@@ -666,19 +660,18 @@ static void run_measurement(void)
 
 	/* 5. Compute SoC for BTHome payload */
 #if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
-	uint8_t soc_u8 = fg_initialized ?
-		(uint8_t)CLAMP((int)fg_last_soc, 0, 100) : 0;
-	uint8_t *soc_ptr = fg_initialized ? &soc_u8 : NULL;
+	uint8_t soc_u8 = fg_initialized ? (uint8_t)CLAMP((int)fg_last_soc, 0, 100) : 0;
+	uint8_t *soc_ptr = fg_initialized ? &soc_u8 : nullptr;
 #else
-	uint8_t *soc_ptr = NULL;
+	uint8_t *soc_ptr = nullptr;
 #endif
 
 	/* 6. Build and start BTHome advertising */
-	build_service_data(temp_ptr, hum_ptr, pressure_ptr, co2_ptr,
-			   soc_ptr, voltage_ptr);
-	ad[2] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data, (uint8_t)service_data_len);
+	build_service_data(temp_ptr, hum_ptr, pressure_ptr, co2_ptr, soc_ptr, voltage_ptr);
+	ad[2] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
+					(uint8_t)service_data_len);
 
-	int err = bt_le_adv_start(BTHOME_ADV_PARAM, ad, ARRAY_SIZE(ad), NULL, 0);
+	int err = bt_le_adv_start(BTHOME_ADV_PARAM, ad, ARRAY_SIZE(ad), nullptr, 0);
 	if (err) {
 		LOG_ERR("BTHome advertising failed to start (err %d)", err);
 	} else {
@@ -716,8 +709,9 @@ int main()
 	bool is_gpio_wakeup = (cause & RESET_LOW_POWER_WAKE) != 0;
 
 	LOG_INF("Reset cause: 0x%08x %s", cause,
-		is_gpio_wakeup ? "(GPIO wakeup → DFU mode)" :
-		(cause & RESET_CLOCK) ? "(GRTC wakeup → measure)" : "(cold boot)");
+		is_gpio_wakeup          ? "(GPIO wakeup → DFU mode)"
+		: (cause & RESET_CLOCK) ? "(GRTC wakeup → measure)"
+					: "(cold boot)");
 
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_pmic), okay)
 	/* Set POF threshold to 3.1V for battery protection */
@@ -735,7 +729,7 @@ int main()
 	/* Check PMIC watchdog */
 #ifdef PMIC_WDT_NODE
 	const struct device *wdt = DEVICE_DT_GET_OR_NULL(PMIC_WDT_NODE);
-	if (wdt == NULL) {
+	if (wdt == nullptr) {
 		LOG_ERR(PMIC_NAME " WDT not found in devicetree!");
 	} else if (!device_is_ready(wdt)) {
 		LOG_ERR(PMIC_NAME " WDT not ready — I2C issue?");
@@ -747,9 +741,10 @@ int main()
 	/* ---- [C] DFU mode path ---- */
 	if (is_gpio_wakeup || !boot_is_img_confirmed()) {
 		if (!is_gpio_wakeup) {
-			LOG_INF("Unconfirmed OTA image — auto-entering DFU mode for client verification");
+			LOG_INF("Unconfirmed OTA image — auto-entering DFU mode for client "
+				"verification");
 		}
-		int err = bt_enable(NULL);
+		int err = bt_enable(nullptr);
 		if (err) {
 			LOG_ERR("Bluetooth init failed (err %d)", err);
 			enter_system_off();
@@ -762,7 +757,7 @@ int main()
 	probe_optional_sensors();
 	fuel_gauge_init();
 
-	int err = bt_enable(NULL);
+	int err = bt_enable(nullptr);
 	if (err) {
 		LOG_ERR("Bluetooth init failed (err %d)", err);
 		enter_system_off();

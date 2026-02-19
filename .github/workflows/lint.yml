@@ -9,3 +9,13 @@ jobs:
       - uses: astral-sh/ruff-action@v3
         with:
           src: SW
+
+  clang-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jidicula/clang-format-action@v4.14.0
+        with:
+          clang-format-version: 18
+          check-path: SW
+          exclude-regex: 'SW/(west|build)/'

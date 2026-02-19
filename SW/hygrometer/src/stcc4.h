@@ -21,8 +21,7 @@ bool stcc4_probe(const struct device *i2c);
 int stcc4_wake(const struct device *i2c);
 
 /* Set RH/T compensation using raw SHT4x tick values */
-int stcc4_set_rht_compensation(const struct device *i2c,
-			       uint16_t raw_temp, uint16_t raw_humidity);
+int stcc4_set_rht_compensation(const struct device *i2c, uint16_t raw_temp, uint16_t raw_humidity);
 
 /* Trigger single-shot measurement, wait, and read CO2 */
 int stcc4_measure(const struct device *i2c, uint16_t *co2_ppm);

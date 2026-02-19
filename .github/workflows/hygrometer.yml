@@ -93,7 +93,24 @@ jobs:
             -b ${{ matrix.board }} \
             -p always \
             hygrometer \
-            -- -DBOARD_ROOT=$(pwd)
+            -- -DBOARD_ROOT=$(pwd) -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Install clang-tidy
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends clang-tidy
+
+      - name: Run clang-tidy
+        working-directory: SW
+        run: |
+          # Strip GCC-only flags that clang-tidy chokes on (workaround until LLVM 22)
+          sed -e 's/-fno-printf-return-value//g' \
+              -e 's/-fno-reorder-functions//g' \
+              -e 's/-mfp16-format=ieee//g' \
+              -e 's/--param=min-pagesize=0//g' \
+              -e 's/--specs=picolibc\.specs//g' \
+              build/hygrometer/compile_commands.json > /tmp/compile_commands.json
+          find hygrometer/src -name '*.c' -o -name '*.cpp' -o -name '*.h' \
+            | xargs clang-tidy -p /tmp --warnings-as-errors='*'
 
       - name: Show ccache stats
         if: always()

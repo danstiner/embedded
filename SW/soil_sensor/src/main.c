@@ -19,24 +19,23 @@
 LOG_MODULE_REGISTER(soil_sensor, LOG_LEVEL_INF);
 
 /* BTHome v2 service UUID */
-#define BTHOME_SVC_UUID  0xFCD2
+#define BTHOME_SVC_UUID 0xFCD2
 
 /* Calibration constants from Kconfig (in fF, convert to pF) */
-#define CAP_DRY_PF   (CONFIG_SOIL_CAP_DRY_FF / 1000.0)
-#define CAP_WET_PF   (CONFIG_SOIL_CAP_WET_FF / 1000.0)
+#define CAP_DRY_PF (CONFIG_SOIL_CAP_DRY_FF / 1000.0)
+#define CAP_WET_PF (CONFIG_SOIL_CAP_WET_FF / 1000.0)
 
 /* BTHome object IDs */
-#define BTHOME_OBJ_MOISTURE  0x14  /* uint16, factor 0.01 % */
-#define BTHOME_OBJ_VOLTAGE   0x0C  /* uint16, factor 0.001 V */
+#define BTHOME_OBJ_MOISTURE 0x14 /* uint16, factor 0.01 % */
+#define BTHOME_OBJ_VOLTAGE  0x0C /* uint16, factor 0.001 V */
 
 /* DFU mode timeout */
-#define DFU_TIMEOUT_SEC  300  /* 5 minutes */
+#define DFU_TIMEOUT_SEC 300 /* 5 minutes */
 
 /* SMP service UUID (8d53dc1d-1db7-4cd3-868b-8a527460aa84) in little-endian */
-#define SMP_SVC_UUID_BYTES \
-	0x84, 0xaa, 0x60, 0x74, 0x52, 0x8a, \
-	0x8b, 0x86, 0xd3, 0x4c, 0xb7, 0x1d, \
-	0x1d, 0xdc, 0x53, 0x8d
+#define SMP_SVC_UUID_BYTES                                                                         \
+	0x84, 0xaa, 0x60, 0x74, 0x52, 0x8a, 0x8b, 0x86, 0xd3, 0x4c, 0xb7, 0x1d, 0x1d, 0xdc, 0x53,  \
+		0x8d
 
 /* Service data layout (object IDs must be in ascending order per BTHome v2):
  * [0-1] UUID 0xFCD2 (little-endian)
@@ -50,18 +49,19 @@ LOG_MODULE_REGISTER(soil_sensor, LOG_LEVEL_INF);
 
 static uint8_t svc_data[SVC_DATA_LEN] = {
 	BT_UUID_16_ENCODE(BTHOME_SVC_UUID),
-	0x40,                   /* BTHome v2, no encryption */
+	0x40, /* BTHome v2, no encryption */
 	BTHOME_OBJ_VOLTAGE,
-	0x00, 0x00,             /* battery voltage mV */
+	0x00,
+	0x00, /* battery voltage mV */
 	BTHOME_OBJ_MOISTURE,
-	0x00, 0x00,             /* moisture % */
+	0x00,
+	0x00, /* moisture % */
 };
 
 /* BTHome advertising data (used for both normal and DFU modes) */
 static struct bt_data bthome_ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR),
-	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME,
-		sizeof(CONFIG_BT_DEVICE_NAME) - 1),
+	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 	BT_DATA(BT_DATA_SVC_DATA16, svc_data, ARRAY_SIZE(svc_data)),
 };
 
@@ -71,17 +71,16 @@ static struct bt_data sd[] = {
 };
 
 /* Non-connectable advertising parameters (BTHome) */
-#define BTHOME_ADV_PARAM BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_IDENTITY, \
-					  BT_GAP_ADV_SLOW_INT_MIN, \
-					  BT_GAP_ADV_SLOW_INT_MAX, NULL)
+#define BTHOME_ADV_PARAM                                                                           \
+	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_IDENTITY, BT_GAP_ADV_SLOW_INT_MIN,                       \
+			BT_GAP_ADV_SLOW_INT_MAX, NULL)
 
 /* Connectable advertising parameters (SMP DFU) — fast interval for reliable
  * discovery and connection. DFU mode is brief and user-initiated, so the
  * extra power draw is acceptable. */
-#define SMP_ADV_PARAM BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN | \
-				       BT_LE_ADV_OPT_USE_IDENTITY, \
-				       BT_GAP_ADV_FAST_INT_MIN_2, \
-				       BT_GAP_ADV_FAST_INT_MAX_2, NULL)
+#define SMP_ADV_PARAM                                                                              \
+	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN | BT_LE_ADV_OPT_USE_IDENTITY,                           \
+			BT_GAP_ADV_FAST_INT_MIN_2, BT_GAP_ADV_FAST_INT_MAX_2, NULL)
 
 static const struct device *fdc1004 = DEVICE_DT_GET_ANY(ti_fdc1004);
 static const struct device *charger = DEVICE_DT_GET_ANY(nordic_npm1304_charger);
@@ -95,15 +94,12 @@ static struct bt_conn *current_conn;
 
 static int start_bthome_adv(void)
 {
-	return bt_le_adv_start(BTHOME_ADV_PARAM, bthome_ad,
-			       ARRAY_SIZE(bthome_ad), NULL, 0);
+	return bt_le_adv_start(BTHOME_ADV_PARAM, bthome_ad, ARRAY_SIZE(bthome_ad), NULL, 0);
 }
 
 static int start_dfu_adv(void)
 {
-	return bt_le_adv_start(SMP_ADV_PARAM, bthome_ad,
-			       ARRAY_SIZE(bthome_ad), sd,
-			       ARRAY_SIZE(sd));
+	return bt_le_adv_start(SMP_ADV_PARAM, bthome_ad, ARRAY_SIZE(bthome_ad), sd, ARRAY_SIZE(sd));
 }
 
 static void restart_smp_adv_work_handler(struct k_work *work)
@@ -129,8 +125,7 @@ static FUNC_NORETURN void enter_system_off(void)
 		k_sleep(K_MSEC(50));
 	}
 
-	z_nrf_grtc_wakeup_prepare(
-		(uint64_t)CONFIG_APP_MEASUREMENT_INTERVAL_SEC * USEC_PER_SEC);
+	z_nrf_grtc_wakeup_prepare((uint64_t)CONFIG_APP_MEASUREMENT_INTERVAL_SEC * USEC_PER_SEC);
 
 	/* Configure button as GPIO sense wakeup source. The sense mechanism
 	 * survives System OFF — a level match on the active-low button triggers
@@ -195,8 +190,9 @@ int main(void)
 	bool is_dfu_wakeup = (cause & RESET_LOW_POWER_WAKE) != 0;
 
 	LOG_INF("Soil Sensor starting (reset cause: 0x%08x %s)", cause,
-		is_dfu_wakeup ? "(GPIO wakeup → DFU)" :
-		(cause & RESET_CLOCK) ? "(GRTC → measure)" : "(cold boot)");
+		is_dfu_wakeup           ? "(GPIO wakeup → DFU)"
+		: (cause & RESET_CLOCK) ? "(GRTC → measure)"
+					: "(cold boot)");
 
 	if (!device_is_ready(led_dev)) {
 		LOG_WRN("LED device not ready");
@@ -234,15 +230,15 @@ int main(void)
 		if (err) {
 			LOG_ERR("FDC1004 fetch failed: %d", err);
 		} else {
-			err = sensor_channel_get(fdc1004,
-				(enum sensor_channel)SENSOR_CHAN_FDC1004_CAPACITANCE_CH0,
+			err = sensor_channel_get(
+				fdc1004, (enum sensor_channel)SENSOR_CHAN_FDC1004_CAPACITANCE_CH0,
 				&cap_val);
 			if (err) {
 				LOG_ERR("FDC1004 channel get failed: %d", err);
 			} else {
 				double cap_pf = sensor_value_to_double(&cap_val);
-				double moisture_pct = (cap_pf - CAP_DRY_PF) /
-						      (CAP_WET_PF - CAP_DRY_PF) * 100.0;
+				double moisture_pct =
+					(cap_pf - CAP_DRY_PF) / (CAP_WET_PF - CAP_DRY_PF) * 100.0;
 
 				if (moisture_pct < 0.0) {
 					moisture_pct = 0.0;
@@ -252,8 +248,8 @@ int main(void)
 
 				moisture_raw = (uint16_t)(moisture_pct * 100.0);
 				LOG_INF("Capacitance: %d.%06d pF -> Moisture: %u.%02u %%",
-					cap_val.val1, cap_val.val2,
-					moisture_raw / 100, moisture_raw % 100);
+					cap_val.val1, cap_val.val2, moisture_raw / 100,
+					moisture_raw % 100);
 			}
 		}
 	}
@@ -263,15 +259,14 @@ int main(void)
 
 		err = sensor_sample_fetch(charger);
 		if (err == 0) {
-			err = sensor_channel_get(charger,
-				SENSOR_CHAN_GAUGE_VOLTAGE, &volt_val);
+			err = sensor_channel_get(charger, SENSOR_CHAN_GAUGE_VOLTAGE, &volt_val);
 			if (err == 0) {
 				/* sensor_value is in V (val1) + uV (val2)
 				 * BTHome voltage: uint16 with factor 0.001 V (mV) */
-				voltage_raw = (uint16_t)(volt_val.val1 * 1000 +
-							 volt_val.val2 / 1000);
-				LOG_INF("Battery: %d.%03d V",
-					voltage_raw / 1000, voltage_raw % 1000);
+				voltage_raw =
+					(uint16_t)(volt_val.val1 * 1000 + volt_val.val2 / 1000);
+				LOG_INF("Battery: %d.%03d V", voltage_raw / 1000,
+					voltage_raw % 1000);
 			}
 		}
 	}
@@ -290,7 +285,8 @@ int main(void)
 	/* [C] DFU path — button woke device, or running unconfirmed OTA image */
 	if (is_dfu_wakeup || !boot_is_img_confirmed()) {
 		if (!is_dfu_wakeup) {
-			LOG_INF("Unconfirmed OTA image — auto-entering DFU mode for client verification");
+			LOG_INF("Unconfirmed OTA image — auto-entering DFU mode for client "
+				"verification");
 		}
 		dfu_mode = true;
 

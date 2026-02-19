@@ -58,8 +58,8 @@ static int fdc1004_init(const struct device *dev)
 	}
 
 	if (mfg_id != FDC1004_MANUFACTURER_ID || dev_id != FDC1004_DEVICE_ID) {
-		LOG_ERR("Unexpected ID: mfg=0x%04x dev=0x%04x (expected 0x%04x/0x%04x)",
-			mfg_id, dev_id, FDC1004_MANUFACTURER_ID, FDC1004_DEVICE_ID);
+		LOG_ERR("Unexpected ID: mfg=0x%04x dev=0x%04x (expected 0x%04x/0x%04x)", mfg_id,
+			dev_id, FDC1004_MANUFACTURER_ID, FDC1004_DEVICE_ID);
 		return -ENODEV;
 	}
 
@@ -78,8 +78,7 @@ static int fdc1004_init(const struct device *dev)
 
 	for (uint8_t i = 0; i < cfg->num_channels; i++) {
 		const struct fdc1004_channel_config *ch = &cfg->ch_cfg[i];
-		uint16_t conf = FDC1004_CONF_CHA(ch->cha) |
-				FDC1004_CONF_CHB(ch->chb) |
+		uint16_t conf = FDC1004_CONF_CHA(ch->cha) | FDC1004_CONF_CHB(ch->chb) |
 				FDC1004_CONF_CAPDAC(ch->capdac);
 
 		ret = fdc1004_reg_write(&cfg->i2c, FDC1004_REG_CONF_MEAS(i), conf);
@@ -233,35 +232,28 @@ static DEVICE_API(sensor, fdc1004_api) = {
 };
 
 /* Parse channel child nodes from DT */
-#define FDC1004_CHANNEL_CFG(node)                                       \
-	{                                                               \
-		.cha = DT_PROP(node, cha),                              \
-		.chb = DT_PROP(node, chb),                              \
-		.capdac = DT_PROP(node, capdac),                        \
+#define FDC1004_CHANNEL_CFG(node)                                                                  \
+	{                                                                                          \
+		.cha = DT_PROP(node, cha),                                                         \
+		.chb = DT_PROP(node, chb),                                                         \
+		.capdac = DT_PROP(node, capdac),                                                   \
 	},
 
-#define FDC1004_INIT(inst)                                              \
-	static const struct fdc1004_channel_config                      \
-		fdc1004_ch_cfg_##inst[] = {                             \
-		DT_INST_FOREACH_CHILD(inst, FDC1004_CHANNEL_CFG)        \
-	};                                                              \
-                                                                        \
-	static const struct fdc1004_config fdc1004_cfg_##inst = {       \
-		.i2c = I2C_DT_SPEC_INST_GET(inst),                     \
-		.sample_rate = DT_INST_PROP_OR(inst, sample_rate, 0),   \
-		.num_channels = ARRAY_SIZE(fdc1004_ch_cfg_##inst),      \
-		.ch_cfg = fdc1004_ch_cfg_##inst,                        \
-	};                                                              \
-                                                                        \
-	static struct fdc1004_data fdc1004_data_##inst;                 \
-                                                                        \
-	SENSOR_DEVICE_DT_INST_DEFINE(inst,                              \
-		fdc1004_init,                                           \
-		NULL,                                                   \
-		&fdc1004_data_##inst,                                   \
-		&fdc1004_cfg_##inst,                                    \
-		POST_KERNEL,                                            \
-		CONFIG_SENSOR_INIT_PRIORITY,                            \
-		&fdc1004_api);
+#define FDC1004_INIT(inst)                                                                         \
+	static const struct fdc1004_channel_config fdc1004_ch_cfg_##inst[] = {                     \
+		DT_INST_FOREACH_CHILD(inst, FDC1004_CHANNEL_CFG)};                                 \
+                                                                                                   \
+	static const struct fdc1004_config fdc1004_cfg_##inst = {                                  \
+		.i2c = I2C_DT_SPEC_INST_GET(inst),                                                 \
+		.sample_rate = DT_INST_PROP_OR(inst, sample_rate, 0),                              \
+		.num_channels = ARRAY_SIZE(fdc1004_ch_cfg_##inst),                                 \
+		.ch_cfg = fdc1004_ch_cfg_##inst,                                                   \
+	};                                                                                         \
+                                                                                                   \
+	static struct fdc1004_data fdc1004_data_##inst;                                            \
+                                                                                                   \
+	SENSOR_DEVICE_DT_INST_DEFINE(inst, fdc1004_init, NULL, &fdc1004_data_##inst,               \
+				     &fdc1004_cfg_##inst, POST_KERNEL,                             \
+				     CONFIG_SENSOR_INIT_PRIORITY, &fdc1004_api);
 
 DT_INST_FOREACH_STATUS_OKAY(FDC1004_INIT)

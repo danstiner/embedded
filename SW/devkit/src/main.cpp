@@ -29,16 +29,20 @@ static const struct device *charger = DEVICE_DT_GET(DT_NODELABEL(npm1304_charger
 
 /* ---- BTHome v2 ---- */
 #define BTHOME_UUID        0xFCD2
-#define BTHOME_DEVICE_INFO 0x40   /* Unencrypted, BTHome v2 */
-#define BTHOME_OBJ_BATTERY 0x01   /* uint8, 1% */
-#define BTHOME_OBJ_VOLTAGE 0x0C   /* uint16, 0.001 V */
+#define BTHOME_DEVICE_INFO 0x40 /* Unencrypted, BTHome v2 */
+#define BTHOME_OBJ_BATTERY 0x01 /* uint8, 1% */
+#define BTHOME_OBJ_VOLTAGE 0x0C /* uint16, 0.001 V */
 
 /* BTHome payload: UUID(2) + info(1) + battery%(1+1) + voltage(1+2) = 8 bytes */
 static uint8_t bthome_data[8] = {
-	(uint8_t)(BTHOME_UUID & 0xFF), (uint8_t)(BTHOME_UUID >> 8),
+	(uint8_t)(BTHOME_UUID & 0xFF),
+	(uint8_t)(BTHOME_UUID >> 8),
 	BTHOME_DEVICE_INFO,
-	BTHOME_OBJ_BATTERY, 0,
-	BTHOME_OBJ_VOLTAGE, 0, 0,
+	BTHOME_OBJ_BATTERY,
+	0,
+	BTHOME_OBJ_VOLTAGE,
+	0,
+	0,
 };
 
 /* ---- Fuel gauge state ---- */
@@ -95,24 +99,22 @@ static void log_battery_status(void)
 	if (sensor_channel_get(charger, SENSOR_CHAN_GAUGE_TEMP, &temp) < 0) {
 		sensor_channel_get(charger, SENSOR_CHAN_DIE_TEMP, &temp);
 	}
-	sensor_channel_get(charger, (enum sensor_channel)SENSOR_CHAN_NPM13XX_CHARGER_STATUS, &status);
+	sensor_channel_get(charger, (enum sensor_channel)SENSOR_CHAN_NPM13XX_CHARGER_STATUS,
+			   &status);
 	sensor_channel_get(charger, (enum sensor_channel)SENSOR_CHAN_NPM13XX_CHARGER_ERROR, &error);
 
 	/* Save float values for fuel gauge */
 	fg_voltage_f = (float)voltage.val1 + (float)voltage.val2 / 1000000.f;
 	fg_current_f = (float)current.val1 + (float)current.val2 / 1000000.f;
-	fg_temp_f    = (float)temp.val1    + (float)temp.val2    / 1000000.f;
+	fg_temp_f = (float)temp.val1 + (float)temp.val2 / 1000000.f;
 	fg_charge_status = status.val1;
 
 	/* Convert current from uA to mA with sign */
 	int current_ma = current.val1 * 1000 + current.val2 / 1000;
 
-	LOG_INF("Vbat=%d.%03dV I=%d.%03dmA temp=%d.%03dC status=0x%02X err=0x%02X",
-		voltage.val1, voltage.val2 / 1000,
-		current_ma, abs(current.val2) % 1000,
-		temp.val1, temp.val2 / 1000,
-		status.val1,
-		error.val1);
+	LOG_INF("Vbat=%d.%03dV I=%d.%03dmA temp=%d.%03dC status=0x%02X err=0x%02X", voltage.val1,
+		voltage.val2 / 1000, current_ma, abs(current.val2) % 1000, temp.val1,
+		temp.val2 / 1000, status.val1, error.val1);
 
 	/* BCHGCHARGESTATUS register (0x34):
 	 *   Bit 0 = BATTERYDETECTED
@@ -243,7 +245,7 @@ int main(void)
 	/* Flash duration encodes current: 200ms=default, 400ms=1.5A, 800ms=3A
 	 * Flash count encodes type: 1=normal USB, 3=DAM */
 	static const char *cc_names[] = {"none", "500mA", "1.5A", "3A"};
-	static const int duration_ms[] = {100, 200, 400, 800};  /* indexed by CC level */
+	static const int duration_ms[] = {100, 200, 400, 800}; /* indexed by CC level */
 	const struct device *pmic = DEVICE_DT_GET(DT_NODELABEL(npm1304_pmic));
 	const struct device *rgb = DEVICE_DT_GET(DT_NODELABEL(npm1304_leds));
 
@@ -273,8 +275,8 @@ int main(void)
 			uint8_t cc1 = cc_status & 0x03;
 			uint8_t cc2 = (cc_status >> 2) & 0x03;
 
-			LOG_INF("USB CC status: 0x%02X - CC1=%s, CC2=%s",
-				cc_status, cc_names[cc1], cc_names[cc2]);
+			LOG_INF("USB CC status: 0x%02X - CC1=%s, CC2=%s", cc_status, cc_names[cc1],
+				cc_names[cc2]);
 
 			/* Check for DAM modes (both CC active, either orientation) */
 			if ((cc1 == 3 && cc2 == 2) || (cc1 == 2 && cc2 == 3)) {
@@ -306,7 +308,7 @@ int main(void)
 	if (device_is_ready(rgb)) {
 		LOG_INF("Flashing LED %dx @ %dms", flash_count, flash_duration);
 		for (int i = 0; i < flash_count; i++) {
-			led_on(rgb, 0);  /* LED0 = Blue (host mode) */
+			led_on(rgb, 0); /* LED0 = Blue (host mode) */
 			k_msleep(flash_duration);
 			led_off(rgb, 0);
 			k_msleep(100);
@@ -334,8 +336,8 @@ int main(void)
 		struct sensor_value sv;
 		struct nrf_fuel_gauge_init_parameters fg_params = {
 			.model = &battery_model,
-			.opt_params = NULL,
-			.state = NULL,
+			.opt_params = nullptr,
+			.state = nullptr,
 		};
 
 		sensor_sample_fetch(charger);
@@ -356,7 +358,7 @@ int main(void)
 		sensor_channel_get(charger, SENSOR_CHAN_GAUGE_DESIRED_CHARGING_CURRENT, &sv);
 		float max_current = (float)sv.val1 + (float)sv.val2 / 1000000.f;
 
-		int fg_ret = nrf_fuel_gauge_init(&fg_params, NULL);
+		int fg_ret = nrf_fuel_gauge_init(&fg_params, nullptr);
 		if (fg_ret < 0) {
 			LOG_ERR("Fuel gauge init failed: %d", fg_ret);
 		} else {
@@ -367,8 +369,8 @@ int main(void)
 				NRF_FUEL_GAUGE_EXT_STATE_INFO_CHARGE_CURRENT_LIMIT, &fg_info);
 
 			fg_info.charge_term_current = max_current / 10.f;
-			nrf_fuel_gauge_ext_state_update(
-				NRF_FUEL_GAUGE_EXT_STATE_INFO_TERM_CURRENT, &fg_info);
+			nrf_fuel_gauge_ext_state_update(NRF_FUEL_GAUGE_EXT_STATE_INFO_TERM_CURRENT,
+							&fg_info);
 
 			LOG_INF("Fuel gauge initialized (%s)", nrf_fuel_gauge_version);
 		}
@@ -390,28 +392,27 @@ int main(void)
 		gpio_pin_t pin;
 		const char *name;
 	} test_pins[] = {
-		{DEVICE_DT_GET(DT_NODELABEL(gpio1)),  2, "P1.02"},
-		{DEVICE_DT_GET(DT_NODELABEL(gpio1)),  3, "P1.03"},
-		{DEVICE_DT_GET(DT_NODELABEL(gpio1)),  6, "P1.06"},
-		{DEVICE_DT_GET(DT_NODELABEL(gpio2)),  6, "P2.06"},
-		{DEVICE_DT_GET(DT_NODELABEL(gpio2)),  4, "P2.04"},
-		{DEVICE_DT_GET(DT_NODELABEL(gpio2)),  1, "P2.01"},
-		{DEVICE_DT_GET(DT_NODELABEL(gpio2)),  0, "P2.00"},
-		{DEVICE_DT_GET(DT_NODELABEL(gpio2)),  5, "P2.05"},
+		{DEVICE_DT_GET(DT_NODELABEL(gpio1)), 2, "P1.02"},
+		{DEVICE_DT_GET(DT_NODELABEL(gpio1)), 3, "P1.03"},
+		{DEVICE_DT_GET(DT_NODELABEL(gpio1)), 6, "P1.06"},
+		{DEVICE_DT_GET(DT_NODELABEL(gpio2)), 6, "P2.06"},
+		{DEVICE_DT_GET(DT_NODELABEL(gpio2)), 4, "P2.04"},
+		{DEVICE_DT_GET(DT_NODELABEL(gpio2)), 1, "P2.01"},
+		{DEVICE_DT_GET(DT_NODELABEL(gpio2)), 0, "P2.00"},
+		{DEVICE_DT_GET(DT_NODELABEL(gpio2)), 5, "P2.05"},
 		{DEVICE_DT_GET(DT_NODELABEL(gpio1)), 15, "P1.15"},
 		{DEVICE_DT_GET(DT_NODELABEL(gpio1)), 14, "P1.14"},
 		{DEVICE_DT_GET(DT_NODELABEL(gpio1)), 13, "P1.13"},
 	};
 
 	for (int i = 0; i < ARRAY_SIZE(test_pins); i++) {
-		gpio_pin_configure(test_pins[i].port, test_pins[i].pin,
-				   GPIO_OUTPUT_INACTIVE);
+		gpio_pin_configure(test_pins[i].port, test_pins[i].pin, GPIO_OUTPUT_INACTIVE);
 	}
 
-	while (1) {
+	while (true) {
 		for (int i = 0; i < ARRAY_SIZE(test_pins); i++) {
-			LOG_DBG("PIN TEST [%d/%d]: %s HIGH",
-				i + 1, ARRAY_SIZE(test_pins), test_pins[i].name);
+			LOG_DBG("PIN TEST [%d/%d]: %s HIGH", i + 1, ARRAY_SIZE(test_pins),
+				test_pins[i].name);
 			gpio_pin_set(test_pins[i].port, test_pins[i].pin, 1);
 			/* Inform fuel gauge of low-power sleep period */
 			nrf_fuel_gauge_idle_set(fg_voltage_f, fg_temp_f, 0.050e-3f);
@@ -430,8 +431,8 @@ int main(void)
 			charge_status_inform(fg_charge_status);
 		}
 
-		float soc = nrf_fuel_gauge_process(fg_voltage_f, -fg_current_f, fg_temp_f,
-						   fg_delta, NULL);
+		float soc = nrf_fuel_gauge_process(fg_voltage_f, -fg_current_f, fg_temp_f, fg_delta,
+						   nullptr);
 		uint8_t soc_pct = (uint8_t)CLAMP((int)soc, 0, 100);
 		uint16_t voltage_mv = (uint16_t)(fg_voltage_f * 1000.f);
 

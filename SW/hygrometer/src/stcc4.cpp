@@ -14,7 +14,7 @@ LOG_MODULE_REGISTER(stcc4, LOG_LEVEL_INF);
 
 /* I2C commands (big-endian) */
 #define CMD_GET_PRODUCT_ID      0x365B
-#define CMD_EXIT_SLEEP          0x00    /* Single byte! */
+#define CMD_EXIT_SLEEP          0x00 /* Single byte! */
 #define CMD_SET_RHT_COMP        0xE000
 #define CMD_MEASURE_SINGLE_SHOT 0x219D
 #define CMD_READ_MEASUREMENT    0xEC05
@@ -47,8 +47,7 @@ static int send_cmd(const struct device *i2c, uint16_t cmd)
 
 /* Read words from sensor, validating CRC per 2-byte word.
  * out_data must have room for (num_words * 2) bytes. */
-static int read_words(const struct device *i2c, uint8_t *out_data,
-		      size_t num_words)
+static int read_words(const struct device *i2c, uint8_t *out_data, size_t num_words)
 {
 	/* Each word is 3 bytes on wire: MSB, LSB, CRC */
 	size_t wire_len = num_words * 3;
@@ -68,8 +67,8 @@ static int read_words(const struct device *i2c, uint8_t *out_data,
 		uint8_t crc = sensirion_crc8(word, 2);
 
 		if (crc != word[2]) {
-			LOG_ERR("CRC mismatch: word %zu got 0x%02x expected 0x%02x",
-				i, word[2], crc);
+			LOG_ERR("CRC mismatch: word %zu got 0x%02x expected 0x%02x", i, word[2],
+				crc);
 			return -EIO;
 		}
 		out_data[i * 2] = word[0];
@@ -96,10 +95,8 @@ bool stcc4_probe(const struct device *i2c)
 		return false;
 	}
 
-	uint32_t product_id = ((uint32_t)data[0] << 24) |
-			      ((uint32_t)data[1] << 16) |
-			      ((uint32_t)data[2] << 8) |
-			      data[3];
+	uint32_t product_id = ((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) |
+			      ((uint32_t)data[2] << 8) | data[3];
 	LOG_INF("STCC4 product_id=0x%08X", product_id);
 
 	return true;
@@ -117,8 +114,7 @@ int stcc4_wake(const struct device *i2c)
 	return 0;
 }
 
-int stcc4_set_rht_compensation(const struct device *i2c,
-			       uint16_t raw_temp, uint16_t raw_humidity)
+int stcc4_set_rht_compensation(const struct device *i2c, uint16_t raw_temp, uint16_t raw_humidity)
 {
 	uint8_t buf[8];
 
