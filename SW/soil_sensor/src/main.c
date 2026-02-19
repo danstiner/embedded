@@ -2,7 +2,11 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/drivers/led.h>
-#include <zephyr/input/input.h>
+#include <zephyr/drivers/gpio.h>
+#include <zephyr/drivers/hwinfo.h>
+#include <zephyr/sys/poweroff.h>
+#include <zephyr/drivers/timer/nrf_grtc_timer.h>
+#include <zephyr/dfu/mcuboot.h>
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/uuid.h>
@@ -83,8 +87,10 @@ static const struct device *fdc1004 = DEVICE_DT_GET_ANY(ti_fdc1004);
 static const struct device *charger = DEVICE_DT_GET_ANY(nordic_npm1304_charger);
 static const struct device *led_dev = DEVICE_DT_GET(DT_COMPAT_GET_ANY_STATUS_OKAY(gpio_leds));
 
+/* Button for GPIO sense wakeup from System OFF */
+static const struct gpio_dt_spec btn = GPIO_DT_SPEC_GET(DT_ALIAS(sw0), gpios);
+
 static bool dfu_mode;
-static int64_t dfu_mode_start;
 static struct bt_conn *current_conn;
 
 static int start_bthome_adv(void)
@@ -113,72 +119,27 @@ static void restart_smp_adv_work_handler(struct k_work *work)
 
 static K_WORK_DELAYABLE_DEFINE(restart_smp_adv_work, restart_smp_adv_work_handler);
 
-static void enter_dfu_mode(void)
+/* Configure GRTC wakeup and button GPIO sense, then enter System OFF */
+static FUNC_NORETURN void enter_system_off(void)
 {
-	int err;
+	LOG_INF("Scheduling GRTC wakeup in %ds", CONFIG_APP_MEASUREMENT_INTERVAL_SEC);
 
-	LOG_INF("Entering DFU mode");
-
-	err = bt_le_adv_stop();
-	if (err) {
-		LOG_ERR("Failed to stop advertising: %d", err);
+	/* Give the log backend time to flush before poweroff */
+	if (IS_ENABLED(CONFIG_LOG)) {
+		k_sleep(K_MSEC(50));
 	}
 
-	err = start_dfu_adv();
-	if (err) {
-		LOG_ERR("Failed to start DFU advertising: %d", err);
-		start_bthome_adv();
-		return;
-	}
+	z_nrf_grtc_wakeup_prepare(
+		(uint64_t)CONFIG_APP_MEASUREMENT_INTERVAL_SEC * USEC_PER_SEC);
 
-	dfu_mode = true;
-	dfu_mode_start = k_uptime_get();
-	led_on(led_dev, 0);
+	/* Configure button as GPIO sense wakeup source. The sense mechanism
+	 * survives System OFF — a level match on the active-low button triggers
+	 * wakeup and sets RESETREAS OFF bit (→ RESET_LOW_POWER_WAKE). */
+	gpio_pin_configure_dt(&btn, GPIO_INPUT);
+	gpio_pin_interrupt_configure_dt(&btn, GPIO_INT_LEVEL_ACTIVE);
 
-	LOG_INF("DFU advertising started (timeout %d s)", DFU_TIMEOUT_SEC);
+	sys_poweroff();
 }
-
-static void exit_dfu_mode(void)
-{
-	int err;
-
-	LOG_INF("Exiting DFU mode");
-
-	/* Disconnect any active connection */
-	if (current_conn) {
-		bt_conn_disconnect(current_conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
-	}
-
-	err = bt_le_adv_stop();
-	if (err) {
-		LOG_ERR("Failed to stop SMP advertising: %d", err);
-	}
-
-	err = start_bthome_adv();
-	if (err) {
-		LOG_ERR("Failed to restart BTHome advertising: %d", err);
-	}
-
-	dfu_mode = false;
-	led_off(led_dev, 0);
-
-	LOG_INF("BTHome advertising resumed");
-}
-
-/* Button callback (input subsystem) */
-static void button_cb(struct input_event *evt, void *user_data)
-{
-	ARG_UNUSED(user_data);
-
-	if (evt->code == INPUT_KEY_0 && evt->value) {
-		if (dfu_mode) {
-			exit_dfu_mode();
-		} else {
-			enter_dfu_mode();
-		}
-	}
-}
-INPUT_CALLBACK_DEFINE(NULL, button_cb, NULL);
 
 /* BLE connection callbacks */
 static void connected(struct bt_conn *conn, uint8_t err)
@@ -220,27 +181,26 @@ int main(void)
 {
 	int err;
 
-	LOG_INF("Soil Sensor starting");
+	/* [A] Reset cause detection:
+	 *   RESET_LOW_POWER_WAKE = GPIO wakeup from System OFF (button) → DFU
+	 *   RESET_CLOCK          = GRTC wakeup from System OFF (timer) → measure
+	 *   anything else        = cold boot → measure
+	 */
+	uint32_t cause = 0;
+
+	hwinfo_get_reset_cause(&cause);
+	/* Clear immediately so a subsequent soft reset (OTA, watchdog) doesn't
+	 * inherit stale bits — RESETREAS accumulates across soft resets on nRF. */
+	hwinfo_clear_reset_cause();
+	bool is_dfu_wakeup = (cause & RESET_LOW_POWER_WAKE) != 0;
+
+	LOG_INF("Soil Sensor starting (reset cause: 0x%08x %s)", cause,
+		is_dfu_wakeup ? "(GPIO wakeup → DFU)" :
+		(cause & RESET_CLOCK) ? "(GRTC → measure)" : "(cold boot)");
 
 	if (!device_is_ready(led_dev)) {
 		LOG_WRN("LED device not ready");
 	}
-
-	/* Initialize Bluetooth (before sensor checks so DFU works without sensor) */
-	err = bt_enable(NULL);
-	if (err) {
-		LOG_ERR("Bluetooth init failed: %d", err);
-		return 0;
-	}
-
-	/* Start non-connectable advertising */
-	err = start_bthome_adv();
-	if (err) {
-		LOG_ERR("Advertising failed to start: %d", err);
-		return 0;
-	}
-
-	LOG_INF("BTHome advertising started");
 
 	/* Set POF threshold to 3.1V (register base=0x01, offset=0x06, value=0x05) */
 	const struct device *pmic = DEVICE_DT_GET_ANY(nordic_npm1304);
@@ -255,7 +215,6 @@ int main(void)
 		}
 	}
 
-	/* Check sensors — non-fatal, DFU and advertising continue without them */
 	if (!device_is_ready(fdc1004)) {
 		LOG_ERR("FDC1004 not ready");
 	}
@@ -264,91 +223,112 @@ int main(void)
 		LOG_WRN("NPM1304 charger not ready, voltage will be 0");
 	}
 
-	while (1) {
-		struct sensor_value cap_val, volt_val;
-		double cap_pf, moisture_pct;
-		uint16_t moisture_raw, voltage_raw;
+	/* [B] Sensor read + svc_data update (common to both paths) */
+	uint16_t moisture_raw = 0;
+	uint16_t voltage_raw = 0;
 
-		/* DFU timeout check */
-		if (dfu_mode &&
-		    k_uptime_get() - dfu_mode_start > DFU_TIMEOUT_SEC * 1000LL) {
-			LOG_INF("DFU timeout, returning to BTHome");
-			exit_dfu_mode();
-		}
+	if (device_is_ready(fdc1004)) {
+		struct sensor_value cap_val;
 
-		/* Skip sensor reads if sensor unavailable */
-		if (!device_is_ready(fdc1004)) {
-			goto sleep;
-		}
-
-		/* Read capacitance from FDC1004 channel 0 */
 		err = sensor_sample_fetch(fdc1004);
 		if (err) {
 			LOG_ERR("FDC1004 fetch failed: %d", err);
-			goto sleep;
-		}
+		} else {
+			err = sensor_channel_get(fdc1004,
+				(enum sensor_channel)SENSOR_CHAN_FDC1004_CAPACITANCE_CH0,
+				&cap_val);
+			if (err) {
+				LOG_ERR("FDC1004 channel get failed: %d", err);
+			} else {
+				double cap_pf = sensor_value_to_double(&cap_val);
+				double moisture_pct = (cap_pf - CAP_DRY_PF) /
+						      (CAP_WET_PF - CAP_DRY_PF) * 100.0;
 
-		err = sensor_channel_get(fdc1004, (enum sensor_channel)SENSOR_CHAN_FDC1004_CAPACITANCE_CH0, &cap_val);
-		if (err) {
-			LOG_ERR("FDC1004 channel get failed: %d", err);
-			goto sleep;
-		}
-
-		cap_pf = sensor_value_to_double(&cap_val);
-
-		/* Linear map to moisture % */
-		moisture_pct = (cap_pf - CAP_DRY_PF) / (CAP_WET_PF - CAP_DRY_PF) * 100.0;
-		if (moisture_pct < 0.0) {
-			moisture_pct = 0.0;
-		} else if (moisture_pct > 100.0) {
-			moisture_pct = 100.0;
-		}
-
-		/* BTHome moisture: uint16 with factor 0.01 */
-		moisture_raw = (uint16_t)(moisture_pct * 100.0);
-
-		LOG_INF("Capacitance: %d.%06d pF -> Moisture: %u.%02u %%",
-			cap_val.val1, cap_val.val2,
-			moisture_raw / 100, moisture_raw % 100);
-
-		/* Read battery voltage from NPM1304 */
-		voltage_raw = 0;
-		if (device_is_ready(charger)) {
-			err = sensor_sample_fetch(charger);
-			if (err == 0) {
-				err = sensor_channel_get(charger,
-					SENSOR_CHAN_GAUGE_VOLTAGE, &volt_val);
-				if (err == 0) {
-					/* sensor_value is in V (val1) + uV (val2)
-					 * BTHome voltage: uint16 with factor 0.001 V (mV) */
-					voltage_raw = (uint16_t)(volt_val.val1 * 1000 +
-								volt_val.val2 / 1000);
-					LOG_INF("Battery: %d.%03d V",
-						voltage_raw / 1000, voltage_raw % 1000);
+				if (moisture_pct < 0.0) {
+					moisture_pct = 0.0;
+				} else if (moisture_pct > 100.0) {
+					moisture_pct = 100.0;
 				}
+
+				moisture_raw = (uint16_t)(moisture_pct * 100.0);
+				LOG_INF("Capacitance: %d.%06d pF -> Moisture: %u.%02u %%",
+					cap_val.val1, cap_val.val2,
+					moisture_raw / 100, moisture_raw % 100);
 			}
 		}
-
-		/* Update BTHome service data */
-		svc_data[4] = voltage_raw & 0xFF;
-		svc_data[5] = voltage_raw >> 8;
-		svc_data[7] = moisture_raw & 0xFF;
-		svc_data[8] = moisture_raw >> 8;
-
-		if (dfu_mode) {
-			err = bt_le_adv_update_data(bthome_ad, ARRAY_SIZE(bthome_ad),
-						    sd, ARRAY_SIZE(sd));
-		} else {
-			err = bt_le_adv_update_data(bthome_ad, ARRAY_SIZE(bthome_ad),
-						    NULL, 0);
-		}
-		if (err) {
-			LOG_ERR("Failed to update advertising data: %d", err);
-		}
-
-sleep:
-		k_sleep(K_SECONDS(11));
 	}
+
+	if (device_is_ready(charger)) {
+		struct sensor_value volt_val;
+
+		err = sensor_sample_fetch(charger);
+		if (err == 0) {
+			err = sensor_channel_get(charger,
+				SENSOR_CHAN_GAUGE_VOLTAGE, &volt_val);
+			if (err == 0) {
+				/* sensor_value is in V (val1) + uV (val2)
+				 * BTHome voltage: uint16 with factor 0.001 V (mV) */
+				voltage_raw = (uint16_t)(volt_val.val1 * 1000 +
+							 volt_val.val2 / 1000);
+				LOG_INF("Battery: %d.%03d V",
+					voltage_raw / 1000, voltage_raw % 1000);
+			}
+		}
+	}
+
+	svc_data[4] = voltage_raw & 0xFF;
+	svc_data[5] = voltage_raw >> 8;
+	svc_data[7] = moisture_raw & 0xFF;
+	svc_data[8] = moisture_raw >> 8;
+
+	err = bt_enable(NULL);
+	if (err) {
+		LOG_ERR("Bluetooth init failed: %d", err);
+		enter_system_off();
+	}
+
+	/* [C] DFU path — button woke device, or running unconfirmed OTA image */
+	if (is_dfu_wakeup || !boot_is_img_confirmed()) {
+		if (!is_dfu_wakeup) {
+			LOG_INF("Unconfirmed OTA image — auto-entering DFU mode for client verification");
+		}
+		dfu_mode = true;
+
+		err = start_dfu_adv();
+		if (err) {
+			LOG_ERR("Failed to start DFU advertising: %d", err);
+			enter_system_off();
+		}
+
+		led_on(led_dev, 0);
+		LOG_INF("DFU advertising started (timeout %d s)", DFU_TIMEOUT_SEC);
+
+		int64_t deadline = k_uptime_get() + (int64_t)DFU_TIMEOUT_SEC * 1000;
+
+		while (k_uptime_get() < deadline) {
+			k_sleep(K_SECONDS(1));
+		}
+
+		LOG_INF("DFU timeout — entering System OFF");
+		led_off(led_dev, 0);
+		bt_le_adv_stop();
+		bt_disable();
+		enter_system_off();
+	}
+
+	/* [D] Normal measurement path — broadcast BTHome then sleep */
+	err = start_bthome_adv();
+	if (err) {
+		LOG_ERR("Advertising failed to start: %d", err);
+		enter_system_off();
+	}
+
+	LOG_INF("BTHome advertising started");
+	k_sleep(K_SECONDS(CONFIG_APP_BLE_ADV_WINDOW_SEC));
+
+	bt_le_adv_stop();
+	bt_disable();
+	enter_system_off();
 
 	return 0;
 }

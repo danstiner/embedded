@@ -26,6 +26,16 @@ west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -- -DBOARD_ROOT=$(pwd)/..
 
 Add `--pristine` (or `-p`) to force a clean rebuild.
 
+### Release build
+
+For production, overlay `prj_release.conf` to extend the measurement interval to 5 minutes and strip logging:
+
+```bash
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p \
+  --extra-conf prj_release.conf \
+  -- -DBOARD_ROOT=$(pwd)/..
+```
+
 ### RTT logging
 
 By default, logs go to UART. To use RTT instead (enables Segger J-Link viewer and a shell):

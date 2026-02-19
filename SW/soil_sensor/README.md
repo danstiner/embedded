@@ -57,16 +57,28 @@ Requires nRF Connect SDK v3.2 or later. The board definition lives in `SW/boards
 
 ```sh
 cd soil_sensor
-west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -p always -- -DBOARD_ROOT=..
+west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -p -- -DBOARD_ROOT=..
 ```
 
 To build for the v1 hardware revision:
 
 ```sh
-west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -p always -- -DBOARD_ROOT=..
+west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -p -- -DBOARD_ROOT=..
 ```
 
 The default revision is `2026v2`, but the `@<revision>` qualifier is always required when passing `-DBOARD_ROOT`.
+
+### Release build
+
+For production, overlay `prj_release.conf` to extend the measurement interval to 5 minutes and strip logging:
+
+```sh
+west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -p \
+  --extra-conf prj_release.conf \
+  -- -DBOARD_ROOT=..
+```
+
+`--extra-conf` is the west CLI shorthand for `EXTRA_CONF_FILE`; it merges the file on top of `prj.conf` and applies only to the application image (not MCUboot). Do not combine it with `-DEXTRA_CONF_FILE` on the same command line.
 
 ### Flashing
 

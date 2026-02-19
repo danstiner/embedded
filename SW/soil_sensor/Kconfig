@@ -14,4 +14,16 @@ config SOIL_CAP_WET_FF
 	  Capacitance reading in saturated soil, in femtofarad.
 	  For example, 124500 means 124.5 pF.
 
+config APP_MEASUREMENT_INTERVAL_SEC
+	int "Measurement interval (seconds)"
+	default 60
+	help
+	  Time between measurements. Device enters System OFF between readings.
+
+config APP_BLE_ADV_WINDOW_SEC
+	int "BLE advertising window per measurement cycle (seconds)"
+	default 2
+	help
+	  How long to broadcast BTHome data before entering System OFF.
+
 source "Kconfig.zephyr"

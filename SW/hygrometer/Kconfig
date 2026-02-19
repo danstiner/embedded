@@ -12,9 +12,16 @@ config APP_MEASUREMENT_INTERVAL_SEC
 	  Time between periodic measurements. Device sleeps between readings.
 
 
+config APP_BLE_ADV_WINDOW_SEC
+	int "BLE advertising window per measurement cycle (seconds)"
+	default 2
+	help
+	  How many seconds to broadcast BTHome data before entering System OFF.
+	  Longer window = more reliable reception; shorter = less active power.
+
 config SHT4X_USE_HEATER
 	bool "Use the built-in heater on the SHT4X for increased accuracy at high RH levels"
-	default y
+	default n
 	help
 	  Maximum duty cycle for using the heater is 5%
 

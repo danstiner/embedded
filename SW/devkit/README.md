@@ -17,6 +17,16 @@ west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -- -DBOARD_ROOT=$(pwd)/..
 
 Add `--pristine` (or `-p`) to force a clean rebuild.
 
+### Release build
+
+For production, overlay `prj_release.conf` to extend the measurement interval to 5 minutes and strip logging:
+
+```bash
+west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -p \
+  --extra-conf prj_release.conf \
+  -- -DBOARD_ROOT=$(pwd)/..
+```
+
 ### Flash
 
 ```bash

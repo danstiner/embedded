@@ -239,7 +239,9 @@ async def do_flash(address: str, bin_path: Path, auto_confirm: bool) -> None:
             response = await client.request(ImageStatesWrite(confirm=True))
             if error(response):
                 raise SystemExit(f"Confirm failed: {response}")
-            print("Image confirmed. It will persist across resets.")
+            print("Image confirmed. Resetting device...")
+            await client.request(ResetWrite())
+            print("Done. Device is exiting DFU mode and returning to normal operation.")
         else:
             print("Image NOT confirmed. It will revert on next reset.")
             print(f"To confirm later: uv run ota.py confirm --target {address}")
@@ -248,12 +250,13 @@ async def do_flash(address: str, bin_path: Path, auto_confirm: bool) -> None:
 
 
 async def do_confirm(address: str) -> None:
-    """Confirm the currently running image."""
+    """Confirm the currently running image and reset the device."""
     async with SMPClient(SMPBLETransport(), address) as client:
         response = await client.request(ImageStatesWrite(confirm=True))
         if error(response):
             raise SystemExit(f"Confirm failed: {response}")
-    print("Image confirmed. It will no longer revert on reset.")
+        await client.request(ResetWrite())
+    print("Image confirmed. Device is exiting DFU mode and returning to normal operation.")
 
 
 async def do_verify(address: str, local_hash: bytes | None) -> None:
