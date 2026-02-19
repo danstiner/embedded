@@ -27,15 +27,35 @@ west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -p \
   -- -DBOARD_ROOT=$(pwd)/..
 ```
 
+### Production build
+
+Signs with the production key, enables FPROTECT and APPROTECT:
+
+```bash
+west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -p \
+  --extra-conf prj_release.conf \
+  -- -DBOARD_ROOT=$(pwd)/.. -DFILE_SUFFIX=production
+```
+
 ### Flash
 
 ```bash
 west flash
 ```
 
-For a full chip erase before flashing (required on first flash of a new board):
+For a full chip erase before flashing (required on first flash or after changing KMU keys):
 ```bash
 west flash --erase
+```
+
+### KMU Provisioning
+
+Provision signing keys to the hardware KMU before first boot. See [`keys/README.md`](../keys/README.md) for details.
+
+```bash
+# From SW/
+west ncs-provision upload -i keys/provision-dev.yml   # dev device
+west ncs-provision upload -i keys/provision-prod.yml  # production device
 ```
 
 ### Monitor (RTT)

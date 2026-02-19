@@ -72,6 +72,11 @@ jobs:
       - name: Configure ccache
         run: ccache -M 100M
 
+      - name: Restore signing key
+        run: echo "$MCUBOOT_DEV_SIGNING_KEY" > SW/keys/dev.pem
+        env:
+          MCUBOOT_DEV_SIGNING_KEY: ${{ secrets.MCUBOOT_DEV_SIGNING_KEY }}
+
       - name: Build
         working-directory: SW
         run: |

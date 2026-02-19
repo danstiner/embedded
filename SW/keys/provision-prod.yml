@@ -1,0 +1,3 @@
+- keyname: BL_PUBKEY
+  keys: ["keys/prod.pub", "keys/prod2.pub"]
+  policy: lock-last

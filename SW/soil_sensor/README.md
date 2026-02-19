@@ -80,16 +80,36 @@ west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -p \
 
 `--extra-conf` is the west CLI shorthand for `EXTRA_CONF_FILE`; it merges the file on top of `prj.conf` and applies only to the application image (not MCUboot). Do not combine it with `-DEXTRA_CONF_FILE` on the same command line.
 
+### Production build
+
+Signs with the production key, enables FPROTECT and APPROTECT:
+
+```sh
+west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -p \
+  --extra-conf prj_release.conf \
+  -- -DBOARD_ROOT=.. -DFILE_SUFFIX=production
+```
+
 ### Flashing
 
 ```sh
 west flash
 ```
 
-On first flash (or after changing NFC pin configuration), a full chip erase is required:
+On first flash (or after changing NFC pin configuration or KMU keys), a full chip erase is required:
 
 ```sh
 west flash --erase
+```
+
+### KMU Provisioning
+
+Provision signing keys to the hardware KMU before first boot. See [`keys/README.md`](../keys/README.md) for details.
+
+```sh
+# From SW/
+west ncs-provision upload -i keys/provision-dev.yml   # dev device
+west ncs-provision upload -i keys/provision-prod.yml  # production device
 ```
 
 ### Viewing RTT Logs
