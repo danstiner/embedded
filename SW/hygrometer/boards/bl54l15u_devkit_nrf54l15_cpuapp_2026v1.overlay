@@ -1,0 +1,18 @@
+#include <dt-bindings/regulator/npm13xx.h>
+
+/* Enable LDO1 in load switch mode at boot to power the Qwiic J1 connector */
+&npm1304_ldo1 {
+    regulator-boot-on;
+    regulator-initial-mode = <NPM13XX_LDSW_MODE_LDSW>;
+};
+
+&i2c21 {
+    status = "okay";
+
+    sht45: sht4x@44 {
+        compatible = "sensirion,sht4x";
+        reg = <0x44>;
+        repeatability = <2>;
+        status = "okay";
+    };
+};

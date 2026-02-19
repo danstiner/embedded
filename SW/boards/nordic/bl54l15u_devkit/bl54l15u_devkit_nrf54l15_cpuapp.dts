@@ -3,14 +3,14 @@
  *
  * Hardware:
  *   - nRF54L15 SoC (application core)
- *   - NPM1304 PMIC at 0x6B on I2C20 (SDA=P1.07, SCL=P1.08)
+ *   - NPM1304 PMIC at 0x6B on I2C20 (SDA=P1.07, SCL=P1.08) with RGB LED
  *   - Button SW1 on P0.00
- *   - No UART - debug via RTT
+ *   - Red LED on P2.08
  *   - Internal RRAM only (no external flash)
  *
  * Board revisions:
- *   2026v1: I2C20 = PMIC, I2C21 = Qwiic J1, I2C22 = Qwiic J8
- *   2026v2: I2C20 = PMIC + Qwiic J1 (shared), I2C21 = Qwiic J8
+ *   2026v1: I2C20 = PMIC, I2C21 = Qwiic J1, I2C22 = Qwiic J8, no UART
+ *   2026v2: I2C20 = PMIC + Qwiic J1 (shared), I2C21 = Qwiic J8, adds UART
  */
 
 /dts-v1/;
@@ -155,7 +155,7 @@
 			compatible = "nordic,npm1304-charger";
 			term-microvolt = <4100000>;      /* 4.1V for ~90% charge on standard LiPo */
 			term-warm-microvolt = <4000000>; /* 4.0V at warm temp (safer) */
-			current-microamp = <40000>;      /* 40mA charging current */
+			current-microamp = <50000>;      /* 50mA charging current */
 			vbus-limit-microamp = <100000>;  /* 100mA VBUS limit (conservative USB unconfigured) */
 			thermistor-ohms = <0>;           /* NTC disabled */
 			thermistor-beta = <3950>;        /* Required property, ignored when NTC disabled */

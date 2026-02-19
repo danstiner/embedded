@@ -111,6 +111,19 @@ static bool have_stcc4;
 static bool dfu_mode;
 static struct bt_conn *current_conn;
 
+static void restart_smp_adv_work_handler(struct k_work *work)
+{
+	if (dfu_mode) {
+		int err = bt_le_adv_start(SMP_ADV_PARAM, ad, ARRAY_SIZE(ad),
+					  sd, ARRAY_SIZE(sd));
+		if (err) {
+			LOG_ERR("Failed to restart DFU advertising: %d", err);
+		}
+	}
+}
+
+static K_WORK_DELAYABLE_DEFINE(restart_smp_adv_work, restart_smp_adv_work_handler);
+
 /* ---- Device pointers ---- */
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
 static const struct device *sht45 = DEVICE_DT_GET(DT_NODELABEL(sht45));
@@ -525,6 +538,13 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 		bt_conn_unref(current_conn);
 		current_conn = NULL;
 	}
+
+	/* Restart SMP advertising if still in DFU mode. Deferred to the system
+	 * work queue — calling bt_le_adv_start directly from the disconnect
+	 * callback fails with -ENOMEM because resources aren't freed yet. */
+	if (dfu_mode) {
+		k_work_schedule(&restart_smp_adv_work, K_MSEC(100));
+	}
 }
 
 BT_CONN_CB_DEFINE(conn_cbs) = {
@@ -535,6 +555,7 @@ BT_CONN_CB_DEFINE(conn_cbs) = {
 /* ---- DFU mode ---- */
 static void run_dfu_mode(void)
 {
+	dfu_mode = true;
 	LOG_INF("DFU mode — SMP advertising for %ds", DFU_TIMEOUT_SEC);
 
 	int err = bt_le_adv_start(SMP_ADV_PARAM, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
@@ -677,11 +698,10 @@ static void run_measurement(void)
 
 int main()
 {
-	printk("\n\n=== Humid Zephyr ===\n");
+	printk("\n\n=== Hygrometer ===\n");
 #ifdef PMIC_NAME
-	printk("Board: " PMIC_NAME "\n");
+	printk("PMIC: " PMIC_NAME "\n");
 #endif
-	printk("====================\n\n");
 
 	/* ---- [A] Determine boot reason ---- */
 	uint32_t cause = 0;

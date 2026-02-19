@@ -4,7 +4,7 @@ CONFIG_GPIO=y
 # ARM MPU
 CONFIG_ARM_MPU=y
 
-# No UART - use RTT for console
+# No UART by default
 CONFIG_SERIAL=n
 
 # Use Nordic Softdevice Controller (not open-source LL)
