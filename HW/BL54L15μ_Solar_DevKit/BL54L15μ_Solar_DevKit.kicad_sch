@@ -10170,6 +10170,15 @@
 				(hide yes)
 			)
 		)
+		(property "Part Number" "RC0603FR-075K1L"
+			(at 72.39 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "e340ec7b-37e2-4929-a005-a6860f946caa")
 		)
@@ -10581,6 +10590,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 62.23 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Part Number" "RC0603FR-075K1L"
 			(at 62.23 24.13 0)
 			(effects
 				(font

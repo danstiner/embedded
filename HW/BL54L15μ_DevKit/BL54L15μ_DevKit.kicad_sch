@@ -12210,7 +12210,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "47 kΩ"
+		(property "Value" "47kΩ"
 			(at 26.67 176.5299 0)
 			(effects
 				(font
@@ -14315,7 +14315,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "250-500 kΩ"
+		(property "Value" "150kΩ"
 			(at 36.83 181.6099 0)
 			(effects
 				(font
@@ -14351,16 +14351,7 @@
 				(hide yes)
 			)
 		)
-		(property "Digikey Part Number" "311-330KGRCT-ND"
-			(at 34.29 180.34 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Part Number" "RC0603JR-07330KL"
+		(property "Part Number" "RC0603FR-07150KL"
 			(at 34.29 180.34 0)
 			(effects
 				(font
