@@ -161,7 +161,7 @@ async def do_flash(address: str, bin_path: Path, auto_confirm: bool) -> None:
 
     # Step 1: Connect and upload
     print("Connecting...")
-    async with SMPClient(SMPBLETransport(), address) as client:
+    async with SMPClient(SMPBLETransport(), address, timeout_s=30) as client:
         print(f"Uploading {total} bytes...")
         async for offset in client.upload(image_data):
             pct = offset * 100 // total

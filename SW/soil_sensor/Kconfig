@@ -2,28 +2,22 @@ mainmenu "Soil Sensor"
 
 config SOIL_CAP_DRY_FF
 	int "Dry soil capacitance (fF)"
-	default 5000
+	default 0
 	help
 	  Capacitance reading in dry soil, in femtofarad.
 	  For example, 5000 means 5.0 pF.
 
 config SOIL_CAP_WET_FF
 	int "Saturated soil capacitance (fF)"
-	default 124500
+	default 100000
 	help
 	  Capacitance reading in saturated soil, in femtofarad.
-	  For example, 124500 means 124.5 pF.
+	  For example, 100000 means 100.0 pF.
 
 config APP_MEASUREMENT_INTERVAL_SEC
 	int "Measurement interval (seconds)"
 	default 60
 	help
-	  Time between measurements. Device enters System OFF between readings.
-
-config APP_BLE_ADV_WINDOW_SEC
-	int "BLE advertising window per measurement cycle (seconds)"
-	default 2
-	help
-	  How long to broadcast BTHome data before entering System OFF.
+	  Time between measurements.
 
 source "Kconfig.zephyr"

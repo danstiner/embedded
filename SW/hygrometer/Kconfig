@@ -11,14 +11,6 @@ config APP_MEASUREMENT_INTERVAL_SEC
 	help
 	  Time between periodic measurements. Device sleeps between readings.
 
-
-config APP_BLE_ADV_WINDOW_SEC
-	int "BLE advertising window per measurement cycle (seconds)"
-	default 2
-	help
-	  How many seconds to broadcast BTHome data before entering System OFF.
-	  Longer window = more reliable reception; shorter = less active power.
-
 config SHT4X_USE_HEATER
 	bool "Use the built-in heater on the SHT4X for increased accuracy at high RH levels"
 	default n
@@ -56,13 +48,5 @@ config APP_HEATER_INTERVAL
 	depends on SHT4X_USE_HEATER
 	help
 	  Fire the heater every N measurements.
-
-config APP_BLE_ADV_INTERVAL_MS
-	int "BLE advertising interval (milliseconds)"
-	default 1000
-	range 20 10240
-	help
-	  Time between BLE advertisement packets in milliseconds.
-	  BLE spec maximum for legacy advertising is 10240ms.
 
 source "Kconfig.zephyr"
