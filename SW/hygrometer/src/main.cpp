@@ -219,7 +219,6 @@ static void probe_optional_sensors(void)
 	}
 
 	if (device_is_ready(sensor_bus)) {
-		stcc4_wake(sensor_bus);
 		if (stcc4_probe(sensor_bus)) {
 			have_stcc4 = true;
 			LOG_INF("STCC4 detected");
