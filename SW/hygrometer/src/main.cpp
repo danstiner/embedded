@@ -53,8 +53,7 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 
 static struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR),
-	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
-	BT_DATA(BT_DATA_SVC_DATA16, NULL, 0), /* len updated before adv */
+	BT_DATA(BT_DATA_SVC_DATA16, NULL, 0),
 };
 
 /* Scan response — SMP service UUID for DFU */
@@ -368,7 +367,7 @@ static void update_advertisement(opt_i16 temperature_mC, opt_u16 humidity_mPct, 
 {
 	bthome_update_service_data(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, bat_soc,
 				   bat_mV);
-	ad[2] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
+	ad[1] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
 					(uint8_t)service_data_len);
 
 	/* Push updated data to the BLE stack */
