@@ -73,8 +73,8 @@ Provision signing keys to the hardware KMU before first boot. See [`keys/README.
 
 ```bash
 # From SW/
-west ncs-provision upload -i keys/provision-dev.yml   # dev device
-west ncs-provision upload -i keys/provision-prod.yml  # production device
+west ncs-provision upload -i keys/provision-dev.yml
+west ncs-provision upload -i keys/provision-prod.yml
 ```
 
 ### Monitor (UART)
