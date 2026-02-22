@@ -51,7 +51,7 @@ static int read_words(const struct device *i2c, uint8_t *out_data, size_t num_wo
 {
 	/* Each word is 3 bytes on wire: MSB, LSB, CRC */
 	size_t wire_len = num_words * 3;
-	uint8_t wire_buf[12]; /* max 4 words */
+	uint8_t wire_buf[18]; /* max 6 words */
 
 	if (wire_len > sizeof(wire_buf)) {
 		return -EINVAL;
