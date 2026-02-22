@@ -7,12 +7,11 @@ This document tracks remaining tasks and future improvements for the nRF54 soil 
 ## Current Status
 
 **Matter integration complete:**
-- ✅ Matter/CHIP SDK integrated (C++17)
-- ✅ Thread networking (OpenThread)
-- ✅ BLE commissioning support
-- ✅ MCUboot bootloader with OTA capability
-- ✅ Internal temperature sensor accessible
-- ✅ Compressed OTA images fit in internal flash
+- [ ] Matter/CHIP SDK integrated (C++17)
+- [ ] Thread networking (OpenThread)
+- [ ] BLE commissioning support
+- [ ] MCUboot bootloader with OTA capability
+- [ ] Internal temperature sensor accessible
 
 ---
 
