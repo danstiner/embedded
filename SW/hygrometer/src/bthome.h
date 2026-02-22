@@ -14,12 +14,10 @@
 #define BTHOME_OBJ_TEMP     0x02 /* sint16, 0.01 °C */
 #define BTHOME_OBJ_HUMIDITY 0x03 /* uint16, 0.01 % */
 #define BTHOME_OBJ_PRESSURE 0x04 /* uint24, 0.01 hPa */
-#define BTHOME_OBJ_VOLTAGE  0x0C /* uint16, 0.001 V */
 #define BTHOME_OBJ_CO2      0x12 /* uint16, 1 ppm */
 
-/* Max service data: UUID(2) + info(1) + battery%(2) + temp(3) + hum(3) + pressure(4) + co2(3) +
- * voltage(3) = 21 */
-#define SERVICE_DATA_MAX 21
+/* Max service data: UUID(2) + info(1) + battery%(2) + temp(3) + hum(3) + pressure(4) + co2(3) */
+#define SERVICE_DATA_MAX 18
 
 static uint8_t service_data[SERVICE_DATA_MAX];
 static size_t service_data_len;
@@ -122,13 +120,6 @@ static void bthome_update_service_data(opt_i16 temperature_mC, opt_u16 humidity_
 		service_data[idx++] = (uint8_t)(pressure_Pa.value & 0xFF);
 		service_data[idx++] = (uint8_t)((pressure_Pa.value >> 8) & 0xFF);
 		service_data[idx++] = (uint8_t)((pressure_Pa.value >> 16) & 0xFF);
-	}
-
-	/* Battery voltage: uint16, factor 0.001 V */
-	if (bat_mV.is_some) {
-		service_data[idx++] = BTHOME_OBJ_VOLTAGE;
-		service_data[idx++] = (uint8_t)(bat_mV.value & 0xFF);
-		service_data[idx++] = (uint8_t)((bat_mV.value >> 8) & 0xFF);
 	}
 
 	/* CO2: uint16, factor 1 ppm */
