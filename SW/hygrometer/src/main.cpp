@@ -286,7 +286,7 @@ static bool read_battery_voltage(struct sensor_value *voltage)
 		fg_last_soc = nrf_fuel_gauge_process(v, i, t, delta, nullptr);
 		fg_last_v = v;
 		fg_last_t = t;
-		LOG_INF("SoC: %d%%", (int)fg_last_soc);
+		LOG_INF("BAT_%: %d%%", (int)fg_last_soc);
 	}
 #endif /* CONFIG_NRF_FUEL_GAUGE */
 
@@ -540,7 +540,7 @@ int main()
 		if (read_battery_voltage(&value)) {
 			// Convert from micro volts to mV
 			bat_mV = opt_u16_some(value.val1 * 1000 + value.val2 / 1000);
-			LOG_INF("Vbat: %d.%03dV", value.val1, value.val2 / 1000);
+			LOG_INF("BAT_V: %d.%03dV", value.val1, value.val2 / 1000);
 		}
 
 		/* 5. Compute SoC for BTHome payload */
