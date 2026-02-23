@@ -48,13 +48,21 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 
 /* Connectable advertising parameters */
 #define ADV_PARAM_CONN                                                                             \
-	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN,                           \
-			BT_GAP_ADV_SLOW_INT_MIN, BT_GAP_ADV_SLOW_INT_MAX, NULL)
+	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN, BT_GAP_ADV_SLOW_INT_MIN,  \
+			BT_GAP_ADV_SLOW_INT_MAX, NULL)
+
+constexpr bt_data AD_FLAG_BYTES =
+	BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR);
 
 static struct bt_data ad[] = {
-	BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR),
+	AD_FLAG_BYTES,
 	BT_DATA(BT_DATA_SVC_DATA16, NULL, 0),
 };
+
+constexpr size_t BT_DATA_HEADER_LEN = 1;
+
+static_assert(BT_DATA_HEADER_LEN * 2 + AD_FLAG_BYTES.data_len + sizeof(service_data) <=
+	      BT_GAP_ADV_MAX_ADV_DATA_LEN);
 
 /* Scan response — SMP service UUID for DFU */
 static struct bt_data sd[] = {
