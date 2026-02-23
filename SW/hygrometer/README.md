@@ -16,12 +16,12 @@ Low power sensor for relative humidity, temperature, and water leaks utilizing t
 
 **Hygrometer board** (nPM2100, 2×AAA alkaline):
 ```bash
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=$(pwd)/..
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=..
 ```
 
 **DevKit board** (nPM1304, LiPo, requires revision suffix):
 ```bash
-west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -- -DBOARD_ROOT=$(pwd)/..
+west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -- -DBOARD_ROOT=..
 ```
 
 Add `--pristine` (or `-p`) to force a clean rebuild.
@@ -31,9 +31,7 @@ Add `--pristine` (or `-p`) to force a clean rebuild.
 For production, overlay `prj_release.conf` to extend the measurement interval to 5 minutes and strip logging:
 
 ```bash
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p \
-  --extra-conf prj_release.conf \
-  -- -DBOARD_ROOT=$(pwd)/..
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p --extra-conf prj_release.conf -- -DBOARD_ROOT=..
 ```
 
 ### Production build
@@ -43,7 +41,7 @@ Signs with the production key, enables FPROTECT and APPROTECT:
 ```bash
 west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p \
   --extra-conf prj_release.conf \
-  -- -DBOARD_ROOT=$(pwd)/.. -DFILE_SUFFIX=production
+  -- -DBOARD_ROOT=.. -DFILE_SUFFIX=production
 ```
 
 ### RTT logging
@@ -52,7 +50,7 @@ By default, logs go to UART. To use RTT instead (enables Segger J-Link viewer an
 ```bash
 west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp \
   --extra-conf overlay-rtt.conf \
-  -- -DBOARD_ROOT=$(pwd)/..
+  -- -DBOARD_ROOT=..
 ```
 
 Connect using nRF Connect for VS Code → RTT, or `JLinkRTTViewer`.
