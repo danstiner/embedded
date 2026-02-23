@@ -49,7 +49,7 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 /* Connectable advertising parameters */
 #define ADV_PARAM_CONN                                                                             \
 	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN,                           \
-			BT_GAP_PER_ADV_SLOW_INT_MIN, BT_GAP_PER_ADV_SLOW_INT_MAX, NULL)
+			BT_GAP_ADV_SLOW_INT_MIN, BT_GAP_ADV_SLOW_INT_MAX, NULL)
 
 static struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR),
