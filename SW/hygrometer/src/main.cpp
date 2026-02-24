@@ -475,16 +475,23 @@ int main()
 		return -1;
 	}
 
+	/* Cached values for expensive sensors between divisor cycles */
+	opt_u32 last_pressure_Pa;
+	opt_u16 last_co2_ppm;
+	uint32_t cycle = 0;
+
 	while (true) {
 		opt_i16 temperature_mC;
 		opt_u16 temperature_ticks;
 		opt_u16 humidity_mPct;
 		opt_u16 humidity_ticks;
-		opt_u32 pressure_Pa;
-		opt_u16 co2_ppm;
+		opt_u32 pressure_Pa = last_pressure_Pa;
+		opt_u16 co2_ppm = last_co2_ppm;
 		opt_u8 bat_soc;
 		opt_u16 bat_mV;
 		struct sensor_value value;
+
+		bool expensive_cycle = (cycle % CONFIG_APP_EXPENSIVE_SENSOR_DIVISOR) == 0;
 
 		/* 1. Read SHT45 */
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
@@ -514,36 +521,54 @@ int main()
 		}
 #endif
 
-		/* 2. STCC4: feed compensation + measure CO2 */
+		if (expensive_cycle) {
+			/* 2. BME688: read pressure + gas resistance */
 #if HAVE_SENSOR_BUS
-		if (have_stcc4) {
-			if (temperature_ticks.is_some && humidity_ticks.is_some) {
-				stcc4_set_rht_compensation(sensor_bus, temperature_ticks.value,
-							   humidity_ticks.value);
+			if (have_bme688) {
+				int ret = sensor_sample_fetch(bme688_dev);
+				if (ret == 0) {
+					sensor_channel_get(bme688_dev, SENSOR_CHAN_PRESS, &value);
+					pressure_Pa = opt_u32_some(value.val1 * 1000 +
+								   value.val2 / 1000);
+					LOG_INF("BME688: P=%d.%03d kPa", value.val1,
+						value.val2 / 1000);
+
+					sensor_channel_get(bme688_dev, SENSOR_CHAN_GAS_RES,
+							   &value);
+					LOG_INF("BME688: Gas=%d.%06d Ohm", value.val1,
+						value.val2);
+				} else {
+					LOG_WRN("BME688 fetch failed: %d", ret);
+				}
 			}
-			int ret = stcc4_measure(sensor_bus, &co2_ppm.value);
-			if (ret == 0) {
-				co2_ppm.is_some = true;
-				LOG_INF("STCC4: CO2=%u ppm", co2_ppm.value);
-			} else {
-				LOG_WRN("STCC4 measure failed: %d", ret);
-			}
-		}
 #endif
 
-		/* 3. BME688: read pressure */
+			/* 3. STCC4: feed compensation + measure CO2 */
 #if HAVE_SENSOR_BUS
-		if (have_bme688) {
-			int ret = sensor_sample_fetch(bme688_dev);
-			if (ret == 0) {
-				sensor_channel_get(bme688_dev, SENSOR_CHAN_PRESS, &value);
-				pressure_Pa = opt_u32_some(value.val1 * 1000 + value.val2 / 1000);
-				LOG_INF("BME688: P=%d.%03d kPa", value.val1, value.val2 / 1000);
-			} else {
-				LOG_WRN("BME688 fetch failed: %d", ret);
+			if (have_stcc4) {
+				if (temperature_ticks.is_some && humidity_ticks.is_some) {
+					stcc4_set_rht_compensation(sensor_bus,
+								   temperature_ticks.value,
+								   humidity_ticks.value);
+				}
+				if (pressure_Pa.is_some) {
+					/* Convert Pa to hPa for STCC4 pressure compensation */
+					uint16_t hPa = (uint16_t)(pressure_Pa.value / 100);
+					stcc4_set_pressure_compensation(sensor_bus, hPa);
+				}
+				int ret = stcc4_measure(sensor_bus, &co2_ppm.value);
+				if (ret == 0) {
+					co2_ppm.is_some = true;
+					LOG_INF("STCC4: CO2=%u ppm", co2_ppm.value);
+				} else {
+					LOG_WRN("STCC4 measure failed: %d", ret);
+				}
 			}
-		}
 #endif
+
+			last_pressure_Pa = pressure_Pa;
+			last_co2_ppm = co2_ppm;
+		}
 
 		/* 4. Read battery voltage (also updates fuel gauge SoC) */
 		if (read_battery_voltage(&value)) {
@@ -563,6 +588,7 @@ int main()
 		update_advertisement(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, bat_soc,
 				     bat_mV);
 
+		cycle++;
 		k_sleep(K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
 	}
 

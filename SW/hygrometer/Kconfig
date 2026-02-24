@@ -49,4 +49,20 @@ config APP_HEATER_INTERVAL
 	help
 	  Fire the heater every N measurements.
 
+config APP_EXPENSIVE_SENSOR_DIVISOR
+	int "Only fetch BME688 and STCC4 every Nth measurement cycle"
+	default 1
+	range 1 60
+	help
+	  Reduces power by reducing expensive sensor reads. Last-known values are
+	  reused in the advertisements between fetches.
+
+config APP_BME688_USE_BSEC
+	bool "Use Bosch BSEC library for BME688 IAQ processing (not yet implemented)"
+	default n
+	help
+	  Placeholder for future BSEC integration. When enabled, the BME688
+	  gas resistance will be processed through BSEC to produce a calibrated
+	  IAQ / TVOC value instead of raw ohms.
+
 source "Kconfig.zephyr"
