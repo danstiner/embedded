@@ -66,8 +66,9 @@ constexpr size_t BT_DATA_HEADER_LEN = 1;
 static_assert(BT_DATA_HEADER_LEN * 2 + AD_FLAG_BYTES.data_len + sizeof(service_data) <=
 	      BT_GAP_ADV_MAX_ADV_DATA_LEN);
 
-/* Scan response — SMP service UUID for DFU */
+/* Scan response — device name + SMP service UUID for DFU */
 static struct bt_data sd[] = {
+	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 	BT_DATA_BYTES(BT_DATA_UUID128_ALL, SMP_SVC_UUID_BYTES),
 };
 
