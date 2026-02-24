@@ -23,8 +23,8 @@ static uint8_t service_data[SERVICE_DATA_MAX];
 static size_t service_data_len;
 
 typedef struct {
-	int16_t value;
-	bool is_some;
+	int16_t value = 0;
+	bool is_some = false;
 } opt_i16;
 
 static inline opt_i16 opt_i16_none()
@@ -38,8 +38,8 @@ static inline opt_i16 opt_i16_some(int16_t value)
 }
 
 typedef struct {
-	uint8_t value;
-	bool is_some;
+	uint8_t value = 0;
+	bool is_some = false;
 } opt_u8;
 
 static inline opt_u8 opt_u8_none()
@@ -53,8 +53,8 @@ static inline opt_u8 opt_u8_some(uint8_t value)
 }
 
 typedef struct {
-	uint16_t value;
-	bool is_some;
+	uint16_t value = 0;
+	bool is_some = false;
 } opt_u16;
 
 static inline opt_u16 opt_u16_none()
@@ -68,8 +68,8 @@ static inline opt_u16 opt_u16_some(uint16_t value)
 }
 
 typedef struct {
-	uint32_t value;
-	bool is_some;
+	uint32_t value = 0;
+	bool is_some = false;
 } opt_u32;
 
 static inline opt_u32 opt_u32_none()
