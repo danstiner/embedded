@@ -46,10 +46,12 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 	0x84, 0xaa, 0x60, 0x74, 0x52, 0x8a, 0x8b, 0x86, 0xd3, 0x4c, 0xb7, 0x1d, 0x1d, 0xdc, 0x53,  \
 		0x8d
 
-/* Connectable advertising parameters */
+/* Connectable advertising parameters — ~2.0–2.5s interval to save power */
+#define ADV_INT_MIN 0x0C80 /* 2.0 s in 0.625 ms units */
+#define ADV_INT_MAX 0x0FA0 /* 2.5 s in 0.625 ms units */
 #define ADV_PARAM_CONN                                                                             \
-	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN, BT_GAP_ADV_SLOW_INT_MIN,  \
-			BT_GAP_ADV_SLOW_INT_MAX, NULL)
+	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN, ADV_INT_MIN,            \
+			ADV_INT_MAX, NULL)
 
 constexpr bt_data AD_FLAG_BYTES =
 	BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR);
