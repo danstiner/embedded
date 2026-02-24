@@ -11912,7 +11912,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "680Ω"
+		(property "Value" "100Ω"
 			(at 87.884 36.83 0)
 			(effects
 				(font
@@ -11993,7 +11993,7 @@
 				(hide yes)
 			)
 		)
-		(property "Part Number" "RC0603JR-13680RL"
+		(property "Part Number" "RC0603FR-07100RL"
 			(at 83.82 35.56 0)
 			(effects
 				(font

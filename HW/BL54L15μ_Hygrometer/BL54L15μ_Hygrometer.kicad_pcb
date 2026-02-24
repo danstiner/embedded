@@ -4736,7 +4736,7 @@
 				)
 			)
 		)
-		(property "Value" "10uF"
+		(property "Value" "10μF"
 			(at 0 1.43 90)
 			(layer "F.Fab")
 			(uuid "3d88e4e1-9ce1-4cd1-a116-aec5f707ccf8")
@@ -7463,7 +7463,7 @@
 		(path "/616feb97-857c-418d-b5b8-8e55392c5aed")
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
-		(attr exclude_from_pos_files)
+		(attr exclude_from_pos_files exclude_from_bom)
 		(fp_circle
 			(center 0 0)
 			(end 0 -0.7)
@@ -8395,7 +8395,7 @@
 		(path "/19f31363-4dcd-4ff2-b002-4a069f91834c")
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
-		(attr exclude_from_pos_files)
+		(attr exclude_from_pos_files exclude_from_bom)
 		(fp_circle
 			(center 0 0)
 			(end 0 -0.7)
@@ -8504,7 +8504,7 @@
 		(path "/d36ede12-158c-4044-8924-68030145b94c")
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
-		(attr exclude_from_pos_files)
+		(attr exclude_from_pos_files exclude_from_bom)
 		(fp_line
 			(start -0.7 0.7)
 			(end 0.7 0.7)
@@ -8672,7 +8672,7 @@
 		(path "/37d20f2b-af83-4e00-8ed7-85bb71d745fa")
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
-		(attr exclude_from_pos_files)
+		(attr exclude_from_pos_files exclude_from_bom)
 		(fp_circle
 			(center 0 0)
 			(end 0 -0.7)
@@ -8781,7 +8781,7 @@
 		(path "/7df3384b-c37c-4226-824f-3346cca63691")
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
-		(attr exclude_from_pos_files)
+		(attr exclude_from_pos_files exclude_from_bom)
 		(fp_circle
 			(center 0 0)
 			(end 0 -0.7)
@@ -8890,7 +8890,7 @@
 		(path "/770170f4-5910-4670-87e1-2800641552dc")
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
-		(attr exclude_from_pos_files)
+		(attr exclude_from_pos_files exclude_from_bom)
 		(fp_circle
 			(center 0 0)
 			(end 0 -0.7)
@@ -8999,7 +8999,7 @@
 		(path "/991dc6df-506e-4d6f-80d9-eddb403620af")
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
-		(attr exclude_from_pos_files)
+		(attr exclude_from_pos_files exclude_from_bom)
 		(fp_circle
 			(center 0 0)
 			(end 0 -0.7)
@@ -9108,7 +9108,7 @@
 		(path "/7d8c2fca-eb9e-45eb-8298-21f0fecaeb8f")
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
-		(attr exclude_from_pos_files)
+		(attr exclude_from_pos_files exclude_from_bom)
 		(fp_circle
 			(center 0 0)
 			(end 0 -0.7)
@@ -9217,7 +9217,7 @@
 		(path "/3e481098-8ade-439c-b704-9105a36ebfa3")
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
-		(attr exclude_from_pos_files)
+		(attr exclude_from_pos_files exclude_from_bom)
 		(fp_circle
 			(center 0 0)
 			(end 0 -0.7)
@@ -9326,7 +9326,7 @@
 		(path "/f953b524-2288-420b-9511-188edd4db434")
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
-		(attr exclude_from_pos_files)
+		(attr exclude_from_pos_files exclude_from_bom)
 		(fp_circle
 			(center 0 0)
 			(end 0 -0.7)
@@ -9436,7 +9436,7 @@
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
 		(zone_connect 1)
-		(attr exclude_from_pos_files allow_soldermask_bridges)
+		(attr exclude_from_pos_files exclude_from_bom allow_soldermask_bridges)
 		(fp_rect
 			(start -0.15 0.75)
 			(end 0.15 -0.75)
@@ -9709,7 +9709,7 @@
 		(path "/c5bf9577-f411-4e28-8c54-2aa9954695c4")
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
-		(attr exclude_from_pos_files)
+		(attr exclude_from_pos_files exclude_from_bom)
 		(fp_circle
 			(center 0 0)
 			(end 0 -0.7)
@@ -9818,7 +9818,7 @@
 		(path "/8bf70e56-4609-40f9-bf1e-0e0724892e73")
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
-		(attr exclude_from_pos_files)
+		(attr exclude_from_pos_files exclude_from_bom)
 		(fp_circle
 			(center 0 0)
 			(end 0 -0.7)
@@ -9927,7 +9927,7 @@
 		(path "/43c33004-a6db-4e3d-a246-abef08c41f33")
 		(sheetname "/")
 		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
-		(attr exclude_from_pos_files)
+		(attr exclude_from_pos_files exclude_from_bom)
 		(fp_circle
 			(center 0 0)
 			(end 0 -0.7)
