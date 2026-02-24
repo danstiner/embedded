@@ -27,6 +27,10 @@
 #include <nrf_fuel_gauge.h>
 #endif
 
+#if IS_ENABLED(CONFIG_BME68X_IAQ)
+#include <drivers/bme68x_iaq.h>
+#endif
+
 #include "bthome.h"
 #include "led_svc.h"
 #include "sht4x.h"
@@ -376,10 +380,10 @@ static void fuel_gauge_init(void)
 
 /* ---- Update BTHome advertisement data ---- */
 static void update_advertisement(opt_i16 temperature_mC, opt_u16 humidity_mPct, opt_u32 pressure_Pa,
-				 opt_u16 co2_ppm, opt_u8 bat_soc, opt_u16 bat_mV)
+				 opt_u16 co2_ppm, opt_u16 iaq, opt_u8 bat_soc, opt_u16 bat_mV)
 {
-	bthome_update_service_data(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, bat_soc,
-				   bat_mV);
+	bthome_update_service_data(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, iaq,
+				   bat_soc, bat_mV);
 	ad[1] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
 					(uint8_t)service_data_len);
 
@@ -484,7 +488,7 @@ int main()
 	/* Start BLE advertising */
 	k_work_init(&advertise_work, advertise);
 	update_advertisement(opt_i16_none(), opt_u16_none(), opt_u32_none(), opt_u16_none(),
-			     opt_u8_none(), opt_u16_none());
+			     opt_u16_none(), opt_u8_none(), opt_u16_none());
 	int err = bt_enable(bt_ready);
 	if (err) {
 		LOG_ERR("Bluetooth init failed (err %d)", err);
@@ -494,6 +498,7 @@ int main()
 	/* Cached values for expensive sensors between divisor cycles */
 	opt_u32 last_pressure_Pa;
 	opt_u16 last_co2_ppm;
+	opt_u16 last_iaq;
 	uint32_t cycle = 0;
 
 	while (true) {
@@ -503,6 +508,7 @@ int main()
 		opt_u16 humidity_ticks;
 		opt_u32 pressure_Pa = last_pressure_Pa;
 		opt_u16 co2_ppm = last_co2_ppm;
+		opt_u16 iaq = last_iaq;
 		opt_u8 bat_soc;
 		opt_u16 bat_mV;
 		struct sensor_value value;
@@ -538,7 +544,7 @@ int main()
 #endif
 
 		if (expensive_cycle) {
-			/* 2. BME688: read pressure + gas resistance */
+			/* 2. BME688: read pressure + gas/IAQ */
 #if HAVE_SENSOR_BUS
 			if (have_bme688) {
 				int ret = sensor_sample_fetch(bme688_dev);
@@ -549,10 +555,42 @@ int main()
 					LOG_INF("BME688: P=%d.%03d kPa", value.val1,
 						value.val2 / 1000);
 
+#if IS_ENABLED(CONFIG_BME68X_IAQ)
+					sensor_channel_get(bme688_dev,
+							   SENSOR_CHAN_AMBIENT_TEMP, &value);
+					LOG_INF("BME688: T=%d.%02d°C (BSEC)", value.val1,
+						value.val2 / 10000);
+
+					sensor_channel_get(bme688_dev, SENSOR_CHAN_HUMIDITY,
+							   &value);
+					LOG_INF("BME688: RH=%d.%02d%% (BSEC)", value.val1,
+						value.val2 / 10000);
+
+					sensor_channel_get(bme688_dev,
+							   (enum sensor_channel)SENSOR_CHAN_IAQ,
+							   &value);
+					iaq = opt_u16_some(CLAMP(value.val1, 0, 500));
+					LOG_INF("BME688: IAQ=%d", value.val1);
+
+					sensor_channel_get(
+						bme688_dev,
+						(enum sensor_channel)SENSOR_CHAN_IAQ_ACC,
+						&value);
+					LOG_INF("BME688: IAQ_ACC=%d", value.val1);
+
+					sensor_channel_get(bme688_dev, SENSOR_CHAN_CO2, &value);
+					LOG_INF("BME688: CO2eq=%d.%06d ppm (BSEC)",
+						value.val1, value.val2);
+
+					sensor_channel_get(bme688_dev, SENSOR_CHAN_VOC, &value);
+					LOG_INF("BME688: VOC=%d.%06d ppm (BSEC)", value.val1,
+						value.val2);
+#else
 					sensor_channel_get(bme688_dev, SENSOR_CHAN_GAS_RES,
 							   &value);
 					LOG_INF("BME688: Gas=%d.%06d Ohm", value.val1,
 						value.val2);
+#endif /* CONFIG_BME68X_IAQ */
 				} else {
 					LOG_WRN("BME688 fetch failed: %d", ret);
 				}
@@ -584,6 +622,7 @@ int main()
 
 			last_pressure_Pa = pressure_Pa;
 			last_co2_ppm = co2_ppm;
+			last_iaq = iaq;
 		}
 
 		/* 4. Read battery voltage (also updates fuel gauge SoC) */
@@ -601,8 +640,8 @@ int main()
 #endif
 
 		/* 6. Update advertisement data */
-		update_advertisement(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, bat_soc,
-				     bat_mV);
+		update_advertisement(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, iaq,
+				     bat_soc, bat_mV);
 
 		cycle++;
 		k_sleep(K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));

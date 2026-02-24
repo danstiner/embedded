@@ -58,11 +58,14 @@ config APP_EXPENSIVE_SENSOR_DIVISOR
 	  reused in the advertisements between fetches.
 
 config APP_BME688_USE_BSEC
-	bool "Use Bosch BSEC library for BME688 IAQ processing (not yet implemented)"
+	bool "Use Bosch BSEC library for BME688 IAQ processing"
 	default n
+	depends on !BME680
+	select BME68X_IAQ
+	select SETTINGS
+	select FPU
 	help
-	  Placeholder for future BSEC integration. When enabled, the BME688
-	  gas resistance will be processed through BSEC to produce a calibrated
-	  IAQ / TVOC value instead of raw ohms.
+	  When enabled, the BME688 gas resistance is processed through Bosch
+	  BSEC to produce calibrated IAQ, CO2-eq and breath-VOC values.
 
 source "Kconfig.zephyr"
