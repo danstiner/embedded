@@ -14,4 +14,5 @@ target_include_directories(app PRIVATE src)
 target_sources(app PRIVATE
     src/main.cpp
     src/stcc4.cpp
+    src/led_svc.cpp
 )

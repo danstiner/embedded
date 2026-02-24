@@ -1,5 +1,11 @@
 #include <dt-bindings/regulator/npm2100.h>
 
+/ {
+	aliases {
+		boot-led = &red_led;
+	};
+};
+
 /* Enable load switch mode at boot to power the BME688/STCC4/Qwiic connector */
 &npm2100_ldsw {
     regulator-boot-on;

@@ -6,6 +6,7 @@
 // Simple loop architecture: always-on, always connectable, sleeps between readings.
 
 #include <zephyr/device.h>
+#include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/watchdog.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/drivers/sensor.h>
@@ -27,6 +28,7 @@
 #endif
 
 #include "bthome.h"
+#include "led_svc.h"
 #include "sht4x.h"
 #include "stcc4.h"
 
@@ -430,8 +432,22 @@ BT_CONN_CB_DEFINE(conn_cbs) = {
 	.recycled = recycled,
 };
 
+#if DT_NODE_HAS_STATUS(DT_ALIAS(boot_led), okay)
+static const struct gpio_dt_spec boot_led = GPIO_DT_SPEC_GET(DT_ALIAS(boot_led), gpios);
+#endif
+
 int main()
 {
+	/* Boot LED flash for visual identification */
+#if DT_NODE_HAS_STATUS(DT_ALIAS(boot_led), okay)
+	if (gpio_is_ready_dt(&boot_led)) {
+		gpio_pin_configure_dt(&boot_led, GPIO_OUTPUT_ACTIVE);
+		k_sleep(K_MSEC(200));
+		gpio_pin_set_dt(&boot_led, 0);
+		led_svc_init(&boot_led);
+	}
+#endif
+
 	printk("\n\n=== Hygrometer ===\n");
 #ifdef PMIC_NAME
 	printk("PMIC: " PMIC_NAME "\n");
