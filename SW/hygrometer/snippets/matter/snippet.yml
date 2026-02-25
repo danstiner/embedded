@@ -1,5 +1,0 @@
-name: matter
-append:
-  EXTRA_CONF_FILE: matter.conf
-  EXTRA_DTC_OVERLAY_FILE: matter.overlay
-  SB_EXTRA_CONF_FILE: sb.conf

@@ -14,12 +14,19 @@ Low power sensor for relative humidity, temperature, and water leaks utilizing t
 
 ### Builds
 
-**Hygrometer board** (nPM2100, 2×AAA alkaline):
+Two build configurations: **BTHome BLE** (default) and **Matter/Thread**.
+
+**BTHome BLE** (default — sensor advertising over BLE):
 ```bash
 west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=..
 ```
 
-**DevKit board** (nPM1304, LiPo, requires revision suffix):
+**Matter/Thread** (commissioning + sensor clusters over Thread):
+```bash
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=.. -DFILE_SUFFIX=matter
+```
+
+**DevKit board** (BTHome only, nPM1304, LiPo, requires revision suffix):
 ```bash
 west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -- -DBOARD_ROOT=..
 ```
@@ -81,7 +88,7 @@ west ncs-provision upload -i keys/provision-prod.yml
 screen /dev/tty.usbmodem* 115200
 ```
 
-### OTA update
+### OTA update (BTHome build)
 
 Build a new image, then flash it wirelessly using the SMP BLE transport:
 ```bash
@@ -93,7 +100,7 @@ After verifying the new firmware boots correctly, confirm it permanently:
 uv run ../ota.py confirm --target <BLE-address>
 ```
 
-## Matter Commissioning
+## Matter Commissioning (Matter build only)
 
 ### Setup Credentials
 
@@ -160,15 +167,15 @@ Once commissioned, the device exposes:
 - **MeasuredValue** attribute: Temperature in 0.01°C units (e.g., 2534 = 25.34°C)
 - Updates every 5 seconds (debug) or 5 minutes (release)
 
-## Over-The-Air (OTA) Updates
+## Over-The-Air (OTA) Updates (Matter build only)
 
-The device supports Matter OTA updates using the external flash (MX25R64) for staging new firmware.
+The device supports Matter OTA updates using internal flash for staging new firmware.
 
 ### Configuration
 
 OTA is enabled by default with:
-- **Secondary slot**: External flash (1.4 MB, same as primary)
-- **No compression**: Simple swap-based update
+- **Secondary slot**: Internal flash
+- **Overwrite-only mode**: No swap, direct overwrite
 - **Power consumption**: <1µA when idle, ~5-15mA during download (rare event)
 
 ### Building an OTA Update
@@ -309,7 +316,7 @@ west zap-gui
 After saving changes in the GUI, regenerate the data model source files:
 
 ```bash
-west zap-generate -z src/sensor.zap -o src/zap-generated
+west zap-generate -z src/default_zap/hygrometer.zap -o src/default_zap/zap-generated
 ```
 
 ## Troubleshooting
