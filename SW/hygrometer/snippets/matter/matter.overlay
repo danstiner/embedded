@@ -1,0 +1,8 @@
+/* Matter DK_LIBRARY requires a buttons node with gpio-keys compatible.
+ * The hygrometer has no GPIO buttons (SHPHLD is PMIC-level), so provide
+ * an empty node to satisfy the build. */
+/ {
+	buttons {
+		compatible = "gpio-keys";
+	};
+};
