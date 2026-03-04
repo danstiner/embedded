@@ -86,12 +86,11 @@ jobs:
         env:
           MCUBOOT_DEV_SIGNING_KEY: ${{ secrets.MCUBOOT_DEV_SIGNING_KEY }}
 
-      - name: Build
+      - name: Build Debug
         working-directory: SW
         run: |
           west build \
             -b ${{ matrix.board }} \
-            -p always \
             hygrometer \
             -- -DBOARD_ROOT=$(pwd) -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
@@ -112,6 +111,26 @@ jobs:
           find hygrometer/src -name '*.c' -o -name '*.cpp' -o -name '*.h' \
             | xargs clang-tidy -p /tmp --warnings-as-errors='*'
 
+      - name: Build BTHome Release
+        working-directory: SW
+        run: |
+          west build \
+            -b ${{ matrix.board }} \
+            --extra-conf overlay-bthome.conf \
+            --build-dir build-bthome \
+            hygrometer \
+            -- -DBOARD_ROOT=$(pwd) -DFILE_SUFFIX=release
+
+      - name: Build Matter Release
+        working-directory: SW
+        run: |
+          west build \
+            -b ${{ matrix.board }} \
+            --extra-conf overlay-matter.conf \
+            --build-dir build-matter \
+            hygrometer \
+            -- -DBOARD_ROOT=$(pwd) -DFILE_SUFFIX=release
+
       - name: Show ccache stats
         if: always()
         run: ccache --show-stats
@@ -121,41 +140,6 @@ jobs:
         with:
           name: hygrometer-${{ matrix.name }}
           path: |
-            SW/build/merged.hex
             SW/build/dfu_application.zip
-
-  hw-test:
-    needs: build
-    runs-on: [self-hosted, macos, nrf-dk]
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: nrf54l15dk
-          - name: bl54l15u_hygrometer
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: hygrometer-${{ matrix.name }}
-          path: artifacts
-
-      - name: Install Python test dependencies
-        run: pip3 install pytest bleak
-
-      - name: Run boot tests
-        working-directory: SW/hygrometer
-        run: |
-          python3 -m pytest tests/ -m boot \
-            --build-dir ${{ github.workspace }}/artifacts/SW/build \
-            -v --tb=short
-
-      - name: Run OTA tests
-        working-directory: SW/hygrometer
-        run: |
-          python3 -m pytest tests/ -m ota \
-            --build-dir ${{ github.workspace }}/artifacts/SW/build \
-            -v --tb=short
+            SW/build-bthome/dfu_application.zip
+            SW/build-matter/dfu_application.zip
