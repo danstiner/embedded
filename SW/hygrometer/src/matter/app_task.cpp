@@ -51,23 +51,22 @@ void AppTask::UpdateSensorAttributes()
 			kSensorEndpointId, mSensors.sht45.humidity_cPct);
 	}
 
-	/* 2. Expensive sensors — BME688 + STCC4 on divisor cycles */
-	bool expensive = (mCycle++ % CONFIG_APP_EXPENSIVE_SENSOR_DIVISOR) == 0;
-	if (expensive) {
+	/* 2. BME688 pressure — independent cadence */
+	bool pressure_cycle = (mCycle % CONFIG_APP_PRESSURE_INTERVAL_DIVISOR) == 0;
+	if (pressure_cycle) {
 		sensor_read_bme688(&mSensors);
+	}
+
+	/* 3. STCC4 CO2 — expensive cycle cadence */
+	bool co2_cycle = (mCycle++ % CONFIG_APP_CO2_INTERVAL_DIVISOR) == 0;
+	if (co2_cycle) {
 		sensor_read_stcc4(&mSensors);
 	}
 
 	if (mSensors.bme688.valid) {
 		Clusters::PressureMeasurement::Attributes::MeasuredValue::Set(
 			kSensorEndpointId, mSensors.bme688.pressure_kPa);
-
-		/* TODO Step 3: AirQuality cluster (IAQ → AirQualityEnum mapping)
-		 * Requires cluster in ZAP model + regenerated accessors */
 	}
-
-	/* TODO Step 3: CarbonDioxideConcentrationMeasurement cluster
-	 * Requires cluster in ZAP model + regenerated accessors */
 
 	/* 3. Battery */
 	sensor_read_battery(&mSensors);

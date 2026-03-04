@@ -49,24 +49,21 @@ config APP_HEATER_INTERVAL
 	help
 	  Fire the heater every N measurements.
 
-config APP_EXPENSIVE_SENSOR_DIVISOR
-	int "Only fetch BME688 and STCC4 every Nth measurement cycle"
+config APP_CO2_INTERVAL_DIVISOR
+	int "Only fetch STCC4 every Nth measurement cycle"
 	default 1
 	range 1 60
 	help
-	  Reduces power by reducing expensive sensor reads. Last-known values are
-	  reused in the advertisements between fetches.
+	  STCC4 CO2 read cadence. Last-known values are reused in the
+	  advertisements between fetches.
 
-config APP_BME688_USE_BSEC
-	bool "Use Bosch BSEC library for BME688 IAQ processing"
-	default n
-	depends on !BME680
-	select BME68X_IAQ
-	select SETTINGS
-	select FPU
+config APP_PRESSURE_INTERVAL_DIVISOR
+	int "Only fetch BME688 pressure every Nth measurement cycle"
+	default 1
+	range 1 360
 	help
-	  When enabled, the BME688 gas resistance is processed through Bosch
-	  BSEC to produce calibrated IAQ, CO2-eq and breath-VOC values.
+	  BME688 pressure read cadence, independent of STCC4. Cached pressure is
+	  reused for STCC4 compensation and advertisements between fetches.
 
 config APP_USE_MATTER
 	bool "Use Matter/Thread instead of BTHome BLE"

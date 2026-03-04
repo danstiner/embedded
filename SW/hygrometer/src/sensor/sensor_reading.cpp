@@ -22,10 +22,6 @@
 #include <nrf_fuel_gauge.h>
 #endif
 
-#if IS_ENABLED(CONFIG_BME68X_IAQ)
-#include <drivers/bme68x_iaq.h>
-#endif
-
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sensor_reading, LOG_LEVEL_INF);
 
@@ -276,32 +272,6 @@ int sensor_read_bme688(struct sensor_state *state)
 	state->bme688.pressure_Pa = value.val1 * 1000 + value.val2 / 1000;
 	state->bme688.pressure_kPa = (int16_t)value.val1;
 	LOG_INF("BME688: P=%d.%03d kPa", value.val1, value.val2 / 1000);
-
-#if IS_ENABLED(CONFIG_BME68X_IAQ)
-	sensor_channel_get(bme688_dev, SENSOR_CHAN_AMBIENT_TEMP, &value);
-	LOG_INF("BME688: T=%d.%02d°C (BSEC)", value.val1, value.val2 / 10000);
-
-	sensor_channel_get(bme688_dev, SENSOR_CHAN_HUMIDITY, &value);
-	LOG_INF("BME688: RH=%d.%02d%% (BSEC)", value.val1, value.val2 / 10000);
-
-	sensor_channel_get(bme688_dev, (enum sensor_channel)SENSOR_CHAN_IAQ, &value);
-	state->bme688.iaq = CLAMP(value.val1, 0, 500);
-	state->bme688.have_iaq = true;
-	LOG_INF("BME688: IAQ=%d", value.val1);
-
-	sensor_channel_get(bme688_dev, (enum sensor_channel)SENSOR_CHAN_IAQ_ACC, &value);
-	LOG_INF("BME688: IAQ_ACC=%d", value.val1);
-
-	sensor_channel_get(bme688_dev, SENSOR_CHAN_CO2, &value);
-	LOG_INF("BME688: CO2eq=%d.%06d ppm (BSEC)", value.val1, value.val2);
-
-	sensor_channel_get(bme688_dev, SENSOR_CHAN_VOC, &value);
-	LOG_INF("BME688: VOC=%d.%06d ppm (BSEC)", value.val1, value.val2);
-#else
-	sensor_channel_get(bme688_dev, SENSOR_CHAN_GAS_RES, &value);
-	LOG_INF("BME688: Gas=%d.%06d Ohm", value.val1, value.val2);
-	state->bme688.have_iaq = false;
-#endif /* CONFIG_BME68X_IAQ */
 
 	state->bme688.timestamp = k_uptime_get();
 	state->bme688.valid = true;

@@ -1,7 +1,6 @@
 [manifest]
 path = west
 file = west.yml
-group-filter = +bsec
 
 [zephyr]
 base = west/ncs/zephyr

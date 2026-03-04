@@ -118,9 +118,9 @@ static void sht4x_heater_pulse(void)
 
 /* ---- Update BTHome advertisement data ---- */
 static void update_advertisement(opt_i16 temperature_mC, opt_u16 humidity_mPct, opt_u32 pressure_Pa,
-				 opt_u16 co2_ppm, opt_u16 iaq, opt_u8 bat_soc, opt_u16 bat_mV)
+				 opt_u16 co2_ppm, opt_u8 bat_soc, opt_u16 bat_mV)
 {
-	bthome_update_service_data(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, iaq,
+	bthome_update_service_data(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm,
 				   bat_soc, bat_mV);
 	ad[1] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
 					(uint8_t)service_data_len);
@@ -227,7 +227,7 @@ int main()
 	/* Start BLE advertising */
 	k_work_init(&advertise_work, advertise);
 	update_advertisement(opt_i16_none(), opt_u16_none(), opt_u32_none(), opt_u16_none(),
-			     opt_u16_none(), opt_u8_none(), opt_u16_none());
+			     opt_u8_none(), opt_u16_none());
 	int err = bt_enable(bt_ready);
 	if (err) {
 		LOG_ERR("Bluetooth init failed (err %d)", err);
@@ -241,11 +241,11 @@ int main()
 		opt_u16 humidity_mPct;
 		opt_u32 pressure_Pa;
 		opt_u16 co2_ppm;
-		opt_u16 iaq;
 		opt_u8 bat_soc;
 		opt_u16 bat_mV;
 
-		bool expensive_cycle = (cycle % CONFIG_APP_EXPENSIVE_SENSOR_DIVISOR) == 0;
+		bool co2_cycle = (cycle % CONFIG_APP_CO2_INTERVAL_DIVISOR) == 0;
+		bool pressure_cycle = (cycle % CONFIG_APP_PRESSURE_INTERVAL_DIVISOR) == 0;
 
 		/* 1. Read SHT45 */
 		if (sensor_read_sht45(&sensors) == 0) {
@@ -257,30 +257,22 @@ int main()
 #endif
 		}
 
-		if (expensive_cycle) {
-			/* 2. BME688: read pressure + gas/IAQ */
+		/* 2. BME688: read pressure on pressure cycles */
+		if (pressure_cycle) {
 			if (sensor_read_bme688(&sensors) == 0) {
 				pressure_Pa = opt_u32_some(sensors.bme688.pressure_Pa);
-				if (sensors.bme688.have_iaq) {
-					iaq = opt_u16_some(sensors.bme688.iaq);
-				}
 			}
+		} else if (sensors.bme688.valid) {
+			pressure_Pa = opt_u32_some(sensors.bme688.pressure_Pa);
+		}
 
-			/* 3. STCC4: feed compensation + measure CO2 */
+		/* 3. STCC4: feed compensation + measure CO2 on expensive cycles */
+		if (co2_cycle) {
 			if (sensor_read_stcc4(&sensors) == 0) {
 				co2_ppm = opt_u16_some(sensors.stcc4.co2_ppm);
 			}
-		} else {
-			/* Reuse last-known expensive sensor values */
-			if (sensors.bme688.valid) {
-				pressure_Pa = opt_u32_some(sensors.bme688.pressure_Pa);
-				if (sensors.bme688.have_iaq) {
-					iaq = opt_u16_some(sensors.bme688.iaq);
-				}
-			}
-			if (sensors.stcc4.valid) {
-				co2_ppm = opt_u16_some(sensors.stcc4.co2_ppm);
-			}
+		} else if (sensors.stcc4.valid) {
+			co2_ppm = opt_u16_some(sensors.stcc4.co2_ppm);
 		}
 
 		/* 4. Read battery voltage (also updates fuel gauge SoC) */
@@ -292,7 +284,7 @@ int main()
 		}
 
 		/* 5. Update advertisement data */
-		update_advertisement(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, iaq,
+		update_advertisement(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm,
 				     bat_soc, bat_mV);
 
 		cycle++;

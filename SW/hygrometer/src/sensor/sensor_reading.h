@@ -16,8 +16,6 @@ struct bme688_reading {
 	int64_t timestamp;
 	int16_t pressure_kPa;      /* kPa (for Matter PressureMeasurement) */
 	uint32_t pressure_Pa;      /* Pa  (for BTHome, STCC4 compensation) */
-	uint16_t iaq;              /* 0-500 BSEC IAQ index */
-	bool have_iaq;
 	bool valid;
 };
 

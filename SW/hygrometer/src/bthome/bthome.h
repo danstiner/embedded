@@ -15,10 +15,9 @@
 #define BTHOME_OBJ_HUMIDITY 0x03 /* uint16, 0.01 % */
 #define BTHOME_OBJ_PRESSURE 0x04 /* uint24, 0.01 hPa */
 #define BTHOME_OBJ_CO2      0x12 /* uint16, 1 ppm */
-#define BTHOME_OBJ_TVOC     0x13 /* uint16, 1 µg/m³ — used here for IAQ 0-500 */
 
-/* Max service data: UUID(2) + info(1) + battery%(2) + temp(3) + hum(3) + pressure(4) + co2(3) + tvoc(3) */
-#define SERVICE_DATA_MAX 21
+/* Max service data: UUID(2) + info(1) + battery%(2) + temp(3) + hum(3) + pressure(4) + co2(3) */
+#define SERVICE_DATA_MAX 18
 
 static uint8_t service_data[SERVICE_DATA_MAX];
 static size_t service_data_len;
@@ -84,7 +83,7 @@ static inline opt_u32 opt_u32_some(uint32_t value)
 }
 
 static void bthome_update_service_data(opt_i16 temperature_mC, opt_u16 humidity_mPct,
-				       opt_u32 pressure_Pa, opt_u16 co2_ppm, opt_u16 iaq,
+				       opt_u32 pressure_Pa, opt_u16 co2_ppm,
 				       opt_u8 bat_soc, opt_u16 bat_mV)
 {
 	size_t idx = 0;
@@ -128,13 +127,6 @@ static void bthome_update_service_data(opt_i16 temperature_mC, opt_u16 humidity_
 		service_data[idx++] = BTHOME_OBJ_CO2;
 		service_data[idx++] = (uint8_t)(co2_ppm.value & 0xFF);
 		service_data[idx++] = (uint8_t)((co2_ppm.value >> 8) & 0xFF);
-	}
-
-	/* TVOC (IAQ): uint16 */
-	if (iaq.is_some) {
-		service_data[idx++] = BTHOME_OBJ_TVOC;
-		service_data[idx++] = (uint8_t)(iaq.value & 0xFF);
-		service_data[idx++] = (uint8_t)((iaq.value >> 8) & 0xFF);
 	}
 
 	service_data_len = idx;
