@@ -7,6 +7,7 @@
 #include "lib/core/CHIPError.h"
 
 #include <app-common/zap-generated/attributes/Accessors.h>
+#include <app/data-model/Nullable.h>
 
 #include <zephyr/logging/log.h>
 
@@ -14,6 +15,7 @@ LOG_MODULE_DECLARE(app, CONFIG_CHIP_APP_LOG_LEVEL);
 
 using namespace ::chip;
 using namespace ::chip::app;
+using namespace ::chip::app::DataModel;
 using namespace ::chip::DeviceLayer;
 
 namespace
@@ -60,7 +62,10 @@ void AppTask::UpdateSensorAttributes()
 	/* 3. STCC4 CO2 — expensive cycle cadence */
 	bool co2_cycle = (mCycle++ % CONFIG_APP_CO2_INTERVAL_DIVISOR) == 0;
 	if (co2_cycle) {
-		sensor_read_stcc4(&mSensors);
+		if (sensor_read_stcc4(&mSensors) == 0) {
+			mCo2Instance.SetMeasuredValue(
+				DataModel::MakeNullable(static_cast<float>(mSensors.stcc4.co2_ppm)));
+		}
 	}
 
 	if (mSensors.bme688.valid) {
@@ -68,7 +73,7 @@ void AppTask::UpdateSensorAttributes()
 			kSensorEndpointId, mSensors.bme688.pressure_kPa);
 	}
 
-	/* 3. Battery */
+	/* 4. Battery */
 	sensor_read_battery(&mSensors);
 }
 
@@ -84,6 +89,11 @@ CHIP_ERROR AppTask::Init()
 
 	ReturnErrorOnFailure(Nrf::Matter::RegisterEventHandler(Nrf::Board::DefaultMatterEventHandler, 0));
 	ReturnErrorOnFailure(sIdentifyCluster.Init());
+
+	/* Initialize CO2 concentration cluster instance */
+	ReturnErrorOnFailure(mCo2Instance.Init());
+	mCo2Instance.SetMinMeasuredValue(MakeNullable(0.0f));
+	mCo2Instance.SetMaxMeasuredValue(MakeNullable(40000.0f));
 
 	/* Initialize sensors */
 	sensor_init(&mSensors);
