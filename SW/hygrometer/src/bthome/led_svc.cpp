@@ -12,11 +12,9 @@ LOG_MODULE_REGISTER(led_svc, LOG_LEVEL_INF);
 /* Random 128-bit UUIDs (generated) */
 /* Service:        a1b2c3d4-e5f6-7890-abcd-ef0123456789 */
 /* Characteristic: a1b2c3d4-e5f6-7890-abcd-ef012345678a */
-#define LED_SVC_UUID_VAL                                                                           \
-	BT_UUID_128_ENCODE(0xa1b2c3d4, 0xe5f6, 0x7890, 0xabcd, 0xef0123456789)
+#define LED_SVC_UUID_VAL BT_UUID_128_ENCODE(0xa1b2c3d4, 0xe5f6, 0x7890, 0xabcd, 0xef0123456789)
 
-#define LED_CHR_UUID_VAL                                                                           \
-	BT_UUID_128_ENCODE(0xa1b2c3d4, 0xe5f6, 0x7890, 0xabcd, 0xef012345678a)
+#define LED_CHR_UUID_VAL BT_UUID_128_ENCODE(0xa1b2c3d4, 0xe5f6, 0x7890, 0xabcd, 0xef012345678a)
 
 #define LED_SVC_UUID BT_UUID_DECLARE_128(LED_SVC_UUID_VAL)
 #define LED_CHR_UUID BT_UUID_DECLARE_128(LED_CHR_UUID_VAL)
@@ -36,7 +34,7 @@ static void led_off_work_handler(struct k_work *work)
 }
 
 static ssize_t led_write_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr, const void *buf,
-			     uint16_t len, uint16_t offset, uint8_t flags)
+			    uint16_t len, uint16_t offset, uint8_t flags)
 {
 	if (led_gpio == NULL) {
 		return BT_GATT_ERR(BT_ATT_ERR_UNLIKELY);
@@ -61,13 +59,10 @@ static ssize_t led_write_cb(struct bt_conn *conn, const struct bt_gatt_attr *att
 	return len;
 }
 
-BT_GATT_SERVICE_DEFINE(led_svc,
-	BT_GATT_PRIMARY_SERVICE(LED_SVC_UUID),
-	BT_GATT_CHARACTERISTIC(LED_CHR_UUID,
-			       BT_GATT_CHRC_WRITE | BT_GATT_CHRC_WRITE_WITHOUT_RESP,
-			       BT_GATT_PERM_WRITE,
-			       NULL, led_write_cb, NULL),
-);
+BT_GATT_SERVICE_DEFINE(led_svc, BT_GATT_PRIMARY_SERVICE(LED_SVC_UUID),
+		       BT_GATT_CHARACTERISTIC(LED_CHR_UUID,
+					      BT_GATT_CHRC_WRITE | BT_GATT_CHRC_WRITE_WITHOUT_RESP,
+					      BT_GATT_PERM_WRITE, NULL, led_write_cb, NULL), );
 
 void led_svc_init(const struct gpio_dt_spec *led)
 {

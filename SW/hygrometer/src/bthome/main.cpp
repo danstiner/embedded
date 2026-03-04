@@ -43,8 +43,8 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 #define ADV_INT_MIN 0x0C80 /* 2.0 s in 0.625 ms units */
 #define ADV_INT_MAX 0x0FA0 /* 2.5 s in 0.625 ms units */
 #define ADV_PARAM_CONN                                                                             \
-	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN, ADV_INT_MIN,            \
-			ADV_INT_MAX, NULL)
+	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN, ADV_INT_MIN, ADV_INT_MAX, \
+			NULL)
 
 constexpr bt_data AD_FLAG_BYTES =
 	BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR);
@@ -120,8 +120,8 @@ static void sht4x_heater_pulse(void)
 static void update_advertisement(opt_i16 temperature_mC, opt_u16 humidity_mPct, opt_u32 pressure_Pa,
 				 opt_u16 co2_ppm, opt_u8 bat_soc, opt_u16 bat_mV)
 {
-	bthome_update_service_data(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm,
-				   bat_soc, bat_mV);
+	bthome_update_service_data(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, bat_soc,
+				   bat_mV);
 	ad[1] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
 					(uint8_t)service_data_len);
 
@@ -284,8 +284,8 @@ int main()
 		}
 
 		/* 5. Update advertisement data */
-		update_advertisement(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm,
-				     bat_soc, bat_mV);
+		update_advertisement(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, bat_soc,
+				     bat_mV);
 
 		cycle++;
 		k_sleep(K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));

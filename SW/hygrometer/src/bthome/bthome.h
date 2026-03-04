@@ -83,8 +83,8 @@ static inline opt_u32 opt_u32_some(uint32_t value)
 }
 
 static void bthome_update_service_data(opt_i16 temperature_mC, opt_u16 humidity_mPct,
-				       opt_u32 pressure_Pa, opt_u16 co2_ppm,
-				       opt_u8 bat_soc, opt_u16 bat_mV)
+				       opt_u32 pressure_Pa, opt_u16 co2_ppm, opt_u8 bat_soc,
+				       opt_u16 bat_mV)
 {
 	size_t idx = 0;
 
