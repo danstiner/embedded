@@ -13,6 +13,7 @@
 	};
 };
 
+
 /* Enable load switch mode at boot to power the BME688/STCC4/Qwiic connector */
 &npm2100_ldsw {
     regulator-boot-on;
