@@ -1,4 +1,4 @@
-// Hygrometer firmware
+// Hygrometer firmware — BTHome BLE build
 //
 // Supports both BL54L15u Hygrometer and BL54L15u DevKit boards.
 // Reads SHT45 (temp/humidity), optional BME688 (pressure), optional STCC4 (CO2).
@@ -16,25 +16,12 @@
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/uuid.h>
 
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_charger), okay)
-#include <zephyr/drivers/sensor/npm13xx_charger.h>
-#include <zephyr/drivers/mfd/npm13xx.h>
-#endif
-
 #include <zephyr/logging/log.h>
-
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
-#include <nrf_fuel_gauge.h>
-#endif
-
-#if IS_ENABLED(CONFIG_BME68X_IAQ)
-#include <drivers/bme68x_iaq.h>
-#endif
 
 #include "bthome.h"
 #include "led_svc.h"
-#include "sht4x.h"
-#include "stcc4.h"
+#include "sensor/sht4x.h"
+#include "sensor/sensor_reading.h"
 
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 
@@ -78,82 +65,10 @@ static struct bt_data sd[] = {
 	BT_DATA_BYTES(BT_DATA_UUID128_ALL, SMP_SVC_UUID_BYTES),
 };
 
-/* ---- Sensor availability flags ---- */
-static bool have_bme688;
-static bool have_stcc4;
-
-/* ---- Device pointers ---- */
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
-static const struct device *sht45 = DEVICE_DT_GET(DT_NODELABEL(sht45));
-#endif
-
-/* Optional sensor bus (i2c20 on hygrometer — carries BME688 + STCC4) */
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(bme688), okay)
-#define HAVE_SENSOR_BUS 1
-static const struct device *bme688_dev = DEVICE_DT_GET(DT_NODELABEL(bme688));
-static const struct device *sensor_bus = DEVICE_DT_GET(DT_BUS(DT_NODELABEL(bme688)));
-#else
-#define HAVE_SENSOR_BUS 0
-#endif
-
-/* Battery voltage sources */
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(npm2100_vbat), okay)
-static const struct device *vbat_dev = DEVICE_DT_GET(DT_NODELABEL(npm2100_vbat));
-#define HAVE_VBAT 1
-#elif DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_charger), okay)
-static const struct device *vbat_dev = DEVICE_DT_GET(DT_NODELABEL(npm1304_charger));
-#define HAVE_VBAT 1
-#else
-#define HAVE_VBAT 0
-#endif
-
 /* SHT45 I2C bus for direct heater commands */
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
 static const struct device *sht45_bus = DEVICE_DT_GET(DT_BUS(DT_NODELABEL(sht45)));
 #endif
-
-/* ---- Fuel gauge state ---- */
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
-
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL)
-static const struct battery_model battery_model = {
-#include "battery_model.inc"
-};
-#elif IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_PRIMARY_CELL)
-static const struct battery_model_primary battery_model_primary = {
-#include <battery_models/primary_cell/2SAAA_Alkaline.inc>
-};
-#endif
-
-static int64_t fg_ref_time;
-static bool fg_initialized;
-static float fg_last_soc;
-static float fg_last_v = 3.0f; /* safe defaults for idle_set before first measurement */
-static float fg_last_t = 25.0f;
-
-#endif /* CONFIG_NRF_FUEL_GAUGE */
-
-/* ---- Helper: convert sensor_value to raw SHT4x ticks ---- */
-static uint16_t temp_to_raw_ticks(const struct sensor_value *val)
-{
-	/* raw = (T + 45) * 65535 / 175, where T is in °C */
-	int64_t micro = (int64_t)val->val1 * 1000000 + val->val2;
-	return (uint16_t)(((micro + 45000000LL) * 65535LL) / 175000000LL);
-}
-
-static uint16_t hum_to_raw_ticks(const struct sensor_value *val)
-{
-	/* raw = (RH + 6) * 65535 / 125, where RH is in % */
-	int64_t micro = (int64_t)val->val1 * 1000000 + val->val2;
-	int64_t raw = ((micro + 6000000LL) * 65535LL) / 125000000LL;
-	if (raw < 0) {
-		raw = 0;
-	}
-	if (raw > 65535) {
-		raw = 65535;
-	}
-	return (uint16_t)raw;
-}
 
 /*
  * Fire SHT4x heater via direct I2C for decontamination.
@@ -200,183 +115,6 @@ static void sht4x_heater_pulse(void)
 	}
 }
 #endif
-
-/* ---- Fuel gauge charge state update (nPM1304 / secondary cell only) ---- */
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL) &&                                    \
-	DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_charger), okay)
-static void charge_status_inform(int32_t chg_status)
-{
-	union nrf_fuel_gauge_ext_state_info_data info;
-
-	if (chg_status & BIT(1)) {
-		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_COMPLETE;
-	} else if (chg_status & BIT(2)) {
-		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_TRICKLE;
-	} else if (chg_status & BIT(3)) {
-		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_CC;
-	} else if (chg_status & BIT(4)) {
-		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_CV;
-	} else {
-		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_IDLE;
-	}
-	nrf_fuel_gauge_ext_state_update(NRF_FUEL_GAUGE_EXT_STATE_INFO_CHARGE_STATE_CHANGE, &info);
-}
-#endif
-
-/* ---- Probe optional sensors at boot ---- */
-static void probe_optional_sensors(void)
-{
-#if HAVE_SENSOR_BUS
-	if (device_is_ready(bme688_dev)) {
-		have_bme688 = true;
-		LOG_INF("BME688 detected");
-	} else {
-		LOG_INF("BME688 not present — skipping");
-	}
-
-	if (device_is_ready(sensor_bus)) {
-		if (stcc4_probe(sensor_bus)) {
-			have_stcc4 = true;
-			LOG_INF("STCC4 detected");
-		} else {
-			LOG_INF("STCC4 not present — skipping");
-		}
-	}
-#endif
-}
-
-/* ---- Read battery voltage and update fuel gauge ---- */
-static bool read_battery_voltage(struct sensor_value *voltage)
-{
-#if HAVE_VBAT
-	if (!device_is_ready(vbat_dev)) {
-		return false;
-	}
-
-	int ret = sensor_sample_fetch(vbat_dev);
-	if (ret) {
-		LOG_WRN("Battery voltage fetch failed: %d", ret);
-		return false;
-	}
-
-	ret = sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_VOLTAGE, voltage);
-	if (ret) {
-		LOG_WRN("Battery voltage get failed: %d", ret);
-		return false;
-	}
-
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
-	if (fg_initialized) {
-		struct sensor_value sv_temp;
-		float v = (float)voltage->val1 + (float)voltage->val2 / 1000000.f;
-		float t, i;
-
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL)
-		sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_TEMP, &sv_temp);
-		t = (float)sv_temp.val1 + (float)sv_temp.val2 / 1000000.f;
-
-		struct sensor_value sv_current;
-		sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_AVG_CURRENT, &sv_current);
-		/* Negate: Zephyr negative=discharging → library positive=discharging */
-		i = -((float)sv_current.val1 + (float)sv_current.val2 / 1000000.f);
-
-		/* Update charge state on change */
-		static int32_t prev_chg = -1;
-		struct sensor_value sv_status;
-		sensor_channel_get(vbat_dev,
-				   (enum sensor_channel)SENSOR_CHAN_NPM13XX_CHARGER_STATUS,
-				   &sv_status);
-		if (sv_status.val1 != prev_chg) {
-			prev_chg = sv_status.val1;
-			charge_status_inform(sv_status.val1);
-		}
-#elif IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_PRIMARY_CELL)
-		sensor_channel_get(vbat_dev, SENSOR_CHAN_DIE_TEMP, &sv_temp);
-		t = (float)sv_temp.val1 + (float)sv_temp.val2 / 1000000.f;
-		/* No current measurement for primary cell; use fixed estimate */
-		i = 5.0e-3f;
-#endif
-
-		float delta = (float)k_uptime_delta(&fg_ref_time) / 1000.f;
-		fg_last_soc = nrf_fuel_gauge_process(v, i, t, delta, nullptr);
-		fg_last_v = v;
-		fg_last_t = t;
-		LOG_INF("BAT_%: %d%%", (int)fg_last_soc);
-	}
-#endif /* CONFIG_NRF_FUEL_GAUGE */
-
-	return true;
-#else
-	return false;
-#endif
-}
-
-/* ---- Fuel gauge init ---- */
-static void fuel_gauge_init(void)
-{
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE) && HAVE_VBAT
-	if (!device_is_ready(vbat_dev)) {
-		LOG_WRN("VBAT device not ready — fuel gauge skipped");
-		return;
-	}
-
-	struct sensor_value sv;
-	struct nrf_fuel_gauge_init_parameters fg_params = {
-		.opt_params = nullptr,
-		.state = nullptr,
-	};
-
-	sensor_sample_fetch(vbat_dev);
-
-	sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_VOLTAGE, &sv);
-	fg_params.v0 = (float)sv.val1 + (float)sv.val2 / 1000000.f;
-	fg_last_v = fg_params.v0;
-
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL)
-	fg_params.model = &battery_model;
-
-	sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_TEMP, &sv);
-	fg_params.t0 = (float)sv.val1 + (float)sv.val2 / 1000000.f;
-	fg_last_t = fg_params.t0;
-
-	sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_AVG_CURRENT, &sv);
-	fg_params.i0 = -((float)sv.val1 + (float)sv.val2 / 1000000.f);
-
-	struct sensor_value sv_cc;
-	sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_DESIRED_CHARGING_CURRENT, &sv_cc);
-	float max_current = (float)sv_cc.val1 + (float)sv_cc.val2 / 1000000.f;
-#elif IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_PRIMARY_CELL)
-	fg_params.model_primary = &battery_model_primary;
-
-	sensor_channel_get(vbat_dev, SENSOR_CHAN_DIE_TEMP, &sv);
-	fg_params.t0 = (float)sv.val1 + (float)sv.val2 / 1000000.f;
-	fg_last_t = fg_params.t0;
-
-	fg_params.i0 = 0.0f;
-#endif
-
-	int fg_ret = nrf_fuel_gauge_init(&fg_params, nullptr);
-	if (fg_ret < 0) {
-		LOG_ERR("Fuel gauge init failed: %d", fg_ret);
-		return;
-	}
-
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL)
-	union nrf_fuel_gauge_ext_state_info_data fg_info;
-
-	fg_info.charge_current_limit = max_current;
-	nrf_fuel_gauge_ext_state_update(NRF_FUEL_GAUGE_EXT_STATE_INFO_CHARGE_CURRENT_LIMIT,
-					&fg_info);
-
-	fg_info.charge_term_current = max_current / 10.f;
-	nrf_fuel_gauge_ext_state_update(NRF_FUEL_GAUGE_EXT_STATE_INFO_TERM_CURRENT, &fg_info);
-#endif
-
-	fg_initialized = true;
-	LOG_INF("Fuel gauge initialized (%s)", nrf_fuel_gauge_version);
-	fg_ref_time = k_uptime_get();
-#endif /* CONFIG_NRF_FUEL_GAUGE && HAVE_VBAT */
-}
 
 /* ---- Update BTHome advertisement data ---- */
 static void update_advertisement(opt_i16 temperature_mC, opt_u16 humidity_mPct, opt_u32 pressure_Pa,
@@ -482,8 +220,9 @@ int main()
 	}
 #endif
 
-	probe_optional_sensors();
-	fuel_gauge_init();
+	struct sensor_state sensors;
+	sensor_init(&sensors);
+	sensor_fuel_gauge_init();
 
 	/* Start BLE advertising */
 	k_work_init(&advertise_work, advertise);
@@ -495,151 +234,64 @@ int main()
 		return -1;
 	}
 
-	/* Cached values for expensive sensors between divisor cycles */
-	opt_u32 last_pressure_Pa;
-	opt_u16 last_co2_ppm;
-	opt_u16 last_iaq;
 	uint32_t cycle = 0;
 
 	while (true) {
 		opt_i16 temperature_mC;
-		opt_u16 temperature_ticks;
 		opt_u16 humidity_mPct;
-		opt_u16 humidity_ticks;
-		opt_u32 pressure_Pa = last_pressure_Pa;
-		opt_u16 co2_ppm = last_co2_ppm;
-		opt_u16 iaq = last_iaq;
+		opt_u32 pressure_Pa;
+		opt_u16 co2_ppm;
+		opt_u16 iaq;
 		opt_u8 bat_soc;
 		opt_u16 bat_mV;
-		struct sensor_value value;
 
 		bool expensive_cycle = (cycle % CONFIG_APP_EXPENSIVE_SENSOR_DIVISOR) == 0;
 
 		/* 1. Read SHT45 */
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
-		if (device_is_ready(sht45)) {
-			int ret = sensor_sample_fetch(sht45);
+		if (sensor_read_sht45(&sensors) == 0) {
+			temperature_mC = opt_i16_some(sensors.sht45.temperature_cC);
+			humidity_mPct = opt_u16_some(sensors.sht45.humidity_cPct);
 
-			if (ret == 0) {
-				// Convert Celsius result to millicelsius
-				sensor_channel_get(sht45, SENSOR_CHAN_AMBIENT_TEMP, &value);
-				temperature_mC =
-					opt_i16_some(value.val1 * 100 + value.val2 / 10000);
-				temperature_ticks = opt_u16_some(temp_to_raw_ticks(&value));
-				LOG_INF("SHT45: T=%d.%02d°C ", value.val1, value.val2 / 10000);
-
-				// Convert relative humidity percentage to milliprecent
-				sensor_channel_get(sht45, SENSOR_CHAN_HUMIDITY, &value);
-				humidity_mPct = opt_u16_some(value.val1 * 100 + value.val2 / 10000);
-				humidity_ticks = opt_u16_some(hum_to_raw_ticks(&value));
-				LOG_INF("SHT45: RH=%d.%02d%%", value.val1, value.val2 / 10000);
-
-#if IS_ENABLED(CONFIG_SHT4X_USE_HEATER)
-				sht4x_heater_pulse();
+#if IS_ENABLED(CONFIG_SHT4X_USE_HEATER) && DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
+			sht4x_heater_pulse();
 #endif
-			} else {
-				LOG_ERR("SHT45 fetch failed: %d", ret);
-			}
 		}
-#endif
 
 		if (expensive_cycle) {
 			/* 2. BME688: read pressure + gas/IAQ */
-#if HAVE_SENSOR_BUS
-			if (have_bme688) {
-				int ret = sensor_sample_fetch(bme688_dev);
-				if (ret == 0) {
-					sensor_channel_get(bme688_dev, SENSOR_CHAN_PRESS, &value);
-					pressure_Pa = opt_u32_some(value.val1 * 1000 +
-								   value.val2 / 1000);
-					LOG_INF("BME688: P=%d.%03d kPa", value.val1,
-						value.val2 / 1000);
-
-#if IS_ENABLED(CONFIG_BME68X_IAQ)
-					sensor_channel_get(bme688_dev,
-							   SENSOR_CHAN_AMBIENT_TEMP, &value);
-					LOG_INF("BME688: T=%d.%02d°C (BSEC)", value.val1,
-						value.val2 / 10000);
-
-					sensor_channel_get(bme688_dev, SENSOR_CHAN_HUMIDITY,
-							   &value);
-					LOG_INF("BME688: RH=%d.%02d%% (BSEC)", value.val1,
-						value.val2 / 10000);
-
-					sensor_channel_get(bme688_dev,
-							   (enum sensor_channel)SENSOR_CHAN_IAQ,
-							   &value);
-					iaq = opt_u16_some(CLAMP(value.val1, 0, 500));
-					LOG_INF("BME688: IAQ=%d", value.val1);
-
-					sensor_channel_get(
-						bme688_dev,
-						(enum sensor_channel)SENSOR_CHAN_IAQ_ACC,
-						&value);
-					LOG_INF("BME688: IAQ_ACC=%d", value.val1);
-
-					sensor_channel_get(bme688_dev, SENSOR_CHAN_CO2, &value);
-					LOG_INF("BME688: CO2eq=%d.%06d ppm (BSEC)",
-						value.val1, value.val2);
-
-					sensor_channel_get(bme688_dev, SENSOR_CHAN_VOC, &value);
-					LOG_INF("BME688: VOC=%d.%06d ppm (BSEC)", value.val1,
-						value.val2);
-#else
-					sensor_channel_get(bme688_dev, SENSOR_CHAN_GAS_RES,
-							   &value);
-					LOG_INF("BME688: Gas=%d.%06d Ohm", value.val1,
-						value.val2);
-#endif /* CONFIG_BME68X_IAQ */
-				} else {
-					LOG_WRN("BME688 fetch failed: %d", ret);
+			if (sensor_read_bme688(&sensors) == 0) {
+				pressure_Pa = opt_u32_some(sensors.bme688.pressure_Pa);
+				if (sensors.bme688.have_iaq) {
+					iaq = opt_u16_some(sensors.bme688.iaq);
 				}
 			}
-#endif
 
 			/* 3. STCC4: feed compensation + measure CO2 */
-#if HAVE_SENSOR_BUS
-			if (have_stcc4) {
-				if (temperature_ticks.is_some && humidity_ticks.is_some) {
-					stcc4_set_rht_compensation(sensor_bus,
-								   temperature_ticks.value,
-								   humidity_ticks.value);
-				}
-				if (pressure_Pa.is_some) {
-					/* Convert Pa to hPa for STCC4 pressure compensation */
-					uint16_t hPa = (uint16_t)(pressure_Pa.value / 100);
-					stcc4_set_pressure_compensation(sensor_bus, hPa);
-				}
-				int ret = stcc4_measure(sensor_bus, &co2_ppm.value);
-				if (ret == 0) {
-					co2_ppm.is_some = true;
-					LOG_INF("STCC4: CO2=%u ppm", co2_ppm.value);
-				} else {
-					LOG_WRN("STCC4 measure failed: %d", ret);
+			if (sensor_read_stcc4(&sensors) == 0) {
+				co2_ppm = opt_u16_some(sensors.stcc4.co2_ppm);
+			}
+		} else {
+			/* Reuse last-known expensive sensor values */
+			if (sensors.bme688.valid) {
+				pressure_Pa = opt_u32_some(sensors.bme688.pressure_Pa);
+				if (sensors.bme688.have_iaq) {
+					iaq = opt_u16_some(sensors.bme688.iaq);
 				}
 			}
-#endif
-
-			last_pressure_Pa = pressure_Pa;
-			last_co2_ppm = co2_ppm;
-			last_iaq = iaq;
+			if (sensors.stcc4.valid) {
+				co2_ppm = opt_u16_some(sensors.stcc4.co2_ppm);
+			}
 		}
 
 		/* 4. Read battery voltage (also updates fuel gauge SoC) */
-		if (read_battery_voltage(&value)) {
-			// Convert from micro volts to mV
-			bat_mV = opt_u16_some(value.val1 * 1000 + value.val2 / 1000);
-			LOG_INF("BAT_V: %d.%03dV", value.val1, value.val2 / 1000);
+		if (sensor_read_battery(&sensors) == 0) {
+			bat_mV = opt_u16_some(sensors.battery.voltage_mV);
+			if (sensors.battery.soc_pct > 0) {
+				bat_soc = opt_u8_some(sensors.battery.soc_pct);
+			}
 		}
 
-		/* 5. Compute SoC for BTHome payload */
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
-		if (fg_initialized) {
-			bat_soc = opt_u8_some(CLAMP((int)fg_last_soc, 0, 100));
-		}
-#endif
-
-		/* 6. Update advertisement data */
+		/* 5. Update advertisement data */
 		update_advertisement(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, iaq,
 				     bat_soc, bat_mV);
 

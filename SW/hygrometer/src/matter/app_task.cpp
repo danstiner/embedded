@@ -18,9 +18,9 @@ using namespace ::chip::DeviceLayer;
 
 namespace
 {
-constexpr chip::EndpointId kTemperatureSensorEndpointId = 1;
+constexpr chip::EndpointId kSensorEndpointId = 1;
 
-Nrf::Matter::IdentifyCluster sIdentifyCluster(kTemperatureSensorEndpointId);
+Nrf::Matter::IdentifyCluster sIdentifyCluster(kSensorEndpointId);
 } /* namespace */
 
 void AppTask::ButtonEventHandler(Nrf::ButtonState state, Nrf::ButtonMask hasChanged)
@@ -28,7 +28,7 @@ void AppTask::ButtonEventHandler(Nrf::ButtonState state, Nrf::ButtonMask hasChan
 	/* No physical buttons on hygrometer — placeholder for future SHPHLD button */
 }
 
-void AppTask::UpdateTemperatureTimeoutCallback(k_timer *timer)
+void AppTask::SensorTimerCallback(k_timer *timer)
 {
 	if (!timer || !timer->user_data) {
 		return;
@@ -36,17 +36,41 @@ void AppTask::UpdateTemperatureTimeoutCallback(k_timer *timer)
 
 	DeviceLayer::PlatformMgr().ScheduleWork(
 		[](intptr_t p) {
-			AppTask::Instance().UpdateTemperatureMeasurement();
-
-			Protocols::InteractionModel::Status status =
-				Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
-					kTemperatureSensorEndpointId, AppTask::Instance().GetCurrentTemperature());
-
-			if (status != Protocols::InteractionModel::Status::Success) {
-				LOG_ERR("Updating temperature measurement failed %x", to_underlying(status));
-			}
+			AppTask::Instance().UpdateSensorAttributes();
 		},
 		reinterpret_cast<intptr_t>(timer->user_data));
+}
+
+void AppTask::UpdateSensorAttributes()
+{
+	/* 1. SHT45 — every cycle */
+	if (sensor_read_sht45(&mSensors) == 0) {
+		Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
+			kSensorEndpointId, mSensors.sht45.temperature_cC);
+		Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
+			kSensorEndpointId, mSensors.sht45.humidity_cPct);
+	}
+
+	/* 2. Expensive sensors — BME688 + STCC4 on divisor cycles */
+	bool expensive = (mCycle++ % CONFIG_APP_EXPENSIVE_SENSOR_DIVISOR) == 0;
+	if (expensive) {
+		sensor_read_bme688(&mSensors);
+		sensor_read_stcc4(&mSensors);
+	}
+
+	if (mSensors.bme688.valid) {
+		Clusters::PressureMeasurement::Attributes::MeasuredValue::Set(
+			kSensorEndpointId, mSensors.bme688.pressure_kPa);
+
+		/* TODO Step 3: AirQuality cluster (IAQ → AirQualityEnum mapping)
+		 * Requires cluster in ZAP model + regenerated accessors */
+	}
+
+	/* TODO Step 3: CarbonDioxideConcentrationMeasurement cluster
+	 * Requires cluster in ZAP model + regenerated accessors */
+
+	/* 3. Battery */
+	sensor_read_battery(&mSensors);
 }
 
 CHIP_ERROR AppTask::Init()
@@ -59,11 +83,12 @@ CHIP_ERROR AppTask::Init()
 		return CHIP_ERROR_INCORRECT_STATE;
 	}
 
-	/* Register Matter event handler that controls the connectivity status LED based on the captured Matter network
-	 * state. */
 	ReturnErrorOnFailure(Nrf::Matter::RegisterEventHandler(Nrf::Board::DefaultMatterEventHandler, 0));
-
 	ReturnErrorOnFailure(sIdentifyCluster.Init());
+
+	/* Initialize sensors */
+	sensor_init(&mSensors);
+	sensor_fuel_gauge_init();
 
 	return Nrf::Matter::StartServer();
 }
@@ -72,29 +97,10 @@ CHIP_ERROR AppTask::StartApp()
 {
 	ReturnErrorOnFailure(Init());
 
-	DataModel::Nullable<int16_t> val;
-	Protocols::InteractionModel::Status status =
-		Clusters::TemperatureMeasurement::Attributes::MinMeasuredValue::Get(kTemperatureSensorEndpointId, val);
-
-	if (status != Protocols::InteractionModel::Status::Success || val.IsNull()) {
-		LOG_ERR("Failed to get temperature measurement min value %x", to_underlying(status));
-		return CHIP_ERROR_INCORRECT_STATE;
-	}
-
-	mTemperatureSensorMinValue = val.Value();
-
-	status = Clusters::TemperatureMeasurement::Attributes::MaxMeasuredValue::Get(kTemperatureSensorEndpointId, val);
-
-	if (status != Protocols::InteractionModel::Status::Success || val.IsNull()) {
-		LOG_ERR("Failed to get temperature measurement max value %x", to_underlying(status));
-		return CHIP_ERROR_INCORRECT_STATE;
-	}
-
-	mTemperatureSensorMaxValue = val.Value();
-
-	k_timer_init(&mTimer, AppTask::UpdateTemperatureTimeoutCallback, nullptr);
+	uint32_t intervalMs = CONFIG_APP_MEASUREMENT_INTERVAL_SEC * 1000;
+	k_timer_init(&mTimer, AppTask::SensorTimerCallback, nullptr);
 	k_timer_user_data_set(&mTimer, this);
-	k_timer_start(&mTimer, K_MSEC(kTemperatureMeasurementIntervalMs), K_MSEC(kTemperatureMeasurementIntervalMs));
+	k_timer_start(&mTimer, K_MSEC(intervalMs), K_MSEC(intervalMs));
 
 	while (true) {
 		Nrf::DispatchNextTask();

@@ -10,7 +10,13 @@ if(TIDY)
   )
 endif()
 
-target_include_directories(app PRIVATE src)
+target_include_directories(app PRIVATE src src/sensor)
+
+# Shared sensor module (always built)
+target_sources(app PRIVATE
+  src/sensor/sensor_reading.cpp
+  src/sensor/stcc4.cpp
+)
 
 if(CONFIG_APP_USE_MATTER)
   include(${ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR}/config/nrfconnect/app/enable-gnu-std.cmake)
@@ -27,7 +33,6 @@ if(CONFIG_APP_USE_MATTER)
 else()
   target_sources(app PRIVATE
     src/bthome/main.cpp
-    src/bthome/stcc4.cpp
     src/bthome/led_svc.cpp
   )
 endif()
