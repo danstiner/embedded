@@ -5,7 +5,7 @@ mcuboot_pad:
   address: 0xC000
   size: 0x800
 
-# 720KB primary app partition, 2KB mcuboot_pad is used for headers
+# 720KB primary app partition
 app:
   address: 0xC800
   size: 0xB4000
@@ -18,7 +18,7 @@ mcuboot_primary:
   size: 0xB4800
   span: [mcuboot_pad, app]
 
-# 720KB secondary app partition, plus 2KB pad for headers
+# 720KB secondary (equal to primary for swap mode)
 mcuboot_secondary_pad:
   address: 0xC0800
   size: 0x800
