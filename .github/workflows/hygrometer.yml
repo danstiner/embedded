@@ -123,3 +123,39 @@ jobs:
           path: |
             SW/build/merged.hex
             SW/build/dfu_application.zip
+
+  hw-test:
+    needs: build
+    runs-on: [self-hosted, macos, nrf-dk]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: nrf54l15dk
+          - name: bl54l15u_hygrometer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: hygrometer-${{ matrix.name }}
+          path: artifacts
+
+      - name: Install Python test dependencies
+        run: pip3 install pytest bleak
+
+      - name: Run boot tests
+        working-directory: SW/hygrometer
+        run: |
+          python3 -m pytest tests/ -m boot \
+            --build-dir ${{ github.workspace }}/artifacts/SW/build \
+            -v --tb=short
+
+      - name: Run OTA tests
+        working-directory: SW/hygrometer
+        run: |
+          python3 -m pytest tests/ -m ota \
+            --build-dir ${{ github.workspace }}/artifacts/SW/build \
+            -v --tb=short
