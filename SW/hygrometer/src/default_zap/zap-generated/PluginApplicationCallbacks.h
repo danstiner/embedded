@@ -35,21 +35,27 @@ void MatterOperationalCredentialsPluginServerInitCallback();
 void MatterGroupKeyManagementPluginServerInitCallback();
 void MatterIcdManagementPluginServerInitCallback();
 void MatterTemperatureMeasurementPluginServerInitCallback();
+void MatterPressureMeasurementPluginServerInitCallback();
+void MatterRelativeHumidityMeasurementPluginServerInitCallback();
+void MatterCarbonDioxideConcentrationMeasurementPluginServerInitCallback();
 
-#define MATTER_PLUGINS_INIT                                                                                            \
-	MatterIdentifyPluginServerInitCallback();                                                                      \
-	MatterDescriptorPluginServerInitCallback();                                                                    \
-	MatterAccessControlPluginServerInitCallback();                                                                 \
-	MatterBasicInformationPluginServerInitCallback();                                                              \
-	MatterOtaSoftwareUpdateRequestorPluginServerInitCallback();                                                    \
-	MatterGeneralCommissioningPluginServerInitCallback();                                                          \
-	MatterNetworkCommissioningPluginServerInitCallback();                                                          \
-	MatterDiagnosticLogsPluginServerInitCallback();                                                                \
-	MatterGeneralDiagnosticsPluginServerInitCallback();                                                            \
-	MatterSoftwareDiagnosticsPluginServerInitCallback();                                                           \
-	MatterThreadNetworkDiagnosticsPluginServerInitCallback();                                                      \
-	MatterAdministratorCommissioningPluginServerInitCallback();                                                    \
-	MatterOperationalCredentialsPluginServerInitCallback();                                                        \
-	MatterGroupKeyManagementPluginServerInitCallback();                                                            \
-	MatterIcdManagementPluginServerInitCallback();                                                                 \
-	MatterTemperatureMeasurementPluginServerInitCallback();
+#define MATTER_PLUGINS_INIT                                                                        \
+	MatterIdentifyPluginServerInitCallback();                                                  \
+	MatterDescriptorPluginServerInitCallback();                                                \
+	MatterAccessControlPluginServerInitCallback();                                             \
+	MatterBasicInformationPluginServerInitCallback();                                          \
+	MatterOtaSoftwareUpdateRequestorPluginServerInitCallback();                                \
+	MatterGeneralCommissioningPluginServerInitCallback();                                      \
+	MatterNetworkCommissioningPluginServerInitCallback();                                      \
+	MatterDiagnosticLogsPluginServerInitCallback();                                            \
+	MatterGeneralDiagnosticsPluginServerInitCallback();                                        \
+	MatterSoftwareDiagnosticsPluginServerInitCallback();                                       \
+	MatterThreadNetworkDiagnosticsPluginServerInitCallback();                                  \
+	MatterAdministratorCommissioningPluginServerInitCallback();                                \
+	MatterOperationalCredentialsPluginServerInitCallback();                                    \
+	MatterGroupKeyManagementPluginServerInitCallback();                                        \
+	MatterIcdManagementPluginServerInitCallback();                                             \
+	MatterTemperatureMeasurementPluginServerInitCallback();                                    \
+	MatterPressureMeasurementPluginServerInitCallback();                                       \
+	MatterRelativeHumidityMeasurementPluginServerInitCallback();                               \
+	MatterCarbonDioxideConcentrationMeasurementPluginServerInitCallback();

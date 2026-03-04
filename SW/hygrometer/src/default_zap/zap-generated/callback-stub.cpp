@@ -37,6 +37,9 @@ void emberAfClusterInitCallback(EndpointId endpoint, ClusterId clusterId)
 	case app::Clusters::BasicInformation::Id:
 		emberAfBasicInformationClusterInitCallback(endpoint);
 		break;
+	case app::Clusters::CarbonDioxideConcentrationMeasurement::Id:
+		emberAfCarbonDioxideConcentrationMeasurementClusterInitCallback(endpoint);
+		break;
 	case app::Clusters::Descriptor::Id:
 		emberAfDescriptorClusterInitCallback(endpoint);
 		break;
@@ -70,6 +73,12 @@ void emberAfClusterInitCallback(EndpointId endpoint, ClusterId clusterId)
 	case app::Clusters::OperationalCredentials::Id:
 		emberAfOperationalCredentialsClusterInitCallback(endpoint);
 		break;
+	case app::Clusters::PressureMeasurement::Id:
+		emberAfPressureMeasurementClusterInitCallback(endpoint);
+		break;
+	case app::Clusters::RelativeHumidityMeasurement::Id:
+		emberAfRelativeHumidityMeasurementClusterInitCallback(endpoint);
+		break;
 	case app::Clusters::SoftwareDiagnostics::Id:
 		emberAfSoftwareDiagnosticsClusterInitCallback(endpoint);
 		break;
@@ -96,6 +105,12 @@ void __attribute__((weak)) emberAfAdministratorCommissioningClusterInitCallback(
 	(void)endpoint;
 }
 void __attribute__((weak)) emberAfBasicInformationClusterInitCallback(EndpointId endpoint)
+{
+	// To prevent warning
+	(void)endpoint;
+}
+void __attribute__((weak))
+emberAfCarbonDioxideConcentrationMeasurementClusterInitCallback(EndpointId endpoint)
 {
 	// To prevent warning
 	(void)endpoint;
@@ -151,6 +166,17 @@ void __attribute__((weak)) emberAfOtaSoftwareUpdateRequestorClusterInitCallback(
 	(void)endpoint;
 }
 void __attribute__((weak)) emberAfOperationalCredentialsClusterInitCallback(EndpointId endpoint)
+{
+	// To prevent warning
+	(void)endpoint;
+}
+void __attribute__((weak)) emberAfPressureMeasurementClusterInitCallback(EndpointId endpoint)
+{
+	// To prevent warning
+	(void)endpoint;
+}
+void __attribute__((weak))
+emberAfRelativeHumidityMeasurementClusterInitCallback(EndpointId endpoint)
 {
 	// To prevent warning
 	(void)endpoint;
