@@ -37,9 +37,7 @@ void AppTask::SensorTimerCallback(k_timer *timer)
 	}
 
 	DeviceLayer::PlatformMgr().ScheduleWork(
-		[](intptr_t p) {
-			AppTask::Instance().UpdateSensorAttributes();
-		},
+		[](intptr_t p) { AppTask::Instance().UpdateSensorAttributes(); },
 		reinterpret_cast<intptr_t>(timer->user_data));
 }
 
@@ -63,8 +61,8 @@ void AppTask::UpdateSensorAttributes()
 	bool co2_cycle = (mCycle++ % CONFIG_APP_CO2_INTERVAL_DIVISOR) == 0;
 	if (co2_cycle) {
 		if (sensor_read_stcc4(&mSensors) == 0) {
-			mCo2Instance.SetMeasuredValue(
-				DataModel::MakeNullable(static_cast<float>(mSensors.stcc4.co2_ppm)));
+			mCo2Instance.SetMeasuredValue(DataModel::MakeNullable(
+				static_cast<float>(mSensors.stcc4.co2_ppm)));
 		}
 	}
 
@@ -87,7 +85,8 @@ CHIP_ERROR AppTask::Init()
 		return CHIP_ERROR_INCORRECT_STATE;
 	}
 
-	ReturnErrorOnFailure(Nrf::Matter::RegisterEventHandler(Nrf::Board::DefaultMatterEventHandler, 0));
+	ReturnErrorOnFailure(
+		Nrf::Matter::RegisterEventHandler(Nrf::Board::DefaultMatterEventHandler, 0));
 	ReturnErrorOnFailure(sIdentifyCluster.Init());
 
 	/* Initialize CO2 concentration cluster instance */

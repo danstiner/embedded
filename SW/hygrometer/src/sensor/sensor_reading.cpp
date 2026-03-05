@@ -92,7 +92,7 @@ static uint16_t hum_to_raw_ticks(const struct sensor_value *val)
 }
 
 /* ---- Charge state update (nPM1304 / secondary cell only) ---- */
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL) && \
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL) &&                                    \
 	DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_charger), okay)
 static void charge_status_inform(int32_t chg_status)
 {
@@ -346,7 +346,7 @@ int sensor_read_battery(struct sensor_state *state)
 		float v = (float)voltage.val1 + (float)voltage.val2 / 1000000.f;
 		float t, i;
 
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL) && \
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_SECONDARY_CELL) &&                                    \
 	DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_charger), okay)
 		sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_TEMP, &sv_temp);
 		t = (float)sv_temp.val1 + (float)sv_temp.val2 / 1000000.f;

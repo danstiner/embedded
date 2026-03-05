@@ -8,8 +8,9 @@
 
 struct Identify;
 
-class AppTask {
-public:
+class AppTask
+{
+      public:
 	static AppTask &Instance()
 	{
 		static AppTask sAppTask;
@@ -18,7 +19,7 @@ public:
 
 	CHIP_ERROR StartApp();
 
-private:
+      private:
 	CHIP_ERROR Init();
 
 	void UpdateSensorAttributes();
@@ -31,13 +32,16 @@ private:
 	uint32_t mCycle = 0;
 
 	/* CO2 concentration measurement — NumericMeasurement only, no peak/average */
-	chip::app::Clusters::ConcentrationMeasurement::Instance<true, false, false, false, false, false>
+	chip::app::Clusters::ConcentrationMeasurement::Instance<true, false, false, false, false,
+								false>
 		mCo2Instance;
 
 	AppTask()
-		: mCo2Instance(1, chip::app::Clusters::CarbonDioxideConcentrationMeasurement::Id,
-			       chip::app::Clusters::ConcentrationMeasurement::MeasurementMediumEnum::kAir,
-			       chip::app::Clusters::ConcentrationMeasurement::MeasurementUnitEnum::kPpm)
+		: mCo2Instance(
+			  1, chip::app::Clusters::CarbonDioxideConcentrationMeasurement::Id,
+			  chip::app::Clusters::ConcentrationMeasurement::MeasurementMediumEnum::
+				  kAir,
+			  chip::app::Clusters::ConcentrationMeasurement::MeasurementUnitEnum::kPpm)
 	{
 	}
 };
