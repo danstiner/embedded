@@ -62,7 +62,8 @@ static ssize_t led_write_cb(struct bt_conn *conn, const struct bt_gatt_attr *att
 BT_GATT_SERVICE_DEFINE(led_svc, BT_GATT_PRIMARY_SERVICE(LED_SVC_UUID),
 		       BT_GATT_CHARACTERISTIC(LED_CHR_UUID,
 					      BT_GATT_CHRC_WRITE | BT_GATT_CHRC_WRITE_WITHOUT_RESP,
-					      BT_GATT_PERM_WRITE, nullptr, led_write_cb, nullptr), );
+					      BT_GATT_PERM_WRITE, nullptr, led_write_cb,
+					      nullptr), );
 
 void led_svc_init(const struct gpio_dt_spec *led)
 {
