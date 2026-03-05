@@ -154,6 +154,7 @@ jobs:
               > /tmp/tidy-matter/compile_commands.json
           find hygrometer/src \
             -path '*/zap-generated/*' -prune -o \
+            -path '*/bthome/*' -prune -o \
             \( -name '*.c' -o -name '*.cpp' -o -name '*.h' \) -print \
             | xargs clang-tidy -p /tmp/tidy-matter --warnings-as-errors='*'
 
