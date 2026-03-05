@@ -99,12 +99,6 @@ jobs:
         run: |
           apt-get update && apt-get install -y --no-install-recommends clang-tidy
 
-      - name: Resolve cross-compiler C++ include paths
-        run: |
-          # Host clang-tidy can't find <cstdint> etc. without the cross-compiler's paths
-          echo "TIDY_EXTRA_ARGS=$(arm-zephyr-eabi-g++ -E -x c++ -Wp,-v /dev/null 2>&1 \
-            | grep '^ ' | sed 's/^ */-extra-arg -isystem/' | tr '\n' ' ')" >> "$GITHUB_ENV"
-
       - name: Build BTHome Release
         working-directory: SW
         run: |
@@ -118,17 +112,7 @@ jobs:
 
       - name: Run clang-tidy (BTHome)
         working-directory: SW
-        run: |
-          # Strip GCC-only flags that clang-tidy chokes on (workaround until LLVM 22)
-          mkdir -p /tmp/tidy-bthome
-          sed -e 's/-fno-printf-return-value//g' \
-              -e 's/-fno-reorder-functions//g' \
-              -e 's/-mfp16-format=ieee//g' \
-              -e 's/--param=min-pagesize=0//g' \
-              -e 's/--specs=picolibc\.specs//g' \
-              build-bthome/hygrometer/compile_commands.json \
-              > /tmp/tidy-bthome/compile_commands.json
-          run-clang-tidy -p /tmp/tidy-bthome $TIDY_EXTRA_ARGS 'hygrometer/src/'
+        run: ./tidy.sh build-bthome "$(pwd)/hygrometer/src/"
 
       - name: Build Matter Release
         working-directory: SW
@@ -144,16 +128,7 @@ jobs:
 
       - name: Run clang-tidy (Matter)
         working-directory: SW
-        run: |
-          mkdir -p /tmp/tidy-matter
-          sed -e 's/-fno-printf-return-value//g' \
-              -e 's/-fno-reorder-functions//g' \
-              -e 's/-mfp16-format=ieee//g' \
-              -e 's/--param=min-pagesize=0//g' \
-              -e 's/--specs=picolibc\.specs//g' \
-              build-matter/hygrometer/compile_commands.json \
-              > /tmp/tidy-matter/compile_commands.json
-          run-clang-tidy -p /tmp/tidy-matter $TIDY_EXTRA_ARGS 'hygrometer/src/'
+        run: ./tidy.sh build-matter "$(pwd)/hygrometer/src/"
 
       - name: Show ccache stats
         if: always()
