@@ -92,24 +92,12 @@ jobs:
           west build \
             -b ${{ matrix.board }} \
             hygrometer \
-            -- -DBOARD_ROOT=$(pwd) -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+            -- -DBOARD_ROOT=$(pwd) \
+            -DEXTRA_CONF_FILE="prj_extra_rtt.conf"
 
       - name: Install clang-tidy
         run: |
           apt-get update && apt-get install -y --no-install-recommends clang-tidy
-
-      - name: Run clang-tidy
-        working-directory: SW
-        run: |
-          # Strip GCC-only flags that clang-tidy chokes on (workaround until LLVM 22)
-          sed -e 's/-fno-printf-return-value//g' \
-              -e 's/-fno-reorder-functions//g' \
-              -e 's/-mfp16-format=ieee//g' \
-              -e 's/--param=min-pagesize=0//g' \
-              -e 's/--specs=picolibc\.specs//g' \
-              build/hygrometer/compile_commands.json > /tmp/compile_commands.json
-          find hygrometer/src -name '*.c' -o -name '*.cpp' -o -name '*.h' \
-            | xargs clang-tidy -p /tmp --warnings-as-errors='*'
 
       - name: Build BTHome Production Release
         working-directory: SW
@@ -120,7 +108,26 @@ jobs:
             hygrometer \
             -- -DBOARD_ROOT=$(pwd) \
             -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_production.conf" \
-            -DSB_EXTRA_CONF_FILE=sysbuild_extra_production.conf
+            -DSB_EXTRA_CONF_FILE=sysbuild_extra_production.conf \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Run clang-tidy (BTHome)
+        working-directory: SW
+        run: |
+          # Strip GCC-only flags that clang-tidy chokes on (workaround until LLVM 22)
+          mkdir -p /tmp/tidy-bthome
+          sed -e 's/-fno-printf-return-value//g' \
+              -e 's/-fno-reorder-functions//g' \
+              -e 's/-mfp16-format=ieee//g' \
+              -e 's/--param=min-pagesize=0//g' \
+              -e 's/--specs=picolibc\.specs//g' \
+              build-bthome/hygrometer/compile_commands.json \
+              > /tmp/tidy-bthome/compile_commands.json
+          find hygrometer/src \
+            -path '*/zap-generated/*' -prune -o \
+            -path '*/matter/*' -prune -o \
+            \( -name '*.c' -o -name '*.cpp' -o -name '*.h' \) -print \
+            | xargs clang-tidy -p /tmp/tidy-bthome --warnings-as-errors='*'
 
       - name: Build Matter Production Release
         working-directory: SW
@@ -131,7 +138,24 @@ jobs:
             hygrometer \
             -- -DBOARD_ROOT=$(pwd) \
             -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf;prj_extra_production.conf" \
-            -DSB_EXTRA_CONF_FILE="sysbuild_extra_matter.conf;sysbuild_extra_production.conf"
+            -DSB_EXTRA_CONF_FILE="sysbuild_extra_matter.conf;sysbuild_extra_production.conf" \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Run clang-tidy (Matter)
+        working-directory: SW
+        run: |
+          mkdir -p /tmp/tidy-matter
+          sed -e 's/-fno-printf-return-value//g' \
+              -e 's/-fno-reorder-functions//g' \
+              -e 's/-mfp16-format=ieee//g' \
+              -e 's/--param=min-pagesize=0//g' \
+              -e 's/--specs=picolibc\.specs//g' \
+              build-matter/hygrometer/compile_commands.json \
+              > /tmp/tidy-matter/compile_commands.json
+          find hygrometer/src \
+            -path '*/zap-generated/*' -prune -o \
+            \( -name '*.c' -o -name '*.cpp' -o -name '*.h' \) -print \
+            | xargs clang-tidy -p /tmp/tidy-matter --warnings-as-errors='*'
 
       - name: Show ccache stats
         if: always()
