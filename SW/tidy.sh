@@ -13,7 +13,7 @@ if [ ! -f "$COMPILE_DB" ]; then
 fi
 
 TIDY_DIR=$(mktemp -d)
-trap 'rm -rf "$TIDY_DIR"' EXIT
+trap "rm -rf '$TIDY_DIR'" EXIT
 
 # Strip GCC-only flags and inject cross-compiler C++ stdlib paths into the
 # compilation database so host clang-tidy can parse everything.
