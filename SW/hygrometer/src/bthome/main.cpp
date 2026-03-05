@@ -10,6 +10,9 @@
 #include <zephyr/drivers/watchdog.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/drivers/sensor.h>
+#if DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_pmic), okay)
+#include <zephyr/drivers/mfd/npm13xx.h>
+#endif
 #include <zephyr/init.h>
 
 #include <zephyr/bluetooth/bluetooth.h>
