@@ -5,17 +5,17 @@
 
 struct sht45_reading {
 	int64_t timestamp;
-	int16_t temperature_cC;    /* 0.01 deg C units */
-	uint16_t humidity_cPct;    /* 0.01 % units */
-	uint16_t temp_raw_ticks;   /* raw SHT4x ticks for STCC4 compensation */
-	uint16_t hum_raw_ticks;    /* raw SHT4x ticks for STCC4 compensation */
+	int16_t temperature_cC;  /* 0.01 deg C units */
+	uint16_t humidity_cPct;  /* 0.01 % units */
+	uint16_t temp_raw_ticks; /* raw SHT4x ticks for STCC4 compensation */
+	uint16_t hum_raw_ticks;  /* raw SHT4x ticks for STCC4 compensation */
 	bool valid;
 };
 
 struct bme688_reading {
 	int64_t timestamp;
-	int16_t pressure_kPa;      /* kPa (for Matter PressureMeasurement) */
-	uint32_t pressure_Pa;      /* Pa  (for BTHome, STCC4 compensation) */
+	int16_t pressure_kPa; /* kPa (for Matter PressureMeasurement) */
+	uint32_t pressure_Pa; /* Pa  (for BTHome, STCC4 compensation) */
 	bool valid;
 };
 
@@ -28,7 +28,7 @@ struct stcc4_reading {
 struct battery_reading {
 	int64_t timestamp;
 	uint16_t voltage_mV;
-	uint8_t soc_pct;           /* state of charge 0-100% */
+	uint8_t soc_pct; /* state of charge 0-100% */
 	bool valid;
 };
 
