@@ -122,7 +122,10 @@ jobs:
               -e 's/--specs=picolibc\.specs//g' \
               build-bthome/hygrometer/compile_commands.json \
               > /tmp/tidy-bthome/compile_commands.json
-          run-clang-tidy -p /tmp/tidy-bthome 'hygrometer/src/'
+          # Inject cross-compiler C++ stdlib paths so clang-tidy can find <cstdint> etc.
+          TIDY_EXTRA_ARGS=$(arm-zephyr-eabi-g++ -E -x c++ -Wp,-v /dev/null 2>&1 \
+            | grep '^ ' | sed 's/^ */--extra-arg=-isystem/' | tr '\n' ' ')
+          run-clang-tidy -p /tmp/tidy-bthome $TIDY_EXTRA_ARGS 'hygrometer/src/'
 
       - name: Build Matter Release
         working-directory: SW
@@ -147,7 +150,10 @@ jobs:
               -e 's/--specs=picolibc\.specs//g' \
               build-matter/hygrometer/compile_commands.json \
               > /tmp/tidy-matter/compile_commands.json
-          run-clang-tidy -p /tmp/tidy-matter 'hygrometer/src/'
+          # Inject cross-compiler C++ stdlib paths so clang-tidy can find <cstdint> etc.
+          TIDY_EXTRA_ARGS=$(arm-zephyr-eabi-g++ -E -x c++ -Wp,-v /dev/null 2>&1 \
+            | grep '^ ' | sed 's/^ */--extra-arg=-isystem/' | tr '\n' ' ')
+          run-clang-tidy -p /tmp/tidy-matter $TIDY_EXTRA_ARGS 'hygrometer/src/'
 
       - name: Show ccache stats
         if: always()
