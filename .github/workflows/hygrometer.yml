@@ -99,7 +99,7 @@ jobs:
         run: |
           apt-get update && apt-get install -y --no-install-recommends clang-tidy
 
-      - name: Build BTHome Production Release
+      - name: Build BTHome Release
         working-directory: SW
         run: |
           west build \
@@ -107,8 +107,7 @@ jobs:
             --build-dir build-bthome \
             hygrometer \
             -- -DBOARD_ROOT=$(pwd) \
-            -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_production.conf" \
-            -DSB_EXTRA_CONF_FILE=sysbuild_extra_production.conf \
+            -DEXTRA_CONF_FILE=prj_extra_release.conf \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Run clang-tidy (BTHome)
@@ -129,7 +128,7 @@ jobs:
             \( -name '*.c' -o -name '*.cpp' -o -name '*.h' \) -print \
             | xargs clang-tidy -p /tmp/tidy-bthome --warnings-as-errors='*'
 
-      - name: Build Matter Production Release
+      - name: Build Matter Release
         working-directory: SW
         run: |
           west build \
@@ -137,8 +136,8 @@ jobs:
             --build-dir build-matter \
             hygrometer \
             -- -DBOARD_ROOT=$(pwd) \
-            -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf;prj_extra_production.conf" \
-            -DSB_EXTRA_CONF_FILE="sysbuild_extra_matter.conf;sysbuild_extra_production.conf" \
+            -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" \
+            -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Run clang-tidy (Matter)
