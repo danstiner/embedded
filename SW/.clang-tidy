@@ -23,4 +23,4 @@ Checks: >
   readability-inconsistent-declaration-parameter-name,
   readability-redundant-control-flow
 WarningsAsErrors: '*'
-HeaderFilterRegex: '(devkit|hygrometer|soil_sensor|esphome)/.*'
+HeaderFilterRegex: 'SW/(?!west/)'

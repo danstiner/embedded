@@ -122,11 +122,7 @@ jobs:
               -e 's/--specs=picolibc\.specs//g' \
               build-bthome/hygrometer/compile_commands.json \
               > /tmp/tidy-bthome/compile_commands.json
-          find hygrometer/src \
-            -path '*/zap-generated/*' -prune -o \
-            -path '*/matter/*' -prune -o \
-            \( -name '*.c' -o -name '*.cpp' -o -name '*.h' \) -print \
-            | xargs clang-tidy -p /tmp/tidy-bthome --warnings-as-errors='*'
+          run-clang-tidy -p /tmp/tidy-bthome 'hygrometer/src/'
 
       - name: Build Matter Release
         working-directory: SW
@@ -151,11 +147,7 @@ jobs:
               -e 's/--specs=picolibc\.specs//g' \
               build-matter/hygrometer/compile_commands.json \
               > /tmp/tidy-matter/compile_commands.json
-          find hygrometer/src \
-            -path '*/zap-generated/*' -prune -o \
-            -path '*/bthome/*' -prune -o \
-            \( -name '*.c' -o -name '*.cpp' -o -name '*.h' \) -print \
-            | xargs clang-tidy -p /tmp/tidy-matter --warnings-as-errors='*'
+          run-clang-tidy -p /tmp/tidy-matter 'hygrometer/src/'
 
       - name: Show ccache stats
         if: always()
