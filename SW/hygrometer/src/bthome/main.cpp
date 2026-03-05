@@ -52,6 +52,12 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 constexpr bt_data AD_FLAG_BYTES =
 	BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR);
 
+/* Max service data: UUID(2) + info(1) + battery%(2) + temp(3) + hum(3) + pressure(4) + co2(3) */
+#define SERVICE_DATA_MAX 18
+
+static uint8_t service_data[SERVICE_DATA_MAX];
+static size_t service_data_len;
+
 static struct bt_data ad[] = {
 	AD_FLAG_BYTES,
 	BT_DATA(BT_DATA_SVC_DATA16, NULL, 0),
@@ -119,12 +125,60 @@ static void sht4x_heater_pulse(void)
 }
 #endif
 
+static void bthome_update_service_data(opt_i16 temperature_mC, opt_u16 humidity_mPct,
+				       opt_u32 pressure_Pa, opt_u16 co2_ppm, opt_u8 bat_soc)
+{
+	size_t idx = 0;
+
+	/* UUID (little-endian) */
+	service_data[idx++] = (uint8_t)(BTHOME_UUID & 0xFF);
+	service_data[idx++] = (uint8_t)(BTHOME_UUID >> 8);
+	/* Device info */
+	service_data[idx++] = BTHOME_DEVICE_INFO;
+
+	/* Battery state-of-charge %: uint8, 1% */
+	if (bat_soc.is_some) {
+		service_data[idx++] = BTHOME_OBJ_BATTERY;
+		service_data[idx++] = bat_soc.value;
+	}
+
+	/* Temperature: sint16, factor 0.01 °C */
+	if (temperature_mC.is_some) {
+		service_data[idx++] = BTHOME_OBJ_TEMP;
+		service_data[idx++] = (uint8_t)(temperature_mC.value & 0xFF);
+		service_data[idx++] = (uint8_t)((temperature_mC.value >> 8) & 0xFF);
+	}
+
+	/* Humidity: uint16, factor 0.01 % */
+	if (humidity_mPct.is_some) {
+		service_data[idx++] = BTHOME_OBJ_HUMIDITY;
+		service_data[idx++] = (uint8_t)(humidity_mPct.value & 0xFF);
+		service_data[idx++] = (uint8_t)((humidity_mPct.value >> 8) & 0xFF);
+	}
+
+	/* Pressure: uint24, factor 0.01 hPa */
+	if (pressure_Pa.is_some) {
+		service_data[idx++] = BTHOME_OBJ_PRESSURE;
+		service_data[idx++] = (uint8_t)(pressure_Pa.value & 0xFF);
+		service_data[idx++] = (uint8_t)((pressure_Pa.value >> 8) & 0xFF);
+		service_data[idx++] = (uint8_t)((pressure_Pa.value >> 16) & 0xFF);
+	}
+
+	/* CO2: uint16, factor 1 ppm */
+	if (co2_ppm.is_some) {
+		service_data[idx++] = BTHOME_OBJ_CO2;
+		service_data[idx++] = (uint8_t)(co2_ppm.value & 0xFF);
+		service_data[idx++] = (uint8_t)((co2_ppm.value >> 8) & 0xFF);
+	}
+
+	service_data_len = idx;
+}
+
 /* ---- Update BTHome advertisement data ---- */
 static void update_advertisement(opt_i16 temperature_mC, opt_u16 humidity_mPct, opt_u32 pressure_Pa,
-				 opt_u16 co2_ppm, opt_u8 bat_soc, opt_u16 bat_mV)
+				 opt_u16 co2_ppm, opt_u8 bat_soc)
 {
-	bthome_update_service_data(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, bat_soc,
-				   bat_mV);
+	bthome_update_service_data(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, bat_soc);
 	ad[1] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
 					(uint8_t)service_data_len);
 
@@ -230,7 +284,7 @@ int main()
 	/* Start BLE advertising */
 	k_work_init(&advertise_work, advertise);
 	update_advertisement(opt_i16_none(), opt_u16_none(), opt_u32_none(), opt_u16_none(),
-			     opt_u8_none(), opt_u16_none());
+			     opt_u8_none());
 	int err = bt_enable(bt_ready);
 	if (err) {
 		LOG_ERR("Bluetooth init failed (err %d)", err);
@@ -245,7 +299,6 @@ int main()
 		opt_u32 pressure_Pa;
 		opt_u16 co2_ppm;
 		opt_u8 bat_soc;
-		opt_u16 bat_mV;
 
 		bool co2_cycle = (cycle % CONFIG_APP_CO2_INTERVAL_DIVISOR) == 0;
 		bool pressure_cycle = (cycle % CONFIG_APP_PRESSURE_INTERVAL_DIVISOR) == 0;
@@ -280,15 +333,13 @@ int main()
 
 		/* 4. Read battery voltage (also updates fuel gauge SoC) */
 		if (sensor_read_battery(&sensors) == 0) {
-			bat_mV = opt_u16_some(sensors.battery.voltage_mV);
 			if (sensors.battery.soc_pct > 0) {
 				bat_soc = opt_u8_some(sensors.battery.soc_pct);
 			}
 		}
 
 		/* 5. Update advertisement data */
-		update_advertisement(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, bat_soc,
-				     bat_mV);
+		update_advertisement(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, bat_soc);
 
 		cycle++;
 		k_sleep(K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
