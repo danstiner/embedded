@@ -17,6 +17,8 @@ trap "rm -rf '$TIDY_DIR'" EXIT
 
 # Strip GCC-only flags and inject cross-compiler C++ stdlib paths into the
 # compilation database so host clang-tidy can parse everything.
+# TODO: Once LLVM 22 ships (~Aug 2026), the flag-stripping can move into .clang-tidy
+# using CompilationArgsToRemoveRegex. See https://github.com/llvm/llvm-project/pull/164344
 python3 -c "
 import json, os, sys
 
