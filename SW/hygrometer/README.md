@@ -23,7 +23,7 @@ west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=..
 
 **Matter/Thread** (commissioning + sensor clusters over Thread):
 ```bash
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=.. -DFILE_SUFFIX=matter
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=..
 ```
 
 **DevKit board** (BTHome only, nPM1304, LiPo, requires revision suffix):
@@ -38,7 +38,7 @@ Add `--pristine` (or `-p`) to force a clean rebuild.
 For production, overlay `prj_release.conf` to extend the measurement interval to 5 minutes and strip logging:
 
 ```bash
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p --extra-conf prj_release.conf -- -DBOARD_ROOT=..
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=..  -DFILE_SUFFIX=release
 ```
 
 ### Production build

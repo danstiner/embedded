@@ -111,25 +111,27 @@ jobs:
           find hygrometer/src -name '*.c' -o -name '*.cpp' -o -name '*.h' \
             | xargs clang-tidy -p /tmp --warnings-as-errors='*'
 
-      - name: Build BTHome Release
+      - name: Build BTHome Production Release
         working-directory: SW
         run: |
           west build \
             -b ${{ matrix.board }} \
-            --extra-conf overlay-bthome.conf \
             --build-dir build-bthome \
             hygrometer \
-            -- -DBOARD_ROOT=$(pwd) -DFILE_SUFFIX=release
+            -- -DBOARD_ROOT=$(pwd) \
+            -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_production.conf" \
+            -DSB_EXTRA_CONF_FILE=sysbuild_extra_production.conf
 
-      - name: Build Matter Release
+      - name: Build Matter Production Release
         working-directory: SW
         run: |
           west build \
             -b ${{ matrix.board }} \
-            --extra-conf overlay-matter.conf \
             --build-dir build-matter \
             hygrometer \
-            -- -DBOARD_ROOT=$(pwd) -DFILE_SUFFIX=release
+            -- -DBOARD_ROOT=$(pwd) \
+            -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf;prj_extra_production.conf" \
+            -DSB_EXTRA_CONF_FILE="sysbuild_extra_matter.conf;sysbuild_extra_production.conf"
 
       - name: Show ccache stats
         if: always()
