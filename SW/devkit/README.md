@@ -12,7 +12,7 @@ Sample application for the BL54L15u development board. Tests GPIO, LEDs, and but
 ### Build
 
 ```bash
-west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -- -DBOARD_ROOT=$(pwd)/..
+west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -- -DBOARD_ROOT=..
 ```
 
 Add `--pristine` (or `-p`) to force a clean rebuild.
@@ -24,7 +24,7 @@ For production, overlay `prj_release.conf` to extend the measurement interval to
 ```bash
 west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -p \
   --extra-conf prj_release.conf \
-  -- -DBOARD_ROOT=$(pwd)/..
+  -- -DBOARD_ROOT=..
 ```
 
 ### Production build
@@ -34,7 +34,7 @@ Signs with the production key, enables FPROTECT and APPROTECT:
 ```bash
 west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -p \
   --extra-conf prj_release.conf \
-  -- -DBOARD_ROOT=$(pwd)/.. -DFILE_SUFFIX=production
+  -- -DBOARD_ROOT=.. -DFILE_SUFFIX=production
 ```
 
 ### Flash
@@ -43,33 +43,11 @@ west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -p \
 west flash
 ```
 
-For a full chip erase before flashing (required on first flash or after changing KMU keys):
-```bash
-west flash --erase
-```
-
 ### KMU Provisioning
 
 Provision signing keys to the hardware KMU before first boot. See [`keys/README.md`](../keys/README.md) for details.
 
 ```bash
 # From SW/
-west ncs-provision upload -i keys/provision-dev.yml   # dev device
-west ncs-provision upload -i keys/provision-prod.yml  # production device
-```
-
-### Monitor (RTT)
-
-Logs go to RTT by default. Connect using nRF Connect for VS Code → RTT, or `JLinkRTTViewer`.
-
-### OTA update
-
-Build a new image, then flash it wirelessly using the SMP BLE transport:
-```bash
-uv run ../ota.py flash
-```
-
-After verifying the new firmware boots correctly, confirm it permanently:
-```bash
-uv run ../ota.py confirm --target <BLE-address>
+west ncs-provision upload -i keys/provision-dev.yml
 ```

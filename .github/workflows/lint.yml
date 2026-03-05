@@ -18,4 +18,4 @@ jobs:
         with:
           clang-format-version: 18
           check-path: SW
-          exclude-regex: 'SW/(west|build)/'
+          exclude-regex: 'SW/(west|build)|zap-generated/'

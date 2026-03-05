@@ -131,7 +131,7 @@ def print_image_states(images: list) -> None:
 
 
 async def connect_with_retry(
-    address: str, timeout_s: float = 30.0, interval_s: float = 5.0
+    address: str, timeout_s: float = 90.0, interval_s: float = 30.0
 ) -> SMPClient:
     """Try to connect to the device, retrying until timeout."""
     deadline = asyncio.get_event_loop().time() + timeout_s
@@ -159,9 +159,24 @@ async def do_flash(address: str, bin_path: Path, auto_confirm: bool) -> None:
     image_hash = get_image_hash(image_info)
     total = len(image_data)
 
-    # Step 1: Connect and upload
+    # Step 1: Connect and check current state
     print("Connecting...")
     async with SMPClient(SMPBLETransport(), address, timeout_s=30) as client:
+        response = await client.request(ImageStatesRead())
+        if not error(response):
+            print()
+            print("=== Current device state ===")
+            print_image_states(response.images)
+            print()
+
+            # Skip if the active image already matches what we're about to flash
+            active = next(
+                (img for img in response.images if img.slot == 0 and img.active), None
+            )
+            if active and active.hash == image_hash:
+                print("Device is already running this image. Nothing to do.")
+                return
+
         print(f"Uploading {total} bytes...")
         async for offset in client.upload(image_data):
             pct = offset * 100 // total
@@ -251,7 +266,7 @@ async def do_flash(address: str, bin_path: Path, auto_confirm: bool) -> None:
 
 async def do_confirm(address: str) -> None:
     """Confirm the currently running image and reset the device."""
-    async with SMPClient(SMPBLETransport(), address) as client:
+    async with SMPClient(SMPBLETransport(), address, timeout_s=30) as client:
         response = await client.request(ImageStatesWrite(confirm=True))
         if error(response):
             raise SystemExit(f"Confirm failed: {response}")
@@ -261,7 +276,7 @@ async def do_confirm(address: str) -> None:
 
 async def do_verify(address: str, local_hash: bytes | None) -> None:
     """Read and display device image state."""
-    async with SMPClient(SMPBLETransport(), address) as client:
+    async with SMPClient(SMPBLETransport(), address, timeout_s=30) as client:
         response = await client.request(ImageStatesRead())
         if error(response):
             raise SystemExit(f"Failed to read image state: {response}")

@@ -11,4 +11,4 @@ target/
 *.pem
 
 # West
-build/
+build*/

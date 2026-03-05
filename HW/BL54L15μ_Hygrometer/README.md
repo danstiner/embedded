@@ -1,4 +1,4 @@
-## BOM
+## Bill of materials
 
 +----------------+-----+----------------------+-----------------------------------------+--------------------------------------------------------------------------------------+
 |   Reference    | Qty |        Value         |               Part Number               |                                      Footprint                                       |
@@ -12,7 +12,7 @@
 | J1             |   1 | Conn_Qwiic           | SM04B-SRSS-TB                           | SM04B_SRSS_TB:CONN_SM04B-SRSS-TB_JST                                                 |
 | J2             |   1 | Conn_ARM_JTAG_SWD_10 |                                         | Connector_PinHeader_1.27mm:PinHeader_2x05_P1.27mm_Vertical_SMD                       |
 | L1             |   1 | 2.2μH                | CIGT201610EH2R2MNE                      | CIGT201610EH2R2MNE:IND_CIGT2016_SAM                                                  |
-| R1             |   1 | 680Ω                 | RC0603JR-13680RL                        | Resistor_SMD:R_0603_1608Metric                                                       |
+| R1             |   1 | 100Ω                 | RC0603FR-07100RL                        | Resistor_SMD:R_0603_1608Metric                                                       |
 | SW1            |   1 | Reset                | SKRKAHE020                              | Button_Switch_SMD:SW_Push_SPST_NO_Alps_SKRK                                          |
 | U1             |   1 | nPM2100-QEXX         | NPM2100-QEAA-R                          | Package_DFN_QFN:UQFN-16-1EP_4x4mm_P0.65mm_EP2.6x2.6mm                                |
 | U2             |   1 | SHT4x                | SHT45-AD1F-R2                           | Sensor_Humidity:Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad                  |

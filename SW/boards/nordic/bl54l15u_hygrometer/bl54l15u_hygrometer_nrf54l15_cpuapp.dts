@@ -30,7 +30,17 @@
 		zephyr,ieee802154 = &ieee802154;
 	};
 
+	/* Red LED on P1.05 */
+	leds: leds {
+		compatible = "gpio-leds";
+		red_led: red_led {
+			gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
+			label = "Red LED";
+		};
+	};
+
 	aliases {
+		led0 = &red_led;
 		watchdog0 = &wdt31;
 	};
 };
@@ -107,6 +117,12 @@
 	npm2100_pmic: pmic@74 {
 		compatible = "nordic,npm2100";
 		reg = <0x74>;
+
+		regulators {
+			compatible = "nordic,npm2100-regulator";
+
+			npm2100_ldsw: LDOSW {};
+		};
 
 		npm2100_wdt: watchdog {
 			compatible = "nordic,npm2100-wdt";
