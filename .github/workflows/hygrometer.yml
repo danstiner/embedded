@@ -99,6 +99,12 @@ jobs:
         run: |
           apt-get update && apt-get install -y --no-install-recommends clang-tidy
 
+      - name: Resolve cross-compiler C++ include paths
+        run: |
+          # Host clang-tidy can't find <cstdint> etc. without the cross-compiler's paths
+          echo "TIDY_EXTRA_ARGS=$(arm-zephyr-eabi-g++ -E -x c++ -Wp,-v /dev/null 2>&1 \
+            | grep '^ ' | sed 's/^ */--extra-arg=-isystem/' | tr '\n' ' ')" >> "$GITHUB_ENV"
+
       - name: Build BTHome Release
         working-directory: SW
         run: |
@@ -122,9 +128,6 @@ jobs:
               -e 's/--specs=picolibc\.specs//g' \
               build-bthome/hygrometer/compile_commands.json \
               > /tmp/tidy-bthome/compile_commands.json
-          # Inject cross-compiler C++ stdlib paths so clang-tidy can find <cstdint> etc.
-          TIDY_EXTRA_ARGS=$(arm-zephyr-eabi-g++ -E -x c++ -Wp,-v /dev/null 2>&1 \
-            | grep '^ ' | sed 's/^ */--extra-arg=-isystem/' | tr '\n' ' ')
           run-clang-tidy -p /tmp/tidy-bthome $TIDY_EXTRA_ARGS 'hygrometer/src/'
 
       - name: Build Matter Release
@@ -150,9 +153,6 @@ jobs:
               -e 's/--specs=picolibc\.specs//g' \
               build-matter/hygrometer/compile_commands.json \
               > /tmp/tidy-matter/compile_commands.json
-          # Inject cross-compiler C++ stdlib paths so clang-tidy can find <cstdint> etc.
-          TIDY_EXTRA_ARGS=$(arm-zephyr-eabi-g++ -E -x c++ -Wp,-v /dev/null 2>&1 \
-            | grep '^ ' | sed 's/^ */--extra-arg=-isystem/' | tr '\n' ' ')
           run-clang-tidy -p /tmp/tidy-matter $TIDY_EXTRA_ARGS 'hygrometer/src/'
 
       - name: Show ccache stats
