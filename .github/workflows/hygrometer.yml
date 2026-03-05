@@ -103,7 +103,7 @@ jobs:
         run: |
           # Host clang-tidy can't find <cstdint> etc. without the cross-compiler's paths
           echo "TIDY_EXTRA_ARGS=$(arm-zephyr-eabi-g++ -E -x c++ -Wp,-v /dev/null 2>&1 \
-            | grep '^ ' | sed 's/^ */--extra-arg=-isystem/' | tr '\n' ' ')" >> "$GITHUB_ENV"
+            | grep '^ ' | sed 's/^ */-extra-arg -isystem/' | tr '\n' ' ')" >> "$GITHUB_ENV"
 
       - name: Build BTHome Release
         working-directory: SW
