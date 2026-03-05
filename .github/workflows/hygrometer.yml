@@ -7,6 +7,7 @@ on:
       - SW/boards/nordic/bl54l15u_devkit/**
       - SW/boards/nordic/bl54l15u_hygrometer/**
       - SW/west/**
+      - SW/tidy.sh
       - .github/workflows/hygrometer.yml
   pull_request:
     paths:
@@ -14,6 +15,7 @@ on:
       - SW/boards/nordic/bl54l15u_devkit/**
       - SW/boards/nordic/bl54l15u_hygrometer/**
       - SW/west/**
+      - SW/tidy.sh
       - .github/workflows/hygrometer.yml
 
 jobs:
