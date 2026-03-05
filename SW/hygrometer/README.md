@@ -14,62 +14,14 @@ Low power sensor for relative humidity, temperature, and water leaks utilizing t
 
 ### Builds
 
-Two build configurations: **BTHome BLE** (default) and **Matter/Thread**.
-
-**BTHome BLE** (default — sensor advertising over BLE):
+The base build advertises over BLE in the BTHome format:
 ```bash
 west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=..
 ```
 
-**Matter/Thread** (commissioning + sensor clusters over Thread):
+Extra configuration files can be mixed in for Matter over Thread, release mode, RTT/UART logging, production signing, etc:
 ```bash
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=..
-```
-
-**DevKit board** (BTHome only, nPM1304, LiPo, requires revision suffix):
-```bash
-west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -- -DBOARD_ROOT=..
-```
-
-Add `--pristine` (or `-p`) to force a clean rebuild.
-
-### Release build
-
-For production, overlay `prj_release.conf` to extend the measurement interval to 5 minutes and strip logging:
-
-```bash
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=..  -DFILE_SUFFIX=release
-```
-
-### Production build
-
-Signs with the production key, enables FPROTECT and APPROTECT:
-
-```bash
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p \
-  --extra-conf prj_release.conf \
-  -- -DBOARD_ROOT=.. -DFILE_SUFFIX=production
-```
-
-### RTT logging
-
-By default, logs go to UART. To use RTT instead (enables Segger J-Link viewer and a shell):
-```bash
-west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp \
-  --extra-conf overlay-rtt.conf \
-  -- -DBOARD_ROOT=..
-```
-
-Connect using nRF Connect for VS Code → RTT, or `JLinkRTTViewer`.
-
-### Flash
-```bash
-west flash
-```
-
-For a full chip erase before flashing (required on first flash or after changing KMU keys):
-```bash
-west flash --erase
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf
 ```
 
 ### KMU Provisioning
@@ -79,25 +31,13 @@ Provision signing keys to the hardware KMU before first boot. See [`keys/README.
 ```bash
 # From SW/
 west ncs-provision upload -i keys/provision-dev.yml
-west ncs-provision upload -i keys/provision-prod.yml
-```
-
-### Monitor (UART)
-```bash
-# macOS (find port with: ls /dev/tty.usbmodem*)
-screen /dev/tty.usbmodem* 115200
 ```
 
 ### OTA update (BTHome build)
 
 Build a new image, then flash it wirelessly using the SMP BLE transport:
 ```bash
-uv run ../ota.py flash
-```
-
-After verifying the new firmware boots correctly, confirm it permanently:
-```bash
-uv run ../ota.py confirm --target <BLE-address>
+uv run ../ota.py flash --confirm
 ```
 
 ## Matter Commissioning (Matter build only)
