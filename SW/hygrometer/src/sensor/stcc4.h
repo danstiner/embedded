@@ -20,6 +20,9 @@ bool stcc4_probe(const struct device *i2c);
 /* Wake sensor from sleep mode */
 int stcc4_wake(const struct device *i2c);
 
+/* Enter sleep mode to minimize idle current */
+int stcc4_enter_sleep(const struct device *i2c);
+
 /* Set RH/T compensation using raw SHT4x tick values */
 int stcc4_set_rht_compensation(const struct device *i2c, uint16_t raw_temp, uint16_t raw_humidity);
 
