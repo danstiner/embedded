@@ -137,6 +137,7 @@ void sensor_init(struct sensor_state *state)
 		stcc4_wake(sensor_bus);
 		if (stcc4_probe(sensor_bus)) {
 			state->have_stcc4 = true;
+			stcc4_enter_sleep(sensor_bus);
 			LOG_INF("STCC4 detected");
 		} else {
 			LOG_INF("STCC4 not present — skipping");
@@ -290,6 +291,9 @@ int sensor_read_stcc4(struct sensor_state *state)
 		return -ENODEV;
 	}
 
+	/* Wake sensor from sleep before measurement */
+	stcc4_wake(sensor_bus);
+
 	/* Feed compensation from latest SHT45/BME688 readings */
 	if (state->sht45.valid) {
 		stcc4_set_rht_compensation(sensor_bus, state->sht45.temp_raw_ticks,
@@ -311,6 +315,8 @@ int sensor_read_stcc4(struct sensor_state *state)
 	state->stcc4.timestamp = k_uptime_get();
 	state->stcc4.valid = true;
 	LOG_INF("STCC4: CO2=%u ppm", co2);
+
+	stcc4_enter_sleep(sensor_bus);
 	return 0;
 #else
 	return -ENOTSUP;
