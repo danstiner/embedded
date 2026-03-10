@@ -310,12 +310,11 @@ int main()
 
 		sensor_read_battery(&sensors);
 
-		update_advertisement(
-			{sensors.sht45.temperature_cC, sensors.sht45.valid},
-			{sensors.sht45.humidity_cPct, sensors.sht45.valid},
-			{sensors.bme688.pressure_Pa, sensors.bme688.valid},
-			{sensors.stcc4.co2_ppm, sensors.stcc4.valid},
-			{sensors.battery.soc_pct, sensors.battery.valid});
+		update_advertisement({sensors.sht45.temperature_cC, sensors.sht45.valid},
+				     {sensors.sht45.humidity_cPct, sensors.sht45.valid},
+				     {sensors.bme688.pressure_Pa, sensors.bme688.valid},
+				     {sensors.stcc4.co2_ppm, sensors.stcc4.valid},
+				     {sensors.battery.soc_pct, sensors.battery.valid});
 
 		cycle++;
 		k_sleep(K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
