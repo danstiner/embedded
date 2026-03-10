@@ -27,7 +27,6 @@ struct stcc4_reading {
 
 struct battery_reading {
 	int64_t timestamp;
-	uint16_t voltage_mV;
 	uint8_t soc_pct; /* state of charge 0-100% */
 	bool valid;
 };

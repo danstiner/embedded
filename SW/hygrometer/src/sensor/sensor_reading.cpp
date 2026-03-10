@@ -30,24 +30,31 @@ LOG_MODULE_REGISTER(sensor_reading, LOG_LEVEL_INF);
 static const struct device *sht45 = DEVICE_DT_GET(DT_NODELABEL(sht45));
 #endif
 
-/* Optional sensor bus (i2c20 on hygrometer — carries BME688 + STCC4) */
+/* BME688 (Zephyr sensor driver) */
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(bme688), okay)
-#define HAVE_SENSOR_BUS 1
+#define HAVE_BME688 1
 static const struct device *bme688_dev = DEVICE_DT_GET(DT_NODELABEL(bme688));
+#else
+#define HAVE_BME688 0
+#endif
+
+/* STCC4 shares the BME688 I2C bus (raw I2C, no DT node) */
+#if DT_NODE_HAS_STATUS(DT_NODELABEL(bme688), okay)
+#define HAVE_STCC4_BUS 1
 static const struct device *sensor_bus = DEVICE_DT_GET(DT_BUS(DT_NODELABEL(bme688)));
 #else
-#define HAVE_SENSOR_BUS 0
+#define HAVE_STCC4_BUS 0
 #endif
 
 /* Battery voltage sources */
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(npm2100_vbat), okay)
 static const struct device *vbat_dev = DEVICE_DT_GET(DT_NODELABEL(npm2100_vbat));
-#define HAVE_VBAT 1
+#define HAVE_BATT 1
 #elif DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_charger), okay)
 static const struct device *vbat_dev = DEVICE_DT_GET(DT_NODELABEL(npm1304_charger));
-#define HAVE_VBAT 1
+#define HAVE_BATT 1
 #else
-#define HAVE_VBAT 0
+#define HAVE_BATT 0
 #endif
 
 /* ---- Fuel gauge state ---- */
@@ -125,14 +132,16 @@ void sensor_init(struct sensor_state *state)
 	}
 #endif
 
-#if HAVE_SENSOR_BUS
+#if HAVE_BME688
 	if (device_is_ready(bme688_dev)) {
 		state->have_bme688 = true;
 		LOG_INF("BME688 detected");
 	} else {
 		LOG_INF("BME688 not present — skipping");
 	}
+#endif
 
+#if HAVE_STCC4_BUS
 	if (device_is_ready(sensor_bus)) {
 		stcc4_wake(sensor_bus);
 		if (stcc4_probe(sensor_bus)) {
@@ -145,7 +154,7 @@ void sensor_init(struct sensor_state *state)
 	}
 #endif
 
-#if HAVE_VBAT
+#if HAVE_BATT
 	if (device_is_ready(vbat_dev)) {
 		state->have_battery = true;
 		LOG_INF("Battery sensor ready");
@@ -156,7 +165,7 @@ void sensor_init(struct sensor_state *state)
 /* ---- Fuel gauge init ---- */
 void sensor_fuel_gauge_init(void)
 {
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE) && HAVE_VBAT
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE) && HAVE_BATT
 	if (!device_is_ready(vbat_dev)) {
 		LOG_WRN("VBAT device not ready — fuel gauge skipped");
 		return;
@@ -217,7 +226,7 @@ void sensor_fuel_gauge_init(void)
 	fg_initialized = true;
 	LOG_INF("Fuel gauge initialized (%s)", nrf_fuel_gauge_version);
 	fg_ref_time = k_uptime_get();
-#endif /* CONFIG_NRF_FUEL_GAUGE && HAVE_VBAT */
+#endif /* CONFIG_NRF_FUEL_GAUGE && HAVE_BATT */
 }
 
 /* ---- Read SHT45 ---- */
@@ -257,7 +266,7 @@ int sensor_read_sht45(struct sensor_state *state)
 /* ---- Read BME688 ---- */
 int sensor_read_bme688(struct sensor_state *state)
 {
-#if HAVE_SENSOR_BUS
+#if HAVE_BME688
 	if (!state->have_bme688) {
 		return -ENODEV;
 	}
@@ -265,6 +274,7 @@ int sensor_read_bme688(struct sensor_state *state)
 	int ret = sensor_sample_fetch(bme688_dev);
 	if (ret) {
 		LOG_WRN("BME688 fetch failed: %d", ret);
+		state->bme688.valid = false;
 		return ret;
 	}
 
@@ -286,7 +296,7 @@ int sensor_read_bme688(struct sensor_state *state)
 /* ---- Read STCC4 ---- */
 int sensor_read_stcc4(struct sensor_state *state)
 {
-#if HAVE_SENSOR_BUS
+#if HAVE_STCC4_BUS
 	if (!state->have_stcc4) {
 		return -ENODEV;
 	}
@@ -308,6 +318,7 @@ int sensor_read_stcc4(struct sensor_state *state)
 	int ret = stcc4_measure(sensor_bus, &co2);
 	if (ret) {
 		LOG_WRN("STCC4 measure failed: %d", ret);
+		state->stcc4.valid = false;
 		return ret;
 	}
 
@@ -326,7 +337,7 @@ int sensor_read_stcc4(struct sensor_state *state)
 /* ---- Read battery ---- */
 int sensor_read_battery(struct sensor_state *state)
 {
-#if HAVE_VBAT
+#if HAVE_BATT
 	if (!state->have_battery || !device_is_ready(vbat_dev)) {
 		return -ENODEV;
 	}
@@ -334,6 +345,7 @@ int sensor_read_battery(struct sensor_state *state)
 	int ret = sensor_sample_fetch(vbat_dev);
 	if (ret) {
 		LOG_WRN("Battery voltage fetch failed: %d", ret);
+		state->battery.valid = false;
 		return ret;
 	}
 
@@ -341,10 +353,10 @@ int sensor_read_battery(struct sensor_state *state)
 	ret = sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_VOLTAGE, &voltage);
 	if (ret) {
 		LOG_WRN("Battery voltage get failed: %d", ret);
+		state->battery.valid = false;
 		return ret;
 	}
 
-	state->battery.voltage_mV = voltage.val1 * 1000 + voltage.val2 / 1000;
 	LOG_INF("BAT_V: %d.%03dV", voltage.val1, voltage.val2 / 1000);
 
 #if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)

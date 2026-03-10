@@ -13,8 +13,6 @@
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_pmic), okay)
 #include <zephyr/drivers/mfd/npm13xx.h>
 #endif
-#include <zephyr/init.h>
-
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/uuid.h>
@@ -247,9 +245,9 @@ int main()
 	}
 #endif
 
-	printk("\n\n=== Hygrometer ===\n");
+	LOG_INF("=== Hygrometer ===");
 #ifdef PMIC_NAME
-	printk("PMIC: " PMIC_NAME "\n");
+	LOG_INF("PMIC: " PMIC_NAME);
 #endif
 
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_pmic), okay)
@@ -272,8 +270,6 @@ int main()
 		LOG_ERR(PMIC_NAME " WDT not found in devicetree!");
 	} else if (!device_is_ready(wdt)) {
 		LOG_ERR(PMIC_NAME " WDT not ready — I2C issue?");
-	} else {
-		LOG_INF(PMIC_NAME " WDT ready");
 	}
 #endif
 
@@ -315,27 +311,24 @@ int main()
 
 		/* 2. BME688: read pressure on pressure cycles */
 		if (pressure_cycle) {
-			if (sensor_read_bme688(&sensors) == 0) {
-				pressure_Pa = opt_u32_some(sensors.bme688.pressure_Pa);
-			}
-		} else if (sensors.bme688.valid) {
+			sensor_read_bme688(&sensors);
+		}
+		if (sensors.bme688.valid) {
 			pressure_Pa = opt_u32_some(sensors.bme688.pressure_Pa);
 		}
 
-		/* 3. STCC4: feed compensation + measure CO2 on expensive cycles */
+		/* 3. STCC4: measure CO2 on CO2 cycles */
 		if (co2_cycle) {
-			if (sensor_read_stcc4(&sensors) == 0) {
-				co2_ppm = opt_u16_some(sensors.stcc4.co2_ppm);
-			}
-		} else if (sensors.stcc4.valid) {
+			sensor_read_stcc4(&sensors);
+		}
+		if (sensors.stcc4.valid) {
 			co2_ppm = opt_u16_some(sensors.stcc4.co2_ppm);
 		}
 
-		/* 4. Read battery voltage (also updates fuel gauge SoC) */
-		if (sensor_read_battery(&sensors) == 0) {
-			if (sensors.battery.soc_pct > 0) {
-				bat_soc = opt_u8_some(sensors.battery.soc_pct);
-			}
+		/* 4. Read battery SoC */
+		sensor_read_battery(&sensors);
+		if (sensors.battery.valid) {
+			bat_soc = opt_u8_some(sensors.battery.soc_pct);
 		}
 
 		/* 5. Update advertisement data */
