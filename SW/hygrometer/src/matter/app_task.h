@@ -28,7 +28,7 @@ class AppTask
 	static void ButtonEventHandler(Nrf::ButtonState state, Nrf::ButtonMask hasChanged);
 
 	k_timer mTimer;
-	struct sensor_state mSensors;
+	sensor_state mSensors;
 	uint32_t mCycle = 0;
 
 	/* CO2 concentration measurement — NumericMeasurement only, no peak/average */

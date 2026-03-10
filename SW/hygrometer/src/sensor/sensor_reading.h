@@ -44,13 +44,13 @@ struct sensor_state {
 };
 
 /** Probe all sensors, populate have_* flags. Call once at boot. */
-void sensor_init(struct sensor_state *state);
+void sensor_init(sensor_state *state);
 
 /** Individual sensor read functions. Each updates its sub-struct + timestamp. */
-int sensor_read_sht45(struct sensor_state *state);
-int sensor_read_bme688(struct sensor_state *state);
-int sensor_read_stcc4(struct sensor_state *state);
-int sensor_read_battery(struct sensor_state *state);
+int sensor_read_sht45(sensor_state *state);
+int sensor_read_bme688(sensor_state *state);
+int sensor_read_stcc4(sensor_state *state);
+int sensor_read_battery(sensor_state *state);
 
 /** Initialize fuel gauge. Call once after sensor_init. */
 void sensor_fuel_gauge_init(void);

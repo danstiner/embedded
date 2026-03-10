@@ -121,7 +121,7 @@ static void charge_status_inform(int32_t chg_status)
 #endif
 
 /* ---- Sensor init ---- */
-void sensor_init(struct sensor_state *state)
+void sensor_init(sensor_state *state)
 {
 	memset(state, 0, sizeof(*state));
 
@@ -230,7 +230,7 @@ void sensor_fuel_gauge_init(void)
 }
 
 /* ---- Read SHT45 ---- */
-int sensor_read_sht45(struct sensor_state *state)
+int sensor_read_sht45(sensor_state *state)
 {
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
 	if (!state->have_sht45) {
@@ -240,6 +240,7 @@ int sensor_read_sht45(struct sensor_state *state)
 	int ret = sensor_sample_fetch(sht45);
 	if (ret) {
 		LOG_ERR("SHT45 fetch failed: %d", ret);
+		state->sht45.valid = false;
 		return ret;
 	}
 
@@ -264,7 +265,7 @@ int sensor_read_sht45(struct sensor_state *state)
 }
 
 /* ---- Read BME688 ---- */
-int sensor_read_bme688(struct sensor_state *state)
+int sensor_read_bme688(sensor_state *state)
 {
 #if HAVE_BME688
 	if (!state->have_bme688) {
@@ -294,7 +295,7 @@ int sensor_read_bme688(struct sensor_state *state)
 }
 
 /* ---- Read STCC4 ---- */
-int sensor_read_stcc4(struct sensor_state *state)
+int sensor_read_stcc4(sensor_state *state)
 {
 #if HAVE_STCC4_BUS
 	if (!state->have_stcc4) {
@@ -335,7 +336,7 @@ int sensor_read_stcc4(struct sensor_state *state)
 }
 
 /* ---- Read battery ---- */
-int sensor_read_battery(struct sensor_state *state)
+int sensor_read_battery(sensor_state *state)
 {
 #if HAVE_BATT
 	if (!state->have_battery || !device_is_ready(vbat_dev)) {

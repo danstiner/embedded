@@ -273,7 +273,7 @@ int main()
 	}
 #endif
 
-	struct sensor_state sensors;
+	sensor_state sensors;
 	sensor_init(&sensors);
 	sensor_fuel_gauge_init();
 
@@ -290,49 +290,32 @@ int main()
 	uint32_t cycle = 0;
 
 	while (true) {
-		opt_i16 temperature_mC;
-		opt_u16 humidity_mPct;
-		opt_u32 pressure_Pa;
-		opt_u16 co2_ppm;
-		opt_u8 bat_soc;
-
 		bool co2_cycle = (cycle % CONFIG_APP_CO2_INTERVAL_DIVISOR) == 0;
 		bool pressure_cycle = (cycle % CONFIG_APP_PRESSURE_INTERVAL_DIVISOR) == 0;
 
-		/* 1. Read SHT45 */
-		if (sensor_read_sht45(&sensors) == 0) {
-			temperature_mC = opt_i16_some(sensors.sht45.temperature_cC);
-			humidity_mPct = opt_u16_some(sensors.sht45.humidity_cPct);
-
+		sensor_read_sht45(&sensors);
 #if IS_ENABLED(CONFIG_SHT4X_USE_HEATER) && DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
+		if (sensors.sht45.valid) {
 			sht4x_heater_pulse();
-#endif
 		}
+#endif
 
-		/* 2. BME688: read pressure on pressure cycles */
 		if (pressure_cycle) {
 			sensor_read_bme688(&sensors);
 		}
-		if (sensors.bme688.valid) {
-			pressure_Pa = opt_u32_some(sensors.bme688.pressure_Pa);
-		}
 
-		/* 3. STCC4: measure CO2 on CO2 cycles */
 		if (co2_cycle) {
 			sensor_read_stcc4(&sensors);
 		}
-		if (sensors.stcc4.valid) {
-			co2_ppm = opt_u16_some(sensors.stcc4.co2_ppm);
-		}
 
-		/* 4. Read battery SoC */
 		sensor_read_battery(&sensors);
-		if (sensors.battery.valid) {
-			bat_soc = opt_u8_some(sensors.battery.soc_pct);
-		}
 
-		/* 5. Update advertisement data */
-		update_advertisement(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, bat_soc);
+		update_advertisement(
+			{sensors.sht45.temperature_cC, sensors.sht45.valid},
+			{sensors.sht45.humidity_cPct, sensors.sht45.valid},
+			{sensors.bme688.pressure_Pa, sensors.bme688.valid},
+			{sensors.stcc4.co2_ppm, sensors.stcc4.valid},
+			{sensors.battery.soc_pct, sensors.battery.valid});
 
 		cycle++;
 		k_sleep(K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
