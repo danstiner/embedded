@@ -27,8 +27,8 @@ int stcc4_enter_sleep(const struct device *i2c);
 int stcc4_set_rht_compensation(const struct device *i2c, uint16_t raw_temp, uint16_t raw_humidity);
 
 /* Set ambient pressure for CO2 compensation (command 0xE016).
- * pressure_hPa is in hectopascals (mbar), e.g. 1013 for standard atmosphere. */
-int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_hPa);
+ * pressure_pa_div2 is pressure in Pa / 2, e.g. 50650 for standard atmosphere. */
+int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_pa_div2);
 
 /* Trigger single-shot measurement, wait, and read CO2 */
 int stcc4_measure(const struct device *i2c, uint16_t *co2_ppm);

@@ -311,8 +311,8 @@ int sensor_read_stcc4(sensor_state *state)
 					   state->sht45.hum_raw_ticks);
 	}
 	if (state->bme688.valid) {
-		uint16_t hPa = (uint16_t)(state->bme688.pressure_Pa / 100);
-		stcc4_set_pressure_compensation(sensor_bus, hPa);
+		uint16_t pressure_enc = (uint16_t)(state->bme688.pressure_Pa / 2);
+		stcc4_set_pressure_compensation(sensor_bus, pressure_enc);
 	}
 
 	uint16_t co2;

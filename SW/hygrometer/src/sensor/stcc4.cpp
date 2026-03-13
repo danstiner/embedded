@@ -17,7 +17,7 @@ LOG_MODULE_REGISTER(stcc4, LOG_LEVEL_INF);
 #define CMD_EXIT_SLEEP          0x00 /* Single byte! */
 #define CMD_SET_RHT_COMP        0xE000
 #define CMD_SET_PRESSURE_COMP   0xE016
-#define CMD_ENTER_SLEEP         0x3093
+#define CMD_ENTER_SLEEP         0x3650
 #define CMD_MEASURE_SINGLE_SHOT 0x219D
 #define CMD_READ_MEASUREMENT    0xEC05
 
@@ -147,7 +147,7 @@ int stcc4_set_rht_compensation(const struct device *i2c, uint16_t raw_temp, uint
 	return 0;
 }
 
-int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_hPa)
+int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_pa_div2)
 {
 	uint8_t buf[5];
 
@@ -155,8 +155,8 @@ int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_
 	buf[0] = (uint8_t)(CMD_SET_PRESSURE_COMP >> 8);
 	buf[1] = (uint8_t)(CMD_SET_PRESSURE_COMP & 0xFF);
 	/* Pressure word + CRC */
-	buf[2] = (uint8_t)(pressure_hPa >> 8);
-	buf[3] = (uint8_t)(pressure_hPa & 0xFF);
+	buf[2] = (uint8_t)(pressure_pa_div2 >> 8);
+	buf[3] = (uint8_t)(pressure_pa_div2 & 0xFF);
 	buf[4] = sensirion_crc8(&buf[2], 2);
 
 	int ret = i2c_write(i2c, buf, sizeof(buf), STCC4_I2C_ADDR);
