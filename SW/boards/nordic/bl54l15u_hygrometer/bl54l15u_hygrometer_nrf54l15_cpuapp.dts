@@ -149,16 +149,6 @@
 	};
 };
 
-/* IEEE 802.15.4 for Thread/Matter */
-&ieee802154 {
-	status = "okay";
-};
-
-/* Bluetooth */
-&bt_hci_controller {
-	status = "okay";
-};
-
 /* GPIO ports */
 &gpio1 {
 	status = "okay";
@@ -180,3 +170,11 @@
 
 /* Include default memory partition configuration */
 #include <nordic/nrf54l15_partition.dtsi>
+
+&uart20 {
+	status = "disabled";
+};
+
+&uart21 {
+	status = "disabled";
+};

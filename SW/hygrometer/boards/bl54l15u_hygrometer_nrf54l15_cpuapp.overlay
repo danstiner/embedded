@@ -18,3 +18,9 @@
     regulator-boot-on;
     regulator-initial-mode = < NPM2100_REG_LDSW_EN >;
 };
+
+
+/* Enable Bluetooth */
+&bt_hci_controller {
+	status = "okay";
+};
