@@ -15,12 +15,18 @@ Low power sensor for relative humidity, temperature, and water leaks utilizing t
 ### Builds
 
 The base build advertises over BLE in the BTHome format:
-```bash
+```sh
 west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=..
 ```
 
-Extra configuration files can be mixed in for Matter over Thread, release mode, RTT/UART logging, production signing, etc:
-```bash
+
+Extra configuration files can be mixed in for debug logs over RTT or UART:
+```sh
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF=prj_extra_rtt.conf
+```
+
+Or for Matter over Thread, release mode, production signing, etc:
+```sh
 west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf
 ```
 
@@ -28,7 +34,7 @@ west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=.. -DEXTRA_CON
 
 Provision signing keys to the hardware KMU before first boot. See [`keys/README.md`](../keys/README.md) for details.
 
-```bash
+```sh
 # From SW/
 west ncs-provision upload -i keys/provision-dev.yml
 ```
