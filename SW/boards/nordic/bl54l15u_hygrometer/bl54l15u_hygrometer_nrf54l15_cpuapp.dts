@@ -172,11 +172,3 @@
 
 /* Include default memory partition configuration */
 #include <nordic/nrf54l15_partition.dtsi>
-
-&uart20 {
-	status = "disabled";
-};
-
-&uart21 {
-	status = "disabled";
-};
