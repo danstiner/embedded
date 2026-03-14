@@ -387,7 +387,7 @@ int sensor_read_battery(sensor_state *state)
 #elif IS_ENABLED(CONFIG_NRF_FUEL_GAUGE_VARIANT_PRIMARY_CELL)
 		sensor_channel_get(vbat_dev, SENSOR_CHAN_DIE_TEMP, &sv_temp);
 		t = (float)sv_temp.val1 + (float)sv_temp.val2 / 1000000.f;
-		i = 5.0e-3f;
+		i = 1.0e-3f;
 #endif
 
 		float delta = (float)k_uptime_delta(&fg_ref_time) / 1000.f;
