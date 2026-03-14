@@ -17,6 +17,7 @@
 			psels = <NRF_PSEL(TWIM_SDA, 1, 14)>,
 				<NRF_PSEL(TWIM_SCL, 1, 4)>;
 			low-power-enable;
+			bias-pull-up;
 		};
 	};
 
@@ -34,6 +35,7 @@
 			psels = <NRF_PSEL(TWIM_SDA, 1, 6)>,
 				<NRF_PSEL(TWIM_SCL, 1, 8)>;
 			low-power-enable;
+			bias-pull-up;
 		};
 	};
 };
