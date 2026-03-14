@@ -407,3 +407,31 @@ int sensor_read_battery(sensor_state *state)
 	return -ENOTSUP;
 #endif
 }
+
+/* ---- Force recalibration STCC4 ---- */
+int sensor_force_recalibration_stcc4(uint16_t target_co2_ppm)
+{
+#if HAVE_STCC4_BUS
+	if (!device_is_ready(sensor_bus)) {
+		return -ENODEV;
+	}
+
+	stcc4_wake(sensor_bus);
+
+	uint16_t correction;
+	int ret = stcc4_force_recalibration(sensor_bus, target_co2_ppm, &correction);
+
+	stcc4_enter_sleep(sensor_bus);
+
+	if (ret) {
+		LOG_ERR("STCC4 FRC failed: %d", ret);
+	} else {
+		LOG_INF("STCC4 FRC done: target=%u ppm, correction=0x%04X", target_co2_ppm,
+			correction);
+	}
+
+	return ret;
+#else
+	return -ENOTSUP;
+#endif
+}

@@ -54,3 +54,8 @@ int sensor_read_battery(sensor_state *state);
 
 /** Initialize fuel gauge. Call once after sensor_init. */
 void sensor_fuel_gauge_init(void);
+
+/** Force recalibration of STCC4 CO2 sensor.
+ *  Wakes sensor, runs FRC at target_co2_ppm, puts sensor back to sleep.
+ *  Returns 0 on success, negative errno on failure. */
+int sensor_force_recalibration_stcc4(uint16_t target_co2_ppm);

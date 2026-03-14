@@ -13,13 +13,14 @@
 LOG_MODULE_REGISTER(stcc4, LOG_LEVEL_INF);
 
 /* I2C commands (big-endian) */
-#define CMD_GET_PRODUCT_ID      0x365B
-#define CMD_EXIT_SLEEP          0x00 /* Single byte! */
-#define CMD_SET_RHT_COMP        0xE000
-#define CMD_SET_PRESSURE_COMP   0xE016
-#define CMD_ENTER_SLEEP         0x3650
-#define CMD_MEASURE_SINGLE_SHOT 0x219D
-#define CMD_READ_MEASUREMENT    0xEC05
+#define CMD_GET_PRODUCT_ID       0x365B
+#define CMD_EXIT_SLEEP           0x00 /* Single byte! */
+#define CMD_SET_RHT_COMP         0xE000
+#define CMD_SET_PRESSURE_COMP    0xE016
+#define CMD_ENTER_SLEEP          0x3650
+#define CMD_MEASURE_SINGLE_SHOT  0x219D
+#define CMD_READ_MEASUREMENT     0xEC05
+#define CMD_FORCE_RECALIBRATION  0x362F
 
 /* Sensirion CRC-8: polynomial 0x31, init 0xFF */
 static uint8_t sensirion_crc8(const uint8_t *data, size_t len)
@@ -210,5 +211,47 @@ int stcc4_measure(const struct device *i2c, uint16_t *co2_ppm)
 		*co2_ppm = (uint16_t)co2_raw;
 	}
 
+	return 0;
+}
+
+int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
+			      uint16_t *correction)
+{
+	uint8_t buf[5];
+
+	/* Command */
+	buf[0] = (uint8_t)(CMD_FORCE_RECALIBRATION >> 8);
+	buf[1] = (uint8_t)(CMD_FORCE_RECALIBRATION & 0xFF);
+	/* Target CO2 word + CRC */
+	buf[2] = (uint8_t)(target_co2_ppm >> 8);
+	buf[3] = (uint8_t)(target_co2_ppm & 0xFF);
+	buf[4] = sensirion_crc8(&buf[2], 2);
+
+	int ret = i2c_write(i2c, buf, sizeof(buf), STCC4_I2C_ADDR);
+	if (ret) {
+		LOG_ERR("force_recalibration write failed: %d", ret);
+		return ret;
+	}
+
+	/* Sensor needs ~90ms to perform FRC */
+	k_msleep(100);
+
+	/* Read 1-word result: correction value */
+	uint8_t data[2];
+
+	ret = read_words(i2c, data, 1);
+	if (ret) {
+		LOG_ERR("force_recalibration read failed: %d", ret);
+		return ret;
+	}
+
+	*correction = ((uint16_t)data[0] << 8) | data[1];
+
+	if (*correction == 0xFFFF) {
+		LOG_ERR("FRC failed (sensor returned 0xFFFF)");
+		return -EIO;
+	}
+
+	LOG_INF("FRC correction: 0x%04X", *correction);
 	return 0;
 }

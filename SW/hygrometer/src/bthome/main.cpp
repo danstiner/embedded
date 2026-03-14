@@ -20,6 +20,7 @@
 #include <zephyr/logging/log.h>
 
 #include "bthome.h"
+#include "co2_cal_svc.h"
 #include "led_svc.h"
 #include "sensor/sht4x.h"
 #include "sensor/sensor_reading.h"
@@ -244,6 +245,7 @@ int main()
 		led_svc_init(&boot_led);
 	}
 #endif
+	co2_cal_svc_init();
 
 	LOG_INF("=== Hygrometer ===");
 #ifdef PMIC_NAME

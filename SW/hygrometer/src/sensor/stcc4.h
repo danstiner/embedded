@@ -33,4 +33,10 @@ int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_
 /* Trigger single-shot measurement, wait, and read CO2 */
 int stcc4_measure(const struct device *i2c, uint16_t *co2_ppm);
 
+/* Forced recalibration: tell sensor the current CO2 level is target_co2_ppm.
+ * Sensor must be awake. Returns correction value via *correction (0xFFFF = failure).
+ * Returns 0 on success, -EIO if sensor reports failure. */
+int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
+			      uint16_t *correction);
+
 #endif /* STCC4_H_ */

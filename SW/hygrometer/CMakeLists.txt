@@ -34,5 +34,6 @@ else()
   target_sources(app PRIVATE
     src/bthome/main.cpp
     src/bthome/led_svc.cpp
+    src/bthome/co2_cal_svc.cpp
   )
 endif()
