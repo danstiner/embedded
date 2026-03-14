@@ -160,23 +160,11 @@
 };
 
 /* GPIO ports */
-&gpio0 {
-	status = "okay";
-};
-
 &gpio1 {
 	status = "okay";
 };
 
-&gpio2 {
-	status = "okay";
-};
-
 /* GPIOTE instances for GPIO interrupts/events */
-&gpiote20 {
-	status = "okay";
-};
-
 &gpiote30 {
 	status = "okay";
 };
@@ -188,42 +176,3 @@
 
 /* Include default memory partition configuration */
 #include <nordic/nrf54l15_partition.dtsi>
-
-/* Disable unused peripherals for power savings */
-
-/* No UART on this board - use RTT for debug */
-&uart20 {
-	status = "disabled";
-};
-
-&uart21 {
-	status = "disabled";
-};
-
-&uart22 {
-	status = "disabled";
-};
-
-&uart30 {
-	status = "disabled";
-};
-
-/* No external SPI flash */
-&spi00 {
-	status = "disabled";
-};
-
-/* No NFC */
-&nfct {
-	status = "disabled";
-};
-
-/* No ADC needed */
-&adc {
-	status = "disabled";
-};
-
-/* No PWM needed */
-&pwm20 {
-	status = "disabled";
-};
