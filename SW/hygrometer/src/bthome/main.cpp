@@ -245,7 +245,6 @@ int main()
 		led_svc_init(&boot_led);
 	}
 #endif
-	co2_cal_svc_init();
 
 	LOG_INF("=== Hygrometer ===");
 #ifdef PMIC_NAME
@@ -274,6 +273,8 @@ int main()
 		LOG_ERR(PMIC_NAME " WDT not ready — I2C issue?");
 	}
 #endif
+
+	co2_cal_svc_init();
 
 	sensor_state sensors;
 	sensor_init(&sensors);
