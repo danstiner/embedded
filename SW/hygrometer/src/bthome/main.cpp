@@ -10,6 +10,10 @@
 #include <zephyr/drivers/watchdog.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/drivers/sensor.h>
+#include <zephyr/drivers/regulator.h>
+#if IS_ENABLED(CONFIG_RAM_POWER_DOWN_LIBRARY)
+#include <ram_pwrdn.h>
+#endif
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_pmic), okay)
 #include <zephyr/drivers/mfd/npm13xx.h>
 #endif
@@ -236,6 +240,22 @@ static const struct gpio_dt_spec boot_led = GPIO_DT_SPEC_GET(DT_ALIAS(boot_led),
 
 int main()
 {
+	/* Explicitly disable LDOSW — nPM2100 hardware may default it enabled after POR,
+	 * and the regulator driver won't touch it without regulator-boot-on/off.
+	 * Leaving it enabled costs ~90-115µA. */
+#if DT_NODE_HAS_STATUS(DT_NODELABEL(npm2100_ldsw), okay)
+	const struct device *ldsw = DEVICE_DT_GET(DT_NODELABEL(npm2100_ldsw));
+	if (device_is_ready(ldsw)) {
+		regulator_disable(ldsw);
+	}
+#endif
+
+	/* Power off unused SRAM sections to reduce idle leakage.
+	 * nRF54L15 has 8 × 32KB sections; power off everything above _image_ram_end. */
+#if IS_ENABLED(CONFIG_RAM_POWER_DOWN_LIBRARY)
+	power_down_unused_ram();
+#endif
+
 	/* Boot LED flash for visual identification */
 #if DT_NODE_HAS_STATUS(DT_ALIAS(boot_led), okay)
 	if (gpio_is_ready_dt(&boot_led)) {
