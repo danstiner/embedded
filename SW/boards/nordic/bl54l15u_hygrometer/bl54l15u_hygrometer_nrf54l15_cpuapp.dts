@@ -56,9 +56,11 @@
 	ranges = <0x0 0x20000000 0x40000>;
 };
 
-/* No external 32kHz crystal - use internal RC oscillator */
+/* 32.768 kHz crystal with ~9 pF load capacitance (2026v3 board) */
 &lfxo {
-	status = "disabled";
+	status = "okay";
+	load-capacitors = "internal";
+	load-capacitance-femtofarad = <9000>;
 };
 
 &clock {
