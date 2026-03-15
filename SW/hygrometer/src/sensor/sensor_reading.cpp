@@ -11,6 +11,8 @@
 #include <zephyr/device.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/drivers/sensor.h>
+#include <zephyr/drivers/regulator.h>
+#include <zephyr/pm/device.h>
 #include <zephyr/kernel.h>
 
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_charger), okay)
@@ -132,6 +134,8 @@ void sensor_init(sensor_state *state)
 	}
 #endif
 
+	/* LDOSW is enabled via regulator-boot-on in DTS to power I2C20 sensors */
+
 #if HAVE_BME688
 	if (device_is_ready(bme688_dev)) {
 		state->have_bme688 = true;
@@ -151,6 +155,22 @@ void sensor_init(sensor_state *state)
 		} else {
 			LOG_INF("STCC4 not present — skipping");
 		}
+	}
+#endif
+
+	/* If no I2C20 sensors found, disable LDOSW and suspend I2C20 to save power */
+#if DT_NODE_HAS_STATUS(DT_NODELABEL(npm2100_ldsw), okay)
+	if (!state->have_bme688 && !state->have_stcc4) {
+		const struct device *ldsw = DEVICE_DT_GET(DT_NODELABEL(npm2100_ldsw));
+		if (device_is_ready(ldsw)) {
+			regulator_disable(ldsw);
+			LOG_INF("No I2C20 sensors — LDOSW disabled");
+		}
+#if DT_NODE_HAS_STATUS(DT_NODELABEL(bme688), okay)
+		pm_device_action_run(DEVICE_DT_GET(DT_BUS(DT_NODELABEL(bme688))),
+				     PM_DEVICE_ACTION_SUSPEND);
+		LOG_INF("I2C20 suspended");
+#endif
 	}
 #endif
 
