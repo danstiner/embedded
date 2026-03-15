@@ -170,9 +170,7 @@ async def do_flash(address: str, bin_path: Path, auto_confirm: bool) -> None:
             print()
 
             # Skip if the active image already matches what we're about to flash
-            active = next(
-                (img for img in response.images if img.slot == 0 and img.active), None
-            )
+            active = next((img for img in response.images if img.slot == 0 and img.active), None)
             if active and active.hash == image_hash:
                 print("Device is already running this image. Nothing to do.")
                 return
