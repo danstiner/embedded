@@ -14,11 +14,9 @@ LOG_MODULE_REGISTER(co2_cal_svc, LOG_LEVEL_INF);
 /* Random 128-bit UUIDs (generated) */
 /* Service:        a1b2c3d4-e5f6-7890-abcd-ef0123456780 */
 /* Characteristic: a1b2c3d4-e5f6-7890-abcd-ef0123456781 */
-#define CO2_CAL_SVC_UUID_VAL                                                                       \
-	BT_UUID_128_ENCODE(0xa1b2c3d4, 0xe5f6, 0x7890, 0xabcd, 0xef0123456780)
+#define CO2_CAL_SVC_UUID_VAL BT_UUID_128_ENCODE(0xa1b2c3d4, 0xe5f6, 0x7890, 0xabcd, 0xef0123456780)
 
-#define CO2_CAL_CHR_UUID_VAL                                                                       \
-	BT_UUID_128_ENCODE(0xa1b2c3d4, 0xe5f6, 0x7890, 0xabcd, 0xef0123456781)
+#define CO2_CAL_CHR_UUID_VAL BT_UUID_128_ENCODE(0xa1b2c3d4, 0xe5f6, 0x7890, 0xabcd, 0xef0123456781)
 
 #define CO2_CAL_SVC_UUID BT_UUID_DECLARE_128(CO2_CAL_SVC_UUID_VAL)
 #define CO2_CAL_CHR_UUID BT_UUID_DECLARE_128(CO2_CAL_CHR_UUID_VAL)

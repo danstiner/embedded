@@ -13,14 +13,14 @@
 LOG_MODULE_REGISTER(stcc4, LOG_LEVEL_INF);
 
 /* I2C commands (big-endian) */
-#define CMD_GET_PRODUCT_ID       0x365B
-#define CMD_EXIT_SLEEP           0x00 /* Single byte! */
-#define CMD_SET_RHT_COMP         0xE000
-#define CMD_SET_PRESSURE_COMP    0xE016
-#define CMD_ENTER_SLEEP          0x3650
-#define CMD_MEASURE_SINGLE_SHOT  0x219D
-#define CMD_READ_MEASUREMENT     0xEC05
-#define CMD_FORCE_RECALIBRATION  0x362F
+#define CMD_GET_PRODUCT_ID      0x365B
+#define CMD_EXIT_SLEEP          0x00 /* Single byte! */
+#define CMD_SET_RHT_COMP        0xE000
+#define CMD_SET_PRESSURE_COMP   0xE016
+#define CMD_ENTER_SLEEP         0x3650
+#define CMD_MEASURE_SINGLE_SHOT 0x219D
+#define CMD_READ_MEASUREMENT    0xEC05
+#define CMD_FORCE_RECALIBRATION 0x362F
 
 /* Sensirion CRC-8: polynomial 0x31, init 0xFF */
 static uint8_t sensirion_crc8(const uint8_t *data, size_t len)
