@@ -337,14 +337,10 @@ int sensor_read_bme688(sensor_state *state)
 /* ---- Read STCC4 ---- */
 int sensor_read_stcc4(sensor_state *state)
 {
-	LOG_INF("STCC4 read?");
 #if HAVE_STCC4_BUS && CONFIG_STCC4_ENABLE
-	LOG_INF("STCC4 read enabled");
 	if (!state->have_stcc4) {
 		return -ENODEV;
 	}
-
-	LOG_INF("STCC4 read enabled & have sensor");
 
 	/* Wake sensor from sleep before measurement */
 	stcc4_exit_sleep(sensor_bus);
@@ -362,7 +358,7 @@ int sensor_read_stcc4(sensor_state *state)
 	int16_t co2;
 	int ret = stcc4_measure(sensor_bus, &co2);
 
-	/* Put sensor back to sleep even if measurment fails */
+	/* Put sensor back to sleep even if measurement fails */
 	stcc4_enter_sleep(sensor_bus);
 
 	if (ret) {
