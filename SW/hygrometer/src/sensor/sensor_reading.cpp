@@ -9,9 +9,11 @@
 #include "stcc4.h"
 
 #include <zephyr/device.h>
+#include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/drivers/regulator.h>
+#include <zephyr/drivers/pinctrl.h>
 #include <zephyr/pm/device.h>
 #include <zephyr/kernel.h>
 
@@ -26,6 +28,11 @@
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sensor_reading, LOG_LEVEL_INF);
+
+/* Declare I2C20 pinctrl config as externally accessible (for "off" state) */
+#if DT_NODE_HAS_STATUS(DT_NODELABEL(bme688), okay)
+PINCTRL_DT_DEV_CONFIG_DECLARE(DT_NODELABEL(i2c20));
+#endif
 
 /* ---- Device pointers ---- */
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
@@ -136,22 +143,30 @@ void sensor_init(sensor_state *state)
 
 	/* LDOSW is enabled via regulator-boot-on in DTS to power I2C20 sensors */
 
-#if HAVE_BME688
+#if HAVE_BME688 && CONFIG_BME688_ENABLE
+	/* Wait for sensor start-up */
+	k_msleep(2);
+
 	if (device_is_ready(bme688_dev)) {
 		state->have_bme688 = true;
-		LOG_INF("BME688 detected");
+		/* Disable gas heater — only needed for VOC, not pressure.
+		 * Zephyr BME680 driver sets run_gas=1 by default, which fires the
+		 * heater at 320°C for ~200ms (up to 12mA) on every sample_fetch. */
+		i2c_reg_write_byte(sensor_bus, DT_REG_ADDR(DT_NODELABEL(bme688)),
+				   0x71, 0x00);
+		LOG_INF("BME688 detected (gas heater disabled)");
 	} else {
 		LOG_INF("BME688 not present — skipping");
 	}
 #endif
 
-#if HAVE_STCC4_BUS
+#if HAVE_STCC4_BUS && CONFIG_STCC4_ENABLE
 	if (device_is_ready(sensor_bus)) {
-		stcc4_wake(sensor_bus);
+		stcc4_exit_sleep(sensor_bus);
 		if (stcc4_probe(sensor_bus)) {
 			state->have_stcc4 = true;
-			stcc4_enter_sleep(sensor_bus);
 			LOG_INF("STCC4 detected");
+			stcc4_enter_sleep(sensor_bus);
 		} else {
 			LOG_INF("STCC4 not present — skipping");
 		}
@@ -169,7 +184,12 @@ void sensor_init(sensor_state *state)
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(bme688), okay)
 		pm_device_action_run(DEVICE_DT_GET(DT_BUS(DT_NODELABEL(bme688))),
 				     PM_DEVICE_ACTION_SUSPEND);
-		LOG_INF("I2C20 suspended");
+		/* Apply "off" pinctrl state — no pull-ups, avoids leaking
+		 * current through unpowered sensor ESD diodes. */
+		const struct pinctrl_dev_config *pcfg =
+			PINCTRL_DT_DEV_CONFIG_GET(DT_NODELABEL(i2c20));
+		pinctrl_apply_state(pcfg, PINCTRL_STATE_PRIV_START);
+		LOG_INF("I2C20 suspended, pins set to off state");
 #endif
 	}
 #endif
@@ -287,7 +307,7 @@ int sensor_read_sht45(sensor_state *state)
 /* ---- Read BME688 ---- */
 int sensor_read_bme688(sensor_state *state)
 {
-#if HAVE_BME688
+#if HAVE_BME688 && CONFIG_BME688_ENABLE
 	if (!state->have_bme688) {
 		return -ENODEV;
 	}
@@ -317,13 +337,17 @@ int sensor_read_bme688(sensor_state *state)
 /* ---- Read STCC4 ---- */
 int sensor_read_stcc4(sensor_state *state)
 {
-#if HAVE_STCC4_BUS
+	LOG_INF("STCC4 read?");
+#if HAVE_STCC4_BUS && CONFIG_STCC4_ENABLE
+	LOG_INF("STCC4 read enabled");
 	if (!state->have_stcc4) {
 		return -ENODEV;
 	}
 
+	LOG_INF("STCC4 read enabled & have sensor");
+
 	/* Wake sensor from sleep before measurement */
-	stcc4_wake(sensor_bus);
+	stcc4_exit_sleep(sensor_bus);
 
 	/* Feed compensation from latest SHT45/BME688 readings */
 	if (state->sht45.valid) {
@@ -335,10 +359,20 @@ int sensor_read_stcc4(sensor_state *state)
 		stcc4_set_pressure_compensation(sensor_bus, pressure_enc);
 	}
 
-	uint16_t co2;
+	int16_t co2;
 	int ret = stcc4_measure(sensor_bus, &co2);
+
+	/* Put sensor back to sleep even if measurment fails */
+	stcc4_enter_sleep(sensor_bus);
+
 	if (ret) {
 		LOG_WRN("STCC4 measure failed: %d", ret);
+		state->stcc4.valid = false;
+		return ret;
+	}
+
+	if (co2 < 0) {
+		LOG_WRN("STCC4 negative CO2: %d", co2);
 		state->stcc4.valid = false;
 		return ret;
 	}
@@ -348,7 +382,6 @@ int sensor_read_stcc4(sensor_state *state)
 	state->stcc4.valid = true;
 	LOG_INF("STCC4: CO2=%u ppm", co2);
 
-	stcc4_enter_sleep(sensor_bus);
 	return 0;
 #else
 	return -ENOTSUP;
@@ -431,12 +464,12 @@ int sensor_read_battery(sensor_state *state)
 /* ---- Force recalibration STCC4 ---- */
 int sensor_force_recalibration_stcc4(uint16_t target_co2_ppm)
 {
-#if HAVE_STCC4_BUS
+#if HAVE_STCC4_BUS && CONFIG_STCC4_ENABLE
 	if (!device_is_ready(sensor_bus)) {
 		return -ENODEV;
 	}
 
-	stcc4_wake(sensor_bus);
+	stcc4_exit_sleep(sensor_bus);
 
 	uint16_t correction;
 	int ret = stcc4_force_recalibration(sensor_bus, target_co2_ppm, &correction);

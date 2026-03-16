@@ -10,6 +10,10 @@ if(TIDY)
   )
 endif()
 
+# Define PINCTRL_STATE_OFF so the "off" pinctrl-names entry compiles.
+# Must be visible to both our code and the I2C driver (which instantiates pinctrl).
+zephyr_compile_definitions(PINCTRL_STATE_OFF=PINCTRL_STATE_PRIV_START)
+
 target_include_directories(app PRIVATE src src/sensor)
 
 # Shared sensor module (always built)

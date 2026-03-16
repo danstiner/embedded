@@ -142,7 +142,8 @@
 	clock-frequency = <I2C_BITRATE_STANDARD>;
 	pinctrl-0 = <&i2c20_default>;
 	pinctrl-1 = <&i2c20_sleep>;
-	pinctrl-names = "default", "sleep";
+	pinctrl-2 = <&i2c20_off>;
+	pinctrl-names = "default", "sleep", "off";
 
 	bme688: bme680@76 {
 		compatible = "bosch,bme680";

@@ -105,15 +105,15 @@ bool stcc4_probe(const struct device *i2c)
 	return true;
 }
 
-int stcc4_wake(const struct device *i2c)
+int stcc4_exit_sleep(const struct device *i2c)
 {
-	/* exit_sleep_mode is a single byte 0x00 */
+	/* exit_sleep_mode is a single payload byte 0x00 that is NOT acknowledged */
 	uint8_t cmd = CMD_EXIT_SLEEP;
 
-	/* The sensor may NACK while waking — ignore error */
+	/* Zephyr I2C always expects acknowledgement, so ignore the timeout */
 	(void)i2c_write(i2c, &cmd, 1, STCC4_I2C_ADDR);
-	k_msleep(5);
 
+	k_msleep(5);
 	return 0;
 }
 
@@ -170,7 +170,7 @@ int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_
 	return 0;
 }
 
-int stcc4_measure(const struct device *i2c, uint16_t *co2_ppm)
+int stcc4_measure(const struct device *i2c, int16_t *co2_ppm)
 {
 	int ret;
 
@@ -202,14 +202,7 @@ int stcc4_measure(const struct device *i2c, uint16_t *co2_ppm)
 	}
 
 	/* CO2 is a signed 16-bit value in ppm at offset 0 */
-	int16_t co2_raw = (int16_t)(((uint16_t)data[0] << 8) | data[1]);
-
-	if (co2_raw < 0) {
-		LOG_WRN("STCC4 negative CO2: %d", co2_raw);
-		*co2_ppm = 0;
-	} else {
-		*co2_ppm = (uint16_t)co2_raw;
-	}
+	*co2_ppm = (int16_t)(((uint16_t)data[0] << 8) | data[1]);
 
 	return 0;
 }

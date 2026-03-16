@@ -18,7 +18,7 @@
 bool stcc4_probe(const struct device *i2c);
 
 /* Wake sensor from sleep mode */
-int stcc4_wake(const struct device *i2c);
+int stcc4_exit_sleep(const struct device *i2c);
 
 /* Enter sleep mode to minimize idle current */
 int stcc4_enter_sleep(const struct device *i2c);
@@ -31,7 +31,7 @@ int stcc4_set_rht_compensation(const struct device *i2c, uint16_t raw_temp, uint
 int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_pa_div2);
 
 /* Trigger single-shot measurement, wait, and read CO2 */
-int stcc4_measure(const struct device *i2c, uint16_t *co2_ppm);
+int stcc4_measure(const struct device *i2c, int16_t *co2_ppm);
 
 /* Forced recalibration: tell sensor the current CO2 level is target_co2_ppm.
  * Sensor must be awake. Returns correction value via *correction (0xFFFF = failure).

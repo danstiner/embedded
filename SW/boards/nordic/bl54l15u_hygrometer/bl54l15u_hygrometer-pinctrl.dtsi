@@ -38,4 +38,14 @@
 			bias-pull-up;
 		};
 	};
+
+	/* "off" state for I2C20 when LDOSW is disabled — no pull-ups to avoid
+	 * leaking current through unpowered sensors. */
+	i2c20_off: i2c20_off {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 1, 6)>,
+				<NRF_PSEL(TWIM_SCL, 1, 8)>;
+			low-power-enable;
+		};
+	};
 };

@@ -13,13 +13,12 @@
 	};
 };
 
-/* Enable LDOSW at boot so I2C20 sensors (BME688/STCC4) are powered for probing.
- * sensor_init() disables it if no sensors are detected. */
+/* Enable LDOSW in load-switch mode at boot so I2C20 sensors (BME688/STCC4) are
+ * powered for probing. sensor_init() disables it if no sensors are detected. */
 &npm2100_ldsw {
 	regulator-boot-on;
 	regulator-initial-mode = < NPM2100_REG_LDSW_EN >;
 };
-
 
 /* Enable Bluetooth */
 &bt_hci_controller {
