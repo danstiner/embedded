@@ -149,18 +149,15 @@ void sensor_init(sensor_state *state)
 
 	if (device_is_ready(bme688_dev)) {
 		state->have_bme688 = true;
-		/* Disable gas heater — only needed for VOC, not pressure.
-		 * Zephyr BME680 driver sets run_gas=1 by default, which fires the
-		 * heater at 320°C for ~200ms (up to 12mA) on every sample_fetch. */
-		i2c_reg_write_byte(sensor_bus, DT_REG_ADDR(DT_NODELABEL(bme688)),
-				   0x71, 0x00);
-		LOG_INF("BME688 detected (gas heater disabled)");
+		LOG_INF("BME688 detected");
 	} else {
 		LOG_INF("BME688 not present — skipping");
 	}
 #endif
 
 #if HAVE_STCC4_BUS && CONFIG_STCC4_ENABLE
+	/* Wait for sensor start-up */
+	k_msleep(10);
 	if (device_is_ready(sensor_bus)) {
 		stcc4_exit_sleep(sensor_bus);
 		if (stcc4_probe(sensor_bus)) {
