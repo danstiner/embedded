@@ -17,6 +17,7 @@ LOG_MODULE_REGISTER(stcc4, LOG_LEVEL_INF);
 #define CMD_EXIT_SLEEP          0x00 /* Single byte! */
 #define CMD_SET_RHT_COMP        0xE000
 #define CMD_SET_PRESSURE_COMP   0xE016
+#define CMD_STOP_CONTINUOUS     0x3F86
 #define CMD_ENTER_SLEEP         0x3650
 #define CMD_MEASURE_SINGLE_SHOT 0x219D
 #define CMD_READ_MEASUREMENT    0xEC05
@@ -85,6 +86,7 @@ bool stcc4_probe(const struct device *i2c)
 {
 	int ret = send_cmd(i2c, CMD_GET_PRODUCT_ID);
 	if (ret) {
+		LOG_ERR("STCC4 get_product_id cmd failed: %d", ret);
 		return false;
 	}
 
@@ -95,6 +97,7 @@ bool stcc4_probe(const struct device *i2c)
 
 	ret = read_words(i2c, data, 6);
 	if (ret) {
+		LOG_ERR("STCC4 product_id read failed: %d", ret);
 		return false;
 	}
 
@@ -117,9 +120,28 @@ int stcc4_exit_sleep(const struct device *i2c)
 	return 0;
 }
 
+int stcc4_stop_continuous(const struct device *i2c)
+{
+	int ret = send_cmd(i2c, CMD_STOP_CONTINUOUS);
+	if (ret) {
+		LOG_ERR("STCC4 stop_continuous failed: %d", ret);
+		return ret;
+	}
+
+	k_msleep(1200);
+	return 0;
+}
+
 int stcc4_enter_sleep(const struct device *i2c)
 {
-	return send_cmd(i2c, CMD_ENTER_SLEEP);
+	int ret = send_cmd(i2c, CMD_ENTER_SLEEP);
+	if (ret) {
+		LOG_ERR("STCC4 enter_sleep failed: %d", ret);
+		return ret;
+	}
+
+	k_msleep(1);
+	return 0;
 }
 
 int stcc4_set_rht_compensation(const struct device *i2c, uint16_t raw_temp, uint16_t raw_humidity)
