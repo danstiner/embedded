@@ -14,10 +14,11 @@
 };
 
 /* Enable LDOSW in load-switch mode at boot so I2C20 sensors (BME688/STCC4) are
- * powered for probing. sensor_init() disables it if no sensors are detected. */
+ * powered for probing. sensor_init() disables it if no sensors are detected.
+ * Use ULP mode, the default high-power mode can burn 2mA+ even with no load. */
 &npm2100_ldsw {
 	regulator-boot-on;
-	regulator-initial-mode = < NPM2100_REG_LDSW_EN >;
+	regulator-initial-mode = < (NPM2100_REG_LDSW_EN | NPM2100_REG_OPER_ULP) >;
 };
 
 /* Enable Bluetooth */
