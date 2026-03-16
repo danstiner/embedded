@@ -27,6 +27,8 @@ static void frc_work_handler(struct k_work *work)
 {
 	ARG_UNUSED(work);
 
+	LOG_INF("STCC4: forcing recalibration");
+
 	int ret = sensor_force_recalibration_stcc4(frc_target_ppm);
 	if (ret) {
 		LOG_ERR("FRC work failed: %d", ret);
