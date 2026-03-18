@@ -1,0 +1,5 @@
+/* MCUboot doesn't need the PMIC - disable to avoid pulling in mfd_npm13xx driver */
+&i2c20 {
+	status = "disabled";
+	/delete-node/ pmic@6b;
+};
