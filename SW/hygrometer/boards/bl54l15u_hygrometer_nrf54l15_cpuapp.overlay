@@ -1,0 +1,27 @@
+#include <dt-bindings/regulator/npm2100.h>
+
+/ {
+	aliases {
+		boot-led = &red_led;
+	};
+
+	/* Matter DK_LIBRARY requires a buttons node with gpio-keys compatible.
+	 * The hygrometer has no GPIO buttons (SHPHLD is PMIC-level), so provide
+	 * an empty node to satisfy the build. */
+	buttons {
+		compatible = "gpio-keys";
+	};
+};
+
+/* Enable LDOSW in load-switch mode at boot so I2C20 sensors (BME688/STCC4) are
+ * powered for probing. sensor_init() disables it if no sensors are detected.
+ * Use ULP mode, the default high-power mode can burn 2mA+ even with no load. */
+&npm2100_ldsw {
+	regulator-boot-on;
+	regulator-initial-mode = < (NPM2100_REG_LDSW_EN | NPM2100_REG_OPER_ULP) >;
+};
+
+/* Enable Bluetooth */
+&bt_hci_controller {
+	status = "okay";
+};

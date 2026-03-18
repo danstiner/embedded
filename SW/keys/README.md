@@ -44,4 +44,4 @@ imgtool getpub -k keys/<name>.pem -o keys/<name>.pub
 
 ## Build Integration
 
-Relative paths in `SB_CONFIG_BOOT_SIGNATURE_KEY_FILE` resolve from `WEST_TOPDIR` (the workspace root, `SW/`). Dev builds sign with `keys/dev.pem`; production builds (`-DFILE_SUFFIX=production`) sign with `keys/prod.pem`.
+Relative paths in `SB_CONFIG_BOOT_SIGNATURE_KEY_FILE` resolve from `WEST_TOPDIR` (the workspace root, `SW/`). Dev builds sign with `keys/dev.pem`; production builds (`-DSB_EXTRA_CONF_FILE=sysbuild_extra_production.conf`) sign with `keys/prod.pem`.

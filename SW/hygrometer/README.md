@@ -14,88 +14,39 @@ Low power sensor for relative humidity, temperature, and water leaks utilizing t
 
 ### Builds
 
-**Hygrometer board** (nPM2100, 2×AAA alkaline):
-```bash
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=$(pwd)/..
+The base build advertises over BLE in the BTHome format:
+```sh
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=..
 ```
 
-**DevKit board** (nPM1304, LiPo, requires revision suffix):
-```bash
-west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -- -DBOARD_ROOT=$(pwd)/..
+
+Extra configuration files can be mixed in, e.g. for debug logs over RTT:
+```sh
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF_FILE=sysbuild/mcuboot_extra_rtt.conf
 ```
 
-Add `--pristine` (or `-p`) to force a clean rebuild.
-
-### Release build
-
-For production, overlay `prj_release.conf` to extend the measurement interval to 5 minutes and strip logging:
-
-```bash
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p \
-  --extra-conf prj_release.conf \
-  -- -DBOARD_ROOT=$(pwd)/..
-```
-
-### Production build
-
-Signs with the production key, enables FPROTECT and APPROTECT:
-
-```bash
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p \
-  --extra-conf prj_release.conf \
-  -- -DBOARD_ROOT=$(pwd)/.. -DFILE_SUFFIX=production
-```
-
-### RTT logging
-
-By default, logs go to UART. To use RTT instead (enables Segger J-Link viewer and a shell):
-```bash
-west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp \
-  --extra-conf overlay-rtt.conf \
-  -- -DBOARD_ROOT=$(pwd)/..
-```
-
-Connect using nRF Connect for VS Code → RTT, or `JLinkRTTViewer`.
-
-### Flash
-```bash
-west flash
-```
-
-For a full chip erase before flashing (required on first flash or after changing KMU keys):
-```bash
-west flash --erase
+Or for Matter over Thread, release mode, production signing, etc:
+```sh
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
 ```
 
 ### KMU Provisioning
 
 Provision signing keys to the hardware KMU before first boot. See [`keys/README.md`](../keys/README.md) for details.
 
-```bash
+```sh
 # From SW/
-west ncs-provision upload -i keys/provision-dev.yml   # dev device
-west ncs-provision upload -i keys/provision-prod.yml  # production device
+west ncs-provision upload -i keys/provision-dev.yml
 ```
 
-### Monitor (UART)
-```bash
-# macOS (find port with: ls /dev/tty.usbmodem*)
-screen /dev/tty.usbmodem* 115200
-```
-
-### OTA update
+### OTA update (BTHome build)
 
 Build a new image, then flash it wirelessly using the SMP BLE transport:
 ```bash
-uv run ../ota.py flash
+uv run ../ota.py flash --confirm
 ```
 
-After verifying the new firmware boots correctly, confirm it permanently:
-```bash
-uv run ../ota.py confirm --target <BLE-address>
-```
-
-## Matter Commissioning
+## Matter Commissioning (Matter build only)
 
 ### Setup Credentials
 
@@ -162,15 +113,15 @@ Once commissioned, the device exposes:
 - **MeasuredValue** attribute: Temperature in 0.01°C units (e.g., 2534 = 25.34°C)
 - Updates every 5 seconds (debug) or 5 minutes (release)
 
-## Over-The-Air (OTA) Updates
+## Over-The-Air (OTA) Updates (Matter build only)
 
-The device supports Matter OTA updates using the external flash (MX25R64) for staging new firmware.
+The device supports Matter OTA updates using internal flash for staging new firmware.
 
 ### Configuration
 
 OTA is enabled by default with:
-- **Secondary slot**: External flash (1.4 MB, same as primary)
-- **No compression**: Simple swap-based update
+- **Secondary slot**: Internal flash
+- **Overwrite-only mode**: No swap, direct overwrite
 - **Power consumption**: <1µA when idle, ~5-15mA during download (rare event)
 
 ### Building an OTA Update
@@ -311,7 +262,7 @@ west zap-gui
 After saving changes in the GUI, regenerate the data model source files:
 
 ```bash
-west zap-generate -z src/sensor.zap -o src/zap-generated
+west zap-generate -z src/default_zap/hygrometer.zap -o src/default_zap/zap-generated
 ```
 
 ## Troubleshooting
@@ -432,40 +383,6 @@ uart:~$ matter factoryreset
 - Check if DK has led0 alias defined
 - LED feature is optional, won't affect functionality
 - Check DK schematic for LED GPIO
-
-## Power Consumption
-
-### System OFF Deep Sleep Mode
-
-**Release build** (prj_release.conf) with 300 second measurement interval:
-- **Sleep**: <5µA (System OFF mode)
-- **Active**: ~1-2mA for ~10ms (CPU + ADC + temperature sensor)
-- **Average**: ~5-10µA overall
-- **Voltage divider leakage**: 95nA (22MΩ resistors)
-
-**Debug build** (prj.conf):
-- **Sleep**: <5µA (System OFF mode)
-- **Active**: ~3mA for ~50ms (CPU + ADC + UART logging)
-- **Average**: ~10-20µA overall
-
-### Memory Usage
-
-- **Debug build**: 61KB ROM, 14KB RAM
-- **Release build**: 46KB ROM, 11KB RAM (25% smaller)
-
-### Battery Life Estimates
-
-With 2000mAh Li-ion battery and 300 second (5 minute) measurement interval:
-
-**Release build**:
-- Current draw: ~8µA average
-- **Battery life: ~25 years** (limited by battery self-discharge, not system consumption)
-
-**Debug build** (for development):
-- Current draw: ~15µA average
-- **Battery life: ~15 years**
-
-Real-world battery life will be limited by battery self-discharge (~2-3% per month) rather than system power consumption.
 
 ## References
 

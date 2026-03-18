@@ -64,7 +64,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.ccache
-          key: ${{ runner.os }}-ccache-devkit-${{ hashFiles('SW/west/west.yml') }}
+          key: ${{ runner.os }}-ccache-devkit-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-ccache-devkit-
             ${{ runner.os }}-ccache-

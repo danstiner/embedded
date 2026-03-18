@@ -1,0 +1,51 @@
+/*
+ * Pin control for BL54L15u Hygrometer
+ */
+
+&pinctrl {
+	/* I2C21 for SHT45 sensor and nPM2100 PMIC: SDA=P1.14, SCL=P1.04 */
+	i2c21_default: i2c21_default {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 1, 14)>,
+				<NRF_PSEL(TWIM_SCL, 1, 4)>;
+			bias-pull-up;
+		};
+	};
+
+	i2c21_sleep: i2c21_sleep {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 1, 14)>,
+				<NRF_PSEL(TWIM_SCL, 1, 4)>;
+			low-power-enable;
+			bias-pull-up;
+		};
+	};
+
+	/* I2C20 for BME688 + STCC4 (optional sensors): SDA=P1.06, SCL=P1.08 */
+	i2c20_default: i2c20_default {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 1, 6)>,
+				<NRF_PSEL(TWIM_SCL, 1, 8)>;
+			bias-pull-up;
+		};
+	};
+
+	i2c20_sleep: i2c20_sleep {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 1, 6)>,
+				<NRF_PSEL(TWIM_SCL, 1, 8)>;
+			low-power-enable;
+			bias-pull-up;
+		};
+	};
+
+	/* "off" state for I2C20 when LDOSW is disabled — no pull-ups to avoid
+	 * leaking current through unpowered sensors. */
+	i2c20_off: i2c20_off {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 1, 6)>,
+				<NRF_PSEL(TWIM_SCL, 1, 8)>;
+			low-power-enable;
+		};
+	};
+};

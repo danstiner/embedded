@@ -1,15 +1,31 @@
-config APP_TEMPERATURE_MONITORING
-	bool "Enable internal temperature monitoring"
-	default y
-	select SENSOR
-	help
-	  Enable internal die temperature sensor monitoring.
-
 config APP_MEASUREMENT_INTERVAL_SEC
 	int "Measurement interval (seconds)"
 	default 300
 	help
 	  Time between periodic measurements. Device sleeps between readings.
+
+config APP_CO2_INTERVAL_DIVISOR
+	int "Only fetch STCC4 every Nth measurement cycle"
+	default 1
+	range 1 60
+	help
+	  STCC4 CO2 read cadence. Last-known values are reused in the
+	  advertisements between fetches.
+
+config APP_PRESSURE_INTERVAL_DIVISOR
+	int "Only fetch BME688 pressure every Nth measurement cycle"
+	default 1
+	range 1 360
+	help
+	  BME688 pressure read cadence, independent of STCC4. Cached pressure is
+	  reused for STCC4 compensation and advertisements between fetches.
+
+config SHT4X_ENABLE
+	bool "Enable SHT4x sensor"
+	default y
+	select SENSOR
+	help
+	  Enable probing for and using temperature and humidity sensor, if hardware is present.
 
 config SHT4X_USE_HEATER
 	bool "Use the built-in heater on the SHT4X for increased accuracy at high RH levels"
@@ -42,11 +58,51 @@ config SHT4X_HEATER_LONG_PULSE_DURATION
 	  1.1s. Say 'N' if you want to use the short pulse duration setting, which sets the pulse
 	  time to 0.11s.
 
-config APP_HEATER_INTERVAL
-	int "Number of measurement cycles between heater pulses"
-	default 10
-	depends on SHT4X_USE_HEATER
+config BME688_ENABLE
+	bool "Enable BME688 sensor"
+	default y
+	select SENSOR
 	help
-	  Fire the heater every N measurements.
+	  Enable probing for and using pressure and gas sensor, if hardware is present.
+
+config STCC4_ENABLE
+	bool "Enable STCC4 sensor"
+	default y
+	select SENSOR
+	help
+	  Enable probing for and using CO2 sensor, if hardware is present.
+
+config APP_USE_MATTER
+	bool "Use Matter/Thread instead of BTHome BLE"
+	default n
+
+if APP_USE_MATTER
+
+choice OPENTHREAD_NORDIC_LIBRARY_CONFIGURATION
+	default OPENTHREAD_NORDIC_LIBRARY_MTD
+endchoice
+
+choice OPENTHREAD_DEVICE_TYPE
+	default OPENTHREAD_MTD
+endchoice
+
+config CHIP_ENABLE_ICD_SUPPORT
+	default y
+
+config CHIP_ICD_LIT_SUPPORT
+	default y
+
+config CHIP_ICD_REPORT_ON_ACTIVE_MODE
+	default y
+
+# Reduce Thread TX output power to 0 dBm for SED device
+config OPENTHREAD_DEFAULT_TX_POWER
+	default 0
+
+source "$(ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR)/config/nrfconnect/chip-module/Kconfig.features"
+source "$(ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR)/config/nrfconnect/chip-module/Kconfig.defaults"
+source "$(ZEPHYR_NRF_MODULE_DIR)/samples/matter/common/src/Kconfig"
+
+endif # APP_USE_MATTER
 
 source "Kconfig.zephyr"

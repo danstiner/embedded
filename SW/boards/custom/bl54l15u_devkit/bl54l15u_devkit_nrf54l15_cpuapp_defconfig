@@ -1,0 +1,11 @@
+# GPIO
+CONFIG_GPIO=y
+
+# ARM MPU
+CONFIG_ARM_MPU=y
+
+# No UART by default
+CONFIG_SERIAL=n
+
+# Use Nordic Softdevice Controller (not open-source LL)
+CONFIG_BT_LL_SW_SPLIT=n

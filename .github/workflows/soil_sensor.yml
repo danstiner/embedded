@@ -64,7 +64,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.ccache
-          key: ${{ runner.os }}-ccache-soil_sensor-${{ matrix.name }}-${{ hashFiles('SW/west/west.yml') }}
+          key: ${{ runner.os }}-ccache-soil_sensor-${{ matrix.name }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-ccache-soil_sensor-${{ matrix.name }}-
             ${{ runner.os }}-ccache-soil_sensor-

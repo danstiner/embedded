@@ -13,6 +13,7 @@
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/mgmt/mcumgr/transport/smp_bt.h>
 #include <nrf_fuel_gauge.h>
+#include <ram_pwrdn.h>
 
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 
@@ -221,6 +222,8 @@ static void button_pressed(const struct device *dev, struct gpio_callback *cb, u
 
 int main(void)
 {
+	power_down_unused_ram();
+
 	printk("\n\n=== BL54L15u DevKit ===\n");
 	printk("Button-to-LED (interrupt-driven)\n");
 	printk("================================\n\n");
@@ -411,11 +414,11 @@ int main(void)
 
 	while (true) {
 		for (int i = 0; i < ARRAY_SIZE(test_pins); i++) {
-			LOG_DBG("PIN TEST [%d/%d]: %s HIGH", i + 1, ARRAY_SIZE(test_pins),
+			LOG_INF("PIN TEST [%d/%d]: %s HIGH", i + 1, ARRAY_SIZE(test_pins),
 				test_pins[i].name);
 			gpio_pin_set(test_pins[i].port, test_pins[i].pin, 1);
 			/* Inform fuel gauge of low-power sleep period */
-			nrf_fuel_gauge_idle_set(fg_voltage_f, fg_temp_f, 0.050e-3f);
+			nrf_fuel_gauge_idle_set(fg_voltage_f, fg_temp_f, 10e-6f);
 			k_sleep(K_SECONDS(5));
 			gpio_pin_set(test_pins[i].port, test_pins[i].pin, 0);
 		}

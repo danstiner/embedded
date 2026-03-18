@@ -7,6 +7,7 @@ on:
       - SW/boards/nordic/bl54l15u_devkit/**
       - SW/boards/nordic/bl54l15u_hygrometer/**
       - SW/west/**
+      - SW/tidy.sh
       - .github/workflows/hygrometer.yml
   pull_request:
     paths:
@@ -14,6 +15,7 @@ on:
       - SW/boards/nordic/bl54l15u_devkit/**
       - SW/boards/nordic/bl54l15u_hygrometer/**
       - SW/west/**
+      - SW/tidy.sh
       - .github/workflows/hygrometer.yml
 
 jobs:
@@ -72,45 +74,63 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/.ccache
-          key: ${{ runner.os }}-ccache-hygrometer-${{ matrix.name }}-${{ hashFiles('SW/west/west.yml') }}
+          key: ${{ runner.os }}-ccache-hygrometer-${{ matrix.name }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-ccache-hygrometer-${{ matrix.name }}-
             ${{ runner.os }}-ccache-hygrometer-
             ${{ runner.os }}-ccache-
 
       - name: Configure ccache
-        run: ccache -M 100M
+        run: ccache -M 200M
 
       - name: Restore signing key
         run: echo "$MCUBOOT_DEV_SIGNING_KEY" > SW/keys/dev.pem
         env:
           MCUBOOT_DEV_SIGNING_KEY: ${{ secrets.MCUBOOT_DEV_SIGNING_KEY }}
 
-      - name: Build
+      - name: Build Debug
         working-directory: SW
         run: |
           west build \
             -b ${{ matrix.board }} \
-            -p always \
             hygrometer \
-            -- -DBOARD_ROOT=$(pwd) -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+            -- -DBOARD_ROOT=$(pwd) \
+            -DEXTRA_CONF_FILE="prj_extra_rtt.conf"
 
       - name: Install clang-tidy
         run: |
           apt-get update && apt-get install -y --no-install-recommends clang-tidy
 
-      - name: Run clang-tidy
+      - name: Build BTHome Release
         working-directory: SW
         run: |
-          # Strip GCC-only flags that clang-tidy chokes on (workaround until LLVM 22)
-          sed -e 's/-fno-printf-return-value//g' \
-              -e 's/-fno-reorder-functions//g' \
-              -e 's/-mfp16-format=ieee//g' \
-              -e 's/--param=min-pagesize=0//g' \
-              -e 's/--specs=picolibc\.specs//g' \
-              build/hygrometer/compile_commands.json > /tmp/compile_commands.json
-          find hygrometer/src -name '*.c' -o -name '*.cpp' -o -name '*.h' \
-            | xargs clang-tidy -p /tmp --warnings-as-errors='*'
+          west build \
+            -b ${{ matrix.board }} \
+            --build-dir build-bthome \
+            hygrometer \
+            -- -DBOARD_ROOT=$(pwd) \
+            -DEXTRA_CONF_FILE=prj_extra_release.conf \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Run clang-tidy (BTHome)
+        working-directory: SW
+        run: ./tidy.sh build-bthome "$(pwd)/hygrometer/src/"
+
+      - name: Build Matter Release
+        working-directory: SW
+        run: |
+          west build \
+            -b ${{ matrix.board }} \
+            --build-dir build-matter \
+            hygrometer \
+            -- -DBOARD_ROOT=$(pwd) \
+            -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" \
+            -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Run clang-tidy (Matter)
+        working-directory: SW
+        run: ./tidy.sh build-matter "$(pwd)/hygrometer/src/"
 
       - name: Show ccache stats
         if: always()
@@ -121,5 +141,6 @@ jobs:
         with:
           name: hygrometer-${{ matrix.name }}
           path: |
-            SW/build/merged.hex
             SW/build/dfu_application.zip
+            SW/build-bthome/dfu_application.zip
+            SW/build-matter/dfu_application.zip

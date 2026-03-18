@@ -1,12 +1,4 @@
 ---
-# TODO: Once LLVM 22 ships (~Aug 2026), replace the sed workaround in CI with:
-#   CompilationArgsToRemoveRegex:
-#     - '-fno-printf-return-value'
-#     - '-fno-reorder-functions'
-#     - '-mfp16-format=.*'
-#     - '--param=.*'
-#     - '--specs=.*'
-# See https://github.com/llvm/llvm-project/pull/164344
 Checks: >
   -*,
   bugprone-argument-comment,
@@ -23,4 +15,4 @@ Checks: >
   readability-inconsistent-declaration-parameter-name,
   readability-redundant-control-flow
 WarningsAsErrors: '*'
-HeaderFilterRegex: '(devkit|hygrometer|soil_sensor|esphome)/.*'
+HeaderFilterRegex: 'SW/(?!west/)'

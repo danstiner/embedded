@@ -1,8 +1,0 @@
-/* 2026v1: I2C22 is Qwiic J8 (not present on v2) */
-&i2c22 {
-	status = "disabled";
-	clock-frequency = <I2C_BITRATE_STANDARD>;
-	pinctrl-0 = <&i2c22_default>;
-	pinctrl-1 = <&i2c22_sleep>;
-	pinctrl-names = "default", "sleep";
-};

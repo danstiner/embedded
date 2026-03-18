@@ -6,6 +6,7 @@
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/drivers/mfd/npm13xx.h>
+#include <ram_pwrdn.h>
 
 #include "bthome.h"
 
@@ -100,6 +101,8 @@ BT_CONN_CB_DEFINE(conn_callbacks) = {
 
 int main(void)
 {
+	power_down_unused_ram();
+
 	int err;
 
 	/* Set POF threshold to 3.1V (register base=0x01, offset=0x06, value=0x05) */
