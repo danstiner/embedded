@@ -55,6 +55,12 @@ int sensor_read_battery(sensor_state *state);
 /** Initialize fuel gauge. Call once after sensor_init. */
 void sensor_fuel_gauge_init(void);
 
+/** Inform fuel gauge of upcoming idle/sleep period.
+ *  Call before entering low-power sleep so the library can account for
+ *  discharge accurately during sleep when fuel-guage processing is
+ * not being run by sensor_read_battery(). */
+void sensor_fuel_gauge_idle_set(void);
+
 /** Force recalibration of STCC4 CO2 sensor.
  *  Wakes sensor, runs FRC at target_co2_ppm, puts sensor back to sleep.
  *  Returns 0 on success, negative errno on failure. */

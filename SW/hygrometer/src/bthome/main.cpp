@@ -326,6 +326,7 @@ int main()
 				     {sensors.battery.soc_pct, sensors.battery.valid});
 
 		cycle++;
+		sensor_fuel_gauge_idle_set();
 		k_sleep(K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
 	}
 

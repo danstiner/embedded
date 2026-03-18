@@ -454,6 +454,15 @@ int sensor_read_battery(sensor_state *state)
 #endif
 }
 
+void sensor_fuel_gauge_idle_set(void)
+{
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE) && HAVE_BATT
+	if (fg_initialized) {
+		nrf_fuel_gauge_idle_set(fg_last_v, fg_last_t, 10e-6f);
+	}
+#endif
+}
+
 /* ---- Force recalibration STCC4 ---- */
 int sensor_force_recalibration_stcc4(uint16_t target_co2_ppm)
 {

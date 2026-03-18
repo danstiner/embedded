@@ -418,7 +418,7 @@ int main(void)
 				test_pins[i].name);
 			gpio_pin_set(test_pins[i].port, test_pins[i].pin, 1);
 			/* Inform fuel gauge of low-power sleep period */
-			nrf_fuel_gauge_idle_set(fg_voltage_f, fg_temp_f, 0.050e-3f);
+			nrf_fuel_gauge_idle_set(fg_voltage_f, fg_temp_f, 10e-6f);
 			k_sleep(K_SECONDS(5));
 			gpio_pin_set(test_pins[i].port, test_pins[i].pin, 0);
 		}
