@@ -411,7 +411,7 @@ int main(void)
 
 	while (true) {
 		for (int i = 0; i < ARRAY_SIZE(test_pins); i++) {
-			LOG_DBG("PIN TEST [%d/%d]: %s HIGH", i + 1, ARRAY_SIZE(test_pins),
+			LOG_INF("PIN TEST [%d/%d]: %s HIGH", i + 1, ARRAY_SIZE(test_pins),
 				test_pins[i].name);
 			gpio_pin_set(test_pins[i].port, test_pins[i].pin, 1);
 			/* Inform fuel gauge of low-power sleep period */
