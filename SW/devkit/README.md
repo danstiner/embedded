@@ -12,19 +12,20 @@ Sample application for the BL54L15u development board. Tests GPIO, LEDs, and but
 ### Build
 
 ```bash
-west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -- -DBOARD_ROOT=..
+west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -- -DBOARD_ROOT=..
 ```
 
 Add `--pristine` (or `-p`) to force a clean rebuild.
 
 ### Release build
 
-For production, overlay `prj_release.conf` to extend the measurement interval to 5 minutes and strip logging:
+Strips logging and reduces power consumption:
 
 ```bash
-west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -p \
-  --extra-conf prj_release.conf \
-  -- -DBOARD_ROOT=..
+west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -p \
+  -- -DBOARD_ROOT=.. \
+  -DEXTRA_CONF_FILE=prj_extra_release.conf \
+  -Dmcuboot_EXTRA_CONF_FILE=sysbuild/mcuboot_extra_release.conf
 ```
 
 ### Production build
@@ -32,9 +33,11 @@ west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -p \
 Signs with the production key, enables FPROTECT and APPROTECT:
 
 ```bash
-west build -b bl54l15u_devkit@2026v1/nrf54l15/cpuapp -p \
-  --extra-conf prj_release.conf \
-  -- -DBOARD_ROOT=.. -DFILE_SUFFIX=production
+west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -p \
+  -- -DBOARD_ROOT=.. \
+  -DEXTRA_CONF_FILE=prj_extra_production.conf \
+  -Dmcuboot_EXTRA_CONF_FILE=sysbuild/mcuboot_extra_production.conf \
+  -DSB_EXTRA_CONF_FILE=sysbuild_extra_production.conf
 ```
 
 ### Flash

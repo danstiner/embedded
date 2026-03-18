@@ -70,15 +70,14 @@ The default revision is `2026v2`, but the `@<revision>` qualifier is always requ
 
 ### Release build
 
-For production, overlay `prj_release.conf` to extend the measurement interval to 5 minutes and strip logging:
+Strips logging, extends measurement interval to 60s, and reduces power consumption:
 
 ```sh
 west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -p \
-  --extra-conf prj_release.conf \
-  -- -DBOARD_ROOT=..
+  -- -DBOARD_ROOT=.. \
+  -DEXTRA_CONF_FILE=prj_extra_release.conf \
+  -Dmcuboot_EXTRA_CONF_FILE=sysbuild/mcuboot_extra_release.conf
 ```
-
-`--extra-conf` is the west CLI shorthand for `EXTRA_CONF_FILE`; it merges the file on top of `prj.conf` and applies only to the application image (not MCUboot). Do not combine it with `-DEXTRA_CONF_FILE` on the same command line.
 
 ### Production build
 
@@ -86,8 +85,10 @@ Signs with the production key, enables FPROTECT and APPROTECT:
 
 ```sh
 west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -p \
-  --extra-conf prj_release.conf \
-  -- -DBOARD_ROOT=.. -DFILE_SUFFIX=production
+  -- -DBOARD_ROOT=.. \
+  -DEXTRA_CONF_FILE=prj_extra_production.conf \
+  -Dmcuboot_EXTRA_CONF_FILE=sysbuild/mcuboot_extra_production.conf \
+  -DSB_EXTRA_CONF_FILE=sysbuild_extra_production.conf
 ```
 
 ### Flashing
@@ -231,8 +232,7 @@ SW/
     ├── prj.conf                   # Kconfig (BLE broadcaster, I2C, sensor, MCUboot)
     ├── sysbuild.conf              # Sysbuild MCUboot enable
     ├── sysbuild/
-    │   ├── mcuboot.conf           # MCUboot LF synth clock + RTT logging
-    │   └── mcuboot.overlay        # MCUboot boot partition + disable PMIC I2C
+    │   └── mcuboot.conf           # MCUboot size opts + KMU key slots
     ├── boards/
     │   ├── bl54l15u_devkit_nrf54l15_cpuapp.overlay         # Common: BUCK2/LDO1 power
     │   ├── bl54l15u_devkit_nrf54l15_cpuapp_2026v1.overlay  # v1: FDC1004 on I2C21

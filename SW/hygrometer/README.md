@@ -20,9 +20,9 @@ west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=..
 ```
 
 
-Extra configuration files can be mixed in for debug logs over RTT or UART:
+Extra configuration files can be mixed in, e.g. for debug logs over RTT:
 ```sh
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF=prj_extra_rtt.conf
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF_FILE=sysbuild/mcuboot_extra_rtt.conf
 ```
 
 Or for Matter over Thread, release mode, production signing, etc:
@@ -388,7 +388,7 @@ uart:~$ matter factoryreset
 
 ### System OFF Deep Sleep Mode
 
-**Release build** (prj_release.conf) with 300 second measurement interval:
+**Release build** (prj_extra_release.conf) with 300 second measurement interval:
 - **Sleep**: <5µA (System OFF mode)
 - **Active**: ~1-2mA for ~10ms (CPU + ADC + temperature sensor)
 - **Average**: ~5-10µA overall

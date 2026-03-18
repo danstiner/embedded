@@ -10,9 +10,7 @@
 #include <zephyr/drivers/watchdog.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/drivers/sensor.h>
-#if IS_ENABLED(CONFIG_RAM_POWER_DOWN_LIBRARY)
 #include <ram_pwrdn.h>
-#endif
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_pmic), okay)
 #include <zephyr/drivers/mfd/npm13xx.h>
 #endif
@@ -242,11 +240,7 @@ int main()
 	/* LDOSW is managed by sensor_init() — enabled for probing,
 	 * then disabled if no BME688/STCC4 are detected. */
 
-	/* Power off unused SRAM sections to reduce idle leakage.
-	 * nRF54L15 has 8 × 32KB sections; power off everything above _image_ram_end. */
-#if IS_ENABLED(CONFIG_RAM_POWER_DOWN_LIBRARY)
 	power_down_unused_ram();
-#endif
 
 	/* Boot LED flash for visual identification */
 #if DT_NODE_HAS_STATUS(DT_ALIAS(boot_led), okay)

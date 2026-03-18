@@ -13,6 +13,7 @@
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/mgmt/mcumgr/transport/smp_bt.h>
 #include <nrf_fuel_gauge.h>
+#include <ram_pwrdn.h>
 
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 
@@ -221,6 +222,8 @@ static void button_pressed(const struct device *dev, struct gpio_callback *cb, u
 
 int main(void)
 {
+	power_down_unused_ram();
+
 	printk("\n\n=== BL54L15u DevKit ===\n");
 	printk("Button-to-LED (interrupt-driven)\n");
 	printk("================================\n\n");
