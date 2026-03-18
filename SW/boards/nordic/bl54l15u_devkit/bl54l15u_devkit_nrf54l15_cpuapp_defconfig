@@ -9,8 +9,3 @@ CONFIG_SERIAL=n
 
 # Use Nordic Softdevice Controller (not open-source LL)
 CONFIG_BT_LL_SW_SPLIT=n
-
-# Use internal LFRC instead of LFXO (no external crystal on devkit 2026v1)
-CONFIG_CLOCK_CONTROL_NRF_K32SRC_XTAL=n
-CONFIG_CLOCK_CONTROL_NRF_K32SRC_RC=n
-CONFIG_CLOCK_CONTROL_NRF_K32SRC_SYNTH=y
