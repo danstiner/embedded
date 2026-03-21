@@ -40,17 +40,18 @@ struct sensor_state {
 	struct sht45_reading sht45;
 	struct bme688_reading bme688;
 	struct stcc4_reading stcc4;
+	uint8_t stcc4_discards_remaining;
 	struct battery_reading battery;
 };
 
 /** Probe all sensors, populate have_* flags. Call once at boot. */
-void sensor_init(sensor_state *state);
+void sensor_init(sensor_state &state);
 
 /** Individual sensor read functions. Each updates its sub-struct + timestamp. */
-int sensor_read_sht45(sensor_state *state);
-int sensor_read_bme688(sensor_state *state);
-int sensor_read_stcc4(sensor_state *state);
-int sensor_read_battery(sensor_state *state);
+int sensor_read_sht45(sensor_state &state);
+int sensor_read_bme688(sensor_state &state);
+int sensor_read_stcc4(sensor_state &state);
+int sensor_read_battery(sensor_state &state);
 
 /** Initialize fuel gauge. Call once after sensor_init. */
 void sensor_fuel_gauge_init(void);

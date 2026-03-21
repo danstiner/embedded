@@ -13,15 +13,16 @@
 LOG_MODULE_REGISTER(stcc4, LOG_LEVEL_INF);
 
 /* I2C commands (big-endian) */
-#define CMD_GET_PRODUCT_ID      0x365B
-#define CMD_EXIT_SLEEP          0x00 /* Single byte! */
-#define CMD_SET_RHT_COMP        0xE000
-#define CMD_SET_PRESSURE_COMP   0xE016
-#define CMD_STOP_CONTINUOUS     0x3F86
-#define CMD_ENTER_SLEEP         0x3650
-#define CMD_MEASURE_SINGLE_SHOT 0x219D
-#define CMD_READ_MEASUREMENT    0xEC05
-#define CMD_FORCE_RECALIBRATION 0x362F
+#define CMD_GET_PRODUCT_ID       0x365B
+#define CMD_EXIT_SLEEP           0x00 /* Single byte! */
+#define CMD_SET_RHT_COMP         0xE000
+#define CMD_SET_PRESSURE_COMP    0xE016
+#define CMD_STOP_CONTINUOUS      0x3F86
+#define CMD_ENTER_SLEEP          0x3650
+#define CMD_MEASURE_SINGLE_SHOT  0x219D
+#define CMD_READ_MEASUREMENT     0xEC05
+#define CMD_FORCE_RECALIBRATION  0x362F
+#define CMD_PERFORM_CONDITIONING 0x29BC
 
 /* Sensirion CRC-8: polynomial 0x31, init 0xFF */
 static uint8_t sensirion_crc8(const uint8_t *data, size_t len)
@@ -192,7 +193,7 @@ int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_
 	return 0;
 }
 
-int stcc4_measure(const struct device *i2c, int16_t *co2_ppm)
+int stcc4_measure(const struct device *i2c, int16_t &co2_ppm)
 {
 	int ret;
 
@@ -224,13 +225,28 @@ int stcc4_measure(const struct device *i2c, int16_t *co2_ppm)
 	}
 
 	/* CO2 is a signed 16-bit value in ppm at offset 0 */
-	*co2_ppm = (int16_t)(((uint16_t)data[0] << 8) | data[1]);
+	co2_ppm = (int16_t)(((uint16_t)data[0] << 8) | data[1]);
+
+	return 0;
+}
+
+int stcc4_perform_conditioning(const struct device *i2c)
+{
+	int ret = send_cmd(i2c, CMD_PERFORM_CONDITIONING);
+	if (ret) {
+		LOG_ERR("perform_conditioning failed: %d", ret);
+		return ret;
+	}
+
+	LOG_INF("STCC4 conditioning started (~22s)");
+	k_msleep(22000);
+	LOG_INF("STCC4 conditioning complete");
 
 	return 0;
 }
 
 int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
-			      uint16_t *correction)
+			      uint16_t &correction)
 {
 	uint8_t buf[5];
 
@@ -260,13 +276,13 @@ int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
 		return ret;
 	}
 
-	*correction = ((uint16_t)data[0] << 8) | data[1];
+	correction = ((uint16_t)data[0] << 8) | data[1];
 
-	if (*correction == 0xFFFF) {
+	if (correction == 0xFFFF) {
 		LOG_ERR("FRC failed (sensor returned 0xFFFF)");
 		return -EIO;
 	}
 
-	LOG_INF("FRC correction: 0x%04X", *correction);
+	LOG_INF("FRC correction: 0x%04X", correction);
 	return 0;
 }

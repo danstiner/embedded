@@ -51,6 +51,7 @@ static const struct device *bme688_dev = DEVICE_DT_GET(DT_NODELABEL(bme688));
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(bme688), okay)
 #define HAVE_STCC4_BUS 1
 static const struct device *sensor_bus = DEVICE_DT_GET(DT_BUS(DT_NODELABEL(bme688)));
+static K_MUTEX_DEFINE(stcc4_mutex);
 #else
 #define HAVE_STCC4_BUS 0
 #endif
@@ -130,13 +131,13 @@ static void charge_status_inform(int32_t chg_status)
 #endif
 
 /* ---- Sensor init ---- */
-void sensor_init(sensor_state *state)
+void sensor_init(sensor_state &state)
 {
-	memset(state, 0, sizeof(*state));
+	memset(&state, 0, sizeof(state));
 
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
 	if (device_is_ready(sht45)) {
-		state->have_sht45 = true;
+		state.have_sht45 = true;
 		LOG_INF("SHT45 ready");
 	}
 #endif
@@ -148,7 +149,7 @@ void sensor_init(sensor_state *state)
 	k_msleep(2);
 
 	if (device_is_ready(bme688_dev)) {
-		state->have_bme688 = true;
+		state.have_bme688 = true;
 		LOG_INF("BME688 detected");
 	} else {
 		LOG_INF("BME688 not present — skipping");
@@ -159,20 +160,24 @@ void sensor_init(sensor_state *state)
 	/* Wait for sensor start-up */
 	k_msleep(10);
 	if (device_is_ready(sensor_bus)) {
+		k_mutex_lock(&stcc4_mutex, K_FOREVER);
 		stcc4_exit_sleep(sensor_bus);
 		if (stcc4_probe(sensor_bus)) {
-			state->have_stcc4 = true;
+			state.have_stcc4 = true;
+			state.stcc4_discards_remaining = 2;
 			LOG_INF("STCC4 detected");
+			stcc4_perform_conditioning(sensor_bus);
 			stcc4_enter_sleep(sensor_bus);
 		} else {
 			LOG_INF("STCC4 not present — skipping");
 		}
+		k_mutex_unlock(&stcc4_mutex);
 	}
 #endif
 
 	/* If no I2C20 sensors found, disable LDOSW and suspend I2C20 to save power */
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(npm2100_ldsw), okay)
-	if (!state->have_bme688 && !state->have_stcc4) {
+	if (!state.have_bme688 && !state.have_stcc4) {
 		const struct device *ldsw = DEVICE_DT_GET(DT_NODELABEL(npm2100_ldsw));
 		if (device_is_ready(ldsw)) {
 			regulator_disable(ldsw);
@@ -193,7 +198,7 @@ void sensor_init(sensor_state *state)
 
 #if HAVE_BATT
 	if (device_is_ready(vbat_dev)) {
-		state->have_battery = true;
+		state.have_battery = true;
 		LOG_INF("Battery sensor ready");
 	}
 #endif
@@ -267,34 +272,34 @@ void sensor_fuel_gauge_init(void)
 }
 
 /* ---- Read SHT45 ---- */
-int sensor_read_sht45(sensor_state *state)
+int sensor_read_sht45(sensor_state &state)
 {
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
-	if (!state->have_sht45) {
+	if (!state.have_sht45) {
 		return -ENODEV;
 	}
 
 	int ret = sensor_sample_fetch(sht45);
 	if (ret) {
 		LOG_ERR("SHT45 fetch failed: %d", ret);
-		state->sht45.valid = false;
+		state.sht45.valid = false;
 		return ret;
 	}
 
 	struct sensor_value value;
 
 	sensor_channel_get(sht45, SENSOR_CHAN_AMBIENT_TEMP, &value);
-	state->sht45.temperature_cC = value.val1 * 100 + value.val2 / 10000;
-	state->sht45.temp_raw_ticks = temp_to_raw_ticks(&value);
+	state.sht45.temperature_cC = value.val1 * 100 + value.val2 / 10000;
+	state.sht45.temp_raw_ticks = temp_to_raw_ticks(&value);
 	LOG_INF("SHT45: T=%d.%02d°C", value.val1, value.val2 / 10000);
 
 	sensor_channel_get(sht45, SENSOR_CHAN_HUMIDITY, &value);
-	state->sht45.humidity_cPct = value.val1 * 100 + value.val2 / 10000;
-	state->sht45.hum_raw_ticks = hum_to_raw_ticks(&value);
+	state.sht45.humidity_cPct = value.val1 * 100 + value.val2 / 10000;
+	state.sht45.hum_raw_ticks = hum_to_raw_ticks(&value);
 	LOG_INF("SHT45: RH=%d.%02d%%", value.val1, value.val2 / 10000);
 
-	state->sht45.timestamp = k_uptime_get();
-	state->sht45.valid = true;
+	state.sht45.timestamp = k_uptime_get();
+	state.sht45.valid = true;
 	return 0;
 #else
 	return -ENOTSUP;
@@ -302,29 +307,29 @@ int sensor_read_sht45(sensor_state *state)
 }
 
 /* ---- Read BME688 ---- */
-int sensor_read_bme688(sensor_state *state)
+int sensor_read_bme688(sensor_state &state)
 {
 #if HAVE_BME688 && CONFIG_BME688_ENABLE
-	if (!state->have_bme688) {
+	if (!state.have_bme688) {
 		return -ENODEV;
 	}
 
 	int ret = sensor_sample_fetch(bme688_dev);
 	if (ret) {
 		LOG_WRN("BME688 fetch failed: %d", ret);
-		state->bme688.valid = false;
+		state.bme688.valid = false;
 		return ret;
 	}
 
 	struct sensor_value value;
 
 	sensor_channel_get(bme688_dev, SENSOR_CHAN_PRESS, &value);
-	state->bme688.pressure_Pa = value.val1 * 1000 + value.val2 / 1000;
-	state->bme688.pressure_kPa = (int16_t)value.val1;
+	state.bme688.pressure_Pa = value.val1 * 1000 + value.val2 / 1000;
+	state.bme688.pressure_kPa = (int16_t)value.val1;
 	LOG_INF("BME688: P=%d.%03d kPa", value.val1, value.val2 / 1000);
 
-	state->bme688.timestamp = k_uptime_get();
-	state->bme688.valid = true;
+	state.bme688.timestamp = k_uptime_get();
+	state.bme688.valid = true;
 	return 0;
 #else
 	return -ENOTSUP;
@@ -332,47 +337,62 @@ int sensor_read_bme688(sensor_state *state)
 }
 
 /* ---- Read STCC4 ---- */
-int sensor_read_stcc4(sensor_state *state)
+int sensor_read_stcc4(sensor_state &state)
 {
 #if HAVE_STCC4_BUS && CONFIG_STCC4_ENABLE
-	if (!state->have_stcc4) {
+	if (!state.have_stcc4) {
 		return -ENODEV;
+	}
+
+	/* Skip if FRC is in progress */
+	if (k_mutex_lock(&stcc4_mutex, K_NO_WAIT) != 0) {
+		LOG_INF("STCC4: skipping read, FRC in progress");
+		return -EBUSY;
 	}
 
 	/* Wake sensor from sleep before measurement */
 	stcc4_exit_sleep(sensor_bus);
 
 	/* Feed compensation from latest SHT45/BME688 readings */
-	if (state->sht45.valid) {
-		stcc4_set_rht_compensation(sensor_bus, state->sht45.temp_raw_ticks,
-					   state->sht45.hum_raw_ticks);
+	if (state.sht45.valid) {
+		stcc4_set_rht_compensation(sensor_bus, state.sht45.temp_raw_ticks,
+					   state.sht45.hum_raw_ticks);
 	}
-	if (state->bme688.valid) {
-		uint16_t pressure_enc = (uint16_t)(state->bme688.pressure_Pa / 2);
+	if (state.bme688.valid) {
+		uint16_t pressure_enc = (uint16_t)(state.bme688.pressure_Pa / 2);
 		stcc4_set_pressure_compensation(sensor_bus, pressure_enc);
 	}
 
 	int16_t co2;
-	int ret = stcc4_measure(sensor_bus, &co2);
+	int ret = stcc4_measure(sensor_bus, co2);
 
 	/* Put sensor back to sleep even if measurement fails */
 	stcc4_enter_sleep(sensor_bus);
+	k_mutex_unlock(&stcc4_mutex);
 
 	if (ret) {
 		LOG_WRN("STCC4 measure failed: %d", ret);
-		state->stcc4.valid = false;
+		state.stcc4.valid = false;
 		return ret;
 	}
 
 	if (co2 < 0) {
 		LOG_WRN("STCC4 negative CO2: %d", co2);
-		state->stcc4.valid = false;
+		state.stcc4.valid = false;
 		return ret;
 	}
 
-	state->stcc4.co2_ppm = co2;
-	state->stcc4.timestamp = k_uptime_get();
-	state->stcc4.valid = true;
+	if (state.stcc4_discards_remaining > 0) {
+		state.stcc4_discards_remaining--;
+		LOG_INF("STCC4: discarding bypass reading (%u remaining)",
+			state.stcc4_discards_remaining);
+		state.stcc4.valid = false;
+		return 0;
+	}
+
+	state.stcc4.co2_ppm = co2;
+	state.stcc4.timestamp = k_uptime_get();
+	state.stcc4.valid = true;
 	LOG_INF("STCC4: CO2=%u ppm", co2);
 
 	return 0;
@@ -382,17 +402,17 @@ int sensor_read_stcc4(sensor_state *state)
 }
 
 /* ---- Read battery ---- */
-int sensor_read_battery(sensor_state *state)
+int sensor_read_battery(sensor_state &state)
 {
 #if HAVE_BATT
-	if (!state->have_battery || !device_is_ready(vbat_dev)) {
+	if (!state.have_battery || !device_is_ready(vbat_dev)) {
 		return -ENODEV;
 	}
 
 	int ret = sensor_sample_fetch(vbat_dev);
 	if (ret) {
 		LOG_WRN("Battery voltage fetch failed: %d", ret);
-		state->battery.valid = false;
+		state.battery.valid = false;
 		return ret;
 	}
 
@@ -400,7 +420,7 @@ int sensor_read_battery(sensor_state *state)
 	ret = sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_VOLTAGE, &voltage);
 	if (ret) {
 		LOG_WRN("Battery voltage get failed: %d", ret);
-		state->battery.valid = false;
+		state.battery.valid = false;
 		return ret;
 	}
 
@@ -441,13 +461,13 @@ int sensor_read_battery(sensor_state *state)
 		fg_last_v = v;
 		fg_last_t = t;
 
-		state->battery.soc_pct = CLAMP((int)fg_last_soc, 0, 100);
+		state.battery.soc_pct = CLAMP((int)fg_last_soc, 0, 100);
 		LOG_INF("BAT_%%: %d%%", (int)fg_last_soc);
 	}
 #endif /* CONFIG_NRF_FUEL_GAUGE */
 
-	state->battery.timestamp = k_uptime_get();
-	state->battery.valid = true;
+	state.battery.timestamp = k_uptime_get();
+	state.battery.valid = true;
 	return 0;
 #else
 	return -ENOTSUP;
@@ -471,12 +491,30 @@ int sensor_force_recalibration_stcc4(uint16_t target_co2_ppm)
 		return -ENODEV;
 	}
 
+	/* Wait for main loop to finish any in-progress STCC4 read */
+	if (k_mutex_lock(&stcc4_mutex, K_SECONDS(30)) != 0) {
+		LOG_ERR("STCC4 FRC: sensor busy, aborting");
+		return -EBUSY;
+	}
+
 	stcc4_exit_sleep(sensor_bus);
 
+	/* Single-shot measurement so sensor is in idle mode (not sleep) for FRC */
+	int16_t co2_discard;
+	int ret = stcc4_measure(sensor_bus, co2_discard);
+	if (ret) {
+		LOG_ERR("STCC4 pre-FRC measurement failed: %d", ret);
+		stcc4_enter_sleep(sensor_bus);
+		k_mutex_unlock(&stcc4_mutex);
+		return ret;
+	}
+	LOG_INF("STCC4 pre-FRC reading: %d ppm", co2_discard);
+
 	uint16_t correction;
-	int ret = stcc4_force_recalibration(sensor_bus, target_co2_ppm, &correction);
+	ret = stcc4_force_recalibration(sensor_bus, target_co2_ppm, correction);
 
 	stcc4_enter_sleep(sensor_bus);
+	k_mutex_unlock(&stcc4_mutex);
 
 	if (ret) {
 		LOG_ERR("STCC4 FRC failed: %d", ret);

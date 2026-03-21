@@ -44,9 +44,9 @@ static struct bt_data sd[] = {
 static const struct device *fdc1004 = DEVICE_DT_GET_ANY(ti_fdc1004);
 static const struct device *charger = DEVICE_DT_GET_ANY(nordic_npm1304_charger);
 
-static void update_advertisement(opt_u16 moisture, opt_u16 voltage)
+static void update_advertisement(uint8_t packet_id, opt_u16 moisture, opt_u16 voltage)
 {
-	bthome_update_service_data(moisture, voltage);
+	bthome_update_service_data(packet_id, moisture, voltage);
 	ad[2] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
 					(uint8_t)service_data_len);
 
@@ -126,9 +126,11 @@ int main(void)
 		LOG_WRN("NPM1304 charger not ready");
 	}
 
+	uint8_t cycle = 0;
+
 	/* Start BLE advertising */
 	k_work_init(&advertise_work, advertise);
-	update_advertisement(opt_u16_none(), opt_u16_none());
+	update_advertisement(cycle, opt_u16_none(), opt_u16_none());
 	err = bt_enable(bt_ready);
 	if (err) {
 		LOG_ERR("Bluetooth init failed: %d", err);
@@ -191,7 +193,7 @@ int main(void)
 		}
 
 		/* Update advertised BTHome data */
-		update_advertisement(moisture, voltage);
+		update_advertisement(++cycle, moisture, voltage);
 
 		/* Sleep main thread until next measurement */
 		k_sleep(K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));

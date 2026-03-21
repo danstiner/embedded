@@ -1,4 +1,7 @@
 # For PCBs designed using KiCad: http://www.kicad-pcb.org/
+# KiCad local file history (KiCad 8+)
+.history/
+
 # Temporary files
 *.000
 *.bak

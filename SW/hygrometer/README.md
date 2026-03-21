@@ -14,20 +14,19 @@ Low power sensor for relative humidity, temperature, and water leaks utilizing t
 
 ### Builds
 
-The base build advertises over BLE in the BTHome format:
+Base build advertising over BLE in the BTHome format, with RTT logging:
 ```sh
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=..
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF_FILE=sysbuild/mcuboot_extra_rtt.conf
 ```
 
-
-Extra configuration files can be mixed in, e.g. for debug logs over RTT:
+Release mode with reduced power use:
 ```sh
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF_FILE=sysbuild/mcuboot_extra_rtt.conf
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_release.conf
 ```
 
-Or for Matter over Thread, release mode, production signing, etc:
+Matter over Thread mode (instead of BTHome BLE advertising):
 ```sh
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
 ```
 
 ### KMU Provisioning
@@ -35,8 +34,13 @@ west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -- -DBOARD_ROOT=.. -DEXTRA_CON
 Provision signing keys to the hardware KMU before first boot. See [`keys/README.md`](../keys/README.md) for details.
 
 ```sh
-# From SW/
-west ncs-provision upload -i keys/provision-dev.yml
+(cd .. && west ncs-provision upload -i keys/provision-dev.yml)
+```
+
+### Flash
+
+```bash
+west flash
 ```
 
 ### OTA update (BTHome build)
@@ -46,7 +50,7 @@ Build a new image, then flash it wirelessly using the SMP BLE transport:
 uv run ../ota.py flash --confirm
 ```
 
-## Matter Commissioning (Matter build only)
+## Matter over Thread
 
 ### Setup Credentials
 
@@ -105,24 +109,6 @@ QRCode:             MT:W0GU2OTB00KA0648G00
 QRCodeUrl:          https://project-chip.github.io/connectedhomeip/qrcode.html?data=MT%3AW0GU2OTB00KA0648G00
 ManualPairingCode:  34970112332
 ```
-
-### Accessing Temperature Data
-
-Once commissioned, the device exposes:
-- **Temperature Measurement Cluster** (0x0402) on Endpoint 0
-- **MeasuredValue** attribute: Temperature in 0.01°C units (e.g., 2534 = 25.34°C)
-- Updates every 5 seconds (debug) or 5 minutes (release)
-
-## Over-The-Air (OTA) Updates (Matter build only)
-
-The device supports Matter OTA updates using internal flash for staging new firmware.
-
-### Configuration
-
-OTA is enabled by default with:
-- **Secondary slot**: Internal flash
-- **Overwrite-only mode**: No swap, direct overwrite
-- **Power consumption**: <1µA when idle, ~5-15mA during download (rare event)
 
 ### Building an OTA Update
 

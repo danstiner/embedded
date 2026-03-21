@@ -42,9 +42,9 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 	0x84, 0xaa, 0x60, 0x74, 0x52, 0x8a, 0x8b, 0x86, 0xd3, 0x4c, 0xb7, 0x1d, 0x1d, 0xdc, 0x53,  \
 		0x8d
 
-/* Connectable advertising parameters — ~2.0–2.5s interval to save power */
-#define ADV_INT_MIN 0x0C80 /* 2.0 s in 0.625 ms units */
-#define ADV_INT_MAX 0x0FA0 /* 2.5 s in 0.625 ms units */
+/* Connectable advertising parameters — ~4.0–4.5s interval to save power */
+#define ADV_INT_MIN 0x1900 /* 4.0 s in 0.625 ms units */
+#define ADV_INT_MAX 0x1C20 /* 4.5 s in 0.625 ms units */
 #define ADV_PARAM_CONN                                                                             \
 	BT_LE_ADV_PARAM(BT_LE_ADV_OPT_USE_IDENTITY | BT_LE_ADV_OPT_CONN, ADV_INT_MIN, ADV_INT_MAX, \
 			NULL)
@@ -52,8 +52,9 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 constexpr bt_data AD_FLAG_BYTES =
 	BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR);
 
-/* Max service data: UUID(2) + info(1) + battery%(2) + temp(3) + hum(3) + pressure(4) + co2(3) */
-#define SERVICE_DATA_MAX 18
+/* Max service data: UUID(2) + info(1) + packet_id(2) + battery%(2) + temp(3) + hum(3) + pressure(4)
+ * + co2(3) */
+#define SERVICE_DATA_MAX 20
 
 static uint8_t service_data[SERVICE_DATA_MAX];
 static size_t service_data_len;
@@ -125,8 +126,9 @@ static void sht4x_heater_pulse(void)
 }
 #endif
 
-static void bthome_update_service_data(opt_i16 temperature_mC, opt_u16 humidity_mPct,
-				       opt_u32 pressure_Pa, opt_u16 co2_ppm, opt_u8 bat_soc)
+static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC,
+				       opt_u16 humidity_mPct, opt_u32 pressure_Pa, opt_u16 co2_ppm,
+				       opt_u8 bat_soc)
 {
 	size_t idx = 0;
 
@@ -135,6 +137,10 @@ static void bthome_update_service_data(opt_i16 temperature_mC, opt_u16 humidity_
 	service_data[idx++] = (uint8_t)(BTHOME_UUID >> 8);
 	/* Device info */
 	service_data[idx++] = BTHOME_DEVICE_INFO;
+
+	/* Packet ID: uint8, rolling counter */
+	service_data[idx++] = BTHOME_OBJ_PACKET_ID;
+	service_data[idx++] = packet_id;
 
 	/* Battery state-of-charge %: uint8, 1% */
 	if (bat_soc.is_some) {
@@ -171,14 +177,16 @@ static void bthome_update_service_data(opt_i16 temperature_mC, opt_u16 humidity_
 		service_data[idx++] = (uint8_t)((co2_ppm.value >> 8) & 0xFF);
 	}
 
+	__ASSERT(idx <= SERVICE_DATA_MAX, "BTHome service data overflow");
 	service_data_len = idx;
 }
 
 /* ---- Update BTHome advertisement data ---- */
-static void update_advertisement(opt_i16 temperature_mC, opt_u16 humidity_mPct, opt_u32 pressure_Pa,
-				 opt_u16 co2_ppm, opt_u8 bat_soc)
+static void update_advertisement(uint8_t packet_id, opt_i16 temperature_mC, opt_u16 humidity_mPct,
+				 opt_u32 pressure_Pa, opt_u16 co2_ppm, opt_u8 bat_soc)
 {
-	bthome_update_service_data(temperature_mC, humidity_mPct, pressure_Pa, co2_ppm, bat_soc);
+	bthome_update_service_data(packet_id, temperature_mC, humidity_mPct, pressure_Pa, co2_ppm,
+				   bat_soc);
 	ad[1] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
 					(uint8_t)service_data_len);
 
@@ -283,12 +291,14 @@ int main()
 	co2_cal_svc_init();
 
 	sensor_state sensors;
-	sensor_init(&sensors);
+	sensor_init(sensors);
 	sensor_fuel_gauge_init();
+
+	uint32_t cycle = 0;
 
 	/* Start BLE advertising */
 	k_work_init(&advertise_work, advertise);
-	update_advertisement(opt_i16_none(), opt_u16_none(), opt_u32_none(), opt_u16_none(),
+	update_advertisement(cycle, opt_i16_none(), opt_u16_none(), opt_u32_none(), opt_u16_none(),
 			     opt_u8_none());
 	int err = bt_enable(bt_ready);
 	if (err) {
@@ -296,13 +306,11 @@ int main()
 		return -1;
 	}
 
-	uint32_t cycle = 0;
-
 	while (true) {
 		bool co2_cycle = (cycle % CONFIG_APP_CO2_INTERVAL_DIVISOR) == 0;
 		bool pressure_cycle = (cycle % CONFIG_APP_PRESSURE_INTERVAL_DIVISOR) == 0;
 
-		sensor_read_sht45(&sensors);
+		sensor_read_sht45(sensors);
 #if IS_ENABLED(CONFIG_SHT4X_USE_HEATER) && DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
 		if (sensors.sht45.valid) {
 			sht4x_heater_pulse();
@@ -310,22 +318,20 @@ int main()
 #endif
 
 		if (pressure_cycle) {
-			sensor_read_bme688(&sensors);
+			sensor_read_bme688(sensors);
 		}
 
 		if (co2_cycle) {
-			sensor_read_stcc4(&sensors);
+			sensor_read_stcc4(sensors);
 		}
 
-		sensor_read_battery(&sensors);
+		sensor_read_battery(sensors);
 
-		update_advertisement({sensors.sht45.temperature_cC, sensors.sht45.valid},
+		update_advertisement(++cycle, {sensors.sht45.temperature_cC, sensors.sht45.valid},
 				     {sensors.sht45.humidity_cPct, sensors.sht45.valid},
 				     {sensors.bme688.pressure_Pa, sensors.bme688.valid},
 				     {sensors.stcc4.co2_ppm, sensors.stcc4.valid},
 				     {sensors.battery.soc_pct, sensors.battery.valid});
-
-		cycle++;
 		sensor_fuel_gauge_idle_set();
 		k_sleep(K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
 	}

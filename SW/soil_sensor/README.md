@@ -75,8 +75,7 @@ Strips logging, extends measurement interval to 60s, and reduces power consumpti
 ```sh
 west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -p \
   -- -DBOARD_ROOT=.. \
-  -DEXTRA_CONF_FILE=prj_extra_release.conf \
-  -Dmcuboot_EXTRA_CONF_FILE=sysbuild/mcuboot_extra_release.conf
+  -DEXTRA_CONF_FILE=prj_extra_release.conf
 ```
 
 ### Production build
@@ -87,7 +86,7 @@ Signs with the production key, enables FPROTECT and APPROTECT:
 west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -p \
   -- -DBOARD_ROOT=.. \
   -DEXTRA_CONF_FILE=prj_extra_production.conf \
-  -Dmcuboot_EXTRA_CONF_FILE=sysbuild/mcuboot_extra_production.conf \
+  -Dmcuboot_EXTRA_CONF_FILE=$PWD/sysbuild/mcuboot_extra_production.conf \
   -DSB_EXTRA_CONF_FILE=sysbuild_extra_production.conf
 ```
 

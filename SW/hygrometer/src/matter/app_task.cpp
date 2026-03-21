@@ -22,7 +22,7 @@ namespace
 {
 constexpr chip::EndpointId kSensorEndpointId = 1;
 
-Nrf::Matter::IdentifyCluster sIdentifyCluster(kSensorEndpointId);
+Nrf::Matter::IdentifyCluster identify_cluster(kSensorEndpointId);
 } /* namespace */
 
 void AppTask::ButtonEventHandler(Nrf::ButtonState state, Nrf::ButtonMask hasChanged)
@@ -44,35 +44,35 @@ void AppTask::SensorTimerCallback(k_timer *timer)
 void AppTask::UpdateSensorAttributes()
 {
 	/* 1. SHT45 — every cycle */
-	if (sensor_read_sht45(&mSensors) == 0) {
+	if (sensor_read_sht45(sensors) == 0) {
 		Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
-			kSensorEndpointId, mSensors.sht45.temperature_cC);
+			kSensorEndpointId, sensors.sht45.temperature_cC);
 		Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
-			kSensorEndpointId, mSensors.sht45.humidity_cPct);
+			kSensorEndpointId, sensors.sht45.humidity_cPct);
 	}
 
 	/* 2. BME688 pressure — independent cadence */
-	bool pressure_cycle = (mCycle % CONFIG_APP_PRESSURE_INTERVAL_DIVISOR) == 0;
+	bool pressure_cycle = (cycle % CONFIG_APP_PRESSURE_INTERVAL_DIVISOR) == 0;
 	if (pressure_cycle) {
-		sensor_read_bme688(&mSensors);
+		sensor_read_bme688(sensors);
 	}
 
 	/* 3. STCC4 CO2 — expensive cycle cadence */
-	bool co2_cycle = (mCycle++ % CONFIG_APP_CO2_INTERVAL_DIVISOR) == 0;
+	bool co2_cycle = (cycle++ % CONFIG_APP_CO2_INTERVAL_DIVISOR) == 0;
 	if (co2_cycle) {
-		if (sensor_read_stcc4(&mSensors) == 0) {
-			mCo2Instance.SetMeasuredValue(DataModel::MakeNullable(
-				static_cast<float>(mSensors.stcc4.co2_ppm)));
+		if (sensor_read_stcc4(sensors) == 0) {
+			co2_instance.SetMeasuredValue(
+				DataModel::MakeNullable(static_cast<float>(sensors.stcc4.co2_ppm)));
 		}
 	}
 
-	if (mSensors.bme688.valid) {
+	if (sensors.bme688.valid) {
 		Clusters::PressureMeasurement::Attributes::MeasuredValue::Set(
-			kSensorEndpointId, mSensors.bme688.pressure_kPa);
+			kSensorEndpointId, sensors.bme688.pressure_kPa);
 	}
 
 	/* 4. Battery */
-	sensor_read_battery(&mSensors);
+	sensor_read_battery(sensors);
 }
 
 CHIP_ERROR AppTask::Init()
@@ -87,15 +87,15 @@ CHIP_ERROR AppTask::Init()
 
 	ReturnErrorOnFailure(
 		Nrf::Matter::RegisterEventHandler(Nrf::Board::DefaultMatterEventHandler, 0));
-	ReturnErrorOnFailure(sIdentifyCluster.Init());
+	ReturnErrorOnFailure(identify_cluster.Init());
 
 	/* Initialize CO2 concentration cluster instance */
-	ReturnErrorOnFailure(mCo2Instance.Init());
-	mCo2Instance.SetMinMeasuredValue(MakeNullable(0.0f));
-	mCo2Instance.SetMaxMeasuredValue(MakeNullable(40000.0f));
+	ReturnErrorOnFailure(co2_instance.Init());
+	co2_instance.SetMinMeasuredValue(MakeNullable(0.0f));
+	co2_instance.SetMaxMeasuredValue(MakeNullable(40000.0f));
 
 	/* Initialize sensors */
-	sensor_init(&mSensors);
+	sensor_init(sensors);
 	sensor_fuel_gauge_init();
 
 	return Nrf::Matter::StartServer();
@@ -106,9 +106,9 @@ CHIP_ERROR AppTask::StartApp()
 	ReturnErrorOnFailure(Init());
 
 	uint32_t intervalMs = CONFIG_APP_MEASUREMENT_INTERVAL_SEC * 1000;
-	k_timer_init(&mTimer, AppTask::SensorTimerCallback, nullptr);
-	k_timer_user_data_set(&mTimer, this);
-	k_timer_start(&mTimer, K_MSEC(intervalMs), K_MSEC(intervalMs));
+	k_timer_init(&timer, AppTask::SensorTimerCallback, nullptr);
+	k_timer_user_data_set(&timer, this);
+	k_timer_start(&timer, K_MSEC(intervalMs), K_MSEC(intervalMs));
 
 	while (true) {
 		Nrf::DispatchNextTask();

@@ -29,22 +29,68 @@ static struct gpio_callback button_cb_data;
 static const struct device *charger = DEVICE_DT_GET(DT_NODELABEL(npm1304_charger));
 
 /* ---- BTHome v2 ---- */
-#define BTHOME_UUID        0xFCD2
-#define BTHOME_DEVICE_INFO 0x40 /* Unencrypted, BTHome v2 */
-#define BTHOME_OBJ_BATTERY 0x01 /* uint8, 1% */
-#define BTHOME_OBJ_VOLTAGE 0x0C /* uint16, 0.001 V */
+#define BTHOME_UUID          0xFCD2
+#define BTHOME_DEVICE_INFO   0x40 /* Unencrypted, BTHome v2 */
+#define BTHOME_OBJ_PACKET_ID 0x00 /* uint8, rolling counter */
+#define BTHOME_OBJ_BATTERY   0x01 /* uint8, 1% */
+#define BTHOME_OBJ_VOLTAGE   0x0C /* uint16, 0.001 V */
 
-/* BTHome payload: UUID(2) + info(1) + battery%(1+1) + voltage(1+2) = 8 bytes */
-static uint8_t bthome_data[8] = {
-	(uint8_t)(BTHOME_UUID & 0xFF),
-	(uint8_t)(BTHOME_UUID >> 8),
-	BTHOME_DEVICE_INFO,
-	BTHOME_OBJ_BATTERY,
-	0,
-	BTHOME_OBJ_VOLTAGE,
-	0,
-	0,
+/* BTHome dynamic payload: UUID(2) + info(1) + packet_id(2) + battery(2) + voltage(3) = 10 max */
+#define SERVICE_DATA_MAX 10
+static uint8_t service_data[SERVICE_DATA_MAX];
+static size_t service_data_len;
+
+struct opt_u8 {
+	uint8_t value;
+	bool is_some;
 };
+struct opt_u16 {
+	uint16_t value;
+	bool is_some;
+};
+
+static opt_u8 opt_u8_none()
+{
+	return {0, false};
+}
+static opt_u8 opt_u8_some(uint8_t v)
+{
+	return {v, true};
+}
+static opt_u16 opt_u16_none()
+{
+	return {0, false};
+}
+static opt_u16 opt_u16_some(uint16_t v)
+{
+	return {v, true};
+}
+
+static void bthome_update_service_data(uint8_t packet_id, opt_u8 battery, opt_u16 voltage)
+{
+	size_t idx = 0;
+
+	service_data[idx++] = (uint8_t)(BTHOME_UUID & 0xFF);
+	service_data[idx++] = (uint8_t)(BTHOME_UUID >> 8);
+	service_data[idx++] = BTHOME_DEVICE_INFO;
+
+	service_data[idx++] = BTHOME_OBJ_PACKET_ID;
+	service_data[idx++] = packet_id;
+
+	if (battery.is_some) {
+		service_data[idx++] = BTHOME_OBJ_BATTERY;
+		service_data[idx++] = battery.value;
+	}
+
+	if (voltage.is_some) {
+		service_data[idx++] = BTHOME_OBJ_VOLTAGE;
+		service_data[idx++] = (uint8_t)(voltage.value & 0xFF);
+		service_data[idx++] = (uint8_t)(voltage.value >> 8);
+	}
+
+	__ASSERT(idx <= SERVICE_DATA_MAX, "BTHome service data overflow");
+	service_data_len = idx;
+}
 
 /* ---- Fuel gauge state ---- */
 static const struct battery_model battery_model = {
@@ -73,15 +119,6 @@ static void charge_status_inform(int32_t chg_status)
 		info.charge_state = NRF_FUEL_GAUGE_CHARGE_STATE_IDLE;
 	}
 	nrf_fuel_gauge_ext_state_update(NRF_FUEL_GAUGE_EXT_STATE_INFO_CHARGE_STATE_CHANGE, &info);
-}
-
-static void build_bthome_data(uint8_t soc_pct, uint16_t voltage_mv)
-{
-	bthome_data[3] = BTHOME_OBJ_BATTERY;
-	bthome_data[4] = soc_pct;
-	bthome_data[5] = BTHOME_OBJ_VOLTAGE;
-	bthome_data[6] = (uint8_t)(voltage_mv & 0xFF);
-	bthome_data[7] = (uint8_t)(voltage_mv >> 8);
 }
 
 static void log_battery_status(void)
@@ -158,9 +195,9 @@ static struct k_work advertise_work;
 
 /* Main ad: FLAGS + BTHome service data + name (13 bytes used, 18 bytes free for 15-char name).
  * Scan response: SMP UUID for DFU discovery. */
-static const struct bt_data ad[] = {
+static struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
-	BT_DATA(BT_DATA_SVC_DATA16, bthome_data, sizeof(bthome_data)),
+	BT_DATA(BT_DATA_SVC_DATA16, service_data, 0),
 	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 };
 
@@ -168,9 +205,20 @@ static const struct bt_data sd[] = {
 	BT_DATA_BYTES(BT_DATA_UUID128_ALL, SMP_BT_SVC_UUID_VAL),
 };
 
+static void update_advertisement(uint8_t packet_id, opt_u8 battery, opt_u16 voltage)
+{
+	bthome_update_service_data(packet_id, battery, voltage);
+	ad[1] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
+					(uint8_t)service_data_len);
+	bt_le_adv_update_data(ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+}
+
 static void advertise(struct k_work *work)
 {
-	int rc = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+	/* 4–4.5s advertising interval for power savings */
+	static const struct bt_le_adv_param adv_param = BT_LE_ADV_PARAM_INIT(
+		BT_LE_ADV_OPT_CONN | BT_LE_ADV_OPT_USE_IDENTITY, 0x1900, 0x1C20, NULL);
+	int rc = bt_le_adv_start(&adv_param, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
 	if (rc) {
 		LOG_ERR("Advertising failed to start (rc %d)", rc);
 		return;
@@ -213,11 +261,16 @@ static void bt_ready(int err)
 	k_work_submit(&advertise_work);
 }
 
+static K_SEM_DEFINE(pin_test_sem, 0, 1);
+
 static void button_pressed(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
 	int pressed = gpio_pin_get_dt(&button);
 	gpio_pin_set_dt(&led, pressed);
 	LOG_INF("Button %s", pressed ? "pressed" : "released");
+	if (pressed) {
+		k_sem_give(&pin_test_sem);
+	}
 }
 
 int main(void)
@@ -382,6 +435,9 @@ int main(void)
 	}
 	fg_ref_time = k_uptime_get();
 
+	/* Populate initial BTHome payload (no battery/voltage yet) before starting BLE */
+	update_advertisement(0, opt_u8_none(), opt_u16_none());
+
 	/* Start BLE SMP advertising for DFU */
 	k_work_init(&advertise_work, advertise);
 	int bt_rc = bt_enable(bt_ready);
@@ -412,15 +468,22 @@ int main(void)
 		gpio_pin_configure(test_pins[i].port, test_pins[i].pin, GPIO_OUTPUT_INACTIVE);
 	}
 
+	uint8_t cycle = 0;
+
 	while (true) {
-		for (int i = 0; i < ARRAY_SIZE(test_pins); i++) {
-			LOG_INF("PIN TEST [%d/%d]: %s HIGH", i + 1, ARRAY_SIZE(test_pins),
-				test_pins[i].name);
-			gpio_pin_set(test_pins[i].port, test_pins[i].pin, 1);
-			/* Inform fuel gauge of low-power sleep period */
-			nrf_fuel_gauge_idle_set(fg_voltage_f, fg_temp_f, 10e-6f);
-			k_sleep(K_SECONDS(5));
-			gpio_pin_set(test_pins[i].port, test_pins[i].pin, 0);
+		/* Sleep main thread until button press or 60s timeout for battery update */
+		nrf_fuel_gauge_idle_set(fg_voltage_f, fg_temp_f, 10e-6f);
+		int sem_rc = k_sem_take(&pin_test_sem, K_SECONDS(60));
+
+		/* Run pin test if woken by button press */
+		if (sem_rc == 0) {
+			for (int i = 0; i < ARRAY_SIZE(test_pins); i++) {
+				LOG_INF("PIN TEST [%d/%d]: %s HIGH", i + 1, ARRAY_SIZE(test_pins),
+					test_pins[i].name);
+				gpio_pin_set(test_pins[i].port, test_pins[i].pin, 1);
+				k_sleep(K_SECONDS(3));
+				gpio_pin_set(test_pins[i].port, test_pins[i].pin, 0);
+			}
 		}
 
 		log_battery_status();
@@ -441,8 +504,7 @@ int main(void)
 
 		LOG_INF("SoC: %d%%", (int)soc_pct);
 
-		build_bthome_data(soc_pct, voltage_mv);
-		bt_le_adv_update_data(ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+		update_advertisement(++cycle, opt_u8_some(soc_pct), opt_u16_some(voltage_mv));
 	}
 
 	return 0;
