@@ -1,0 +1,15 @@
+&i2c20 {
+	sht4x: sht4x@44 {
+		compatible = "sensirion,sht4x";
+		reg = <0x44>;
+		repeatability = <2>;
+		status = "okay";
+	};
+
+	scd40: scd40@62 {
+		compatible = "sensirion,scd40";
+		reg = <0x62>;
+		zephyr,deferred-init;
+		status = "okay";
+	};
+};
