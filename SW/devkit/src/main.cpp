@@ -193,15 +193,22 @@ static void log_battery_status(void)
 /* BLE SMP advertising for DFU, with BTHome service data in main ad */
 static struct k_work advertise_work;
 
-/* Main ad: FLAGS + BTHome service data + name (13 bytes used, 18 bytes free for 15-char name).
- * Scan response: SMP UUID for DFU discovery. */
+constexpr struct bt_data AD_FLAG_BYTES =
+	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR));
+
+constexpr size_t BT_DATA_HEADER_LEN = 1;
+
 static struct bt_data ad[] = {
-	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
+	AD_FLAG_BYTES,
 	BT_DATA(BT_DATA_SVC_DATA16, service_data, 0),
-	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 };
 
+static_assert(BT_DATA_HEADER_LEN * 2 + AD_FLAG_BYTES.data_len + sizeof(service_data) <=
+	      BT_GAP_ADV_MAX_ADV_DATA_LEN);
+
+/* Scan response — device name + SMP service UUID for DFU */
 static const struct bt_data sd[] = {
+	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 	BT_DATA_BYTES(BT_DATA_UUID128_ALL, SMP_BT_SVC_UUID_VAL),
 };
 
