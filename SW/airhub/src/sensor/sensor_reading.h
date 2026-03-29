@@ -11,8 +11,8 @@ struct scd40_reading {
 
 struct sht4x_reading {
 	int64_t timestamp;
-	int16_t temperature_cC;  /* 0.01 °C */
-	uint16_t humidity_cPct;  /* 0.01 % */
+	int16_t temperature_cC; /* 0.01 °C */
+	uint16_t humidity_cPct; /* 0.01 % */
 	bool valid;
 };
 

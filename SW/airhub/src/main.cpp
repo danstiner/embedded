@@ -97,8 +97,8 @@ static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_cC
 	service_data_len = idx;
 }
 
-static void update_advertisement(uint8_t packet_id, opt_i16 temperature_cC,
-				 opt_u16 humidity_cPct, opt_u16 co2_ppm)
+static void update_advertisement(uint8_t packet_id, opt_i16 temperature_cC, opt_u16 humidity_cPct,
+				 opt_u16 co2_ppm)
 {
 	bthome_update_service_data(packet_id, temperature_cC, humidity_cPct, co2_ppm);
 	ad[1] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
@@ -175,8 +175,7 @@ int main()
 		sensor_read_sht4x(sensors);
 		sensor_read_scd40(sensors);
 
-		update_advertisement(++cycle,
-				     {sensors.sht4x.temperature_cC, sensors.sht4x.valid},
+		update_advertisement(++cycle, {sensors.sht4x.temperature_cC, sensors.sht4x.valid},
 				     {sensors.sht4x.humidity_cPct, sensors.sht4x.valid},
 				     {sensors.scd40.co2_ppm, sensors.scd40.valid});
 
