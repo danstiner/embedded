@@ -1,0 +1,114 @@
+name: Build airhub
+
+on:
+  push:
+    paths:
+      - SW/airhub/**
+      - SW/boards/custom/bl54l15u_devkit/**
+      - SW/west/**
+      - SW/tidy.sh
+      - .github/workflows/airhub.yml
+  pull_request:
+    paths:
+      - SW/airhub/**
+      - SW/boards/custom/bl54l15u_devkit/**
+      - SW/west/**
+      - SW/tidy.sh
+      - .github/workflows/airhub.yml
+
+jobs:
+  resolve-toolchain:
+    runs-on: ubuntu-24.04
+    outputs:
+      toolchain-tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install west
+        run: pip3 install west
+
+      - name: Fetch NCS (nrf repo only)
+        working-directory: SW
+        run: west update --narrow -o=--depth=1 -n nrf
+
+      - name: Resolve toolchain Docker tag
+        id: tag
+        run: |
+          TAG=$(SW/west/ncs/nrf/scripts/print_toolchain_checksum.sh)
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: resolve-toolchain
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/nrfconnect/sdk-nrf-toolchain:${{ needs.resolve-toolchain.outputs.toolchain-tag }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_BASEDIR: ${{ github.workspace }}
+      CCACHE_NOHASHDIR: "1"
+      CCACHE_COMPRESS: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update west modules
+        working-directory: SW
+        run: west update --narrow -o=--depth=1
+
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.ccache
+          key: ${{ runner.os }}-ccache-airhub-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-airhub-
+            ${{ runner.os }}-ccache-
+
+      - name: Configure ccache
+        run: ccache -M 200M
+
+      - name: Restore signing key
+        run: echo "$MCUBOOT_DEV_SIGNING_KEY" > SW/keys/dev.pem
+        env:
+          MCUBOOT_DEV_SIGNING_KEY: ${{ secrets.MCUBOOT_DEV_SIGNING_KEY }}
+
+      - name: Build Debug
+        working-directory: SW
+        run: |
+          west build \
+            -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp \
+            airhub \
+            -- -DBOARD_ROOT=$(pwd)
+
+      - name: Install clang-tidy
+        run: apt-get update && apt-get install -y --no-install-recommends clang-tidy
+
+      - name: Build Release
+        working-directory: SW
+        run: |
+          west build \
+            -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp \
+            --build-dir build-release \
+            airhub \
+            -- -DBOARD_ROOT=$(pwd) \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Run clang-tidy
+        working-directory: SW
+        run: ./tidy.sh build-release "$(pwd)/airhub/src/"
+
+      - name: Show ccache stats
+        if: always()
+        run: ccache --show-stats
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: airhub-bl54l15u_devkit
+          path: |
+            SW/build/dfu_application.zip
+            SW/build-release/dfu_application.zip
