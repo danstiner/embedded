@@ -6,9 +6,9 @@ set -euo pipefail
 BUILD_DIR="${1:?Usage: $0 <build-dir> [source-filter]}"
 SOURCE_FILTER="${2:-}"
 
-COMPILE_DB="$BUILD_DIR/hygrometer/compile_commands.json"
-if [ ! -f "$COMPILE_DB" ]; then
-    echo "Error: $COMPILE_DB not found (was -DCMAKE_EXPORT_COMPILE_COMMANDS=ON passed?)" >&2
+COMPILE_DB=$(find "$BUILD_DIR" -name compile_commands.json -not -path "*/mcuboot/*" | head -1)
+if [ -z "$COMPILE_DB" ] || [ ! -f "$COMPILE_DB" ]; then
+    echo "Error: compile_commands.json not found under $BUILD_DIR (was -DCMAKE_EXPORT_COMPILE_COMMANDS=ON passed?)" >&2
     exit 1
 fi
 
