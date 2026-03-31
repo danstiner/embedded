@@ -1,0 +1,227 @@
+"""
+IDC Unit Cell Geometry — FreeCAD Macro
+======================================
+
+Run this inside FreeCAD (Macro → Execute Macro, or paste into Python console).
+
+Builds a 2D cross-section of one IDC unit cell with color-coded layers:
+  - Blue:    Air below substrate
+  - Green:   FR4 substrate
+  - Orange:  Copper electrodes
+  - Yellow:  Conformal coating (solder mask)
+  - Brown:   Soil domain
+
+Each body is a separate Part::Box (extruded into Z for visibility) that you can
+click, measure, and inspect in FreeCAD's GUI.
+
+After running, try:
+  - Click each body in the Model tree to see its dimensions
+  - Use View → Toggle axis cross to see orientation
+  - Right-click a body → Appearance to change transparency
+  - Switch to FEM workbench to mesh and simulate
+
+Edit the parameters below and re-run to compare designs.
+"""
+
+import FreeCAD as App
+import Part
+
+# ============================================================================
+# EDIT THESE PARAMETERS to match your design
+# ============================================================================
+
+# Electrode geometry (mm)
+TRACE_WIDTH = 1.0           # W — copper trace width
+TRACE_GAP = 1.0             # G — gap between traces
+TRACE_THICKNESS = 0.035     # copper thickness (35 µm = 1 oz)
+
+# Layer thicknesses (mm)
+SUBSTRATE_THICKNESS = 1.6   # FR4 PCB
+COATING_THICKNESS = 0.025   # solder mask (~25 µm)
+SOIL_HEIGHT = 10.0          # soil domain height (keep > 5× sensing depth)
+AIR_BELOW = 3.0             # air below PCB
+
+# Z extrusion (mm) — just for 3D visualization, not used in 2D sim
+EXTRUDE_DEPTH = 5.0         # finger length shown (cosmetic)
+
+# Material permittivities (for reference labels only)
+EPS_SUBSTRATE = 4.5
+EPS_COATING = 3.5
+EPS_SOIL = 15.0             # moderate moisture
+
+# ============================================================================
+# Derived dimensions
+# ============================================================================
+
+W = TRACE_WIDTH
+G = TRACE_GAP
+t_cu = TRACE_THICKNESS
+t_sub = SUBSTRATE_THICKNESS
+t_coat = COATING_THICKNESS
+h_soil = SOIL_HEIGHT
+h_air = AIR_BELOW
+depth = EXTRUDE_DEPTH
+
+# Full spatial wavelength: one period of the IDC
+cell_w = 2.0 * (W + G)
+
+# Y coordinates (bottom to top)
+y0 = 0.0                           # bottom of air domain
+y1 = h_air                         # bottom of substrate
+y2 = y1 + t_sub                    # top of substrate / bottom of electrodes
+y3 = y2 + t_cu                     # top of electrodes / bottom of coating
+y4 = y3 + t_coat                   # top of coating / bottom of soil
+y5 = y4 + h_soil                   # top of soil domain
+
+# Electrode X positions
+e1_x0 = 0.0
+e1_x1 = W
+e2_x0 = W + G
+e2_x1 = 2.0 * W + G
+
+sensing_depth = W + G
+wavelength = 2.0 * (W + G)
+
+# ============================================================================
+# Build geometry
+# ============================================================================
+
+# Create or reuse document
+doc_name = f"IDC_W{W:.1f}_G{G:.1f}"
+if App.ActiveDocument and App.ActiveDocument.Name == doc_name:
+    doc = App.ActiveDocument
+    # Clear existing objects
+    for obj in doc.Objects:
+        doc.removeObject(obj.Name)
+else:
+    doc = App.newDocument(doc_name)
+
+
+def make_box(name, x, y, z, dx, dy, dz, color=None, transparency=0):
+    """Create a Part::Box and set its visual properties."""
+    box = doc.addObject("Part::Box", name)
+    box.Placement = App.Placement(
+        App.Vector(x, y, z),
+        App.Rotation(App.Vector(0, 0, 1), 0)
+    )
+    box.Length = dx   # X dimension
+    box.Width = dy    # Y dimension (vertical in our cross-section)
+    box.Height = dz   # Z dimension (extrusion depth)
+
+    if color and hasattr(box, "ViewObject"):
+        box.ViewObject.ShapeColor = color
+        box.ViewObject.Transparency = transparency
+
+    return box
+
+
+# --- Air below substrate ---
+air = make_box(
+    "Air_Below",
+    0, y0, 0,
+    cell_w, h_air, depth,
+    color=(0.7, 0.85, 1.0),   # light blue
+    transparency=60
+)
+
+# --- FR4 Substrate ---
+substrate = make_box(
+    f"FR4_Substrate_er{EPS_SUBSTRATE:.1f}",
+    0, y1, 0,
+    cell_w, t_sub, depth,
+    color=(0.2, 0.6, 0.2),    # green
+    transparency=30
+)
+
+# --- Electrode 1 (V=1) ---
+electrode1 = make_box(
+    "Electrode_1_Vplus",
+    e1_x0, y2, 0,
+    W, t_cu, depth,
+    color=(0.9, 0.5, 0.1),    # orange/copper
+    transparency=0
+)
+
+# --- Gap fill (substrate material at electrode level) ---
+gap1 = make_box(
+    "Gap_1_substrate",
+    e1_x1, y2, 0,
+    G, t_cu, depth,
+    color=(0.2, 0.6, 0.2),    # same as substrate
+    transparency=50
+)
+
+# --- Electrode 2 (V=0) ---
+electrode2 = make_box(
+    "Electrode_2_GND",
+    e2_x0, y2, 0,
+    W, t_cu, depth,
+    color=(0.9, 0.5, 0.1),    # orange/copper
+    transparency=0
+)
+
+# --- Gap fill after electrode 2 ---
+remaining_gap = cell_w - e2_x1
+if remaining_gap > 1e-6:
+    gap2 = make_box(
+        "Gap_2_substrate",
+        e2_x1, y2, 0,
+        remaining_gap, t_cu, depth,
+        color=(0.2, 0.6, 0.2),
+        transparency=50
+    )
+
+# --- Conformal coating ---
+coating = make_box(
+    f"Coating_er{EPS_COATING:.1f}",
+    0, y3, 0,
+    cell_w, t_coat, depth,
+    color=(0.95, 0.9, 0.3),   # yellow
+    transparency=40
+)
+
+# --- Soil domain ---
+soil = make_box(
+    f"Soil_er{EPS_SOIL:.1f}",
+    0, y4, 0,
+    cell_w, h_soil, depth,
+    color=(0.55, 0.35, 0.15), # brown
+    transparency=70
+)
+
+# ============================================================================
+# Recompute and fit view
+# ============================================================================
+
+doc.recompute()
+
+# Try to fit the view (only works if GUI is active)
+try:
+    import FreeCADGui as Gui
+    Gui.activeDocument().activeView().viewFront()
+    Gui.SendMsgToActiveView("ViewFit")
+except Exception:
+    pass  # headless mode, no GUI available
+
+# ============================================================================
+# Print summary
+# ============================================================================
+
+print("\n" + "=" * 60)
+print(f"  IDC Unit Cell Generated")
+print(f"=" * 60)
+print(f"  Trace width (W):       {W:.3f} mm")
+print(f"  Trace gap (G):         {G:.3f} mm")
+print(f"  Copper thickness:      {t_cu*1000:.1f} µm")
+print(f"  Substrate (FR4):       {t_sub:.2f} mm  (εr = {EPS_SUBSTRATE})")
+print(f"  Coating:               {t_coat*1000:.1f} µm  (εr = {EPS_COATING})")
+print(f"  Soil εr:               {EPS_SOIL}")
+print(f"  Sensing depth ≈ W+G:   {sensing_depth:.2f} mm")
+print(f"  Spatial wavelength λ:  {wavelength:.2f} mm")
+print(f"  Unit cell width:       {cell_w:.2f} mm")
+print(f"=" * 60)
+print(f"\n  TIP: Click each body in the Model tree to inspect it.")
+print(f"  TIP: Use View → Section to cut through the model.")
+print(f"  TIP: Change TRACE_WIDTH / TRACE_GAP at top of script and re-run.")
+print(f"\n  To export as STEP: File → Export → select all → save as .step")
+print(f"  To mesh for FEM:  Switch to FEM workbench, add Gmsh mesh object")

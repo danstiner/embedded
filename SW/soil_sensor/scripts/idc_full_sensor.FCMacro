@@ -1,0 +1,227 @@
+"""
+Full IDC Sensor — FreeCAD Macro
+================================
+
+Builds a complete multi-finger interdigitated capacitor sensor layout,
+not just one unit cell. This gives you the full picture of what the
+sensor PCB looks like.
+
+Run inside FreeCAD: Macro → Macros → select this file → Execute
+
+The sensor is shown in 3D with the finger pattern visible. You can
+switch between different designs by editing the parameters below.
+
+Learning exercises:
+  1. Run the macro, then rotate the view (middle mouse button)
+  2. Click on "Fingers_Vplus" in the tree — notice all V+ fingers highlight
+  3. Try View → Clipping Plane to slice through the sensor
+  4. Change N_FINGERS from 10 to 20, re-run, observe the difference
+  5. Switch to Sketcher workbench, try drawing your own finger pattern
+"""
+
+import FreeCAD as App
+import Part
+
+# ============================================================================
+# SENSOR PARAMETERS — edit these
+# ============================================================================
+
+# Electrode geometry
+TRACE_WIDTH = 1.0           # mm — finger width
+TRACE_GAP = 1.0             # mm — gap between fingers
+FINGER_LENGTH = 20.0        # mm — length of each finger
+N_FINGERS = 10              # total number of fingers (alternating V+/V-)
+BUS_WIDTH = 2.0             # mm — width of the bus bars connecting fingers
+
+# Layer stack
+SUBSTRATE_THICKNESS = 1.6   # mm — FR4
+TRACE_THICKNESS = 0.035     # mm — copper (35 µm)
+COATING_THICKNESS = 0.025   # mm — solder mask
+
+# Board outline
+BOARD_MARGIN = 3.0          # mm — extra PCB around the sensor area
+BOARD_LENGTH_EXTRA = 15.0   # mm — extra length for connector/components
+
+# ============================================================================
+# Derived dimensions
+# ============================================================================
+
+W = TRACE_WIDTH
+G = TRACE_GAP
+L = FINGER_LENGTH
+N = N_FINGERS
+t_cu = TRACE_THICKNESS
+t_sub = SUBSTRATE_THICKNESS
+t_coat = COATING_THICKNESS
+
+# Sensor active area width
+sensor_width = N * W + (N - 1) * G
+
+# Board dimensions
+board_w = sensor_width + 2 * BUS_WIDTH + 2 * BOARD_MARGIN
+board_l = L + 2 * BOARD_MARGIN + BOARD_LENGTH_EXTRA
+
+# Vertical positions
+y_sub_bot = 0
+y_sub_top = t_sub
+y_cu_bot = y_sub_top
+y_cu_top = y_cu_bot + t_cu
+y_coat_top = y_cu_top + t_coat
+
+# ============================================================================
+# Build geometry
+# ============================================================================
+
+doc_name = f"IDC_Sensor_{N}f"
+if App.ActiveDocument and App.ActiveDocument.Name == doc_name:
+    doc = App.ActiveDocument
+    for obj in doc.Objects:
+        doc.removeObject(obj.Name)
+else:
+    doc = App.newDocument(doc_name)
+
+
+def make_box(name, x, y, z, dx, dy, dz, color=None, transparency=0):
+    """Create a Part::Box with placement and visual properties."""
+    box = doc.addObject("Part::Box", name)
+    box.Placement = App.Placement(
+        App.Vector(x, z, y),  # FreeCAD: X=right, Y=into screen, Z=up
+        App.Rotation(App.Vector(0, 0, 1), 0)
+    )
+    box.Length = dx
+    box.Width = dz   # depth (Y in FreeCAD = into screen)
+    box.Height = dy   # height (Z in FreeCAD = up)
+
+    if color and hasattr(box, "ViewObject"):
+        box.ViewObject.ShapeColor = color
+        box.ViewObject.Transparency = transparency
+
+    return box
+
+
+# --- PCB Substrate ---
+pcb = make_box(
+    "PCB_Substrate",
+    0, y_sub_bot, 0,
+    board_w, t_sub, board_l,
+    color=(0.2, 0.55, 0.2),
+    transparency=40
+)
+
+# --- Bus bars ---
+# Left bus bar (V+ bus) — connects odd-numbered fingers
+bus_left_x = BOARD_MARGIN
+bus_z = BOARD_MARGIN
+bus_left = make_box(
+    "Bus_Vplus",
+    bus_left_x, y_cu_bot, bus_z,
+    BUS_WIDTH, t_cu, L + BUS_WIDTH,
+    color=(0.9, 0.5, 0.1),
+    transparency=0
+)
+
+# Right bus bar (V- bus) — connects even-numbered fingers
+bus_right_x = BOARD_MARGIN + BUS_WIDTH + sensor_width
+bus_right = make_box(
+    "Bus_GND",
+    bus_right_x, y_cu_bot, bus_z,
+    BUS_WIDTH, t_cu, L + BUS_WIDTH,
+    color=(0.7, 0.4, 0.1),
+    transparency=0
+)
+
+# --- Fingers ---
+finger_shapes_vplus = []
+finger_shapes_gnd = []
+
+for i in range(N):
+    finger_x = BOARD_MARGIN + BUS_WIDTH + i * (W + G)
+
+    if i % 2 == 0:
+        # V+ finger: extends from left bus toward right
+        fz = bus_z
+        fl = L  # full finger length
+        name = f"Finger_Vplus_{i}"
+        color = (0.9, 0.5, 0.1)   # copper/orange
+        finger_shapes_vplus.append(name)
+    else:
+        # GND finger: extends from right bus toward left
+        fz = bus_z + BUS_WIDTH
+        fl = L
+        name = f"Finger_GND_{i}"
+        color = (0.7, 0.4, 0.1)   # darker copper
+        finger_shapes_gnd.append(name)
+
+    make_box(
+        name,
+        finger_x, y_cu_bot, fz,
+        W, t_cu, fl,
+        color=color,
+        transparency=0
+    )
+
+# --- Solder mask / coating (simplified as one layer over active area) ---
+coat = make_box(
+    "Solder_Mask",
+    BOARD_MARGIN, y_cu_top, BOARD_MARGIN,
+    sensor_width + 2 * BUS_WIDTH, t_coat, L + BUS_WIDTH,
+    color=(0.1, 0.4, 0.1),   # dark green solder mask
+    transparency=70
+)
+
+# ============================================================================
+# Annotations — add text labels as Draft objects if available
+# ============================================================================
+
+try:
+    import Draft
+
+    # Dimension annotation: finger width
+    mid_finger_x = BOARD_MARGIN + BUS_WIDTH + W / 2
+    label_w = Draft.make_label(
+        target_point=App.Vector(mid_finger_x, 0, bus_z + L / 2),
+        placement=App.Vector(mid_finger_x - 5, 0, bus_z + L / 2 + 5),
+        custom_text=f"W = {W} mm",
+    )
+except Exception:
+    pass  # Draft module not always available
+
+# ============================================================================
+# Recompute and set view
+# ============================================================================
+
+doc.recompute()
+
+try:
+    import FreeCADGui as Gui
+    Gui.activeDocument().activeView().viewIsometric()
+    Gui.SendMsgToActiveView("ViewFit")
+except Exception:
+    pass
+
+# ============================================================================
+# Print summary
+# ============================================================================
+
+print("\n" + "=" * 60)
+print(f"  IDC Sensor — {N} fingers")
+print(f"=" * 60)
+print(f"  Finger width (W):     {W:.2f} mm")
+print(f"  Finger gap (G):       {G:.2f} mm")
+print(f"  Finger length:        {L:.1f} mm")
+print(f"  Number of fingers:    {N}")
+print(f"  Active area:          {sensor_width:.1f} × {L:.1f} mm")
+print(f"  Board size:           {board_w:.1f} × {board_l:.1f} mm")
+print(f"  Sensing depth ≈ W+G:  {W+G:.2f} mm")
+print(f"  λ = 2(W+G):           {2*(W+G):.2f} mm")
+print(f"")
+print(f"  Estimated base C:     ~{N * 0.5:.0f}–{N * 2:.0f} pF (dry)")
+print(f"  (very rough, depends on actual εr and geometry)")
+print(f"=" * 60)
+print(f"\n  EXERCISES:")
+print(f"  1. Rotate the view to see the finger interdigitation")
+print(f"  2. Hide 'Solder_Mask' to see the copper pattern underneath")
+print(f"  3. Change N_FINGERS to 20 at top of script and re-run")
+print(f"  4. Try View → Toggle Section Plane to cut through layers")
+print(f"  5. Select all copper objects → File → Export as .step")
+print(f"  6. Switch to FEM workbench to set up a simulation")
