@@ -1,4 +1,4 @@
-65361083264789
+67138129287174
 453-00223R
 45300223R
 453-00223R-4
@@ -6,6 +6,13 @@ Integrated Circuit
 0
 51
 51
+2485
+BAT_2485
+
+
+0
+2
+2
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)

@@ -1,9 +1,0 @@
-EESchema-DOCLIB  Version 2.0
-#
-$CMP STCC4-D-R3
-D Air Quality Sensors STCC4-D-R3 CO2 I2C, SMD ToR 1500 pcs 2.7V ~ 5.5V 950A 10C ~ 40C
-K
-F https://sensirion.com/media/documents/6AED4B15/684A889C/CD_DS_STCC4_D1_3.pdf
-$ENDCMP
-#
-#End Doc Library

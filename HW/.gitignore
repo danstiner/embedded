@@ -2,6 +2,9 @@
 # KiCad local file history (KiCad 8+)
 .history/
 
+# Exported gerber plots
+gerbers/
+
 # Temporary files
 *.000
 *.bak
