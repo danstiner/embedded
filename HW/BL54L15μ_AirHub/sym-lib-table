@@ -4,4 +4,6 @@
 	(lib (name "CIGT201610EH2R2MNE") (type "KiCad") (uri "${KIPRJMOD}/Components/CIGT201610EH2R2MNE/KiCADv6/2025-12-04_23-20-16.kicad_sym") (options "") (descr "0806 (2016 Metric)"))
 	(lib (name "BME680") (type "KiCad") (uri "${KIPRJMOD}/Components/BME680/BME680.kicad_sym") (options "") (descr ""))
 	(lib (name "USB4056-03-A_REVA2") (type "KiCad") (uri "${KIPRJMOD}/Components/USB4056_03_A/USB4056-03-A_REVA2.kicad_sym") (options "") (descr ""))
+	(lib (name "Fanstel") (type "KiCad") (uri "${KIPRJMOD}/Components/Fanstel/Fanstel.kicad_sym") (options "") (descr ""))
+	(lib (name "TCK127BG_LF") (type "KiCad") (uri "${KIPRJMOD}/Components/TCK127BG_LF/TCK127BG_LF.kicad_sym") (options "") (descr ""))
 )
