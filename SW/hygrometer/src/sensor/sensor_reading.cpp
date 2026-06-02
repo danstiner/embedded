@@ -104,34 +104,72 @@ static float fg_last_t = 25.0f;
 
 #endif /* CONFIG_NRF_FUEL_GAUGE */
 
-/* ---- Helper: CR2 (Li-MnO2, 3 V primary) voltage → state-of-charge ---- */
+/* ---- Helper: CR2 (Li-MnO2) voltage → coarse battery health ---- */
 #if HAVE_BATT_ADC
-static uint8_t cr2_mv_to_soc(int32_t mv)
+/* CR2 voltage → coarse health with hysteresis. Thresholds sit at the knee of the
+ * Li-MnO2 curve: LOW ~2.80 V (~20% left), CRITICAL ~2.65 V (~7% left). The ~50 mV
+ * gap between enter/clear keeps the state from flapping on the flat plateau. */
+static enum battery_health cr2_health(int32_t mv)
 {
-	/* Coarse discharge curve for a 3 V lithium coin cell under light load.
-	 * The chemistry holds ~2.9-3.0 V for most of its life then knees down. */
-	static const struct {
-		int32_t mv;
-		uint8_t soc;
-	} lut[] = {
-		{3000, 100}, {2900, 90}, {2800, 70}, {2750, 50},
-		{2700, 30},  {2600, 15}, {2500, 8},  {2300, 3}, {2000, 0},
-	};
-
-	if (mv >= lut[0].mv) {
-		return 100;
-	}
-	for (size_t i = 1; i < ARRAY_SIZE(lut); i++) {
-		if (mv >= lut[i].mv) {
-			/* Linear interpolation between lut[i-1] and lut[i]. */
-			int32_t span_mv = lut[i - 1].mv - lut[i].mv;
-			int32_t span_soc = lut[i - 1].soc - lut[i].soc;
-			return (uint8_t)(lut[i].soc + (mv - lut[i].mv) * span_soc / span_mv);
+	static enum battery_health h = BATTERY_OK;
+	switch (h) {
+	case BATTERY_OK:
+		if (mv <= 2650) {
+			h = BATTERY_CRITICAL;
+		} else if (mv <= 2800) {
+			h = BATTERY_LOW;
 		}
+		break;
+	case BATTERY_LOW:
+		if (mv <= 2650) {
+			h = BATTERY_CRITICAL;
+		} else if (mv >= 2850) {
+			h = BATTERY_OK;
+		}
+		break;
+	case BATTERY_CRITICAL:
+		if (mv >= 2850) {
+			h = BATTERY_OK;
+		} else if (mv >= 2700) {
+			h = BATTERY_LOW;
+		}
+		break;
 	}
-	return 0;
+	return h;
 }
-#endif
+#endif /* HAVE_BATT_ADC */
+
+#if HAVE_BATT_PMIC
+/* Fuel-gauge SoC% → coarse health with hysteresis (for the PMIC/alkaline path). */
+static enum battery_health soc_health(uint8_t soc)
+{
+	static enum battery_health h = BATTERY_OK;
+	switch (h) {
+	case BATTERY_OK:
+		if (soc <= 5) {
+			h = BATTERY_CRITICAL;
+		} else if (soc <= 15) {
+			h = BATTERY_LOW;
+		}
+		break;
+	case BATTERY_LOW:
+		if (soc <= 5) {
+			h = BATTERY_CRITICAL;
+		} else if (soc >= 20) {
+			h = BATTERY_OK;
+		}
+		break;
+	case BATTERY_CRITICAL:
+		if (soc >= 20) {
+			h = BATTERY_OK;
+		} else if (soc >= 10) {
+			h = BATTERY_LOW;
+		}
+		break;
+	}
+	return h;
+}
+#endif /* HAVE_BATT_PMIC */
 
 /* ---- Helper: convert sensor_value to raw SHT4x ticks ---- */
 static uint16_t temp_to_raw_ticks(const struct sensor_value *val)
@@ -481,10 +519,14 @@ int sensor_read_battery(sensor_state &state)
 		mv = 0;
 	}
 
-	state.battery.soc_pct = cr2_mv_to_soc(mv);
+	state.battery.millivolts = (uint16_t)mv;
+	state.battery.health = cr2_health(mv);
 	state.battery.timestamp = k_uptime_get();
 	state.battery.valid = true;
-	LOG_INF("BAT_V: %d.%03dV (%u%%)", mv / 1000, mv % 1000, state.battery.soc_pct);
+	LOG_INF("BAT_V: %d.%03dV (%s)", mv / 1000, mv % 1000,
+		state.battery.health == BATTERY_OK	  ? "ok"
+		: state.battery.health == BATTERY_LOW ? "LOW"
+						      : "CRITICAL");
 	return 0;
 #elif HAVE_BATT_PMIC
 	if (!state.have_battery || !device_is_ready(vbat_dev)) {
@@ -507,6 +549,7 @@ int sensor_read_battery(sensor_state &state)
 	}
 
 	LOG_INF("BAT_V: %d.%03dV", voltage.val1, voltage.val2 / 1000);
+	state.battery.millivolts = (uint16_t)(voltage.val1 * 1000 + voltage.val2 / 1000);
 
 #if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
 	if (fg_initialized) {
@@ -543,8 +586,9 @@ int sensor_read_battery(sensor_state &state)
 		fg_last_v = v;
 		fg_last_t = t;
 
-		state.battery.soc_pct = CLAMP((int)fg_last_soc, 0, 100);
-		LOG_INF("BAT_%%: %d%%", (int)fg_last_soc);
+		uint8_t soc = CLAMP((int)fg_last_soc, 0, 100);
+		state.battery.health = soc_health(soc);
+		LOG_INF("BAT_%%: %u%%", soc);
 	}
 #endif /* CONFIG_NRF_FUEL_GAUGE */
 

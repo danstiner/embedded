@@ -73,6 +73,12 @@ void AppTask::UpdateSensorAttributes()
 
 	/* 4. Battery */
 	sensor_read_battery(sensors);
+	/* TODO (deferred Matter pass): expose battery via the Power Source cluster
+	 * (0x002F). Map sensors.battery.health -> BatChargeLevel (OK/Warning/Critical)
+	 * — the coarse health is the right fit for the flat CR2 curve — and optionally
+	 * sensors.battery.millivolts -> BatVoltage. Requires adding the cluster to
+	 * hygrometer.zap and regenerating the data model. The BTHome build already
+	 * reports this as battery-low (0x15) + voltage (0x0C). */
 }
 
 CHIP_ERROR AppTask::Init()

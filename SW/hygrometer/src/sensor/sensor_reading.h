@@ -25,9 +25,18 @@ struct stcc4_reading {
 	bool valid;
 };
 
+/* Coarse battery health. For a flat-curve coin cell this is more meaningful than
+ * a percentage; values mirror Matter's Power Source BatChargeLevel enum. */
+enum battery_health {
+	BATTERY_OK = 0,
+	BATTERY_LOW = 1,
+	BATTERY_CRITICAL = 2,
+};
+
 struct battery_reading {
 	int64_t timestamp;
-	uint8_t soc_pct; /* state of charge 0-100% */
+	uint16_t millivolts;     /* measured terminal voltage (mV) */
+	enum battery_health health;
 	bool valid;
 };
 

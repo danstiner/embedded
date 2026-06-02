@@ -55,9 +55,9 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 constexpr bt_data AD_FLAG_BYTES =
 	BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR);
 
-/* Max service data: UUID(2) + info(1) + packet_id(2) + battery%(2) + temp(3) + hum(3) + pressure(4)
- * + co2(3) + moisture(2). No single board populates every field (pressure/CO2 are v3-only,
- * moisture is v4-only), but size the buffer for the worst case. */
+/* Max service data: UUID(2) + info(1) + packet_id(2) + temp(3) + hum(3) + pressure(4)
+ * + co2(3) + battery_low(2) + moisture(2). No single board populates every field
+ * (pressure/CO2 are v3-only, moisture is v4-only), but size for the worst case. */
 #define SERVICE_DATA_MAX 22
 
 static uint8_t service_data[SERVICE_DATA_MAX];
@@ -132,7 +132,7 @@ static void sht4x_heater_pulse(void)
 
 static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC,
 				       opt_u16 humidity_mPct, opt_u32 pressure_Pa, opt_u16 co2_ppm,
-				       opt_u8 bat_soc, opt_u8 moisture)
+				       opt_u8 battery_low, opt_u8 moisture)
 {
 	size_t idx = 0;
 
@@ -145,12 +145,6 @@ static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC
 	/* Packet ID: uint8, rolling counter */
 	service_data[idx++] = BTHOME_OBJ_PACKET_ID;
 	service_data[idx++] = packet_id;
-
-	/* Battery state-of-charge %: uint8, 1% */
-	if (bat_soc.is_some) {
-		service_data[idx++] = BTHOME_OBJ_BATTERY;
-		service_data[idx++] = bat_soc.value;
-	}
 
 	/* Temperature: sint16, factor 0.01 °C */
 	if (temperature_mC.is_some) {
@@ -181,7 +175,13 @@ static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC
 		service_data[idx++] = (uint8_t)((co2_ppm.value >> 8) & 0xFF);
 	}
 
-	/* Moisture/water-leak: uint8 binary (0x20 > 0x12 keeps ascending order) */
+	/* Battery low: uint8 binary, 0 = normal, 1 = low (0x15 > 0x12, < 0x20) */
+	if (battery_low.is_some) {
+		service_data[idx++] = BTHOME_OBJ_BATTERY_LOW;
+		service_data[idx++] = battery_low.value ? 1 : 0;
+	}
+
+	/* Moisture/water-leak: uint8 binary (0x20 keeps ascending order) */
 	if (moisture.is_some) {
 		service_data[idx++] = BTHOME_OBJ_MOISTURE;
 		service_data[idx++] = moisture.value ? 1 : 0;
@@ -193,11 +193,11 @@ static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC
 
 /* ---- Update BTHome advertisement data ---- */
 static void update_advertisement(uint8_t packet_id, opt_i16 temperature_mC, opt_u16 humidity_mPct,
-				 opt_u32 pressure_Pa, opt_u16 co2_ppm, opt_u8 bat_soc,
+				 opt_u32 pressure_Pa, opt_u16 co2_ppm, opt_u8 battery_low,
 				 opt_u8 moisture)
 {
 	bthome_update_service_data(packet_id, temperature_mC, humidity_mPct, pressure_Pa, co2_ppm,
-				   bat_soc, moisture);
+				   battery_low, moisture);
 	ad[1] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
 					(uint8_t)service_data_len);
 
@@ -354,11 +354,16 @@ int main()
 		}
 #endif
 
+		opt_u8 battery_low = opt_u8_none();
+		if (sensors.battery.valid) {
+			battery_low = opt_u8_some(sensors.battery.health != BATTERY_OK ? 1 : 0);
+		}
+
 		update_advertisement(++cycle, {sensors.sht45.temperature_cC, sensors.sht45.valid},
 				     {sensors.sht45.humidity_cPct, sensors.sht45.valid},
 				     {sensors.bme688.pressure_Pa, sensors.bme688.valid},
-				     {sensors.stcc4.co2_ppm, sensors.stcc4.valid},
-				     {sensors.battery.soc_pct, sensors.battery.valid}, moisture);
+				     {sensors.stcc4.co2_ppm, sensors.stcc4.valid}, battery_low,
+				     moisture);
 		sensor_fuel_gauge_idle_set();
 
 #if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
