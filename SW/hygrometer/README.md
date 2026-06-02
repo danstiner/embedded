@@ -12,9 +12,9 @@ The `bl54l15u_hygrometer` board has two hardware revisions. Append `@<revision>`
 to the board target to select one; omitting it uses the default (`2026v4`).
 
 - **2026v4** (default): CR2 coin cell (no PMIC — battery measured via SAADC),
-  SHT45 only, adds a resistive water-leak sensor (reported as BTHome moisture
+  SHT4x only, adds a resistive water-leak sensor (reported as BTHome moisture
   `0x20`) and a buzzer pin (reserved, not yet driven).
-- **2026v3**: nPM2100 PMIC + 2×AAA alkaline, SHT45, optional BME688/STCC4. Build
+- **2026v3**: nPM2100 PMIC + 2×AAA alkaline, SHT4x, optional BME688/STCC4. Build
   with `bl54l15u_hygrometer@2026v3/nrf54l15/cpuapp`.
 
 > Note: the example commands below omit `@<revision>` and therefore build for the

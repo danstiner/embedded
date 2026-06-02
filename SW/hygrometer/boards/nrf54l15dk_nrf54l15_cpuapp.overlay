@@ -1,11 +1,11 @@
-/* I2C for SHT45 humidity/temperature sensor */
+/* I2C for SHT4x humidity/temperature sensor */
 &i2c21 {
 	status = "okay";
 	pinctrl-0 = <&i2c21_default>;
 	pinctrl-1 = <&i2c21_sleep>;
 	pinctrl-names = "default", "sleep";
 
-	sht45: sht4x@44 {
+	sht4x: sht4x@44 {
 		compatible = "sensirion,sht4x";
 		reg = <0x44>;
 		repeatability = <2>;

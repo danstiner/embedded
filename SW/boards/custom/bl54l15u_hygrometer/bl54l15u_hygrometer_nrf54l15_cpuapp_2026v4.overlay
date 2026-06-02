@@ -11,7 +11,7 @@
  *   - Adds a buzzer/siren on P2.05 (driven via Q1) — pin reserved, not yet
  *     driven by firmware.
  *
- * The base DTS keeps SHT45 on I2C21 (SDA=P1.14, SCL=P1.04), unchanged here.
+ * The base DTS keeps SHT4x on I2C21 (SDA=P1.14, SCL=P1.04), unchanged here.
  */
 
 #include <zephyr/dt-bindings/adc/adc.h>
@@ -62,7 +62,7 @@
 /* ---- Add 2026v4 hardware ---- */
 
 /* P0.01 (LEAK_DRIVE) lives on gpio0; P2.05 (buzzer) on gpio2.
- * gpio1 (SHT45 I2C, leak sense) is already enabled by the base DTS. */
+ * gpio1 (SHT4x I2C, leak sense) is already enabled by the base DTS. */
 &gpio0 {
 	status = "okay";
 };

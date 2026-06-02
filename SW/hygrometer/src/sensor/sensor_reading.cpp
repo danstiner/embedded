@@ -36,8 +36,8 @@ PINCTRL_DT_DEV_CONFIG_DECLARE(DT_NODELABEL(i2c20));
 #endif
 
 /* ---- Device pointers ---- */
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
-static const struct device *sht45 = DEVICE_DT_GET(DT_NODELABEL(sht45));
+#if DT_NODE_HAS_STATUS(DT_NODELABEL(sht4x), okay)
+static const struct device *sht4x = DEVICE_DT_GET(DT_NODELABEL(sht4x));
 #endif
 
 /* BME688 (Zephyr sensor driver) */
@@ -218,10 +218,10 @@ void sensor_init(sensor_state &state)
 {
 	memset(&state, 0, sizeof(state));
 
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
-	if (device_is_ready(sht45)) {
-		state.have_sht45 = true;
-		LOG_INF("SHT45 ready");
+#if DT_NODE_HAS_STATUS(DT_NODELABEL(sht4x), okay)
+	if (device_is_ready(sht4x)) {
+		state.have_sht4x = true;
+		LOG_INF("SHT4x ready");
 	}
 #endif
 
@@ -361,35 +361,35 @@ void sensor_fuel_gauge_init(void)
 #endif /* CONFIG_NRF_FUEL_GAUGE && HAVE_BATT */
 }
 
-/* ---- Read SHT45 ---- */
-int sensor_read_sht45(sensor_state &state)
+/* ---- Read SHT4x ---- */
+int sensor_read_sht4x(sensor_state &state)
 {
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
-	if (!state.have_sht45) {
+#if DT_NODE_HAS_STATUS(DT_NODELABEL(sht4x), okay)
+	if (!state.have_sht4x) {
 		return -ENODEV;
 	}
 
-	int ret = sensor_sample_fetch(sht45);
+	int ret = sensor_sample_fetch(sht4x);
 	if (ret) {
-		LOG_ERR("SHT45 fetch failed: %d", ret);
-		state.sht45.valid = false;
+		LOG_ERR("SHT4x fetch failed: %d", ret);
+		state.sht4x.valid = false;
 		return ret;
 	}
 
 	struct sensor_value value;
 
-	sensor_channel_get(sht45, SENSOR_CHAN_AMBIENT_TEMP, &value);
-	state.sht45.temperature_cC = value.val1 * 100 + value.val2 / 10000;
-	state.sht45.temp_raw_ticks = temp_to_raw_ticks(&value);
-	LOG_INF("SHT45: T=%d.%02d°C", value.val1, value.val2 / 10000);
+	sensor_channel_get(sht4x, SENSOR_CHAN_AMBIENT_TEMP, &value);
+	state.sht4x.temperature_cC = value.val1 * 100 + value.val2 / 10000;
+	state.sht4x.temp_raw_ticks = temp_to_raw_ticks(&value);
+	LOG_INF("SHT4x: T=%d.%02d°C", value.val1, value.val2 / 10000);
 
-	sensor_channel_get(sht45, SENSOR_CHAN_HUMIDITY, &value);
-	state.sht45.humidity_cPct = value.val1 * 100 + value.val2 / 10000;
-	state.sht45.hum_raw_ticks = hum_to_raw_ticks(&value);
-	LOG_INF("SHT45: RH=%d.%02d%%", value.val1, value.val2 / 10000);
+	sensor_channel_get(sht4x, SENSOR_CHAN_HUMIDITY, &value);
+	state.sht4x.humidity_cPct = value.val1 * 100 + value.val2 / 10000;
+	state.sht4x.hum_raw_ticks = hum_to_raw_ticks(&value);
+	LOG_INF("SHT4x: RH=%d.%02d%%", value.val1, value.val2 / 10000);
 
-	state.sht45.timestamp = k_uptime_get();
-	state.sht45.valid = true;
+	state.sht4x.timestamp = k_uptime_get();
+	state.sht4x.valid = true;
 	return 0;
 #else
 	return -ENOTSUP;
@@ -443,10 +443,10 @@ int sensor_read_stcc4(sensor_state &state)
 	/* Wake sensor from sleep before measurement */
 	stcc4_exit_sleep(sensor_bus);
 
-	/* Feed compensation from latest SHT45/BME688 readings */
-	if (state.sht45.valid) {
-		stcc4_set_rht_compensation(sensor_bus, state.sht45.temp_raw_ticks,
-					   state.sht45.hum_raw_ticks);
+	/* Feed compensation from latest SHT4x/BME688 readings */
+	if (state.sht4x.valid) {
+		stcc4_set_rht_compensation(sensor_bus, state.sht4x.temp_raw_ticks,
+					   state.sht4x.hum_raw_ticks);
 	}
 	if (state.bme688.valid) {
 		uint16_t pressure_enc = (uint16_t)(state.bme688.pressure_Pa / 2);

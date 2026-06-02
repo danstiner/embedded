@@ -43,12 +43,12 @@ void AppTask::SensorTimerCallback(k_timer *timer)
 
 void AppTask::UpdateSensorAttributes()
 {
-	/* 1. SHT45 — every cycle */
-	if (sensor_read_sht45(sensors) == 0) {
+	/* 1. SHT4x — every cycle */
+	if (sensor_read_sht4x(sensors) == 0) {
 		Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
-			kSensorEndpointId, sensors.sht45.temperature_cC);
+			kSensorEndpointId, sensors.sht4x.temperature_cC);
 		Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
-			kSensorEndpointId, sensors.sht45.humidity_cPct);
+			kSensorEndpointId, sensors.sht4x.humidity_cPct);
 	}
 
 	/* 2. BME688 pressure — independent cadence */

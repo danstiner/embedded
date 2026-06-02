@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-struct sht45_reading {
+struct sht4x_reading {
 	int64_t timestamp;
 	int16_t temperature_cC;  /* 0.01 deg C units */
 	uint16_t humidity_cPct;  /* 0.01 % units */
@@ -47,13 +47,13 @@ struct leak_reading {
 };
 
 struct sensor_state {
-	bool have_sht45;
+	bool have_sht4x;
 	bool have_bme688;
 	bool have_stcc4;
 	bool have_battery;
 	bool have_leak;
 
-	struct sht45_reading sht45;
+	struct sht4x_reading sht4x;
 	struct bme688_reading bme688;
 	struct stcc4_reading stcc4;
 	uint8_t stcc4_discards_remaining;
@@ -65,7 +65,7 @@ struct sensor_state {
 void sensor_init(sensor_state &state);
 
 /** Individual sensor read functions. Each updates its sub-struct + timestamp. */
-int sensor_read_sht45(sensor_state &state);
+int sensor_read_sht4x(sensor_state &state);
 int sensor_read_bme688(sensor_state &state);
 int sensor_read_stcc4(sensor_state &state);
 int sensor_read_battery(sensor_state &state);

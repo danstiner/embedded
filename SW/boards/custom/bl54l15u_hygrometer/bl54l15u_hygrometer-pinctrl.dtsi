@@ -3,7 +3,7 @@
  */
 
 &pinctrl {
-	/* I2C21 for SHT45 sensor and nPM2100 PMIC: SDA=P1.14, SCL=P1.04 */
+	/* I2C21 for SHT4x sensor and nPM2100 PMIC: SDA=P1.14, SCL=P1.04 */
 	i2c21_default: i2c21_default {
 		group1 {
 			psels = <NRF_PSEL(TWIM_SDA, 1, 14)>,

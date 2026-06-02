@@ -1,7 +1,7 @@
 // Hygrometer firmware — BTHome BLE build
 //
 // Supports both BL54L15u Hygrometer and BL54L15u DevKit boards.
-// Reads SHT45 (temp/humidity), optional BME688 (pressure), optional STCC4 (CO2).
+// Reads SHT4x (temp/humidity), optional BME688 (pressure), optional STCC4 (CO2).
 //
 // Simple loop architecture: always-on, always connectable, sleeps between readings.
 
@@ -79,22 +79,22 @@ static struct bt_data sd[] = {
 	BT_DATA_BYTES(BT_DATA_UUID128_ALL, SMP_SVC_UUID_BYTES),
 };
 
-/* SHT45 I2C bus for direct heater commands */
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
-static const struct device *sht45_bus = DEVICE_DT_GET(DT_BUS(DT_NODELABEL(sht45)));
+/* SHT4x I2C bus for direct heater commands */
+#if DT_NODE_HAS_STATUS(DT_NODELABEL(sht4x), okay)
+static const struct device *sht4x_bus = DEVICE_DT_GET(DT_BUS(DT_NODELABEL(sht4x)));
 #endif
 
 /*
  * Fire SHT4x heater via direct I2C for decontamination.
  */
-#if IS_ENABLED(CONFIG_SHT4X_USE_HEATER) && DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
+#if IS_ENABLED(CONFIG_SHT4X_USE_HEATER) && DT_NODE_HAS_STATUS(DT_NODELABEL(sht4x), okay)
 static void sht4x_heater_pulse(void)
 {
 	int power = CONFIG_SHT4X_HEATER_PULSE_POWER;
 	int duration = IS_ENABLED(CONFIG_SHT4X_HEATER_LONG_PULSE_DURATION) ? 0 : 1;
 
 	uint8_t cmd = sht4x_heater_cmd[power][duration];
-	int ret = i2c_write(sht45_bus, &cmd, 1, SHT4X_I2C_ADDR);
+	int ret = i2c_write(sht4x_bus, &cmd, 1, SHT4X_I2C_ADDR);
 
 	if (ret) {
 		LOG_ERR("SHT4x heater cmd failed: %d", ret);
@@ -106,7 +106,7 @@ static void sht4x_heater_pulse(void)
 	uint8_t buf[6];
 
 	for (int attempt = 0; attempt < 10; attempt++) {
-		ret = i2c_read(sht45_bus, buf, sizeof(buf), SHT4X_I2C_ADDR);
+		ret = i2c_read(sht4x_bus, buf, sizeof(buf), SHT4X_I2C_ADDR);
 		if (ret == 0) {
 			break;
 		}
@@ -329,9 +329,9 @@ int main()
 		bool co2_cycle = (cycle % CONFIG_APP_CO2_INTERVAL_DIVISOR) == 0;
 		bool pressure_cycle = (cycle % CONFIG_APP_PRESSURE_INTERVAL_DIVISOR) == 0;
 
-		sensor_read_sht45(sensors);
-#if IS_ENABLED(CONFIG_SHT4X_USE_HEATER) && DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
-		if (sensors.sht45.valid) {
+		sensor_read_sht4x(sensors);
+#if IS_ENABLED(CONFIG_SHT4X_USE_HEATER) && DT_NODE_HAS_STATUS(DT_NODELABEL(sht4x), okay)
+		if (sensors.sht4x.valid) {
 			sht4x_heater_pulse();
 		}
 #endif
@@ -359,8 +359,8 @@ int main()
 			battery_low = opt_u8_some(sensors.battery.health != BATTERY_OK ? 1 : 0);
 		}
 
-		update_advertisement(++cycle, {sensors.sht45.temperature_cC, sensors.sht45.valid},
-				     {sensors.sht45.humidity_cPct, sensors.sht45.valid},
+		update_advertisement(++cycle, {sensors.sht4x.temperature_cC, sensors.sht4x.valid},
+				     {sensors.sht4x.humidity_cPct, sensors.sht4x.valid},
 				     {sensors.bme688.pressure_Pa, sensors.bme688.valid},
 				     {sensors.stcc4.co2_ppm, sensors.stcc4.valid}, battery_low,
 				     moisture);
