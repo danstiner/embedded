@@ -4,16 +4,16 @@ on:
   push:
     paths:
       - SW/hygrometer/**
-      - SW/boards/nordic/bl54l15u_devkit/**
-      - SW/boards/nordic/bl54l15u_hygrometer/**
+      - SW/boards/custom/bl54l15u_devkit/**
+      - SW/boards/custom/bl54l15u_hygrometer/**
       - SW/west/**
       - SW/tidy.sh
       - .github/workflows/hygrometer.yml
   pull_request:
     paths:
       - SW/hygrometer/**
-      - SW/boards/nordic/bl54l15u_devkit/**
-      - SW/boards/nordic/bl54l15u_hygrometer/**
+      - SW/boards/custom/bl54l15u_devkit/**
+      - SW/boards/custom/bl54l15u_hygrometer/**
       - SW/west/**
       - SW/tidy.sh
       - .github/workflows/hygrometer.yml
@@ -60,8 +60,10 @@ jobs:
             name: nrf54l15dk
           - board: bl54l15u_devkit@2026v2/nrf54l15/cpuapp
             name: bl54l15u_devkit
-          - board: bl54l15u_hygrometer/nrf54l15/cpuapp
-            name: bl54l15u_hygrometer
+          - board: bl54l15u_hygrometer@2026v3/nrf54l15/cpuapp
+            name: bl54l15u_hygrometer_2026v3
+          - board: bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp
+            name: bl54l15u_hygrometer_2026v4
     steps:
       - name: Checkout
         uses: actions/checkout@v4

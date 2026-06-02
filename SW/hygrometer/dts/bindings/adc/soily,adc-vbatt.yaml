@@ -1,0 +1,14 @@
+description: |
+  Battery-voltage source measured directly by an ADC channel (no PMIC fuel
+  gauge). Points at a single ADC io-channel; the firmware converts the sampled
+  voltage to a state-of-charge estimate.
+
+compatible: "soily,adc-vbatt"
+
+include: base.yaml
+
+properties:
+  io-channels:
+    type: phandle-array
+    required: true
+    description: ADC channel that measures the battery/supply voltage.

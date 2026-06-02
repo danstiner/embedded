@@ -22,6 +22,11 @@ target_sources(app PRIVATE
   src/sensor/stcc4.cpp
 )
 
+# Leak sensor (2026v4 hardware)
+target_sources_ifdef(CONFIG_APP_LEAK_SENSOR app PRIVATE
+  src/sensor/leak.cpp
+)
+
 if(CONFIG_APP_USE_MATTER)
   include(${ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR}/config/nrfconnect/app/enable-gnu-std.cmake)
   include(${ZEPHYR_NRF_MODULE_DIR}/samples/matter/common/cmake/source_common.cmake)

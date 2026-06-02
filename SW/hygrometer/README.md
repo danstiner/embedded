@@ -7,6 +7,19 @@ Low power sensor for relative humidity, temperature, and water leaks utilizing t
 ### Development Board
 - BL54L15u Hygrometer or BL54L15u DevKit
 
+### Hygrometer board revisions
+The `bl54l15u_hygrometer` board has two hardware revisions. Append `@<revision>`
+to the board target to select one; omitting it uses the default (`2026v4`).
+
+- **2026v4** (default): CR2 coin cell (no PMIC — battery measured via SAADC),
+  SHT45 only, adds a resistive water-leak sensor (reported as BTHome moisture
+  `0x20`) and a buzzer pin (reserved, not yet driven).
+- **2026v3**: nPM2100 PMIC + 2×AAA alkaline, SHT45, optional BME688/STCC4. Build
+  with `bl54l15u_hygrometer@2026v3/nrf54l15/cpuapp`.
+
+> Note: the example commands below omit `@<revision>` and therefore build for the
+> default **2026v4** hardware. Add `@2026v3` to target the older board.
+
 ## Build Instructions
 
 ### Prerequisites
@@ -22,6 +35,11 @@ west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_
 Release mode with reduced power use:
 ```sh
 west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_release.conf
+```
+
+2026v4 hardware (CR2 + leak sensing) over BTHome, with RTT logging:
+```sh
+west build -b bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF_FILE=sysbuild/mcuboot_extra_rtt.conf
 ```
 
 Matter over Thread mode (instead of BTHome BLE advertising):

@@ -31,17 +31,25 @@ struct battery_reading {
 	bool valid;
 };
 
+struct leak_reading {
+	int64_t timestamp;
+	bool wet; /* true when water bridges the leak electrodes */
+	bool valid;
+};
+
 struct sensor_state {
 	bool have_sht45;
 	bool have_bme688;
 	bool have_stcc4;
 	bool have_battery;
+	bool have_leak;
 
 	struct sht45_reading sht45;
 	struct bme688_reading bme688;
 	struct stcc4_reading stcc4;
 	uint8_t stcc4_discards_remaining;
 	struct battery_reading battery;
+	struct leak_reading leak;
 };
 
 /** Probe all sensors, populate have_* flags. Call once at boot. */

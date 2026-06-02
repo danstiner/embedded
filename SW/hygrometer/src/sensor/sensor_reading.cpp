@@ -9,6 +9,7 @@
 #include "stcc4.h"
 
 #include <zephyr/device.h>
+#include <zephyr/drivers/adc.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/drivers/sensor.h>
@@ -56,16 +57,31 @@ static K_MUTEX_DEFINE(stcc4_mutex);
 #define HAVE_STCC4_BUS 0
 #endif
 
-/* Battery voltage sources */
+/* Battery voltage sources.
+ *
+ * HAVE_BATT_PMIC: nPM2100/nPM1304 PMIC fuel gauge (Zephyr sensor driver).
+ * HAVE_BATT_ADC:  raw CR2 coin cell measured via SAADC internal VDD (2026v4 —
+ *                 no PMIC). The two are mutually exclusive in practice. */
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(npm2100_vbat), okay)
 static const struct device *vbat_dev = DEVICE_DT_GET(DT_NODELABEL(npm2100_vbat));
-#define HAVE_BATT 1
+#define HAVE_BATT_PMIC 1
 #elif DT_NODE_HAS_STATUS(DT_NODELABEL(npm1304_charger), okay)
 static const struct device *vbat_dev = DEVICE_DT_GET(DT_NODELABEL(npm1304_charger));
-#define HAVE_BATT 1
-#else
-#define HAVE_BATT 0
+#define HAVE_BATT_PMIC 1
 #endif
+
+#if DT_NODE_EXISTS(DT_NODELABEL(vbatt)) && DT_NODE_HAS_STATUS(DT_NODELABEL(adc), okay)
+static const struct adc_dt_spec vbatt_adc = ADC_DT_SPEC_GET(DT_NODELABEL(vbatt));
+#define HAVE_BATT_ADC 1
+#endif
+
+#ifndef HAVE_BATT_PMIC
+#define HAVE_BATT_PMIC 0
+#endif
+#ifndef HAVE_BATT_ADC
+#define HAVE_BATT_ADC 0
+#endif
+#define HAVE_BATT (HAVE_BATT_PMIC || HAVE_BATT_ADC)
 
 /* ---- Fuel gauge state ---- */
 #if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
@@ -87,6 +103,35 @@ static float fg_last_v = 3.0f;
 static float fg_last_t = 25.0f;
 
 #endif /* CONFIG_NRF_FUEL_GAUGE */
+
+/* ---- Helper: CR2 (Li-MnO2, 3 V primary) voltage → state-of-charge ---- */
+#if HAVE_BATT_ADC
+static uint8_t cr2_mv_to_soc(int32_t mv)
+{
+	/* Coarse discharge curve for a 3 V lithium coin cell under light load.
+	 * The chemistry holds ~2.9-3.0 V for most of its life then knees down. */
+	static const struct {
+		int32_t mv;
+		uint8_t soc;
+	} lut[] = {
+		{3000, 100}, {2900, 90}, {2800, 70}, {2750, 50},
+		{2700, 30},  {2600, 15}, {2500, 8},  {2300, 3}, {2000, 0},
+	};
+
+	if (mv >= lut[0].mv) {
+		return 100;
+	}
+	for (size_t i = 1; i < ARRAY_SIZE(lut); i++) {
+		if (mv >= lut[i].mv) {
+			/* Linear interpolation between lut[i-1] and lut[i]. */
+			int32_t span_mv = lut[i - 1].mv - lut[i].mv;
+			int32_t span_soc = lut[i - 1].soc - lut[i].soc;
+			return (uint8_t)(lut[i].soc + (mv - lut[i].mv) * span_soc / span_mv);
+		}
+	}
+	return 0;
+}
+#endif
 
 /* ---- Helper: convert sensor_value to raw SHT4x ticks ---- */
 static uint16_t temp_to_raw_ticks(const struct sensor_value *val)
@@ -196,10 +241,17 @@ void sensor_init(sensor_state &state)
 	}
 #endif
 
-#if HAVE_BATT
+#if HAVE_BATT_PMIC
 	if (device_is_ready(vbat_dev)) {
 		state.have_battery = true;
 		LOG_INF("Battery sensor ready");
+	}
+#elif HAVE_BATT_ADC
+	if (adc_is_ready_dt(&vbatt_adc) && adc_channel_setup_dt(&vbatt_adc) == 0) {
+		state.have_battery = true;
+		LOG_INF("Battery ADC ready");
+	} else {
+		LOG_WRN("Battery ADC not ready");
 	}
 #endif
 }
@@ -207,7 +259,7 @@ void sensor_init(sensor_state &state)
 /* ---- Fuel gauge init ---- */
 void sensor_fuel_gauge_init(void)
 {
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE) && HAVE_BATT
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE) && HAVE_BATT_PMIC
 	if (!device_is_ready(vbat_dev)) {
 		LOG_WRN("VBAT device not ready — fuel gauge skipped");
 		return;
@@ -404,7 +456,37 @@ int sensor_read_stcc4(sensor_state &state)
 /* ---- Read battery ---- */
 int sensor_read_battery(sensor_state &state)
 {
-#if HAVE_BATT
+#if HAVE_BATT_ADC
+	if (!state.have_battery) {
+		return -ENODEV;
+	}
+
+	int16_t sample = 0;
+	struct adc_sequence seq = {
+		.buffer = &sample,
+		.buffer_size = sizeof(sample),
+	};
+	adc_sequence_init_dt(&vbatt_adc, &seq);
+
+	int ret = adc_read_dt(&vbatt_adc, &seq);
+	if (ret) {
+		LOG_WRN("Battery ADC read failed: %d", ret);
+		state.battery.valid = false;
+		return ret;
+	}
+
+	int32_t mv = sample;
+	adc_raw_to_millivolts_dt(&vbatt_adc, &mv);
+	if (mv < 0) {
+		mv = 0;
+	}
+
+	state.battery.soc_pct = cr2_mv_to_soc(mv);
+	state.battery.timestamp = k_uptime_get();
+	state.battery.valid = true;
+	LOG_INF("BAT_V: %d.%03dV (%u%%)", mv / 1000, mv % 1000, state.battery.soc_pct);
+	return 0;
+#elif HAVE_BATT_PMIC
 	if (!state.have_battery || !device_is_ready(vbat_dev)) {
 		return -ENODEV;
 	}
@@ -476,7 +558,7 @@ int sensor_read_battery(sensor_state &state)
 
 void sensor_fuel_gauge_idle_set(void)
 {
-#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE) && HAVE_BATT
+#if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE) && HAVE_BATT_PMIC
 	if (fg_initialized) {
 		nrf_fuel_gauge_idle_set(fg_last_v, fg_last_t, 10e-6f);
 	}

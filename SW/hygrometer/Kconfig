@@ -72,6 +72,23 @@ config STCC4_ENABLE
 	help
 	  Enable probing for and using CO2 sensor, if hardware is present.
 
+config APP_LEAK_SENSOR
+	bool "Enable resistive water-leak sensor"
+	default n
+	select GPIO
+	help
+	  Drive/sense a resistive leak sensor (2026v4 hardware). Requires a
+	  "soily,leak-sensor" node in devicetree. A wet bridge across the
+	  electrodes triggers an interrupt that wakes the device immediately.
+
+config APP_BUZZER
+	bool "Enable leak buzzer/siren output"
+	default n
+	depends on APP_LEAK_SENSOR
+	help
+	  Drive the buzzer/siren (2026v4 P2.05) on leak detection. Not yet
+	  implemented — reserved for a future audible-alarm feature.
+
 config APP_USE_MATTER
 	bool "Use Matter/Thread instead of BTHome BLE"
 	default n

@@ -16,6 +16,7 @@
 #define BTHOME_OBJ_HUMIDITY  0x03 /* uint16, 0.01 % */
 #define BTHOME_OBJ_PRESSURE  0x04 /* uint24, 0.01 hPa */
 #define BTHOME_OBJ_CO2       0x12 /* uint16, 1 ppm */
+#define BTHOME_OBJ_MOISTURE  0x20 /* uint8 binary, 0 = dry, 1 = wet (water leak) */
 
 typedef struct {
 	int16_t value = 0;

@@ -1,0 +1,20 @@
+description: |
+  Resistive water-leak sensor.
+
+  Two electrodes separated by a gap. One is driven high (drive-gpios) and the
+  other (sense-gpios) is read back through a pull-down: water bridging the gap
+  raises the sense line. The sense GPIO supports interrupts so the device can
+  wake immediately when a leak appears.
+
+compatible: "soily,leak-sensor"
+
+properties:
+  drive-gpios:
+    type: phandle-array
+    required: true
+    description: Output that energises the leak electrode.
+
+  sense-gpios:
+    type: phandle-array
+    required: true
+    description: Input read across the water gap (pull-down when dry).
