@@ -524,7 +524,7 @@ int sensor_read_battery(sensor_state &state)
 	state.battery.timestamp = k_uptime_get();
 	state.battery.valid = true;
 	LOG_INF("BAT_V: %d.%03dV (%s)", mv / 1000, mv % 1000,
-		state.battery.health == BATTERY_OK	  ? "ok"
+		state.battery.health == BATTERY_OK    ? "ok"
 		: state.battery.health == BATTERY_LOW ? "LOW"
 						      : "CRITICAL");
 	return 0;
