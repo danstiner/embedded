@@ -29,7 +29,7 @@ to the board target to select one; omitting it uses the default (`2026v4`).
 
 Base build advertising over BLE in the BTHome format, with RTT logging:
 ```sh
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF_FILE=sysbuild/mcuboot_extra_rtt.conf
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF_FILE=$(pwd)/sysbuild/mcuboot_extra_rtt.conf
 ```
 
 Release mode with reduced power use:
@@ -39,7 +39,7 @@ west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_
 
 2026v4 hardware (CR2 + leak sensing) over BTHome, with RTT logging:
 ```sh
-west build -b bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF_FILE=sysbuild/mcuboot_extra_rtt.conf
+west build -b bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF_FILE=$(pwd)/sysbuild/mcuboot_extra_rtt.conf
 ```
 
 Matter over Thread mode (instead of BTHome BLE advertising):
