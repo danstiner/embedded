@@ -99,13 +99,13 @@
 		io-channels = <&adc 0>;
 	};
 
-	/* Resistive leak sensor: drive one electrode, sense the other across the
-	 * water gap. A wet bridge pulls LEAK_SENSE high (pull-down keeps it low
-	 * when dry). */
+	/* Resistive leak sensor: drive one electrode (via R1 10k), sense the other
+	 * (via R2 10k) across the water gap. The board has an external 1M pull-down
+	 * (R3) on the sense line. Water bridging the gap should pull LEAK_SENSE up. */
 	leak_sensor: leak-sensor {
 		compatible = "soily,leak-sensor";
-		drive-gpios = <&gpio0 1 GPIO_ACTIVE_HIGH>;                     /* P0.01 LEAK_DRIVE */
-		sense-gpios = <&gpio1 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;  /* P1.07 LEAK_SENSE */
+		drive-gpios = <&gpio0 1 GPIO_ACTIVE_HIGH>;  /* P0.01 LEAK_DRIVE */
+		sense-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;  /* P1.07 LEAK_SENSE */
 	};
 
 	/* Buzzer/siren output (P2.05 -> Q1 -> transducer). Reserved for a future
