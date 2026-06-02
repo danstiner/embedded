@@ -86,6 +86,9 @@
 		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
 		zephyr,input-positive = <NRF_SAADC_VDD>;
 		zephyr,resolution = <12>;
+		/* 2^2 = 4x oversampling. The CR2 curve is quite flat; average in
+		 * hardware to keep the reported percentage stable. */
+		zephyr,oversampling = <2>;
 	};
 };
 
