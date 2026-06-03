@@ -1,0 +1,34 @@
+# Static partition layout for the Zigbee variant (single-image, no MCUboot).
+# Carves ZBOSS NVRAM out of the top of the 1524K RRAM — the add-on ships these
+# for nRF54LM20 but not nRF54L15, and without them `app` fills all of flash and
+# PM_ZBOSS_NVRAM_* are never generated.
+app:
+  address: 0x0
+  end_address: 0x174000
+  region: flash_primary
+  size: 0x174000
+zboss_nvram:
+  address: 0x174000
+  end_address: 0x17c000
+  region: flash_primary
+  size: 0x8000
+zboss_product_config:
+  address: 0x17c000
+  end_address: 0x17d000
+  region: flash_primary
+  size: 0x1000
+bootconf:
+  address: 0xffd080
+  end_address: 0xffd084
+  region: bootconf
+  size: 0x4
+otp:
+  address: 0xffd500
+  end_address: 0xffd980
+  region: otp
+  size: 0x480
+sram_primary:
+  address: 0x20000000
+  end_address: 0x20040000
+  region: sram_primary
+  size: 0x40000

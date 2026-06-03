@@ -89,9 +89,19 @@ config APP_BUZZER
 	  Drive the buzzer/siren (2026v4 P2.05) on leak detection. Not yet
 	  implemented — reserved for a future audible-alarm feature.
 
+config APP_USE_ZIGBEE
+	bool "Use Zigbee (ZBOSS) instead of BTHome BLE"
+	default n
+	help
+	  Build the Zigbee end-device variant (ncs-zigbee add-on, Zigbee R23).
+	  Mutually exclusive with APP_USE_MATTER.
+
 config APP_USE_MATTER
 	bool "Use Matter/Thread instead of BTHome BLE"
 	default n
+	help
+	  Build the Matter end-device variant.
+	  Mutually exclusive with APP_USE_ZIGBEE.
 
 if APP_USE_MATTER
 

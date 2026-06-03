@@ -134,6 +134,22 @@ jobs:
         working-directory: SW
         run: ./tidy.sh build-matter "$(pwd)/hygrometer/src/"
 
+      # Zigbee (ncs-zigbee add-on, Zigbee R23) — single image (no MCUboot yet).
+      # Only the hygrometer boards; the add-on partition layout is carved by
+      # pm_static_zigbee.yml.
+      - name: Build Zigbee Release
+        if: startsWith(matrix.name, 'bl54l15u_hygrometer')
+        working-directory: SW
+        run: |
+          west build \
+            -b ${{ matrix.board }} \
+            --build-dir build-zigbee \
+            hygrometer \
+            -- -DBOARD_ROOT=$(pwd) \
+            -DEXTRA_CONF_FILE=prj_extra_zigbee.conf \
+            -DSB_EXTRA_CONF_FILE=sysbuild_extra_zigbee.conf \
+            -DPM_STATIC_YML_FILE=$(pwd)/hygrometer/pm_static_zigbee.yml
+
       - name: Show ccache stats
         if: always()
         run: ccache --show-stats

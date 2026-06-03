@@ -39,6 +39,12 @@ if(CONFIG_APP_USE_MATTER)
     src/matter/app_task.cpp
   )
   ncs_configure_data_model()
+elseif(CONFIG_APP_USE_ZIGBEE)
+  target_sources(app PRIVATE
+    src/zigbee/main.c
+    src/zigbee/sensor_shim.cpp
+  )
+  target_include_directories(app PRIVATE src/zigbee)
 else()
   target_sources(app PRIVATE
     src/bthome/main.cpp
