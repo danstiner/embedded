@@ -343,6 +343,9 @@ static void report_cfg(zb_uint16_t cluster_id, zb_uint16_t attr_id,
 	rep.cluster_id = cluster_id;
 	rep.cluster_role = ZB_ZCL_CLUSTER_SERVER_ROLE;
 	rep.attr_id = attr_id;
+	/* Must be 0xFFFF for standard (non-manufacturer) attributes, else the attr
+	 * lookup in zb_zcl_put_reporting_info fails with RET_NOT_FOUND. */
+	rep.manuf_code = ZB_ZCL_NON_MANUFACTURER_SPECIFIC;
 	rep.dst.short_addr = 0x0000; /* coordinator */
 	rep.dst.endpoint = 1;        /* ZHA coordinator endpoint */
 	rep.dst.profile_id = ZB_AF_HA_PROFILE_ID;
@@ -415,6 +418,8 @@ void zboss_signal_handler(zb_bufid_t bufid)
 int main(void)
 {
 	LOG_INF("=== Hygrometer (Zigbee) ===");
+	LOG_INF("Reporting: min %us / max %us; measure every %us", APP_REPORT_MIN_INTERVAL_SEC,
+		APP_REPORT_MAX_INTERVAL_SEC, CONFIG_APP_MEASUREMENT_INTERVAL_SEC);
 
 #if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
 	zb_sensor_init(&leak_wake_sem);
