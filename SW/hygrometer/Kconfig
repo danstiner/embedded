@@ -4,6 +4,21 @@ config APP_MEASUREMENT_INTERVAL_SEC
 	help
 	  Time between periodic measurements. Device sleeps between readings.
 
+config APP_ZIGBEE_REPORT_MIN_INTERVAL_SEC
+	int "Zigbee min attribute reporting interval (seconds)"
+	default 10
+	help
+	  Zigbee only. Minimum seconds between ZCL attribute reports — reports are
+	  throttled to no more often than this even when the value keeps changing.
+
+config APP_ZIGBEE_REPORT_MAX_INTERVAL_SEC
+	int "Zigbee max attribute reporting interval / heartbeat (seconds)"
+	default 300
+	help
+	  Zigbee only. The device reports at least this often even if the value has
+	  not changed, so the coordinator never sees a stale value. Lower this for
+	  faster test feedback (e.g. 10), raise it to save battery.
+
 config APP_CO2_INTERVAL_DIVISOR
 	int "Only fetch STCC4 every Nth measurement cycle"
 	default 1
