@@ -29,6 +29,11 @@
 #include <ha/zb_ha_temperature_sensor.h>
 #include <ram_pwrdn.h>
 
+/* Phase 0 diagnostics: readable per-frame ZCL/APS RX logging (CONFIG_ZIGBEE_LOGGER_EP). */
+#if IS_ENABLED(CONFIG_ZIGBEE_LOGGER_EP)
+#include <zigbee/zigbee_logger_eprxzcl.h>
+#endif
+
 #include "sensor_shim.h"
 
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
@@ -53,9 +58,9 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 
 /* Device-driven attribute reporting to the coordinator (see configure_reporting()).
  * min: never report more often than this; max: heartbeat — report at least this
- * often even if unchanged, so HA never goes stale. */
-#define APP_REPORT_MIN_INTERVAL_SEC 10
-#define APP_REPORT_MAX_INTERVAL_SEC 300 /* 5 min */
+ * often even if unchanged, so HA never goes stale. Both are Kconfig-tunable. */
+#define APP_REPORT_MIN_INTERVAL_SEC CONFIG_APP_ZIGBEE_REPORT_MIN_INTERVAL_SEC
+#define APP_REPORT_MAX_INTERVAL_SEC CONFIG_APP_ZIGBEE_REPORT_MAX_INTERVAL_SEC
 
 /* Temperature Measurement defaults (0.01 °C units). */
 #define TEMP_MEASURE_MIN_VALUE (-4000) /* -40.00 °C */
@@ -293,6 +298,10 @@ static void measure(zb_bufid_t bufid)
 
 	ZVUNUSED(bufid);
 
+	/* Phase 0 diagnostics: prove the "zombie-joined" state — ZB_JOINED() stays
+	 * true while uplinks fail. parent 0xffff means ZBOSS has no parent. */
+	LOG_INF("Link: joined=%d parent=0x%04x", ZB_JOINED(), zb_nwk_get_parent());
+
 	if (zb_sensor_read_sht4x(&t, &rh)) {
 		zb_zcl_set_attr_val(SENSOR_ENDPOINT, ZB_ZCL_CLUSTER_ID_TEMP_MEASUREMENT,
 				    ZB_ZCL_CLUSTER_SERVER_ROLE, ZB_ZCL_ATTR_TEMP_MEASUREMENT_VALUE_ID,
@@ -393,6 +402,8 @@ void zboss_signal_handler(zb_bufid_t bufid)
 			 * idle). Doing this only post-join keeps the join handshake
 			 * reliable. */
 			zigbee_configure_sleepy_behavior(true);
+			/* Do not disable the radio between the polls to parent during sleepy operation */
+			zb_set_rx_on_when_idle(ZB_FALSE);
 			/* Must be set after join — join resets it to the default. */
 			zb_zdo_pim_set_long_poll_interval(APP_LONG_POLL_INTERVAL_MS);
 			/* Drive our own reporting so HA updates without ZHA config. */
@@ -403,6 +414,26 @@ void zboss_signal_handler(zb_bufid_t bufid)
 			ZB_SCHEDULE_APP_ALARM(measure, 0,
 					      ZB_MILLISECONDS_TO_BEACON_INTERVAL(1000));
 		}
+		break;
+	/* --- Phase 0 diagnostics (temporary): make the drop visible. --- */
+	case ZB_ZDO_DEVICE_UNAVAILABLE: {
+		/* Emitted when ZBOSS cannot deliver a packet (no MAC ACK from parent,
+		 * or no APS ACK from the coordinator). short=0x0000 ⇒ route/APS to the
+		 * coordinator is gone; short==parent ⇒ MAC parent loss (weak RF link). */
+		zb_zdo_device_unavailable_params_t *p =
+			ZB_ZDO_SIGNAL_GET_PARAMS(sig_hdr, zb_zdo_device_unavailable_params_t);
+		LOG_WRN("Device unavailable: short=0x%04x (joined=%d parent=0x%04x)",
+			p->short_addr, ZB_JOINED(), zb_nwk_get_parent());
+		break;
+	}
+	case ZB_NWK_SIGNAL_NO_ACTIVE_LINKS_LEFT:
+		LOG_WRN("No active links left — parent unreachable (status=%d)", status);
+		break;
+	case ZB_ZDO_SIGNAL_LEAVE:
+		LOG_WRN("Left the network (status=%d)", status);
+		break;
+	case ZB_BDB_SIGNAL_TC_REJOIN_DONE:
+		LOG_INF("TC rejoin done (status=%d)", status);
 		break;
 	default:
 		break;
@@ -441,6 +472,13 @@ int main(void)
 
 	ZB_AF_REGISTER_DEVICE_CTX(&sensor_ctx);
 	app_clusters_attr_init();
+
+#if IS_ENABLED(CONFIG_ZIGBEE_LOGGER_EP)
+	/* Phase 0 diagnostics: log every ZCL/APS frame received on our endpoint.
+	 * Must be set after ZB_AF_REGISTER_DEVICE_CTX(). The handler logs and returns
+	 * ZB_FALSE, so normal cluster processing still runs. */
+	ZB_AF_SET_ENDPOINT_HANDLER(SENSOR_ENDPOINT, zigbee_logger_eprxzcl_ep_handler);
+#endif
 
 	zigbee_enable();
 
