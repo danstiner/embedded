@@ -43,27 +43,13 @@ void AppTask::SensorTimerCallback(k_timer *timer)
 
 void AppTask::UpdateSensorAttributes()
 {
-	/* 1. SHT4x — every cycle */
-	if (sensor_read_sht4x(sensors) == 0) {
+	sensor_read_cycle(&sensors, cycle++);
+
+	if (sensors.sht4x.valid) {
 		Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
 			kSensorEndpointId, sensors.sht4x.temperature_cC);
 		Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
 			kSensorEndpointId, sensors.sht4x.humidity_cPct);
-	}
-
-	/* 2. BME688 pressure — independent cadence */
-	bool pressure_cycle = (cycle % CONFIG_APP_PRESSURE_INTERVAL_DIVISOR) == 0;
-	if (pressure_cycle) {
-		sensor_read_bme688(sensors);
-	}
-
-	/* 3. STCC4 CO2 — expensive cycle cadence */
-	bool co2_cycle = (cycle++ % CONFIG_APP_CO2_INTERVAL_DIVISOR) == 0;
-	if (co2_cycle) {
-		if (sensor_read_stcc4(sensors) == 0) {
-			co2_instance.SetMeasuredValue(
-				DataModel::MakeNullable(static_cast<float>(sensors.stcc4.co2_ppm)));
-		}
 	}
 
 	if (sensors.bme688.valid) {
@@ -71,9 +57,13 @@ void AppTask::UpdateSensorAttributes()
 			kSensorEndpointId, sensors.bme688.pressure_kPa);
 	}
 
-	/* 4. Battery */
-	sensor_read_battery(sensors);
-	/* TODO (deferred Matter pass): expose battery via the Power Source cluster
+	if (sensors.stcc4.valid) {
+		co2_instance.SetMeasuredValue(
+			DataModel::MakeNullable(static_cast<float>(sensors.stcc4.co2_ppm)));
+	}
+
+	/* Battery is read above by sensor_read_cycle().
+	 * TODO (deferred Matter pass): expose battery via the Power Source cluster
 	 * (0x002F). Map sensors.battery.health -> BatChargeLevel (OK/Warning/Critical)
 	 * — the coarse health is the right fit for the flat CR2 curve — and optionally
 	 * sensors.battery.millivolts -> BatVoltage. Requires adding the cluster to
@@ -101,7 +91,7 @@ CHIP_ERROR AppTask::Init()
 	co2_instance.SetMaxMeasuredValue(MakeNullable(40000.0f));
 
 	/* Initialize sensors */
-	sensor_init(sensors);
+	sensor_init(&sensors);
 	sensor_fuel_gauge_init();
 
 	return Nrf::Matter::StartServer();

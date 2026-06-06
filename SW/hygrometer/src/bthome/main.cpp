@@ -307,10 +307,10 @@ int main()
 	co2_cal_svc_init();
 
 	sensor_state sensors;
-	sensor_init(sensors);
+	sensor_init(&sensors);
 	sensor_fuel_gauge_init();
 #if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
-	leak_init(sensors, &leak_wake_sem);
+	leak_init(&sensors, &leak_wake_sem);
 #endif
 
 	uint32_t cycle = 0;
@@ -326,29 +326,16 @@ int main()
 	}
 
 	while (true) {
-		bool co2_cycle = (cycle % CONFIG_APP_CO2_INTERVAL_DIVISOR) == 0;
-		bool pressure_cycle = (cycle % CONFIG_APP_PRESSURE_INTERVAL_DIVISOR) == 0;
-
-		sensor_read_sht4x(sensors);
+		sensor_read_cycle(&sensors, cycle);
 #if IS_ENABLED(CONFIG_SHT4X_USE_HEATER) && DT_NODE_HAS_STATUS(DT_NODELABEL(sht4x), okay)
 		if (sensors.sht4x.valid) {
 			sht4x_heater_pulse();
 		}
 #endif
 
-		if (pressure_cycle) {
-			sensor_read_bme688(sensors);
-		}
-
-		if (co2_cycle) {
-			sensor_read_stcc4(sensors);
-		}
-
-		sensor_read_battery(sensors);
-
 		opt_u8 moisture = opt_u8_none();
 #if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
-		leak_read(sensors);
+		leak_read(&sensors);
 		if (sensors.leak.valid) {
 			moisture = opt_u8_some(sensors.leak.wet ? 1 : 0);
 		}

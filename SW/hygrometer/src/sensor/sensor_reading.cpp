@@ -214,8 +214,9 @@ static void charge_status_inform(int32_t chg_status)
 #endif
 
 /* ---- Sensor init ---- */
-void sensor_init(sensor_state &state)
+void sensor_init(struct sensor_state *statep)
 {
+	sensor_state &state = *statep;
 	memset(&state, 0, sizeof(state));
 
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(sht4x), okay)
@@ -362,8 +363,9 @@ void sensor_fuel_gauge_init(void)
 }
 
 /* ---- Read SHT4x ---- */
-int sensor_read_sht4x(sensor_state &state)
+int sensor_read_sht4x(struct sensor_state *statep)
 {
+	sensor_state &state = *statep;
 #if DT_NODE_HAS_STATUS(DT_NODELABEL(sht4x), okay)
 	if (!state.have_sht4x) {
 		return -ENODEV;
@@ -397,8 +399,9 @@ int sensor_read_sht4x(sensor_state &state)
 }
 
 /* ---- Read BME688 ---- */
-int sensor_read_bme688(sensor_state &state)
+int sensor_read_bme688(struct sensor_state *statep)
 {
+	sensor_state &state = *statep;
 #if HAVE_BME688 && CONFIG_BME688_ENABLE
 	if (!state.have_bme688) {
 		return -ENODEV;
@@ -427,8 +430,9 @@ int sensor_read_bme688(sensor_state &state)
 }
 
 /* ---- Read STCC4 ---- */
-int sensor_read_stcc4(sensor_state &state)
+int sensor_read_stcc4(struct sensor_state *statep)
 {
+	sensor_state &state = *statep;
 #if HAVE_STCC4_BUS && CONFIG_STCC4_ENABLE
 	if (!state.have_stcc4) {
 		return -ENODEV;
@@ -492,8 +496,9 @@ int sensor_read_stcc4(sensor_state &state)
 }
 
 /* ---- Read battery ---- */
-int sensor_read_battery(sensor_state &state)
+int sensor_read_battery(struct sensor_state *statep)
 {
+	sensor_state &state = *statep;
 #if HAVE_BATT_ADC
 	if (!state.have_battery) {
 		return -ENODEV;
@@ -598,6 +603,23 @@ int sensor_read_battery(sensor_state &state)
 #else
 	return -ENOTSUP;
 #endif
+}
+
+/* ---- One measurement cycle (shared cadence for BTHome + Matter) ---- */
+void sensor_read_cycle(struct sensor_state *state, uint32_t cycle)
+{
+	sensor_read_sht4x(state);
+
+	/* BME688 pressure on its own divisor; read before STCC4 so CO2 gets fresh
+	 * pressure compensation. */
+	if (cycle % CONFIG_APP_PRESSURE_INTERVAL_DIVISOR == 0) {
+		sensor_read_bme688(state);
+	}
+	if (cycle % CONFIG_APP_CO2_INTERVAL_DIVISOR == 0) {
+		sensor_read_stcc4(state);
+	}
+
+	sensor_read_battery(state);
 }
 
 void sensor_fuel_gauge_idle_set(void)

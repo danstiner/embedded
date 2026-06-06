@@ -2,13 +2,14 @@
  * Hygrometer firmware — Zigbee (ZBOSS / ncs-zigbee add-on) build.
  *
  * Sleepy end device that reports temperature, humidity, battery and water-leak
- * over Zigbee, reusing the shared sensor_reading / leak modules via sensor_shim
- * (same sensors as the BTHome/Matter builds). Exposed as a custom endpoint with
+ * over Zigbee, reusing the shared sensor_reading / leak modules directly (same
+ * sensors as the BTHome/Matter builds). Exposed as a custom endpoint with
  * Temperature/Relative Humidity Measurement, Power Configuration (battery) and
  * IAS Zone (water sensor) clusters.
  *
- * Written in C because the ZBOSS device-declaration macros use C constructs
- * that do not parse as C++.
+ * Written in C because the ZBOSS device-declaration macros use C constructs that
+ * do not parse as C++; the shared sensor API is C-callable (extern "C") so no shim
+ * is needed.
  */
 
 /* Must precede every ZBOSS include. We hand-roll the endpoint, but still borrow
@@ -29,14 +30,15 @@
 #include <ha/zb_ha_temperature_sensor.h>
 #include <ram_pwrdn.h>
 
-/* Phase 0 diagnostics: readable per-frame ZCL/APS RX logging (CONFIG_ZIGBEE_LOGGER_EP). */
-#if IS_ENABLED(CONFIG_ZIGBEE_LOGGER_EP)
-#include <zigbee/zigbee_logger_eprxzcl.h>
+#include "sensor/sensor_reading.h"
+#if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
+#include "sensor/leak.h"
 #endif
 
-#include "sensor_shim.h"
-
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
+
+/* Shared sensor state, owned by this app (the C-callable sensor API mutates it). */
+static struct sensor_state sensors;
 
 /* Application endpoint that hosts the ZCL clusters. */
 #define SENSOR_ENDPOINT 10
@@ -244,22 +246,26 @@ static void app_clusters_attr_init(void)
  * free it ourselves when nothing was sent. */
 static void send_leak_status(zb_bufid_t bufid)
 {
-	bool wet = false;
-
-	if (!zb_sensor_read_leak(&wet)) {
+#if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
+	if (leak_read(&sensors) != 0 || !sensors.leak.valid) {
 		if (bufid) {
 			zb_buf_free(bufid);
 		}
 		return;
 	}
 
-	zb_uint16_t zone_status = wet ? ZB_ZCL_IAS_ZONE_ZONE_STATUS_ALARM1 : 0;
+	zb_uint16_t zone_status = sensors.leak.wet ? ZB_ZCL_IAS_ZONE_ZONE_STATUS_ALARM1 : 0;
 
-	LOG_INF("Leak: %s", wet ? "WET" : "dry");
+	LOG_INF("Leak: %s", sensors.leak.wet ? "WET" : "dry");
 
 	if (zb_zcl_ias_zone_set_status(SENSOR_ENDPOINT, zone_status, 0, bufid) != ZB_TRUE && bufid) {
 		zb_buf_free(bufid);
 	}
+#else
+	if (bufid) {
+		zb_buf_free(bufid);
+	}
+#endif
 }
 
 #if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
@@ -291,18 +297,12 @@ K_THREAD_DEFINE(leak_monitor_tid, 1024, leak_monitor, NULL, NULL, NULL, K_PRIO_P
 /* Periodic sensor sample → ZCL attribute update (ZBOSS scheduler callback). */
 static void measure(zb_bufid_t bufid)
 {
-	int16_t t;
-	uint16_t rh;
-	uint16_t mv;
-	uint8_t health;
-
 	ZVUNUSED(bufid);
 
-	/* Phase 0 diagnostics: prove the "zombie-joined" state — ZB_JOINED() stays
-	 * true while uplinks fail. parent 0xffff means ZBOSS has no parent. */
-	LOG_INF("Link: joined=%d parent=0x%04x", ZB_JOINED(), zb_nwk_get_parent());
+	if (sensor_read_sht4x(&sensors) == 0 && sensors.sht4x.valid) {
+		int16_t t = sensors.sht4x.temperature_cC;
+		uint16_t rh = sensors.sht4x.humidity_cPct;
 
-	if (zb_sensor_read_sht4x(&t, &rh)) {
 		zb_zcl_set_attr_val(SENSOR_ENDPOINT, ZB_ZCL_CLUSTER_ID_TEMP_MEASUREMENT,
 				    ZB_ZCL_CLUSTER_SERVER_ROLE, ZB_ZCL_ATTR_TEMP_MEASUREMENT_VALUE_ID,
 				    (zb_uint8_t *)&t, ZB_FALSE);
@@ -313,9 +313,11 @@ static void measure(zb_bufid_t bufid)
 		LOG_INF("T=%d.%02d C  RH=%u.%02u%%", t / 100, t % 100, rh / 100, rh % 100);
 	}
 
-	if (zb_sensor_read_battery(&mv, &health)) {
-		zb_uint8_t voltage_dV = (zb_uint8_t)(mv / 100); /* 100 mV units */
+	if (sensor_read_battery(&sensors) == 0 && sensors.battery.valid) {
+		uint16_t mv = sensors.battery.millivolts;
 		/* health: 0 = OK; anything else (low/critical) trips the alarm. */
+		uint8_t health = (uint8_t)sensors.battery.health;
+		zb_uint8_t voltage_dV = (zb_uint8_t)(mv / 100); /* 100 mV units */
 		zb_uint32_t alarm =
 			health ? ZB_ZCL_POWER_CONFIG_BATTERY_ALARM_STATE_SOURCE1_MIN_THRESHOLD : 0;
 
@@ -402,8 +404,6 @@ void zboss_signal_handler(zb_bufid_t bufid)
 			 * idle). Doing this only post-join keeps the join handshake
 			 * reliable. */
 			zigbee_configure_sleepy_behavior(true);
-			/* Do not disable the radio between the polls to parent during sleepy operation */
-			zb_set_rx_on_when_idle(ZB_FALSE);
 			/* Must be set after join — join resets it to the default. */
 			zb_zdo_pim_set_long_poll_interval(APP_LONG_POLL_INTERVAL_MS);
 			/* Drive our own reporting so HA updates without ZHA config. */
@@ -414,26 +414,6 @@ void zboss_signal_handler(zb_bufid_t bufid)
 			ZB_SCHEDULE_APP_ALARM(measure, 0,
 					      ZB_MILLISECONDS_TO_BEACON_INTERVAL(1000));
 		}
-		break;
-	/* --- Phase 0 diagnostics (temporary): make the drop visible. --- */
-	case ZB_ZDO_DEVICE_UNAVAILABLE: {
-		/* Emitted when ZBOSS cannot deliver a packet (no MAC ACK from parent,
-		 * or no APS ACK from the coordinator). short=0x0000 ⇒ route/APS to the
-		 * coordinator is gone; short==parent ⇒ MAC parent loss (weak RF link). */
-		zb_zdo_device_unavailable_params_t *p =
-			ZB_ZDO_SIGNAL_GET_PARAMS(sig_hdr, zb_zdo_device_unavailable_params_t);
-		LOG_WRN("Device unavailable: short=0x%04x (joined=%d parent=0x%04x)",
-			p->short_addr, ZB_JOINED(), zb_nwk_get_parent());
-		break;
-	}
-	case ZB_NWK_SIGNAL_NO_ACTIVE_LINKS_LEFT:
-		LOG_WRN("No active links left — parent unreachable (status=%d)", status);
-		break;
-	case ZB_ZDO_SIGNAL_LEAVE:
-		LOG_WRN("Left the network (status=%d)", status);
-		break;
-	case ZB_BDB_SIGNAL_TC_REJOIN_DONE:
-		LOG_INF("TC rejoin done (status=%d)", status);
 		break;
 	default:
 		break;
@@ -452,18 +432,21 @@ int main(void)
 	LOG_INF("Reporting: min %us / max %us; measure every %us", APP_REPORT_MIN_INTERVAL_SEC,
 		APP_REPORT_MAX_INTERVAL_SEC, CONFIG_APP_MEASUREMENT_INTERVAL_SEC);
 
+	sensor_init(&sensors);
 #if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
-	zb_sensor_init(&leak_wake_sem);
-#else
-	zb_sensor_init(NULL);
+	leak_init(&sensors, &leak_wake_sem);
 #endif
 
-	/* End-device aging/keepalive: parent keeps us as a child for up to 64 min
-	 * between contacts, link kept alive every 30 s. Sleepy behaviour itself is
-	 * enabled only *after* we join (see zboss_signal_handler) — commissioning is
+	/* End-device aging: ask the parent to keep us as a child for up to 64 min
+	 * between contacts. We deliberately do NOT call zb_set_keepalive_timeout():
+	 * per the Zigbee R23 add-on known issue KRKNWK-20726, when the parent supports
+	 * the keepalive method a SED that sets it floods End-Device Timeout Requests
+	 * and churns the link. Instead we rely solely on MAC data polls (long-poll
+	 * interval, set post-join in zboss_signal_handler) to refresh our slot in the
+	 * parent's child table — 7.68 s poll << 64 min aging. Sleepy behaviour itself
+	 * is enabled only *after* we join (see zboss_signal_handler) — commissioning is
 	 * far more reliable with the radio on, especially over a weak link. */
 	zb_set_ed_timeout(ED_AGING_TIMEOUT_64MIN);
-	zb_set_keepalive_timeout(ZB_MILLISECONDS_TO_BEACON_INTERVAL(30000));
 
 	/* Power down unused RAM banks to cut sleep current on the coin cell. */
 	if (IS_ENABLED(CONFIG_RAM_POWER_DOWN_LIBRARY)) {
@@ -472,13 +455,6 @@ int main(void)
 
 	ZB_AF_REGISTER_DEVICE_CTX(&sensor_ctx);
 	app_clusters_attr_init();
-
-#if IS_ENABLED(CONFIG_ZIGBEE_LOGGER_EP)
-	/* Phase 0 diagnostics: log every ZCL/APS frame received on our endpoint.
-	 * Must be set after ZB_AF_REGISTER_DEVICE_CTX(). The handler logs and returns
-	 * ZB_FALSE, so normal cluster processing still runs. */
-	ZB_AF_SET_ENDPOINT_HANDLER(SENSOR_ENDPOINT, zigbee_logger_eprxzcl_ep_handler);
-#endif
 
 	zigbee_enable();
 

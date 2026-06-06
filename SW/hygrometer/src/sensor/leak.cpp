@@ -37,8 +37,9 @@ static void leak_isr(const struct device *port, struct gpio_callback *cb, uint32
 }
 #endif /* leak_sensor okay */
 
-void leak_init(sensor_state &state, struct k_sem *wake_sem)
+void leak_init(struct sensor_state *statep, struct k_sem *wake_sem)
 {
+	sensor_state &state = *statep;
 #if HAVE_LEAK
 	if (!gpio_is_ready_dt(&leak_drive) || !gpio_is_ready_dt(&leak_sense)) {
 		LOG_WRN("Leak sensor GPIOs not ready");
@@ -65,8 +66,9 @@ void leak_init(sensor_state &state, struct k_sem *wake_sem)
 #endif
 }
 
-int leak_read(sensor_state &state)
+int leak_read(struct sensor_state *statep)
 {
+	sensor_state &state = *statep;
 #if HAVE_LEAK
 	if (!state.have_leak) {
 		return -ENODEV;

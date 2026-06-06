@@ -61,14 +61,26 @@ struct sensor_state {
 	struct leak_reading leak;
 };
 
+/* Pointer-based, C-linkage API so the (C) Zigbee app can call it directly without
+ * a shim — the BTHome/Matter C++ builds use the same functions. */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Probe all sensors, populate have_* flags. Call once at boot. */
-void sensor_init(sensor_state &state);
+void sensor_init(struct sensor_state *state);
 
 /** Individual sensor read functions. Each updates its sub-struct + timestamp. */
-int sensor_read_sht4x(sensor_state &state);
-int sensor_read_bme688(sensor_state &state);
-int sensor_read_stcc4(sensor_state &state);
-int sensor_read_battery(sensor_state &state);
+int sensor_read_sht4x(struct sensor_state *state);
+int sensor_read_bme688(struct sensor_state *state);
+int sensor_read_stcc4(struct sensor_state *state);
+int sensor_read_battery(struct sensor_state *state);
+
+/** One measurement cycle: read SHT4x + battery every call, BME688 on a
+ *  pressure-divisor cycle and STCC4 on a CO2-divisor cycle (see
+ *  CONFIG_APP_*_INTERVAL_DIVISOR). Shared by the BTHome and Matter loops so the
+ *  cadence stays identical. */
+void sensor_read_cycle(struct sensor_state *state, uint32_t cycle);
 
 /** Initialize fuel gauge. Call once after sensor_init. */
 void sensor_fuel_gauge_init(void);
@@ -83,3 +95,7 @@ void sensor_fuel_gauge_idle_set(void);
  *  Wakes sensor, runs FRC at target_co2_ppm, puts sensor back to sleep.
  *  Returns 0 on success, negative errno on failure. */
 int sensor_force_recalibration_stcc4(uint16_t target_co2_ppm);
+
+#ifdef __cplusplus
+}
+#endif
