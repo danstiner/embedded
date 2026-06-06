@@ -7,9 +7,9 @@
  * Temperature/Relative Humidity Measurement, Power Configuration (battery) and
  * IAS Zone (water sensor) clusters.
  *
- * Written in C because the ZBOSS device-declaration macros use C constructs that
- * do not parse as C++; the shared sensor API is C-callable (extern "C") so no shim
- * is needed.
+ * C++ like the other variants. The ZBOSS declaration macros parse fine as C++; the
+ * only catch is that the ZBOSS public headers lack their own extern "C" guards, so
+ * the includes below are wrapped to keep C linkage for the precompiled libzboss.a.
  */
 
 /* Must precede every ZBOSS include. We hand-roll the endpoint, but still borrow
@@ -22,12 +22,16 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
+/* ZBOSS / ncs-zigbee public headers have no extern "C" guards of their own. */
+extern "C" {
 #include <zboss_api.h>
 #include <zboss_api_addons.h>
 #include <zigbee/zigbee_error_handler.h>
 #include <zigbee/zigbee_app_utils.h>
 #include <zb_nrf_platform.h>
 #include <ha/zb_ha_temperature_sensor.h>
+}
+
 #include <ram_pwrdn.h>
 
 #include "sensor/sensor_reading.h"
@@ -37,8 +41,8 @@
 
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 
-/* Shared sensor state, owned by this app (the C-callable sensor API mutates it). */
-static struct sensor_state sensors;
+/* Shared sensor state, owned by this app. */
+static sensor_state sensors;
 
 /* Application endpoint that hosts the ZCL clusters. */
 #define SENSOR_ENDPOINT 10
@@ -247,7 +251,7 @@ static void app_clusters_attr_init(void)
 static void send_leak_status(zb_bufid_t bufid)
 {
 #if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
-	if (leak_read(&sensors) != 0 || !sensors.leak.valid) {
+	if (leak_read(sensors) != 0 || !sensors.leak.valid) {
 		if (bufid) {
 			zb_buf_free(bufid);
 		}
@@ -299,7 +303,7 @@ static void measure(zb_bufid_t bufid)
 {
 	ZVUNUSED(bufid);
 
-	if (sensor_read_sht4x(&sensors) == 0 && sensors.sht4x.valid) {
+	if (sensor_read_sht4x(sensors) == 0 && sensors.sht4x.valid) {
 		int16_t t = sensors.sht4x.temperature_cC;
 		uint16_t rh = sensors.sht4x.humidity_cPct;
 
@@ -313,7 +317,7 @@ static void measure(zb_bufid_t bufid)
 		LOG_INF("T=%d.%02d C  RH=%u.%02u%%", t / 100, t % 100, rh / 100, rh % 100);
 	}
 
-	if (sensor_read_battery(&sensors) == 0 && sensors.battery.valid) {
+	if (sensor_read_battery(sensors) == 0 && sensors.battery.valid) {
 		uint16_t mv = sensors.battery.millivolts;
 		/* health: 0 = OK; anything else (low/critical) trips the alarm. */
 		uint8_t health = (uint8_t)sensors.battery.health;
@@ -377,15 +381,20 @@ static void report_cfg(zb_uint16_t cluster_id, zb_uint16_t attr_id,
  * immediate IAS Zone Zone Status Change Notification. */
 static void configure_reporting(void)
 {
-	report_cfg(ZB_ZCL_CLUSTER_ID_TEMP_MEASUREMENT, ZB_ZCL_ATTR_TEMP_MEASUREMENT_VALUE_ID,
-		   (union zb_zcl_attr_var_u){.s16 = 10}); /* 0.1 °C */
+	/* Reportable-change deltas. One union, set the matching field before each call
+	 * (C++ has no C99 compound literals). */
+	union zb_zcl_attr_var_u delta;
+
+	delta.s16 = 10; /* 0.1 °C */
+	report_cfg(ZB_ZCL_CLUSTER_ID_TEMP_MEASUREMENT, ZB_ZCL_ATTR_TEMP_MEASUREMENT_VALUE_ID, delta);
+	delta.u16 = 50; /* 0.5 %RH */
 	report_cfg(ZB_ZCL_CLUSTER_ID_REL_HUMIDITY_MEASUREMENT,
-		   ZB_ZCL_ATTR_REL_HUMIDITY_MEASUREMENT_VALUE_ID,
-		   (union zb_zcl_attr_var_u){.u16 = 50}); /* 0.5 %RH */
-	report_cfg(ZB_ZCL_CLUSTER_ID_POWER_CONFIG, ZB_ZCL_ATTR_POWER_CONFIG_BATTERY_VOLTAGE_ID,
-		   (union zb_zcl_attr_var_u){.u8 = 1}); /* 0.1 V */
+		   ZB_ZCL_ATTR_REL_HUMIDITY_MEASUREMENT_VALUE_ID, delta);
+	delta.u8 = 1; /* 0.1 V */
+	report_cfg(ZB_ZCL_CLUSTER_ID_POWER_CONFIG, ZB_ZCL_ATTR_POWER_CONFIG_BATTERY_VOLTAGE_ID, delta);
+	delta.u32 = 0; /* any change */
 	report_cfg(ZB_ZCL_CLUSTER_ID_POWER_CONFIG, ZB_ZCL_ATTR_POWER_CONFIG_BATTERY_ALARM_STATE_ID,
-		   (union zb_zcl_attr_var_u){.u32 = 0}); /* any change */
+		   delta);
 }
 
 /* ZBOSS stack signal handler — handle join/steering, then default behavior. */
@@ -426,15 +435,15 @@ void zboss_signal_handler(zb_bufid_t bufid)
 	}
 }
 
-int main(void)
+int main()
 {
 	LOG_INF("=== Hygrometer (Zigbee) ===");
 	LOG_INF("Reporting: min %us / max %us; measure every %us", APP_REPORT_MIN_INTERVAL_SEC,
 		APP_REPORT_MAX_INTERVAL_SEC, CONFIG_APP_MEASUREMENT_INTERVAL_SEC);
 
-	sensor_init(&sensors);
+	sensor_init(sensors);
 #if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
-	leak_init(&sensors, &leak_wake_sem);
+	leak_init(sensors, &leak_wake_sem);
 #endif
 
 	/* End-device aging: ask the parent to keep us as a child for up to 64 min

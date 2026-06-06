@@ -43,7 +43,7 @@ void AppTask::SensorTimerCallback(k_timer *timer)
 
 void AppTask::UpdateSensorAttributes()
 {
-	sensor_read_cycle(&sensors, cycle++);
+	sensor_read_cycle(sensors, cycle++);
 
 	if (sensors.sht4x.valid) {
 		Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
@@ -91,7 +91,7 @@ CHIP_ERROR AppTask::Init()
 	co2_instance.SetMaxMeasuredValue(MakeNullable(40000.0f));
 
 	/* Initialize sensors */
-	sensor_init(&sensors);
+	sensor_init(sensors);
 	sensor_fuel_gauge_init();
 
 	return Nrf::Matter::StartServer();
