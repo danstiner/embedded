@@ -137,6 +137,14 @@ static enum battery_health cr2_health(int32_t mv)
 	}
 	return h;
 }
+
+/* Coarse CR2 charge estimate from terminal voltage. The Li-MnO2 curve is flat, so
+ * this is only a rough gauge: 0% at 2.50 V, 100% at 3.00 V, clamped, monotonic. */
+static uint8_t cr2_percent(int32_t mv)
+{
+	int32_t pct = (mv - 2500) * 100 / 500;
+	return (uint8_t)CLAMP(pct, 0, 100);
+}
 #endif /* HAVE_BATT_ADC */
 
 #if HAVE_BATT_PMIC
@@ -521,6 +529,7 @@ int sensor_read_battery(sensor_state &state)
 
 	state.battery.millivolts = (uint16_t)mv;
 	state.battery.health = cr2_health(mv);
+	state.battery.percent = cr2_percent(mv);
 	state.battery.timestamp = k_uptime_get();
 	state.battery.valid = true;
 	LOG_INF("BAT_V: %d.%03dV (%s)", mv / 1000, mv % 1000,
@@ -588,6 +597,7 @@ int sensor_read_battery(sensor_state &state)
 
 		uint8_t soc = CLAMP((int)fg_last_soc, 0, 100);
 		state.battery.health = soc_health(soc);
+		state.battery.percent = soc;
 		LOG_INF("BAT_%%: %u%%", soc);
 	}
 #endif /* CONFIG_NRF_FUEL_GAUGE */

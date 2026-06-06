@@ -37,6 +37,7 @@ struct battery_reading {
 	int64_t timestamp;
 	uint16_t millivolts; /* measured terminal voltage (mV) */
 	enum battery_health health;
+	uint8_t percent; /* coarse charge estimate, 0-100; 0xFF = unknown */
 	bool valid;
 };
 

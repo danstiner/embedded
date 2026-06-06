@@ -132,13 +132,16 @@ ZB_ZCL_DECLARE_TEMP_MEASUREMENT_ATTRIB_LIST(temp_attr_list, &dev_ctx.temp_attr.m
 ZB_ZCL_DECLARE_REL_HUMIDITY_MEASUREMENT_ATTRIB_LIST(humidity_attr_list, &dev_ctx.humidity_value,
 						    &dev_ctx.humidity_min, &dev_ctx.humidity_max);
 
-/* Power Config: declare just BatteryVoltage + BatteryAlarmState by hand. The
+/* Power Config: declare BatteryVoltage + BatteryPercentageRemaining + BatteryAlarmState
+ * by hand. The
  * ZBOSS ..._BATTERY_ATTRIB_LIST_EXT macro mis-pastes its battery-number token
  * (won't compile) and the non-EXT list lacks AlarmState; the per-attribute
  * descriptor macros take an empty battery-number suffix (= battery 1). */
 ZB_ZCL_START_DECLARE_ATTRIB_LIST_CLUSTER_REVISION(power_attr_list, ZB_ZCL_POWER_CONFIG)
 	ZB_SET_ATTR_DESCR_WITH_ZB_ZCL_ATTR_POWER_CONFIG_BATTERY_VOLTAGE_ID(
 		&dev_ctx.battery_attr.voltage, ),
+	ZB_SET_ATTR_DESCR_WITH_ZB_ZCL_ATTR_POWER_CONFIG_BATTERY_PERCENTAGE_REMAINING_ID(
+		&dev_ctx.battery_attr.remaining, ),
 	ZB_SET_ATTR_DESCR_WITH_ZB_ZCL_ATTR_POWER_CONFIG_BATTERY_ALARM_STATE_ID(
 		&dev_ctx.battery_attr.alarm_state, ),
 ZB_ZCL_FINISH_DECLARE_ATTRIB_LIST;
@@ -171,7 +174,7 @@ static zb_zcl_cluster_desc_t sensor_clusters[] = {
 			    ZB_ZCL_CLUSTER_SERVER_ROLE, ZB_ZCL_MANUF_CODE_INVALID),
 };
 
-/* Reporting slots: temperature(1) + humidity(1) + battery voltage + alarm(2) = 4
+/* Reporting slots: temperature + humidity + battery voltage + percentage + alarm = 5
  * self-configured, plus headroom for ZHA to add its own. (IAS Zone uses the
  * immediate Zone Status Change Notification, not attribute reporting.) */
 #define SENSOR_REPORT_ATTR_COUNT 8
@@ -321,7 +324,8 @@ static void measure(zb_bufid_t bufid)
 		uint16_t mv = sensors.battery.millivolts;
 		/* health: 0 = OK; anything else (low/critical) trips the alarm. */
 		uint8_t health = (uint8_t)sensors.battery.health;
-		zb_uint8_t voltage_dV = (zb_uint8_t)(mv / 100); /* 100 mV units */
+		zb_uint8_t voltage_dV = (zb_uint8_t)(mv / 100);                  /* 100 mV units */
+		zb_uint8_t half_pct = (zb_uint8_t)MIN(sensors.battery.percent * 2, 200); /* 0.5% units */
 		zb_uint32_t alarm =
 			health ? ZB_ZCL_POWER_CONFIG_BATTERY_ALARM_STATE_SOURCE1_MIN_THRESHOLD : 0;
 
@@ -331,9 +335,14 @@ static void measure(zb_bufid_t bufid)
 				    ZB_FALSE);
 		zb_zcl_set_attr_val(SENSOR_ENDPOINT, ZB_ZCL_CLUSTER_ID_POWER_CONFIG,
 				    ZB_ZCL_CLUSTER_SERVER_ROLE,
+				    ZB_ZCL_ATTR_POWER_CONFIG_BATTERY_PERCENTAGE_REMAINING_ID,
+				    &half_pct, ZB_FALSE);
+		zb_zcl_set_attr_val(SENSOR_ENDPOINT, ZB_ZCL_CLUSTER_ID_POWER_CONFIG,
+				    ZB_ZCL_CLUSTER_SERVER_ROLE,
 				    ZB_ZCL_ATTR_POWER_CONFIG_BATTERY_ALARM_STATE_ID,
 				    (zb_uint8_t *)&alarm, ZB_FALSE);
-		LOG_INF("Battery: %u mV (%s)", mv, health ? "low" : "ok");
+		LOG_INF("Battery: %u mV, %u%% (%s)", mv, sensors.battery.percent,
+			health ? "low" : "ok");
 	}
 
 	/* Re-sample the leak line each cycle so a dry transition is caught — the ISR
@@ -392,6 +401,9 @@ static void configure_reporting(void)
 		   ZB_ZCL_ATTR_REL_HUMIDITY_MEASUREMENT_VALUE_ID, delta);
 	delta.u8 = 1; /* 0.1 V */
 	report_cfg(ZB_ZCL_CLUSTER_ID_POWER_CONFIG, ZB_ZCL_ATTR_POWER_CONFIG_BATTERY_VOLTAGE_ID, delta);
+	delta.u8 = 2; /* 1% (0.5% units) */
+	report_cfg(ZB_ZCL_CLUSTER_ID_POWER_CONFIG,
+		   ZB_ZCL_ATTR_POWER_CONFIG_BATTERY_PERCENTAGE_REMAINING_ID, delta);
 	delta.u32 = 0; /* any change */
 	report_cfg(ZB_ZCL_CLUSTER_ID_POWER_CONFIG, ZB_ZCL_ATTR_POWER_CONFIG_BATTERY_ALARM_STATE_ID,
 		   delta);
