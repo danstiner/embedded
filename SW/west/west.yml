@@ -11,10 +11,3 @@ manifest:
       revision: v3.3.0
       import:
         path-prefix: west/ncs
-    # Zigbee R23 add-on (precompiled ZBOSS)
-    - name: ncs-zigbee
-      remote: ncs
-      repo-path: ncs-zigbee
-      # Pinned SHA tracking our NCS revision
-      revision: 8a6c6ca5b26c8768dc3b52eb7714eb6b7fe61915
-      path: west/ncs/ncs-zigbee

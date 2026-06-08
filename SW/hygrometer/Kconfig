@@ -4,21 +4,6 @@ config APP_MEASUREMENT_INTERVAL_SEC
 	help
 	  Time between periodic measurements. Device sleeps between readings.
 
-config APP_ZIGBEE_REPORT_MIN_INTERVAL_SEC
-	int "Zigbee min attribute reporting interval (seconds)"
-	default 10
-	help
-	  Zigbee only. Minimum seconds between ZCL attribute reports — reports are
-	  throttled to no more often than this even when the value keeps changing.
-
-config APP_ZIGBEE_REPORT_MAX_INTERVAL_SEC
-	int "Zigbee max attribute reporting interval / heartbeat (seconds)"
-	default 300
-	help
-	  Zigbee only. The device reports at least this often even if the value has
-	  not changed, so the coordinator never sees a stale value. Lower this for
-	  faster test feedback (e.g. 10), raise it to save battery.
-
 config APP_CO2_INTERVAL_DIVISOR
 	int "Only fetch STCC4 every Nth measurement cycle"
 	default 1
@@ -104,30 +89,11 @@ config APP_BUZZER
 	  Drive the buzzer/siren (2026v4 P2.05) on leak detection. Not yet
 	  implemented — reserved for a future audible-alarm feature.
 
-config APP_USE_ZIGBEE
-	bool "Use Zigbee (ZBOSS) instead of BTHome BLE"
-	default n
-	help
-	  Build the Zigbee end-device variant (ncs-zigbee add-on, Zigbee R23).
-	  Mutually exclusive with APP_USE_MATTER.
-
-config APP_ZIGBEE_ROUTER
-	bool "Build a standalone Zigbee router / range extender (no sensors)"
-	default n
-	depends on APP_USE_ZIGBEE
-	help
-	  Build the minimal mains-powered Zigbee router variant
-	  (src/zigbee_router/main.cpp) instead of the hygrometer end device.
-	  Intended to flash to a dev board as a range extender between the
-	  hygrometer and the coordinator. Implies CONFIG_ZIGBEE_ROLE_ROUTER and
-	  drops all sensor code, sleepy behavior and RAM power-down.
-
 config APP_USE_MATTER
 	bool "Use Matter/Thread instead of BTHome BLE"
 	default n
 	help
 	  Build the Matter end-device variant.
-	  Mutually exclusive with APP_USE_ZIGBEE.
 
 if APP_USE_MATTER
 

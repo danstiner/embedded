@@ -47,28 +47,6 @@ Matter over Thread mode (instead of BTHome BLE advertising):
 west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
 ```
 
-Zigbee mode (ZBOSS / ncs-zigbee add-on, Zigbee R23 — sleepy end device):
-```sh
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_zigbee.conf -DSB_EXTRA_CONF_FILE=sysbuild_extra_zigbee.conf -DPM_STATIC_YML_FILE=$(pwd)/pm_static_zigbee.yml
-```
-Requires NCS **v3.3.0** and the `ncs-zigbee` add-on (both pinned in `SW/west/west.yml`;
-run `west update` after pulling). The add-on doesn't ship an nRF54L15 ZBOSS partition
-layout, so `pm_static_zigbee.yml` carves out `zboss_nvram`. This first cut is a
-single-image build (no MCUboot/OTA) reporting **temperature** via the ZCL Temperature
-Measurement cluster; humidity, battery (Power Configuration) and water-leak (IAS Zone)
-clusters are follow-ups. Commission with Home Assistant **ZHA** or **zigbee2mqtt** by
-opening the network for joining (no certification needed for local use).
-
-Zigbee **router / range extender** (mains-powered, no sensors) — flash to a dev board
-placed between the hygrometer and the coordinator to relay for the sleepy end device:
-```sh
-west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -p -d build-router -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_zigbee_router.conf;prj_extra_rtt.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_zigbee.conf -DPM_STATIC_YML_FILE=$(pwd)/pm_static_zigbee.yml
-```
-Builds the ZBOSS Range Extender device (`CONFIG_ZIGBEE_ROLE_ROUTER`,
-`src/zigbee_router/`) and shows up in ZHA as "Barry's Boards Range Extender". The
-`bl54l15u_devkit` board requires an explicit `@revision` (`2026v1`/`2026v2`). To make
-the hygrometer route through it, re-pair the hygrometer while it is near the router.
-
 ### KMU Provisioning
 
 Provision signing keys to the hardware KMU before first boot. See [`keys/README.md`](../keys/README.md) for details.
