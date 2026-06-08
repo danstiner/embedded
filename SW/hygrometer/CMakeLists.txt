@@ -16,6 +16,14 @@ zephyr_compile_definitions(PINCTRL_STATE_OFF=PINCTRL_STATE_PRIV_START)
 
 target_include_directories(app PRIVATE src src/sensor)
 
+# The standalone router / range-extender (dev board) has no sensors and replaces the
+# entire sensor-variant tree below.
+if(CONFIG_APP_ZIGBEE_ROUTER)
+
+target_sources(app PRIVATE src/zigbee_router/main.cpp)
+
+else()
+
 # Shared sensor module (always built)
 target_sources(app PRIVATE
   src/sensor/sensor_reading.cpp
@@ -41,7 +49,7 @@ if(CONFIG_APP_USE_MATTER)
   ncs_configure_data_model()
 elseif(CONFIG_APP_USE_ZIGBEE)
   target_sources(app PRIVATE
-    src/zigbee/main.c
+    src/zigbee/main.cpp
   )
 else()
   target_sources(app PRIVATE
@@ -50,3 +58,5 @@ else()
     src/bthome/co2_cal_svc.cpp
   )
 endif()
+
+endif() # CONFIG_APP_ZIGBEE_ROUTER

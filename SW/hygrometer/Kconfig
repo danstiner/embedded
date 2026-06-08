@@ -111,6 +111,17 @@ config APP_USE_ZIGBEE
 	  Build the Zigbee end-device variant (ncs-zigbee add-on, Zigbee R23).
 	  Mutually exclusive with APP_USE_MATTER.
 
+config APP_ZIGBEE_ROUTER
+	bool "Build a standalone Zigbee router / range extender (no sensors)"
+	default n
+	depends on APP_USE_ZIGBEE
+	help
+	  Build the minimal mains-powered Zigbee router variant
+	  (src/zigbee_router/main.cpp) instead of the hygrometer end device.
+	  Intended to flash to a dev board as a range extender between the
+	  hygrometer and the coordinator. Implies CONFIG_ZIGBEE_ROLE_ROUTER and
+	  drops all sensor code, sleepy behavior and RAM power-down.
+
 config APP_USE_MATTER
 	bool "Use Matter/Thread instead of BTHome BLE"
 	default n

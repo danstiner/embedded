@@ -59,6 +59,16 @@ Measurement cluster; humidity, battery (Power Configuration) and water-leak (IAS
 clusters are follow-ups. Commission with Home Assistant **ZHA** or **zigbee2mqtt** by
 opening the network for joining (no certification needed for local use).
 
+Zigbee **router / range extender** (mains-powered, no sensors) — flash to a dev board
+placed between the hygrometer and the coordinator to relay for the sleepy end device:
+```sh
+west build -b bl54l15u_devkit@2026v2/nrf54l15/cpuapp -p -d build-router -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_zigbee_router.conf;prj_extra_rtt.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_zigbee.conf -DPM_STATIC_YML_FILE=$(pwd)/pm_static_zigbee.yml
+```
+Builds the ZBOSS Range Extender device (`CONFIG_ZIGBEE_ROLE_ROUTER`,
+`src/zigbee_router/`) and shows up in ZHA as "Barry's Boards Range Extender". The
+`bl54l15u_devkit` board requires an explicit `@revision` (`2026v1`/`2026v2`). To make
+the hygrometer route through it, re-pair the hygrometer while it is near the router.
+
 ### KMU Provisioning
 
 Provision signing keys to the hardware KMU before first boot. See [`keys/README.md`](../keys/README.md) for details.

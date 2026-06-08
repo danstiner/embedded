@@ -33,6 +33,7 @@ extern "C" {
 }
 
 #include <ram_pwrdn.h>
+#include <zephyr/drivers/hwinfo.h>
 
 #include "sensor/sensor_reading.h"
 #if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
@@ -43,6 +44,35 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 
 /* Shared sensor state, owned by this app. */
 static sensor_state sensors;
+
+/* Boot diagnostics. boot_magic/boot_count live in no-init RAM so they survive a
+ * reset (as long as RAM retention holds): a climbing count after a detached failure
+ * proves a reset loop, a frozen count points to a hang. Paired with the hardware
+ * reset cause this distinguishes hardfault vs watchdog vs brownout vs hang. */
+#define BOOT_MAGIC 0xB00710ADu
+static __noinit uint32_t boot_magic;
+static __noinit uint32_t boot_count;
+
+static void log_boot_diag(void)
+{
+	uint32_t cause = 0;
+
+	(void)hwinfo_get_reset_cause(&cause);
+	hwinfo_clear_reset_cause();
+
+	if (boot_magic != BOOT_MAGIC) {
+		boot_magic = BOOT_MAGIC;
+		boot_count = 0;
+	}
+	boot_count++;
+
+	LOG_INF("Boot #%u  reset cause 0x%08x%s%s%s%s%s%s", boot_count, cause,
+		(cause & RESET_POR) ? " POR" : "", (cause & RESET_PIN) ? " PIN" : "",
+		(cause & RESET_BROWNOUT) ? " BROWNOUT" : "",
+		(cause & RESET_WATCHDOG) ? " WATCHDOG" : "",
+		(cause & RESET_CPU_LOCKUP) ? " LOCKUP" : "",
+		(cause & RESET_SOFTWARE) ? " SOFTWARE" : "");
+}
 
 /* Application endpoint that hosts the ZCL clusters. */
 #define SENSOR_ENDPOINT 10
@@ -104,10 +134,17 @@ struct zb_device_ctx {
 		zb_uint32_t alarm_state; /* bitmap, set on low battery */
 	} battery_attr;
 
-	/* IAS Zone (water sensor). */
+	/* IAS Zone (water sensor). zone_id + the two sensitivity-level attributes are
+	 * unused here but required by the _EXT attribute list, which is mandatory: it
+	 * also declares the internal-context (INT_CTX) attribute that ZBOSS's CIE-address
+	 * write hook dereferences during enrollment. The non-EXT list omits INT_CTX, so
+	 * the first-join CIE write faults on a dangling context pointer. */
 	zb_uint8_t zone_state;
 	zb_uint16_t zone_type;
 	zb_uint16_t zone_status;
+	zb_uint8_t zone_id;
+	zb_uint8_t num_zone_sens_levels;
+	zb_uint8_t current_zone_sens_level;
 	zb_ieee_addr_t ias_cie_address;
 	zb_uint16_t cie_short_addr;
 	zb_uint8_t cie_ep;
@@ -146,9 +183,12 @@ ZB_ZCL_START_DECLARE_ATTRIB_LIST_CLUSTER_REVISION(power_attr_list, ZB_ZCL_POWER_
 		&dev_ctx.battery_attr.alarm_state, ),
 ZB_ZCL_FINISH_DECLARE_ATTRIB_LIST;
 
-ZB_ZCL_DECLARE_IAS_ZONE_ATTRIB_LIST(ias_zone_attr_list, &dev_ctx.zone_state, &dev_ctx.zone_type,
-				    &dev_ctx.zone_status, &dev_ctx.ias_cie_address,
-				    &dev_ctx.cie_short_addr, &dev_ctx.cie_ep);
+/* _EXT (not the basic list) — it declares the IAS Zone INT_CTX attribute that the
+ * ZBOSS CIE-address write hook requires during enrollment (see struct comment). */
+ZB_ZCL_DECLARE_IAS_ZONE_ATTRIB_LIST_EXT(
+	ias_zone_attr_list, &dev_ctx.zone_state, &dev_ctx.zone_type, &dev_ctx.zone_status,
+	&dev_ctx.num_zone_sens_levels, &dev_ctx.current_zone_sens_level, &dev_ctx.ias_cie_address,
+	&dev_ctx.zone_id, &dev_ctx.cie_short_addr, &dev_ctx.cie_ep);
 
 /* Hand-rolled custom endpoint: no canned HA device bundles temperature +
  * humidity + power config + IAS zone, so declare the cluster list, simple
@@ -241,6 +281,9 @@ static void app_clusters_attr_init(void)
 	dev_ctx.zone_state = ZB_ZCL_IAS_ZONE_ZONESTATE_NOT_ENROLLED;
 	dev_ctx.zone_type = ZB_ZCL_IAS_ZONE_ZONETYPE_WATER_SENSOR;
 	dev_ctx.zone_status = 0;
+	dev_ctx.zone_id = 0xFF;            /* unassigned until the CIE enrolls us */
+	dev_ctx.num_zone_sens_levels = 0;  /* no configurable sensitivity levels */
+	dev_ctx.current_zone_sens_level = 0;
 	memset(dev_ctx.ias_cie_address, 0xFF, sizeof(dev_ctx.ias_cie_address)); /* unset */
 	dev_ctx.cie_short_addr = 0xFFFF;
 	dev_ctx.cie_ep = 0;
@@ -301,6 +344,22 @@ static void leak_monitor(void *a, void *b, void *c)
 K_THREAD_DEFINE(leak_monitor_tid, 1024, leak_monitor, NULL, NULL, NULL, K_PRIO_PREEMPT(10), 0, 0);
 #endif /* CONFIG_APP_LEAK_SENSOR */
 
+/* Never permanently give up rejoining. The ncs-zigbee End-Device rejoin campaign
+ * stops after CONFIG_ZIGBEE_DEV_REJOIN_TIMEOUT_MS and then waits for a button press
+ * (user_input_indicate()) we don't have — so a sensor that lost its parent would stay
+ * offline until reboot even once back in range. This periodic kick restarts a stalled
+ * campaign; user_input_indicate() is a no-op while joined or while a campaign is still
+ * running, so firing it unconditionally is safe. */
+#define REJOIN_KICK_INTERVAL K_MINUTES(15)
+
+static void rejoin_kick(struct k_work *work)
+{
+	ARG_UNUSED(work);
+	user_input_indicate();
+	k_work_reschedule(k_work_delayable_from_work(work), REJOIN_KICK_INTERVAL);
+}
+static K_WORK_DELAYABLE_DEFINE(rejoin_kick_work, rejoin_kick);
+
 /* Periodic sensor sample → ZCL attribute update (ZBOSS scheduler callback). */
 static void measure(zb_bufid_t bufid)
 {
@@ -344,6 +403,11 @@ static void measure(zb_bufid_t bufid)
 		LOG_INF("Battery: %u mV, %u%% (%s)", mv, sensors.battery.percent,
 			health ? "low" : "ok");
 	}
+
+	/* Diagnostic heartbeat: uptime + ZBOSS buffer-pool health, to spot a slow
+	 * buffer leak or correlate the moment of a failure. */
+	LOG_INF("uptime %llds  buf oom=%d low=%d", k_uptime_get() / 1000,
+		(int)zb_buf_is_oom_state(), (int)zb_buf_memory_low());
 
 	/* Re-sample the leak line each cycle so a dry transition is caught — the ISR
 	 * only fires on the wet edge. */
@@ -450,6 +514,7 @@ void zboss_signal_handler(zb_bufid_t bufid)
 int main()
 {
 	LOG_INF("=== Hygrometer (Zigbee) ===");
+	log_boot_diag();
 	LOG_INF("Reporting: min %us / max %us; measure every %us", APP_REPORT_MIN_INTERVAL_SEC,
 		APP_REPORT_MAX_INTERVAL_SEC, CONFIG_APP_MEASUREMENT_INTERVAL_SEC);
 
@@ -476,6 +541,9 @@ int main()
 
 	ZB_AF_REGISTER_DEVICE_CTX(&sensor_ctx);
 	app_clusters_attr_init();
+
+	/* Backstop so the device keeps trying to rejoin forever after a drop. */
+	k_work_schedule(&rejoin_kick_work, REJOIN_KICK_INTERVAL);
 
 	zigbee_enable();
 
