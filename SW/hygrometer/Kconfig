@@ -103,30 +103,34 @@ if APP_USE_MATTER
 
 config APP_MATTER_PRESSURE
 	bool "Expose BME688 pressure over Matter (PressureMeasurement)"
-	default n
+	default y if BME688_ENABLE
 	help
 	  Set for boards with a BME688 (2026v3). The v3 data model includes the
-	  Pressure Measurement cluster on endpoint 1.
+	  Pressure Measurement cluster on endpoint 1. Defaults on when the BME688 is
+	  enabled (off on @2026v4, which disables BME688_ENABLE).
 
 config APP_MATTER_CO2
 	bool "Expose STCC4 CO2 over Matter (CarbonDioxideConcentrationMeasurement)"
-	default n
+	default y if STCC4_ENABLE
 	help
 	  Set for boards with an STCC4 (2026v3). Gates the CO2 concentration cluster
 	  instance; must match the selected .zap or cluster registration fails at init.
+	  Keyed off STCC4_ENABLE (STCC4 has no DT node — it is raw I2C on the BME688
+	  bus), which @2026v4 disables, so this tracks the selected v3/v4 zap.
 
 config APP_MATTER_LEAK
 	bool "Expose water leak over Matter (Boolean State / Water Leak Detector)"
-	default n
+	default y if APP_LEAK_SENSOR
 	depends on APP_LEAK_SENSOR
 	help
 	  Set for boards with the resistive leak sensor (2026v4). The v4 data model
 	  adds a Water Leak Detector endpoint (Boolean State); a leak is reported
-	  immediately via the leak-sensor interrupt.
+	  immediately via the leak-sensor interrupt. APP_LEAK_SENSOR (set only by the
+	  @2026v4 board) selects the leak variant.
 
 config APP_MATTER_BATTERY_PERCENT
 	bool "Expose battery percentage over Matter (Power Source BatPercentRemaining)"
-	default n
+	default y if $(dt_nodelabel_enabled,npm2100_vbat)
 	help
 	  Set for boards with a real fuel gauge (nPM2100, 2026v3) where a charge
 	  percentage is meaningful. Boards on a flat CR2 curve (2026v4) report only
@@ -152,6 +156,23 @@ config CHIP_ICD_REPORT_ON_ACTIVE_MODE
 # Reduce Thread TX output power to 0 dBm for SED device
 config OPENTHREAD_DEFAULT_TX_POWER
 	default 0
+
+# Per-revision Matter identity + data model, selected by the board. The @2026v4 board
+# sets APP_LEAK_SENSOR, flipping everything to the leak (v4) variant; every other board
+# builds the air-quality (v3) variant. Both PIDs sit inside the built-in test CD's
+# 0x8000-0x8063 range, so no certificate work is needed. NCS defines these symbols in the
+# Kconfigs sourced below; our defaults are parsed first and therefore take priority.
+config CHIP_DEVICE_PRODUCT_ID
+	default 32781 if APP_LEAK_SENSOR
+	default 32780
+
+config CHIP_DEVICE_PRODUCT_NAME
+	default "Leak Detector" if APP_LEAK_SENSOR
+	default "Hygrometer"
+
+config NCS_SAMPLE_MATTER_ZAP_FILE_PATH
+	default "${APPLICATION_CONFIG_DIR}/src/default_zap/v4/hygrometer.zap" if APP_LEAK_SENSOR
+	default "${APPLICATION_CONFIG_DIR}/src/default_zap/v3/hygrometer.zap"
 
 source "$(ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR)/config/nrfconnect/chip-module/Kconfig.features"
 source "$(ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR)/config/nrfconnect/chip-module/Kconfig.defaults"

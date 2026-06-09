@@ -40,23 +40,25 @@ west build -b bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -
 
 Matter over Thread mode (instead of BTHome BLE advertising). Each board revision uses
 its own data model (the v4 board has a leak sensor but no pressure/CO2; v3 is the
-reverse), selected with a per-revision conf file:
+reverse). The model — product ID, name, and `.zap` — is selected **automatically from the
+board revision** in Kconfig, so the same `prj_extra_matter.conf` works for both; just pick
+the matching `@2026v3`/`@2026v4` board target:
 
 2026v4 (temperature + humidity + **leak** + battery):
 ```sh
-west build -b bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf;prj_extra_matter_v4.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
+west build -b bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
 ```
 
 2026v3 (temperature + humidity + **pressure** + **CO2** + battery):
 ```sh
-west build -b bl54l15u_hygrometer@2026v3/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf;prj_extra_matter_v3.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
+west build -b bl54l15u_hygrometer@2026v3/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
 ```
 
 > The commands above use `prj_extra_release.conf`, which **disables logging** (and RTT)
 > for low power. To see boot/commissioning/sensor logs over RTT, **drop**
 > `prj_extra_release.conf` and **add** `prj_extra_rtt.conf` — e.g. for 2026v4:
 > ```sh
-> west build -b bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_matter.conf;prj_extra_matter_v4.conf;prj_extra_rtt.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
+> west build -b bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_matter.conf;prj_extra_rtt.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
 > ```
 > Then attach with `JLinkRTTViewer` (or `west rtt` if configured).
 
