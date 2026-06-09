@@ -17,7 +17,6 @@ LOG_MODULE_REGISTER(stcc4, LOG_LEVEL_INF);
 #define CMD_EXIT_SLEEP           0x00 /* Single byte! */
 #define CMD_SET_RHT_COMP         0xE000
 #define CMD_SET_PRESSURE_COMP    0xE016
-#define CMD_STOP_CONTINUOUS      0x3F86
 #define CMD_ENTER_SLEEP          0x3650
 #define CMD_MEASURE_SINGLE_SHOT  0x219D
 #define CMD_READ_MEASUREMENT     0xEC05
@@ -118,18 +117,6 @@ int stcc4_exit_sleep(const struct device *i2c)
 	(void)i2c_write(i2c, &cmd, 1, STCC4_I2C_ADDR);
 
 	k_msleep(5);
-	return 0;
-}
-
-int stcc4_stop_continuous(const struct device *i2c)
-{
-	int ret = send_cmd(i2c, CMD_STOP_CONTINUOUS);
-	if (ret) {
-		LOG_ERR("STCC4 stop_continuous failed: %d", ret);
-		return ret;
-	}
-
-	k_msleep(1200);
 	return 0;
 }
 

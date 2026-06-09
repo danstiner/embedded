@@ -21,8 +21,10 @@
 #include <zephyr/logging/log.h>
 
 #include "bthome.h"
-#include "co2_cal_svc.h"
 #include "led_svc.h"
+#if IS_ENABLED(CONFIG_STCC4_ENABLE)
+#include "co2_cal_svc.h"
+#endif
 #include "sensor/sht4x.h"
 #include "sensor/sensor_reading.h"
 #if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
@@ -304,7 +306,9 @@ int main()
 	}
 #endif
 
+#if IS_ENABLED(CONFIG_STCC4_ENABLE)
 	co2_cal_svc_init();
+#endif
 
 	sensor_state sensors;
 	sensor_init(sensors);

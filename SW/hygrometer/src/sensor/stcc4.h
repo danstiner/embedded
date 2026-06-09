@@ -20,9 +20,6 @@ bool stcc4_probe(const struct device *i2c);
 /* Wake sensor from sleep mode */
 int stcc4_exit_sleep(const struct device *i2c);
 
-/* Stop continuous measurement and return to idle mode */
-int stcc4_stop_continuous(const struct device *i2c);
-
 /* Enter sleep mode to minimize idle current (must be in idle mode) */
 int stcc4_enter_sleep(const struct device *i2c);
 

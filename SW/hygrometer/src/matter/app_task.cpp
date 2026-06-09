@@ -183,7 +183,6 @@ CHIP_ERROR AppTask::StartApp()
 
 	uint32_t intervalMs = CONFIG_APP_MEASUREMENT_INTERVAL_SEC * 1000;
 	k_timer_init(&timer, AppTask::SensorTimerCallback, nullptr);
-	k_timer_user_data_set(&timer, this);
 	k_timer_start(&timer, K_MSEC(intervalMs), K_MSEC(intervalMs));
 
 	while (true) {

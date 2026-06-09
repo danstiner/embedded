@@ -19,6 +19,10 @@ target_include_directories(app PRIVATE src src/sensor)
 # Shared sensor module (always built)
 target_sources(app PRIVATE
   src/sensor/sensor_reading.cpp
+)
+
+# STCC4 CO2 driver (2026v3 hardware; disabled on boards without an STCC4)
+target_sources_ifdef(CONFIG_STCC4_ENABLE app PRIVATE
   src/sensor/stcc4.cpp
 )
 
@@ -43,6 +47,9 @@ else()
   target_sources(app PRIVATE
     src/bthome/main.cpp
     src/bthome/led_svc.cpp
+  )
+  # CO2 forced-recalibration GATT service — only useful with an STCC4 present.
+  target_sources_ifdef(CONFIG_STCC4_ENABLE app PRIVATE
     src/bthome/co2_cal_svc.cpp
   )
 endif()
