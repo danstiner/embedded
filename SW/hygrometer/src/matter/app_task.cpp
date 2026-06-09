@@ -74,17 +74,20 @@ void AppTask::ReportLeak()
 void AppTask::ButtonEventHandler(Nrf::ButtonState state, Nrf::ButtonMask hasChanged)
 {
 	/* No physical buttons on hygrometer — placeholder for future SHPHLD button */
+	ARG_UNUSED(state);
+	ARG_UNUSED(hasChanged);
 }
 
 void AppTask::SensorTimerCallback(k_timer *timer)
 {
-	if (!timer || !timer->user_data) {
+	if (!timer) {
 		return;
 	}
 
+	/* Attribute writes must run on the Matter thread; the singleton is reached via
+	 * Instance(), so no per-timer context is needed. */
 	DeviceLayer::PlatformMgr().ScheduleWork(
-		[](intptr_t p) { AppTask::Instance().UpdateSensorAttributes(); },
-		reinterpret_cast<intptr_t>(timer->user_data));
+		[](intptr_t) { AppTask::Instance().UpdateSensorAttributes(); }, 0);
 }
 
 void AppTask::UpdateSensorAttributes()

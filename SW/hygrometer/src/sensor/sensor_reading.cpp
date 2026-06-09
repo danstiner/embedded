@@ -477,7 +477,7 @@ int sensor_read_stcc4(sensor_state &state)
 	if (co2 < 0) {
 		LOG_WRN("STCC4 negative CO2: %d", co2);
 		state.stcc4.valid = false;
-		return ret;
+		return -EINVAL;
 	}
 
 	if (state.stcc4_discards_remaining > 0) {
