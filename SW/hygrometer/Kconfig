@@ -95,6 +95,14 @@ config APP_USE_MATTER
 	help
 	  Build the Matter end-device variant.
 
+# Advertised BLE name, selected by board revision so it matches the product identity
+# (the @2026v4 leak board sets APP_LEAK_SENSOR). Applies to both the BTHome and Matter
+# variants. BT_DEVICE_NAME is a Zephyr symbol (sourced via Kconfig.zephyr below); our
+# default is parsed first and wins, as long as no .conf hard-assigns it.
+config BT_DEVICE_NAME
+	default "Leak Detector" if APP_LEAK_SENSOR
+	default "Hygrometer"
+
 if APP_USE_MATTER
 
 # Per-board-revision data model: each flag gates the matching cluster in both the app
