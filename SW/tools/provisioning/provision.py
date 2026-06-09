@@ -146,7 +146,8 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--build-dir", required=True, type=Path,
                     help="Board Matter build directory (e.g. hygrometer/build-matter-v4-dbg)")
-    ap.add_argument("--prefix", default="BB", help="Serial-number prefix (default: BB, Barry's Boards)")
+    ap.add_argument("--prefix", default="BB",
+                    help="Serial-number prefix (default: BB, Barry's Boards)")
     ap.add_argument("--sn", "--serial-number", dest="sn",
                     help="Reuse this device serial (e.g. BB-0001) instead of minting the next "
                          "one — the counter is left untouched. If the serial was provisioned "
@@ -232,7 +233,8 @@ def main():
         cmd += ["--product_color", cfg["CONFIG_CHIP_DEVICE_PRODUCT_COLOR"]]
 
     # Run from the generator's own directory so its sibling imports resolve.
-    env = dict(os.environ, PYTHONPATH=str(gen.parent) + os.pathsep + os.environ.get("PYTHONPATH", ""))
+    env = dict(os.environ,
+               PYTHONPATH=str(gen.parent) + os.pathsep + os.environ.get("PYTHONPATH", ""))
     print(f"Provisioning {sn}  (vid=0x{vid:04X} pid=0x{pid:04X} discriminator={disc} "
           f"passcode={passcode})")
     subprocess.run(cmd, cwd=str(gen.parent), env=env, check=True)
