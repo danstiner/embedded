@@ -6,8 +6,6 @@ board:
     - name: nrf54l15
   revision:
     format: custom
-    # 2026v4 is the current production hardware and the default. Build older
-    # boards explicitly with `@2026v3`.
     default: 2026v4
     revisions:
     - name: 2026v3
