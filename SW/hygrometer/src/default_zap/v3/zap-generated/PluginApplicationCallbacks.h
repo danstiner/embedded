@@ -24,6 +24,7 @@ void MatterDescriptorPluginServerInitCallback();
 void MatterAccessControlPluginServerInitCallback();
 void MatterBasicInformationPluginServerInitCallback();
 void MatterOtaSoftwareUpdateRequestorPluginServerInitCallback();
+void MatterPowerSourcePluginServerInitCallback();
 void MatterGeneralCommissioningPluginServerInitCallback();
 void MatterNetworkCommissioningPluginServerInitCallback();
 void MatterDiagnosticLogsPluginServerInitCallback();
@@ -45,6 +46,7 @@ void MatterCarbonDioxideConcentrationMeasurementPluginServerInitCallback();
 	MatterAccessControlPluginServerInitCallback();                                             \
 	MatterBasicInformationPluginServerInitCallback();                                          \
 	MatterOtaSoftwareUpdateRequestorPluginServerInitCallback();                                \
+	MatterPowerSourcePluginServerInitCallback();                                               \
 	MatterGeneralCommissioningPluginServerInitCallback();                                      \
 	MatterNetworkCommissioningPluginServerInitCallback();                                      \
 	MatterDiagnosticLogsPluginServerInitCallback();                                            \

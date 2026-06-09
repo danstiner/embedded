@@ -8,8 +8,7 @@ Low power sensor for relative humidity, temperature, and water leaks utilizing t
 - BL54L15u Hygrometer or BL54L15u DevKit
 
 ### Hygrometer board revisions
-The `bl54l15u_hygrometer` board has two hardware revisions. Append `@<revision>`
-to the board target to select one; omitting it uses the default (`2026v4`).
+The `bl54l15u_hygrometer` board has two hardware revisions.
 
 - **2026v4** (default): CR2 coin cell (no PMIC — battery measured via SAADC),
   SHT4x only, adds a resistive water-leak sensor (reported as BTHome moisture
@@ -21,9 +20,6 @@ to the board target to select one; omitting it uses the default (`2026v4`).
 > default **2026v4** hardware. Add `@2026v3` to target the older board.
 
 ## Build Instructions
-
-### Prerequisites
-- nRF Connect SDK v3.2 or later
 
 ### Builds
 
@@ -42,10 +38,30 @@ west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_
 west build -b bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF_FILE=$(pwd)/sysbuild/mcuboot_extra_rtt.conf
 ```
 
-Matter over Thread mode (instead of BTHome BLE advertising):
+Matter over Thread mode (instead of BTHome BLE advertising). Each board revision uses
+its own data model (the v4 board has a leak sensor but no pressure/CO2; v3 is the
+reverse), selected with a per-revision conf file:
+
+2026v4 (temperature + humidity + **leak** + battery):
 ```sh
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
+west build -b bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf;prj_extra_matter_v4.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
 ```
+
+2026v3 (temperature + humidity + **pressure** + **CO2** + battery):
+```sh
+west build -b bl54l15u_hygrometer@2026v3/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf;prj_extra_matter_v3.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
+```
+
+> The commands above use `prj_extra_release.conf`, which **disables logging** (and RTT)
+> for low power. To see boot/commissioning/sensor logs over RTT, **drop**
+> `prj_extra_release.conf` and **add** `prj_extra_rtt.conf` — e.g. for 2026v4:
+> ```sh
+> west build -b bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_matter.conf;prj_extra_matter_v4.conf;prj_extra_rtt.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
+> ```
+> Then attach with `JLinkRTTViewer` (or `west rtt` if configured).
+
+Commissioning, OTA-over-Matter, and Matter/Thread troubleshooting are board-agnostic and
+documented in the shared guide: [`../docs/matter.md`](../docs/matter.md).
 
 ### KMU Provisioning
 
@@ -54,6 +70,32 @@ Provision signing keys to the hardware KMU before first boot. See [`keys/README.
 ```sh
 (cd .. && west ncs-provision upload -i keys/provision-dev.yml)
 ```
+
+### Per-device Matter provisioning (unique identity / QR)
+
+Every Matter build bakes in the **same** default identity (serial, discriminator,
+passcode, unique ID), so multiple units commission as — and get merged into — a single
+device in controllers like Home Assistant. To give each unit its own identity and pairing
+QR code, build the firmware once, then generate + flash a unique factory-data partition
+per device with the shared tool [`../tools/provisioning/provision.py`](../tools/provisioning/provision.py):
+
+```sh
+python ../tools/provisioning/provision.py --build-dir build-matter-v4-dbg          # generate only
+python ../tools/provisioning/provision.py --build-dir build-matter-v4-dbg --flash  # + flash this unit
+```
+
+It reads the product ID / names / partition offset from the build, assigns a sequential
+serial (`BB-0001`, …), randomizes discriminator/passcode/salt/unique-ID, and writes the
+hex, QR `.png`, onboarding `.txt`, and a `provisioning_log.csv` to the gitignored
+`SW/tools/provisioning/history/`. Re-flashing a unit? Pass `--sn BB-0001` to keep its
+identity/QR instead of minting a new serial. `--flash` programs only the `factory_data`
+partition (firmware
+untouched). The development DAC stays shared per product ID — only the identity changes
+(production swaps in per-device DACs + a CSA CD).
+
+Typical flow per board: `west flash --erase` (firmware) → `provision.py … --flash` →
+power-cycle → commission. To re-identify an already-paired unit, re-provision it, run
+`matter factoryreset`, and remove the stale device entry from the controller.
 
 ### Flash
 
@@ -68,320 +110,33 @@ Build a new image, then flash it wirelessly using the SMP BLE transport:
 uv run ../ota.py flash --confirm
 ```
 
-## Matter over Thread
-
-### Setup Credentials
-
-**QR Code**: `MT:W0GU2OTB00KA0648G00`
-**Manual Pairing Code**: `34970112332`
-**Setup PIN**: `20202021`
-**Discriminator**: `3840`
-
-### chip-tool Setup (macOS)
-
-If using `chip-tool` for commissioning or OTA updates on macOS, you need to install a developer profile for Bluetooth access:
-
-1. **Download and install** the "Bluetooth Central Matter Client Developer Mode" profile:
-   - Visit: https://developer.apple.com/bug-reporting/profiles-and-logs/
-   - Download: "Bluetooth Central Matter Client Developer Mode profile"
-   - Install via: System Settings → Privacy & Security → Profiles
-
-2. **Restart your Mac** for the profile to take effect
-
-3. **Grant Bluetooth permissions** to Terminal:
-   - System Settings → Privacy & Security → Bluetooth → Enable for Terminal
-
-**Reference**: [Matter Darwin Guide](https://github.com/project-chip/connectedhomeip/blob/master/docs/guides/darwin.md#using-chip-tool-on-macos-or-chip-tool-on-ios)
-
-### Commissioning Instructions
-
-1. **Flash the device** with debug build to see commissioning logs
-2. **Power on** and wait for device to start advertising
-3. **Open your Matter controller app**:
-   - Apple Home: Add Accessory → More Options → scan QR code
-   - Google Home: Add Device → Matter → scan QR code
-   - chip-tool: See below for chip-tool commissioning steps
-
-4. **Follow the prompts** to join your Thread network
-5. **Wait for commissioning to complete** (~30 seconds)
-
-#### Using chip-tool
-
-**Get Thread credentials** from your network:
-```bash
-# From serial console of already-commissioned device
-uart:~$ ot dataset active -x
-```
-
-**Commission with BLE-Thread pairing**:
-```bash
-chip-tool pairing ble-thread 1 hex:<thread-dataset> 20202021 3840
-```
-
-### Viewing Commissioning Info
-
-Use the Matter CLI shell to print onboarding codes:
-```shell
-uart:~$ matter onboardingcodes none
-QRCode:             MT:W0GU2OTB00KA0648G00
-QRCodeUrl:          https://project-chip.github.io/connectedhomeip/qrcode.html?data=MT%3AW0GU2OTB00KA0648G00
-ManualPairingCode:  34970112332
-```
-
-### Building an OTA Update
-
-1. **Make your code changes**
-
-2. **Build with new version**:
-
-Update VERSION
-Do a pristine build (The generated CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION defaults to VERSION, but does not update when VERSION is changed)
-
-3. **OTA image location**:
-   ```
-   build/matter.ota
-   ```
-
-### Performing OTA Update via Matter
-
-#### Prerequisites
-- Device commissioned and operational on Thread network
-- `chip-tool` or `chip-ota-provider-app` installed
-- Matter OTA image file (`build/matter.ota`)
-
-#### Method 1: Using chip-ota-provider-app (Recommended)
-
-1. **Start the OTA provider** on your development machine:
-   ```bash
-   chip-ota-provider-app --filepath build/matter.ota
-   ```
-
-2. **Commission the OTA provider** to the same Matter fabric (use node ID 2):
-   ```bash
-   chip-tool pairing onnetwork 2 20202021
-   ```
-
-3. **Configure ACL** to allow devices to access the provider:
-   ```bash
-   chip-tool accesscontrol write acl \
-     '[{"fabricIndex": 1, "privilege": 5, "authMode": 2, "subjects": [112233], "targets": null},
-       {"fabricIndex": 1, "privilege": 3, "authMode": 2, "subjects": null, "targets": null}]' \
-     2 0
-   ```
-
-
-chip-tool otasoftwareupdaterequestor write default-otaproviders '[{"fabricIndex": 1, "providerNodeID": 2, "endpoint": 0}]' 1 0
-
-4. **Announce the OTA provider** to your device (assuming device is node 1):
-   ```bash
-   chip-tool otasoftwareupdaterequestor announce-otaprovider 2 0 0 0 1 0
-   ```
-
-   chip-tool otasoftwareupdaterequestor read default-otaproviders 1 0
-
-chip-tool basicinformation read software-version-string 1 0
-
-5. **Monitor the update** via device serial console:
-   ```bash
-   screen /dev/tty.usbmodem* 115200
-   ```
-
-   Expected output:
-   ```
-   [OTA] QueryImage sent to provider
-   [OTA] Image available, starting download
-   [OTA] Downloaded 1024/524288 bytes
-   ...
-   [OTA] Download complete
-   [OTA] Applying update...
-   [MCUboot] Starting swap using external flash
-   [MCUboot] Swap successful
-   Rebooting...
-   ```
-
-6. **Verify new version** after reboot:
-   ```bash
-   chip-tool basicinformation read software-version 1 0
-   chip-tool basicinformation read software-version-string 1 0
-   ```
-
-#### Method 2: Using chip-tool directly
-
-```bash
-# Query current software version
-chip-tool otasoftwareupdaterequestor read update-state-progress 1 0
-
-# Trigger update check
-chip-tool otasoftwareupdaterequestor announce-ota-provider \
-  <provider-node-id> 0 0 0 <device-node-id> 0
-```
-
-### OTA Update Process
-
-1. **Query**: Device queries OTA provider for available updates
-2. **Download**: Device downloads image to external flash (~1-5 minutes)
-3. **Verification**: MCUboot verifies signature and checksum
-4. **Swap**: MCUboot swaps primary/secondary slots on reboot
-5. **Confirm**: New firmware confirms update, marks image as permanent
-
-### Troubleshooting OTA
-
-#### Update not starting
-- Check device is commissioned and operational
-- Verify OTA provider is on same fabric: `chip-tool pairing onnetwork-long 2 20202021 0`
-- Check ACL permissions are set correctly
-- Monitor device logs for error messages
-
-#### Download fails
-- Check Thread network connectivity: `uart:~$ ot state`
-- Verify external flash is working: Check MX25R64 status in logs
-- Ensure sufficient space in secondary slot
-
-#### Device reboots but still on old version
-- MCUboot swap failed - check boot logs
-- Image verification failed - check signature
-- New firmware didn't confirm - possible boot crash
-
-#### Rollback to previous version
-MCUboot automatically rolls back if new firmware:
-- Fails signature verification
-- Crashes during boot
-- Doesn't confirm the update within boot cycle
-
-To manually trigger rollback (via serial console):
-```bash
-uart:~$ mcuboot confirm 0  # Reject current, revert to previous
-```
-
 ## Development
 
 ### Modify Matter Clusters
 
-Open the ZAP GUI to edit cluster configuration:
+There are two per-revision data models under `src/default_zap/`: `v3/` (temperature,
+humidity, pressure, CO2, battery) and `v4/` (temperature, humidity, leak, battery). Edit
+the one matching the board you are changing.
+
+Open the ZAP GUI on that model's `.zap`:
 
 ```bash
-west zap-gui
+west zap-gui src/default_zap/v4/hygrometer.zap    # or v3/hygrometer.zap
 ```
 
-After saving changes in the GUI, regenerate the data model source files:
+After saving changes in the GUI, regenerate that model's source files (the generated dir
+must sit next to the `.zap`, as `<dir>/zap-generated`):
 
 ```bash
-west zap-generate -z src/default_zap/hygrometer.zap -o src/default_zap/zap-generated
+west zap-generate -z src/default_zap/v4/hygrometer.zap -o src/default_zap/v4/zap-generated
+west zap-generate -z src/default_zap/v3/hygrometer.zap -o src/default_zap/v3/zap-generated
 ```
 
 ## Troubleshooting
 
-### Matter Commissioning Issues
-
-#### Device joins Thread but commissioning times out
-
-**Symptoms**:
-```
-[SVR]Operational advertising failed: 3
-[BLE]ack recv timeout, closing ep
-```
-
-**Possible causes**:
-
-1. **Thread Border Router not reachable**
-   - Verify your Thread Border Router (Google Nest, Apple HomePod, etc.) is online
-   - Check that the Border Router is on the same network as your controller
-   - Try: `uart:~$ ot state` should show `child` or `router`
-
-2. **IPv6 connectivity issue**
-   - Device gets IPv6 address but controller can't reach it
-   - Check logs for `fd42:` prefix addresses
-   - Verify: `uart:~$ ot ipaddr` shows multiple IPv6 addresses
-
-3. **SRP registration timing**
-   - Device advertises before SRP registration completes
-   - Look for `SRP update succeeded` in logs
-   - If missing, Thread network may not have SRP server
-
-4. **Factory reset and retry**
-   ```shell
-   uart:~$ matter factoryreset
-   ```
-   Then flash again and recommission
-
-5. **Check commissioner logs**
-   - iOS/Home app: Check Console app for errors
-   - Android: Use `adb logcat | grep -i matter`
-   - chip-tool: Add `-v` for verbose output
-
-#### Commissioning succeeds but device not controllable
-
-**Check operational discovery**:
-```shell
-uart:~$ matter dns browse _matter._tcp
-```
-
-Should show the device advertising with node ID.
-
-**Verify network connectivity**:
-```shell
-uart:~$ ot ping <border-router-ip>
-```
-
-#### Device won't enter commissioning mode
-
-**Check BLE advertising**:
-```shell
-uart:~$ matter ble adv start
-```
-
-**Factory reset if needed**:
-```shell
-uart:~$ matter factoryreset
-```
-
-### Commissioning Diagnostic Commands
-
-**Check if device is commissioned**:
-```shell
-uart:~$ matter config
-```
-Look for:
-- Fabric ID (should be non-zero if commissioned)
-- Node ID
-- Case Session Established
-
-**Check Thread status**:
-```shell
-uart:~$ ot state          # Should show: child, router, or leader
-uart:~$ ot ipaddr         # List all IPv6 addresses
-uart:~$ ot neighbor table # Show Thread neighbors
-uart:~$ ot netdata show   # Show network data
-```
-
-**Check SRP/DNS-SD status**:
-```shell
-uart:~$ dns service       # Show registered services
-```
-
-**Check operational advertising**:
-```shell
-uart:~$ matter dns resolve <node-id>
-```
-
-**Full diagnostic sequence**:
-```shell
-# 1. Check Thread attachment
-uart:~$ ot state
-uart:~$ ot ipaddr
-
-# 2. Check Matter status
-uart:~$ matter config
-
-# 3. Ping Thread Border Router
-uart:~$ ot ping fd42:77ca:5825::1
-
-# 4. Check SRP
-uart:~$ dns service
-
-# 5. If all fails, factory reset
-uart:~$ matter factoryreset
-```
+Matter/Thread commissioning issues and diagnostic shell commands (`matter config`,
+`ot state`, factory reset, etc.) are in the shared guide:
+[`../docs/matter.md`](../docs/matter.md#troubleshooting-commissioning).
 
 ### No LED blinking
 - Check if DK has led0 alias defined

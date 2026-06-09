@@ -97,6 +97,41 @@ config APP_USE_MATTER
 
 if APP_USE_MATTER
 
+# Per-board-revision data model: each flag gates the matching cluster in both the app
+# code and the selected .zap (see prj_extra_matter_v{3,4}.conf). Temperature, humidity
+# and battery (Power Source) are present on every revision, so they have no flag.
+
+config APP_MATTER_PRESSURE
+	bool "Expose BME688 pressure over Matter (PressureMeasurement)"
+	default n
+	help
+	  Set for boards with a BME688 (2026v3). The v3 data model includes the
+	  Pressure Measurement cluster on endpoint 1.
+
+config APP_MATTER_CO2
+	bool "Expose STCC4 CO2 over Matter (CarbonDioxideConcentrationMeasurement)"
+	default n
+	help
+	  Set for boards with an STCC4 (2026v3). Gates the CO2 concentration cluster
+	  instance; must match the selected .zap or cluster registration fails at init.
+
+config APP_MATTER_LEAK
+	bool "Expose water leak over Matter (Boolean State / Water Leak Detector)"
+	default n
+	depends on APP_LEAK_SENSOR
+	help
+	  Set for boards with the resistive leak sensor (2026v4). The v4 data model
+	  adds a Water Leak Detector endpoint (Boolean State); a leak is reported
+	  immediately via the leak-sensor interrupt.
+
+config APP_MATTER_BATTERY_PERCENT
+	bool "Expose battery percentage over Matter (Power Source BatPercentRemaining)"
+	default n
+	help
+	  Set for boards with a real fuel gauge (nPM2100, 2026v3) where a charge
+	  percentage is meaningful. Boards on a flat CR2 curve (2026v4) report only
+	  the coarse BatChargeLevel and omit this attribute from their data model.
+
 choice OPENTHREAD_NORDIC_LIBRARY_CONFIGURATION
 	default OPENTHREAD_NORDIC_LIBRARY_MTD
 endchoice

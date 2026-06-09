@@ -19,6 +19,12 @@ class AppTask
 
 	CHIP_ERROR StartApp();
 
+#if defined(CONFIG_APP_MATTER_LEAK)
+	/* Read the leak sensor and push Boolean State. Must run on the Matter thread
+	 * (called both from the periodic update and, via ScheduleWork, the leak ISR). */
+	void ReportLeak();
+#endif
+
       private:
 	CHIP_ERROR Init();
 
@@ -31,6 +37,7 @@ class AppTask
 	sensor_state sensors;
 	uint32_t cycle = 0;
 
+#if defined(CONFIG_APP_MATTER_CO2)
 	/* CO2 concentration measurement — NumericMeasurement only, no peak/average */
 	chip::app::Clusters::ConcentrationMeasurement::Instance<true, false, false, false, false,
 								false>
@@ -44,4 +51,7 @@ class AppTask
 			  chip::app::Clusters::ConcentrationMeasurement::MeasurementUnitEnum::kPpm)
 	{
 	}
+#else
+	AppTask() = default;
+#endif
 };

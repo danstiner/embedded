@@ -37,8 +37,11 @@ void emberAfClusterInitCallback(EndpointId endpoint, ClusterId clusterId)
 	case app::Clusters::BasicInformation::Id:
 		emberAfBasicInformationClusterInitCallback(endpoint);
 		break;
-	case app::Clusters::CarbonDioxideConcentrationMeasurement::Id:
-		emberAfCarbonDioxideConcentrationMeasurementClusterInitCallback(endpoint);
+	case app::Clusters::BooleanState::Id:
+		emberAfBooleanStateClusterInitCallback(endpoint);
+		break;
+	case app::Clusters::BooleanStateConfiguration::Id:
+		emberAfBooleanStateConfigurationClusterInitCallback(endpoint);
 		break;
 	case app::Clusters::Descriptor::Id:
 		emberAfDescriptorClusterInitCallback(endpoint);
@@ -73,8 +76,8 @@ void emberAfClusterInitCallback(EndpointId endpoint, ClusterId clusterId)
 	case app::Clusters::OperationalCredentials::Id:
 		emberAfOperationalCredentialsClusterInitCallback(endpoint);
 		break;
-	case app::Clusters::PressureMeasurement::Id:
-		emberAfPressureMeasurementClusterInitCallback(endpoint);
+	case app::Clusters::PowerSource::Id:
+		emberAfPowerSourceClusterInitCallback(endpoint);
 		break;
 	case app::Clusters::RelativeHumidityMeasurement::Id:
 		emberAfRelativeHumidityMeasurementClusterInitCallback(endpoint);
@@ -109,8 +112,12 @@ void __attribute__((weak)) emberAfBasicInformationClusterInitCallback(EndpointId
 	// To prevent warning
 	(void)endpoint;
 }
-void __attribute__((weak))
-emberAfCarbonDioxideConcentrationMeasurementClusterInitCallback(EndpointId endpoint)
+void __attribute__((weak)) emberAfBooleanStateClusterInitCallback(EndpointId endpoint)
+{
+	// To prevent warning
+	(void)endpoint;
+}
+void __attribute__((weak)) emberAfBooleanStateConfigurationClusterInitCallback(EndpointId endpoint)
 {
 	// To prevent warning
 	(void)endpoint;
@@ -170,7 +177,7 @@ void __attribute__((weak)) emberAfOperationalCredentialsClusterInitCallback(Endp
 	// To prevent warning
 	(void)endpoint;
 }
-void __attribute__((weak)) emberAfPressureMeasurementClusterInitCallback(EndpointId endpoint)
+void __attribute__((weak)) emberAfPowerSourceClusterInitCallback(EndpointId endpoint)
 {
 	// To prevent warning
 	(void)endpoint;
