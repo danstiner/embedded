@@ -31,7 +31,6 @@ import csv
 import datetime
 import json
 import os
-import random
 import re
 import secrets
 import subprocess
@@ -125,8 +124,9 @@ def load_prior_identity(sn: str):
 
 def random_passcode() -> int:
     while True:
-        # TODO securely generate passcode using something like secrets.randbelow
-        p = random.randint(1, 99999998)
+        # Cryptographically secure: this is the SPAKE2+ setup PIN. Valid range is
+        # 1..99999998 (0x5F5E0FE); secrets.randbelow(99999998) gives 0..99999997.
+        p = secrets.randbelow(99999998) + 1
         if p not in INVALID_PASSCODES:
             return p
 
@@ -194,7 +194,7 @@ def main():
         disc, passcode, salt = prior
         print(f"Reusing existing identity for {sn} (discriminator={disc} passcode={passcode})")
     else:
-        disc = random.randint(0, 0xFFF)
+        disc = secrets.randbelow(0x1000)   # 0..0xFFF, cryptographically secure
         passcode = random_passcode()
         salt = base64.b64encode(secrets.token_bytes(16)).decode()
     out_base = OUTPUT_DIR / f"factory_data_{sn}"
