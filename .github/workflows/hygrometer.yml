@@ -56,14 +56,22 @@ jobs:
     strategy:
       matrix:
         include:
+          # matter_conf selects the per-revision Matter data model. The hygrometer
+          # boards use their own revision's model (v3 = pressure/CO2, v4 = leak); the
+          # generic dev boards build the dependency-clean v3 model for compile coverage
+          # (v4's APP_MATTER_LEAK needs APP_LEAK_SENSOR, set only by the @2026v4 board).
           - board: nrf54l15dk/nrf54l15/cpuapp
             name: nrf54l15dk
+            matter_conf: prj_extra_matter_v3.conf
           - board: bl54l15u_devkit@2026v2/nrf54l15/cpuapp
             name: bl54l15u_devkit
+            matter_conf: prj_extra_matter_v3.conf
           - board: bl54l15u_hygrometer@2026v3/nrf54l15/cpuapp
             name: bl54l15u_hygrometer_2026v3
+            matter_conf: prj_extra_matter_v3.conf
           - board: bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp
             name: bl54l15u_hygrometer_2026v4
+            matter_conf: prj_extra_matter_v4.conf
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -126,7 +134,7 @@ jobs:
             --build-dir build-matter \
             hygrometer \
             -- -DBOARD_ROOT=$(pwd) \
-            -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" \
+            -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf;${{ matrix.matter_conf }}" \
             -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
