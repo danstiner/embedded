@@ -130,8 +130,7 @@ void AppTask::UpdateSensorAttributes()
 			Clusters::PowerSource::Attributes::BatPercentRemaining::Set(
 				0, DataModel::NullNullable);
 		} else {
-			uint8_t pct = sensors.battery.percent > 100 ? 100
-								    : sensors.battery.percent;
+			uint8_t pct = sensors.battery.percent > 100 ? 100 : sensors.battery.percent;
 			Clusters::PowerSource::Attributes::BatPercentRemaining::Set(
 				0, DataModel::MakeNullable(static_cast<uint8_t>(pct * 2)));
 		}
