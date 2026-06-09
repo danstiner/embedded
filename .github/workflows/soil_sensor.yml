@@ -71,7 +71,7 @@ jobs:
             ${{ runner.os }}-ccache-
 
       - name: Configure ccache
-        run: ccache -M 100M
+        run: ccache -M 200M
 
       - name: Restore signing key
         run: echo "$MCUBOOT_DEV_SIGNING_KEY" > SW/keys/dev.pem
