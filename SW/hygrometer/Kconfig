@@ -175,7 +175,7 @@ config CHIP_DEVICE_PRODUCT_ID
 	default 32780
 
 config CHIP_DEVICE_PRODUCT_NAME
-	default "Leak Detector" if APP_LEAK_SENSOR
+	default "Water leak sensor" if APP_LEAK_SENSOR
 	default "Hygrometer"
 
 config NCS_SAMPLE_MATTER_ZAP_FILE_PATH
