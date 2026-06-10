@@ -268,7 +268,7 @@ def main():
             flash += ["--serial-number", args.snr]
         print(f"\nFlashing factory data:\n  {' '.join(flash)}")
         subprocess.run(flash, check=True)
-        print("Factory data flashed. Power-cycle and commission; the device now has a "
+        print("Factory data flashed and device reset. Commission device now, it has a "
               "unique identity + QR.")
 
 
