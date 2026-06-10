@@ -7,13 +7,12 @@ factory-data provisioning live in each board's own README (e.g.
 
 ## Onboarding / pairing codes
 
-- **Per device (recommended):** each unit should have its own identity and QR code —
-  generate and flash unique factory data with `tools/provisioning/provision.py` (see the board
-  README's "Per-device Matter provisioning"). The QR `.png` / manual code for each unit is
-  written to `tools/provisioning/history/`.
-- **Default build identity** (a freshly built image, before provisioning — shared by all
-  unprovisioned units): QR `MT:W0GU2OTB00KA0648G00`, manual pairing code `34970112332`,
-  setup PIN `20202021`, discriminator `3840`.
+- **Per device (required):** the app image bakes in no identity — factory data is built
+  separately (`CONFIG_CHIP_FACTORY_DATA_BUILD=n`) so flashing firmware never overwrites it.
+  Each unit must have unique factory data generated and flashed with
+  `tools/provisioning/provision.py` (see the board README's "Per-device Matter provisioning");
+  the QR `.png` / manual code for each unit is written to `tools/provisioning/history/`. Until
+  a unit is provisioned it has no factory data and will not commission.
 - **Print from a running device** over the RTT/UART shell:
   ```shell
   uart:~$ matter onboardingcodes none

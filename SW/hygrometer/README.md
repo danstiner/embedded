@@ -13,17 +13,17 @@ This project also can be used with the BL54L15u DevKit.
 
 ## Build Instructions
 
-Base build advertising over BLE in the BTHome format, with RTT logging:
+Debug build advertising over BLE in the BTHome format, with RTT logging:
 ```sh
 west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF_FILE=$(pwd)/sysbuild/mcuboot_extra_rtt.conf
 ```
 
-Release mode with reduced power use:
+Release build with reduced power use:
 ```sh
 west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_release.conf
 ```
 
-Matter over Thread mode (instead of BTHome BLE advertising):
+Matter over Thread release build (instead of BTHome BLE advertising):
 
 ```sh
 west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay
