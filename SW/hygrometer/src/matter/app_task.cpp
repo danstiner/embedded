@@ -10,7 +10,7 @@
 
 #include <app-common/zap-generated/attributes/Accessors.h>
 #include <app/data-model/Nullable.h>
-#include <app/server/Server.h>
+#include <app/server/AppDelegate.h>
 #if defined(CONFIG_APP_MATTER_LEAK)
 /* Boolean State has no ember Set accessor; it uses the code-driven cluster object. */
 #include <app/clusters/boolean-state-server/CodegenIntegration.h>
@@ -33,6 +33,45 @@ constexpr chip::EndpointId kLeakEndpointId = 2;
 #endif
 
 Nrf::Matter::IdentifyCluster identify_cluster(kSensorEndpointId);
+
+/* Pairing-mode LED: pulse while a commissioning window is open, off otherwise.
+ * The board library default instead holds the LED solid on once provisioned,
+ * which would drain the battery. Low duty cycle to limit draw during the
+ * (up to 15 minute) window. */
+constexpr uint32_t kPairingLedOnMs = 100;
+constexpr uint32_t kPairingLedOffMs = 900;
+
+bool commissioning_window_open;
+
+void UpdateStatusLed()
+{
+	auto &led = Nrf::GetBoard().GetLED(Nrf::DeviceLeds::LED1);
+	if (commissioning_window_open) {
+		led.Blink(kPairingLedOnMs, kPairingLedOffMs);
+	} else {
+		led.Set(false);
+	}
+}
+
+/* Callbacks run on the Matter thread; the LED state is owned by the app task
+ * thread (the board library also calls UpdateStatusLed there), so hop over. */
+class WindowLedDelegate : public AppDelegate {
+	void OnCommissioningWindowOpened() override
+	{
+		Nrf::PostTask([] {
+			commissioning_window_open = true;
+			UpdateStatusLed();
+		});
+	}
+
+	void OnCommissioningWindowClosed() override
+	{
+		Nrf::PostTask([] {
+			commissioning_window_open = false;
+			UpdateStatusLed();
+		});
+	}
+} window_led_delegate;
 } /* namespace */
 
 #if defined(CONFIG_APP_MATTER_LEAK)
@@ -71,13 +110,6 @@ void AppTask::ReportLeak()
 	}
 }
 #endif /* CONFIG_APP_MATTER_LEAK */
-
-void AppTask::ButtonEventHandler(Nrf::ButtonState state, Nrf::ButtonMask hasChanged)
-{
-	/* No physical buttons on hygrometer — placeholder for future SHPHLD button */
-	ARG_UNUSED(state);
-	ARG_UNUSED(hasChanged);
-}
 
 void AppTask::SensorTimerCallback(k_timer *timer)
 {
@@ -147,22 +179,25 @@ void AppTask::UpdateSensorAttributes()
 CHIP_ERROR AppTask::Init()
 {
 	/* Initialize Matter stack */
+	Nrf::Matter::InitData initData{};
+	/* Drives the pairing-mode LED; registered via the server init params so it
+	 * also sees the autostart commissioning window opened during Server::Init(). */
+	initData.mServerInitParams->appDelegate = &window_led_delegate;
 #if defined(CONFIG_APP_MATTER_CO2)
 	/* The CO2 instance's Init() checks the ember endpoint table, which is only
 	 * populated by Server::Init() on the Matter thread; defer it to the
 	 * post-server-init callback (same pattern as the NCS thermostat sample). */
-	ReturnErrorOnFailure(Nrf::Matter::PrepareServer(Nrf::Matter::InitData{ .mPostServerInitClbk = [] {
+	initData.mPostServerInitClbk = [] {
 		auto &co2 = Instance().co2_instance;
 		ReturnLogErrorOnFailure(co2.Init());
 		co2.SetMinMeasuredValue(MakeNullable(0.0f));
 		co2.SetMaxMeasuredValue(MakeNullable(40000.0f));
 		return CHIP_NO_ERROR;
-	} }));
-#else
-	ReturnErrorOnFailure(Nrf::Matter::PrepareServer());
+	};
 #endif
+	ReturnErrorOnFailure(Nrf::Matter::PrepareServer(initData));
 
-	if (!Nrf::GetBoard().Init(ButtonEventHandler)) {
+	if (!Nrf::GetBoard().Init(nullptr, UpdateStatusLed)) {
 		LOG_ERR("User interface initialization failed.");
 		return CHIP_ERROR_INCORRECT_STATE;
 	}

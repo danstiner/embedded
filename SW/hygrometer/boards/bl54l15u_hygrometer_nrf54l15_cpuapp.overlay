@@ -5,9 +5,10 @@
 		boot-led = &red_led;
 	};
 
-	/* Matter DK_LIBRARY requires a buttons node with gpio-keys compatible.
-	 * The hygrometer has no GPIO buttons (SHPHLD is PMIC-level), so provide
-	 * an empty node to satisfy the build. */
+	/* Matter's DK button library requires a /buttons gpio-keys node. The v4
+	 * board has no user button, so keep an empty node here (applies to every
+	 * revision); the 2026v3 board overlay adds the actual P0.04 button as the
+	 * first child (DK_BTN1). */
 	buttons {
 		compatible = "gpio-keys";
 	};

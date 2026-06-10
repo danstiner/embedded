@@ -31,7 +31,6 @@ class AppTask
 	void UpdateSensorAttributes();
 
 	static void SensorTimerCallback(k_timer *timer);
-	static void ButtonEventHandler(Nrf::ButtonState state, Nrf::ButtonMask hasChanged);
 
 	k_timer timer;
 	sensor_state sensors;
