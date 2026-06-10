@@ -657,7 +657,7 @@
 			 ZAP_ATTRIBUTE_MASK(READABLE)}, /* ClusterRevision */                      \
                                                                                                    \
 		/* Endpoint: 1, Cluster: Temperature Measurement (server) */                       \
-		{ZAP_EMPTY_DEFAULT(), 0x00000000, 2, ZAP_TYPE(TEMPERATURE),                        \
+		{ZAP_SIMPLE_DEFAULT(0x8000), 0x00000000, 2, ZAP_TYPE(TEMPERATURE),                 \
 		 ZAP_ATTRIBUTE_MASK(READABLE) | ZAP_ATTRIBUTE_MASK(NULLABLE)}, /* MeasuredValue */ \
 		{ZAP_SIMPLE_DEFAULT(-4000), 0x00000001, 2, ZAP_TYPE(TEMPERATURE),                  \
 		 ZAP_ATTRIBUTE_MASK(READABLE) |                                                    \
@@ -671,7 +671,7 @@
 		 ZAP_ATTRIBUTE_MASK(READABLE)}, /* ClusterRevision */                              \
                                                                                                    \
 		/* Endpoint: 1, Cluster: Relative Humidity Measurement (server) */                 \
-		{ZAP_EMPTY_DEFAULT(), 0x00000000, 2, ZAP_TYPE(INT16U),                             \
+		{ZAP_SIMPLE_DEFAULT(0xFFFF), 0x00000000, 2, ZAP_TYPE(INT16U),                      \
 		 ZAP_ATTRIBUTE_MASK(READABLE) | ZAP_ATTRIBUTE_MASK(NULLABLE)}, /* MeasuredValue */ \
 		{ZAP_SIMPLE_DEFAULT(0), 0x00000001, 2, ZAP_TYPE(INT16U),                           \
 		 ZAP_ATTRIBUTE_MASK(READABLE) |                                                    \
