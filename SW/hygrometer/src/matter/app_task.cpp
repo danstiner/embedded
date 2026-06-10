@@ -10,6 +10,7 @@
 
 #include <app-common/zap-generated/attributes/Accessors.h>
 #include <app/data-model/Nullable.h>
+#include <app/server/Server.h>
 #if defined(CONFIG_APP_MATTER_LEAK)
 /* Boolean State has no ember Set accessor; it uses the code-driven cluster object. */
 #include <app/clusters/boolean-state-server/CodegenIntegration.h>
@@ -146,7 +147,20 @@ void AppTask::UpdateSensorAttributes()
 CHIP_ERROR AppTask::Init()
 {
 	/* Initialize Matter stack */
+#if defined(CONFIG_APP_MATTER_CO2)
+	/* The CO2 instance's Init() checks the ember endpoint table, which is only
+	 * populated by Server::Init() on the Matter thread; defer it to the
+	 * post-server-init callback (same pattern as the NCS thermostat sample). */
+	ReturnErrorOnFailure(Nrf::Matter::PrepareServer(Nrf::Matter::InitData{ .mPostServerInitClbk = [] {
+		auto &co2 = Instance().co2_instance;
+		ReturnLogErrorOnFailure(co2.Init());
+		co2.SetMinMeasuredValue(MakeNullable(0.0f));
+		co2.SetMaxMeasuredValue(MakeNullable(40000.0f));
+		return CHIP_NO_ERROR;
+	} }));
+#else
 	ReturnErrorOnFailure(Nrf::Matter::PrepareServer());
+#endif
 
 	if (!Nrf::GetBoard().Init(ButtonEventHandler)) {
 		LOG_ERR("User interface initialization failed.");
@@ -156,13 +170,6 @@ CHIP_ERROR AppTask::Init()
 	ReturnErrorOnFailure(
 		Nrf::Matter::RegisterEventHandler(Nrf::Board::DefaultMatterEventHandler, 0));
 	ReturnErrorOnFailure(identify_cluster.Init());
-
-#if defined(CONFIG_APP_MATTER_CO2)
-	/* Initialize CO2 concentration cluster instance */
-	ReturnErrorOnFailure(co2_instance.Init());
-	co2_instance.SetMinMeasuredValue(MakeNullable(0.0f));
-	co2_instance.SetMaxMeasuredValue(MakeNullable(40000.0f));
-#endif
 
 	/* Initialize sensors */
 	sensor_init(sensors);
