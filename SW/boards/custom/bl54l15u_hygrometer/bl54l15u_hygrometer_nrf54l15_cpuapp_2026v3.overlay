@@ -1,0 +1,33 @@
+/*
+ * BL54L15u Hygrometer — 2026v3 board revision
+ *
+ * v3-only hardware:
+ * - button to pull both P0.04 and nPM2100 PG/RESET pin to GND
+ *
+ * It is the first child of /buttons, so the NCS Matter "DK" button library
+ * exposes it as DK_BTN1, which the board layer maps to BOTH:
+ *   - the commissioning button: a short tap opens the commissioning window when
+ *     the device is not yet commissioned.
+ *   - the function button: hold ~6s -> Matter factory reset (the red LED blinks
+ *     as a warning from ~3s; releasing before ~6s cancels)
+ *   - it still maintains the nPM2100 PG/RESET behavior of reset after hold 10s
+ */
+
+#include <zephyr/dt-bindings/gpio/gpio.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+
+/* The base DTS leaves gpio0 disabled; the P0.04 button lives on it. */
+&gpio0 {
+	status = "okay";
+};
+
+/ {
+	buttons {
+		compatible = "gpio-keys";
+		reset_button: button_0 {
+			gpios = <&gpio0 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Reset / commissioning";
+			zephyr,code = <INPUT_KEY_0>;
+		};
+	};
+};
