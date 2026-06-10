@@ -480,6 +480,8 @@ int sensor_read_stcc4(sensor_state &state)
 		return -EINVAL;
 	}
 
+	LOG_INF("STCC4: CO2=%u ppm", co2);
+
 	if (state.stcc4_discards_remaining > 0) {
 		state.stcc4_discards_remaining--;
 		LOG_INF("STCC4: discarding bypass reading (%u remaining)",
@@ -491,7 +493,6 @@ int sensor_read_stcc4(sensor_state &state)
 	state.stcc4.co2_ppm = co2;
 	state.stcc4.timestamp = k_uptime_get();
 	state.stcc4.valid = true;
-	LOG_INF("STCC4: CO2=%u ppm", co2);
 
 	return 0;
 #else
