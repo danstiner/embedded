@@ -33,8 +33,14 @@ int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_
 /* Trigger single-shot measurement, wait, and read CO2 */
 int stcc4_measure(const struct device *i2c, int16_t &co2_ppm);
 
-/* Run conditioning sequence after idle/power-off >3 hours (blocks for ~22s) */
-int stcc4_perform_conditioning(const struct device *i2c);
+/* The sensor conditions itself internally for up to 22s after the start command;
+ * it must stay awake and unread for that long (no completion signal). */
+#define STCC4_CONDITIONING_MS 22000
+
+/* Start the conditioning sequence (needed after idle/power-off >3 hours).
+ * Returns immediately; the caller must not sleep the sensor or read the sensor
+ * for STCC4_CONDITIONING_MS afterwards. */
+int stcc4_start_conditioning(const struct device *i2c);
 
 /* Forced recalibration: tell sensor the current CO2 level is target_co2_ppm.
  * Sensor must be awake. Returns correction value via *correction (0xFFFF = failure).

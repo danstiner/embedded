@@ -217,17 +217,15 @@ int stcc4_measure(const struct device *i2c, int16_t &co2_ppm)
 	return 0;
 }
 
-int stcc4_perform_conditioning(const struct device *i2c)
+int stcc4_start_conditioning(const struct device *i2c)
 {
 	int ret = send_cmd(i2c, CMD_PERFORM_CONDITIONING);
 	if (ret) {
-		LOG_ERR("perform_conditioning failed: %d", ret);
+		LOG_ERR("start_conditioning failed: %d", ret);
 		return ret;
 	}
 
 	LOG_INF("STCC4 conditioning started (~22s)");
-	k_msleep(22000);
-	LOG_INF("STCC4 conditioning complete");
 
 	return 0;
 }

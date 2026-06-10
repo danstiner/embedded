@@ -53,6 +53,9 @@ static const struct device *bme688_dev = DEVICE_DT_GET(DT_NODELABEL(bme688));
 #define HAVE_STCC4_BUS 1
 static const struct device *sensor_bus = DEVICE_DT_GET(DT_BUS(DT_NODELABEL(bme688)));
 static K_MUTEX_DEFINE(stcc4_mutex);
+/* Uptime before which the STCC4 must not be read or slept: conditioning runs
+ * inside the sensor for STCC4_CONDITIONING_MS after boot (no completion signal). */
+static int64_t stcc4_cond_until;
 #else
 #define HAVE_STCC4_BUS 0
 #endif
@@ -257,8 +260,11 @@ void sensor_init(sensor_state &state)
 			state.have_stcc4 = true;
 			state.stcc4_discards_remaining = 2;
 			LOG_INF("STCC4 detected");
-			stcc4_perform_conditioning(sensor_bus);
-			stcc4_enter_sleep(sensor_bus);
+			/* Conditioning runs inside the sensor; don't block boot on it.
+			 * The sensor must stay awake meanwhile — the first read after
+			 * the window ends puts it back to sleep. */
+			stcc4_start_conditioning(sensor_bus);
+			stcc4_cond_until = k_uptime_get() + STCC4_CONDITIONING_MS;
 		} else {
 			LOG_INF("STCC4 not present — skipping");
 		}
@@ -440,6 +446,12 @@ int sensor_read_stcc4(sensor_state &state)
 #if HAVE_STCC4_BUS && CONFIG_STCC4_ENABLE
 	if (!state.have_stcc4) {
 		return -ENODEV;
+	}
+
+	if (k_uptime_get() < stcc4_cond_until) {
+		LOG_INF("STCC4: skipping read, conditioning in progress");
+		state.stcc4.valid = false;
+		return -EBUSY;
 	}
 
 	/* Skip if FRC is in progress */
