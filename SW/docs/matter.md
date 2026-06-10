@@ -8,7 +8,7 @@ factory-data provisioning live in each board's own README (e.g.
 ## Onboarding / pairing codes
 
 - **Per device (required):** the app image bakes in no identity — factory data is built
-  separately (`CONFIG_CHIP_FACTORY_DATA_BUILD=n`) so flashing firmware never overwrites it.
+  separately (`SB_CONFIG_MATTER_FACTORY_DATA_GENERATE=n`) so flashing firmware never overwrites it.
   Each unit must have unique factory data generated and flashed with
   `tools/provisioning/provision.py` (see the board README's "Per-device Matter provisioning");
   the QR `.png` / manual code for each unit is written to `tools/provisioning/history/`. Until
