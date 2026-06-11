@@ -2,14 +2,11 @@
  * BL54L15u Hygrometer — 2026v4 board revision
  *
  * Differences from the base 2026v3 devicetree:
- *   - No PMIC: runs directly off a CR2 coin cell. Disable nPM2100 and measure
- *     the supply voltage with the SAADC (internal VDD input) instead of the
- *     nPM2100 fuel gauge.
- *   - No BME688 / STCC4 and no I2C20 bus.
+ *   - No PMIC: runs directly off a CR2 cell.
+ *   - No BME688 / STCC4, single I2C bus.
  *   - No status LED.
  *   - Adds a resistive leak sensor: LEAK_DRIVE=P0.01, LEAK_SENSE=P1.07.
- *   - Adds a buzzer/siren on P2.05 (driven via Q1) — pin reserved, not yet
- *     driven by firmware.
+ *   - Adds a buzzer/siren on P2.05 (driven via Q1)
  *
  * The base DTS keeps SHT4x on I2C21 (SDA=P1.14, SCL=P1.04), unchanged here.
  */

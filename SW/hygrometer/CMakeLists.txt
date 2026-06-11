@@ -21,7 +21,7 @@ target_sources(app PRIVATE
   src/sensor/sensor_reading.cpp
 )
 
-# STCC4 CO2 driver (2026v3 hardware; disabled on boards without an STCC4)
+# STCC4 CO2 sensor (2026v3 hardware)
 target_sources_ifdef(CONFIG_STCC4_ENABLE app PRIVATE
   src/sensor/stcc4.cpp
 )
