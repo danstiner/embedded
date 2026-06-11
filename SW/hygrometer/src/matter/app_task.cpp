@@ -127,17 +127,28 @@ void AppTask::UpdateSensorAttributes()
 {
 	sensor_read_cycle(sensors, cycle++);
 
+	/* Invalid readings are written as null so the controller sees "unknown"
+	 * rather than a frozen last value. Unchanged writes (including repeated
+	 * nulls) are deduped by the SDK and generate no reports. */
 	if (sensors.sht4x.valid) {
 		Clusters::TemperatureMeasurement::Attributes::MeasuredValue::Set(
 			kSensorEndpointId, sensors.sht4x.temperature_cC);
 		Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::Set(
 			kSensorEndpointId, sensors.sht4x.humidity_cPct);
+	} else {
+		Clusters::TemperatureMeasurement::Attributes::MeasuredValue::SetNull(
+			kSensorEndpointId);
+		Clusters::RelativeHumidityMeasurement::Attributes::MeasuredValue::SetNull(
+			kSensorEndpointId);
 	}
 
 #if defined(CONFIG_APP_MATTER_PRESSURE)
 	if (sensors.bme688.valid) {
 		Clusters::PressureMeasurement::Attributes::MeasuredValue::Set(
 			kSensorEndpointId, sensors.bme688.pressure_hPa);
+	} else {
+		Clusters::PressureMeasurement::Attributes::MeasuredValue::SetNull(
+			kSensorEndpointId);
 	}
 #endif
 
@@ -145,6 +156,8 @@ void AppTask::UpdateSensorAttributes()
 	if (sensors.stcc4.valid) {
 		co2_instance.SetMeasuredValue(
 			DataModel::MakeNullable(static_cast<float>(sensors.stcc4.co2_ppm)));
+	} else {
+		co2_instance.SetMeasuredValue(DataModel::NullNullable);
 	}
 #endif
 

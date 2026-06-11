@@ -3,6 +3,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/* Each reading's `valid` flag is true when the last *attempted* read of that
+ * sensor succeeded. It persists across divisor skip cycles — a skip is not a
+ * read — so the last value keeps being reported until the next attempt.
+ * Consumers treat invalid as unknown: Matter writes null, BTHome omits the
+ * field from the advertisement. */
+
 struct sht4x_reading {
 	int64_t timestamp;
 	int16_t temperature_cC;  /* 0.01 deg C units */
@@ -65,7 +71,8 @@ struct sensor_state {
 /** Probe all sensors, populate have_* flags. Call once at boot. */
 void sensor_init(sensor_state &state);
 
-/** Individual sensor read functions. Each updates its sub-struct + timestamp. */
+/** Individual sensor read functions. Each updates its sub-struct + timestamp
+ *  and sets `valid` to whether this attempt produced a usable value. */
 int sensor_read_sht4x(sensor_state &state);
 int sensor_read_bme688(sensor_state &state);
 int sensor_read_stcc4(sensor_state &state);
