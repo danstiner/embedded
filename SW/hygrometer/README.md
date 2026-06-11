@@ -62,7 +62,7 @@ Per-device identity and other information must be flashed to the factory-data pa
 provisioning tool [`../tools/provisioning/provision.py`](../tools/provisioning/provision.py):
 
 ```sh
-python ../tools/provisioning/provision.py --flash
+python ../tools/provisioning/provision.py --build-dir build --flash
 ```
 
 It reads the product ID / names / partition offset from the build, assigns a sequential

@@ -128,6 +128,7 @@ jobs:
             -- -DBOARD_ROOT=$(pwd) \
             -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" \
             -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf \
+            -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Run clang-tidy (Matter)
