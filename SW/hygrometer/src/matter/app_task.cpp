@@ -137,7 +137,7 @@ void AppTask::UpdateSensorAttributes()
 #if defined(CONFIG_APP_MATTER_PRESSURE)
 	if (sensors.bme688.valid) {
 		Clusters::PressureMeasurement::Attributes::MeasuredValue::Set(
-			kSensorEndpointId, sensors.bme688.pressure_kPa);
+			kSensorEndpointId, sensors.bme688.pressure_hPa);
 	}
 #endif
 

@@ -2587,8 +2587,8 @@ endpoint 1 {
 
   server cluster PressureMeasurement {
     ram      attribute measuredValue;
-    ram      attribute minMeasuredValue default = 30;
-    ram      attribute maxMeasuredValue default = 110;
+    ram      attribute minMeasuredValue default = 300;
+    ram      attribute maxMeasuredValue default = 1100;
     callback attribute generatedCommandList;
     callback attribute acceptedCommandList;
     callback attribute attributeList;

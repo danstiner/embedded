@@ -429,7 +429,7 @@ int sensor_read_bme688(sensor_state &state)
 
 	sensor_channel_get(bme688_dev, SENSOR_CHAN_PRESS, &value);
 	state.bme688.pressure_Pa = value.val1 * 1000 + value.val2 / 1000;
-	state.bme688.pressure_kPa = (int16_t)value.val1;
+	state.bme688.pressure_hPa = (int16_t)(state.bme688.pressure_Pa / 100);
 	LOG_INF("BME688: P=%d.%03d kPa", value.val1, value.val2 / 1000);
 
 	state.bme688.timestamp = k_uptime_get();

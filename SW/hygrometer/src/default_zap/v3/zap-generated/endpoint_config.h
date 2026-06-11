@@ -676,10 +676,10 @@
 		/* Endpoint: 1, Cluster: Pressure Measurement (server) */                          \
 		{ZAP_SIMPLE_DEFAULT(0x8000), 0x00000000, 2, ZAP_TYPE(INT16S),                      \
 		 ZAP_ATTRIBUTE_MASK(READABLE) | ZAP_ATTRIBUTE_MASK(NULLABLE)}, /* MeasuredValue */ \
-		{ZAP_SIMPLE_DEFAULT(30), 0x00000001, 2, ZAP_TYPE(INT16S),                          \
+		{ZAP_SIMPLE_DEFAULT(300), 0x00000001, 2, ZAP_TYPE(INT16S),                         \
 		 ZAP_ATTRIBUTE_MASK(READABLE) |                                                    \
 			 ZAP_ATTRIBUTE_MASK(NULLABLE)}, /* MinMeasuredValue */                     \
-		{ZAP_SIMPLE_DEFAULT(110), 0x00000002, 2, ZAP_TYPE(INT16S),                         \
+		{ZAP_SIMPLE_DEFAULT(1100), 0x00000002, 2, ZAP_TYPE(INT16S),                        \
 		 ZAP_ATTRIBUTE_MASK(READABLE) |                                                    \
 			 ZAP_ATTRIBUTE_MASK(NULLABLE)}, /* MaxMeasuredValue */                     \
 		{ZAP_SIMPLE_DEFAULT(0), 0x0000FFFC, 4, ZAP_TYPE(BITMAP32),                         \

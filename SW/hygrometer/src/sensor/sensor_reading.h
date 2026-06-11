@@ -14,7 +14,7 @@ struct sht4x_reading {
 
 struct bme688_reading {
 	int64_t timestamp;
-	int16_t pressure_kPa; /* kPa (for Matter PressureMeasurement) */
+	int16_t pressure_hPa; /* hPa = 0.1 kPa, the Matter PressureMeasurement encoding */
 	uint32_t pressure_Pa; /* Pa  (for BTHome, STCC4 compensation) */
 	bool valid;
 };
