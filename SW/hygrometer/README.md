@@ -59,16 +59,16 @@ uv run ../ota.py flash --confirm
 ### Provisioning
 
 Per-device identity and other information must be flashed to the factory-data partition using the
-provisioning tool [`../tools/provisioning/provision.py`](../tools/provisioning/provision.py):
+provisioning tool [`../tools/matter/provisioning/provision.py`](../tools/matter/provisioning/provision.py):
 
 ```sh
-python ../tools/provisioning/provision.py --build-dir build --flash
+python ../tools/matter/provisioning/provision.py --build-dir build --flash
 ```
 
 It reads the product ID / names / partition offset from the build, assigns a sequential
 serial (`SN-0001`, …), randomizes discriminator/passcode/salt/unique-ID, and writes the
 hex, QR `.png`, onboarding `.txt`, and a `provisioning_log.csv` to the gitignored
-`SW/tools/provisioning/history/`. `--flash` programs the `factory_data` partition. To re-identify
+`SW/tools/matter/provisioning/history/`. `--flash` programs the `factory_data` partition. To re-identify
 an already-paired unit, re-provision it, run `matter factoryreset` on the device console, and
 remove the stale device entry from the controller.
 

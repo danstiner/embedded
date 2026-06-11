@@ -10,8 +10,8 @@ factory-data provisioning live in each board's own README (e.g.
 - **Per device (required):** the app image bakes in no identity — factory data is built
   separately (`SB_CONFIG_MATTER_FACTORY_DATA_GENERATE=n`) so flashing firmware never overwrites it.
   Each unit must have unique factory data generated and flashed with
-  `tools/provisioning/provision.py` (see the board README's "Per-device Matter provisioning");
-  the QR `.png` / manual code for each unit is written to `tools/provisioning/history/`. Until
+  `tools/matter/provisioning/provision.py` (see the board README's "Per-device Matter provisioning");
+  the QR `.png` / manual code for each unit is written to `tools/matter/provisioning/history/`. Until
   a unit is provisioned it has no factory data and will not commission.
 - **Print from a running device** over the RTT/UART shell:
   ```shell
@@ -76,9 +76,9 @@ chip-tool pairing ble-thread 1 hex:<thread-dataset> 20202021 3840
    incremental build).
 3. The OTA image is at `build/matter.ota`.
 
-### Deploying to a Home Assistant fabric — `tools/ota/deploy_ota.py`
+### Deploying to a Home Assistant fabric — `tools/matter/ota/deploy_ota.py`
 
-For devices commissioned to Home Assistant, `tools/ota/deploy_ota.py` automates the whole
+For devices commissioned to Home Assistant, `tools/matter/ota/deploy_ota.py` automates the whole
 flow: it reads `matter.ota` from one or more build dirs, writes the DCL-style JSON
 descriptors, copies everything to the Matter Server add-on's local-updates dir
 (`/addon_configs/core_matter_server/updates/`), restarts the add-on (its update catalog is
@@ -86,7 +86,7 @@ only scanned at startup), then drives the install over the add-on's WebSocket AP
 matching node:
 
 ```bash
-python tools/ota/deploy_ota.py --build-dir hygrometer/build-matter-v3 --build-dir hygrometer/build-matter-v4
+python tools/matter/ota/deploy_ota.py --build-dir hygrometer/build-matter-v3 --build-dir hygrometer/build-matter-v4
 ```
 
 Prerequisites: the HA "Advanced SSH & Web Terminal" add-on with key auth (exposes

@@ -13,9 +13,9 @@ wrapper around the same NCS generator the build itself uses
 
 Example usage, run from the SW/ directory, in your nRF Connect SDK environment:
 
-    python tools/provisioning/provision.py --build-dir hygrometer/build --flash
+    python tools/matter/provisioning/provision.py --build-dir hygrometer/build --flash
 
-Outputs (gitignored) land in SW/tools/provisioning/history/:
+Outputs (gitignored) land in SW/tools/matter/provisioning/history/:
     factory_data_<sn>.hex / .json / .png (QR) / .txt (manual + QR codes)
     provisioning_log.csv   - one row per provisioned device
     counter.txt            - sequential serial counter
@@ -43,7 +43,7 @@ INVALID_PASSCODES = {
     66666666, 77777777, 88888888, 99999999, 12345678, 87654321,
 }
 
-THIS_DIR = Path(__file__).resolve().parent          # SW/tools/provisioning
+THIS_DIR = Path(__file__).resolve().parent          # SW/tools/matter/provisioning
 OUTPUT_DIR = THIS_DIR / "history"
 COUNTER_FILE = OUTPUT_DIR / "counter.txt"
 LOG_FILE = OUTPUT_DIR / "provisioning_log.csv"
@@ -96,8 +96,8 @@ def find_matter_dir(image_dir: Path) -> Path:
         m = re.search(r"ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR=([^)\s]+)", kfile.read_text())
         if m and Path(m.group(1)).is_dir():
             return Path(m.group(1))
-    # Fallback: SW/west/ncs/modules/lib/matter (THIS_DIR is SW/tools/provisioning).
-    fallback = THIS_DIR.parent.parent / "west" / "ncs" / "modules" / "lib" / "matter"
+    # Fallback: SW/west/ncs/modules/lib/matter (THIS_DIR is SW/tools/matter/provisioning).
+    fallback = THIS_DIR.parents[2] / "west" / "ncs" / "modules" / "lib" / "matter"
     if fallback.is_dir():
         return fallback
     raise SystemExit("Could not locate the matter module (ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR)")

@@ -20,7 +20,7 @@ For each build directory the script:
 
 Example usage, run from the SW/ directory:
 
-    python tools/ota/deploy_ota.py \
+    python tools/matter/ota/deploy_ota.py \
         --build-dir hygrometer/build-matter-v3 \
         --build-dir hygrometer/build-matter-v4
 
@@ -88,13 +88,13 @@ def ensure_websockets() -> None:
 
 def find_matter_dir(image_dir: Path) -> Path:
     """Locate the connectedhomeip (matter) module the build used (same logic
-    as tools/provisioning/provision.py)."""
+    as tools/matter/provisioning/provision.py)."""
     kfile = image_dir / "Kconfig" / "kconfig_module_dirs.cmake"
     if kfile.exists():
         m = re.search(r"ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR=([^)\s]+)", kfile.read_text())
         if m and Path(m.group(1)).is_dir():
             return Path(m.group(1))
-    fallback = THIS_DIR.parent.parent / "west" / "ncs" / "modules" / "lib" / "matter"
+    fallback = THIS_DIR.parents[2] / "west" / "ncs" / "modules" / "lib" / "matter"
     if fallback.is_dir():
         return fallback
     raise SystemExit("Could not locate the matter module (ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR)")
