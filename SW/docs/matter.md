@@ -76,6 +76,26 @@ chip-tool pairing ble-thread 1 hex:<thread-dataset> 20202021 3840
    incremental build).
 3. The OTA image is at `build/matter.ota`.
 
+### Deploying to a Home Assistant fabric — `tools/ota/deploy_ota.py`
+
+For devices commissioned to Home Assistant, `tools/ota/deploy_ota.py` automates the whole
+flow: it reads `matter.ota` from one or more build dirs, writes the DCL-style JSON
+descriptors, copies everything to the Matter Server add-on's local-updates dir
+(`/addon_configs/core_matter_server/updates/`), restarts the add-on (its update catalog is
+only scanned at startup), then drives the install over the add-on's WebSocket API for every
+matching node:
+
+```bash
+python tools/ota/deploy_ota.py --build-dir hygrometer/build-matter-v3 --build-dir hygrometer/build-matter-v4
+```
+
+Prerequisites: the HA "Advanced SSH & Web Terminal" add-on with key auth (exposes
+`/addon_configs` and the `ha` CLI; override with `--host`/`--ssh-user`/`--ssh-port`) and
+port 5580 reachable (the Matter Server add-on is host-networked). `--stage-only` just
+writes the files locally; `--no-install` stages to HA without triggering installs. The
+script bootstraps its own venv on first run. Note: the staging-only path is well tested;
+the SSH and WebSocket legs are young — check the script's output on first use.
+
 ### Method 1 — chip-ota-provider-app (recommended)
 
 ```bash
