@@ -144,25 +144,27 @@ static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC
 	/* Device info */
 	service_data[idx++] = BTHOME_DEVICE_INFO;
 
-	/* Packet ID: uint8, rolling counter */
+	/* BTHome v2 requires objects in ascending object-ID order */
+
+	/* 0x00 Packet ID: uint8, rolling counter */
 	service_data[idx++] = BTHOME_OBJ_PACKET_ID;
 	service_data[idx++] = packet_id;
 
-	/* Temperature: sint16, factor 0.01 °C */
+	/* 0x02 Temperature: sint16, factor 0.01 °C */
 	if (temperature_mC.is_some) {
 		service_data[idx++] = BTHOME_OBJ_TEMP;
 		service_data[idx++] = (uint8_t)(temperature_mC.value & 0xFF);
 		service_data[idx++] = (uint8_t)((temperature_mC.value >> 8) & 0xFF);
 	}
 
-	/* Humidity: uint16, factor 0.01 % */
+	/* 0x03 Humidity: uint16, factor 0.01 % */
 	if (humidity_mPct.is_some) {
 		service_data[idx++] = BTHOME_OBJ_HUMIDITY;
 		service_data[idx++] = (uint8_t)(humidity_mPct.value & 0xFF);
 		service_data[idx++] = (uint8_t)((humidity_mPct.value >> 8) & 0xFF);
 	}
 
-	/* Pressure: uint24, factor 0.01 hPa */
+	/* 0x04 Pressure: uint24, factor 0.01 hPa */
 	if (pressure_Pa.is_some) {
 		service_data[idx++] = BTHOME_OBJ_PRESSURE;
 		service_data[idx++] = (uint8_t)(pressure_Pa.value & 0xFF);
@@ -170,20 +172,20 @@ static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC
 		service_data[idx++] = (uint8_t)((pressure_Pa.value >> 16) & 0xFF);
 	}
 
-	/* CO2: uint16, factor 1 ppm */
+	/* 0x12 CO2: uint16, factor 1 ppm */
 	if (co2_ppm.is_some) {
 		service_data[idx++] = BTHOME_OBJ_CO2;
 		service_data[idx++] = (uint8_t)(co2_ppm.value & 0xFF);
 		service_data[idx++] = (uint8_t)((co2_ppm.value >> 8) & 0xFF);
 	}
 
-	/* Battery low: uint8 binary, 0 = normal, 1 = low (0x15 > 0x12, < 0x20) */
+	/* 0x15 Battery low: uint8 binary, 0 = normal, 1 = low */
 	if (battery_low.is_some) {
 		service_data[idx++] = BTHOME_OBJ_BATTERY_LOW;
 		service_data[idx++] = battery_low.value ? 1 : 0;
 	}
 
-	/* Moisture/water-leak: uint8 binary (0x20 keeps ascending order) */
+	/* 0x20 Moisture/water-leak: uint8 binary, 0 = dry, 1 = wet */
 	if (moisture.is_some) {
 		service_data[idx++] = BTHOME_OBJ_MOISTURE;
 		service_data[idx++] = moisture.value ? 1 : 0;
