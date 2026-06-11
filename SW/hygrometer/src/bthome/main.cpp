@@ -132,8 +132,8 @@ static void sht4x_heater_pulse(void)
 }
 #endif
 
-static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC,
-				       opt_u16 humidity_mPct, opt_u32 pressure_Pa, opt_u16 co2_ppm,
+static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_cC,
+				       opt_u16 humidity_cPct, opt_u32 pressure_Pa, opt_u16 co2_ppm,
 				       opt_u8 battery_low, opt_u8 moisture)
 {
 	size_t idx = 0;
@@ -151,17 +151,17 @@ static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC
 	service_data[idx++] = packet_id;
 
 	/* 0x02 Temperature: sint16, factor 0.01 °C */
-	if (temperature_mC.is_some) {
+	if (temperature_cC.is_some) {
 		service_data[idx++] = BTHOME_OBJ_TEMP;
-		service_data[idx++] = (uint8_t)(temperature_mC.value & 0xFF);
-		service_data[idx++] = (uint8_t)((temperature_mC.value >> 8) & 0xFF);
+		service_data[idx++] = (uint8_t)(temperature_cC.value & 0xFF);
+		service_data[idx++] = (uint8_t)((temperature_cC.value >> 8) & 0xFF);
 	}
 
 	/* 0x03 Humidity: uint16, factor 0.01 % */
-	if (humidity_mPct.is_some) {
+	if (humidity_cPct.is_some) {
 		service_data[idx++] = BTHOME_OBJ_HUMIDITY;
-		service_data[idx++] = (uint8_t)(humidity_mPct.value & 0xFF);
-		service_data[idx++] = (uint8_t)((humidity_mPct.value >> 8) & 0xFF);
+		service_data[idx++] = (uint8_t)(humidity_cPct.value & 0xFF);
+		service_data[idx++] = (uint8_t)((humidity_cPct.value >> 8) & 0xFF);
 	}
 
 	/* 0x04 Pressure: uint24, factor 0.01 hPa */
@@ -196,11 +196,11 @@ static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC
 }
 
 /* ---- Update BTHome advertisement data ---- */
-static void update_advertisement(uint8_t packet_id, opt_i16 temperature_mC, opt_u16 humidity_mPct,
+static void update_advertisement(uint8_t packet_id, opt_i16 temperature_cC, opt_u16 humidity_cPct,
 				 opt_u32 pressure_Pa, opt_u16 co2_ppm, opt_u8 battery_low,
 				 opt_u8 moisture)
 {
-	bthome_update_service_data(packet_id, temperature_mC, humidity_mPct, pressure_Pa, co2_ppm,
+	bthome_update_service_data(packet_id, temperature_cC, humidity_cPct, pressure_Pa, co2_ppm,
 				   battery_low, moisture);
 	ad[1] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
 					(uint8_t)service_data_len);

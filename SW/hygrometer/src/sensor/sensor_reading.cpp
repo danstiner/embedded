@@ -496,7 +496,7 @@ int sensor_read_stcc4(sensor_state &state)
 
 	if (state.stcc4_discards_remaining > 0) {
 		state.stcc4_discards_remaining--;
-		LOG_INF("STCC4: discarding bypass reading (%u remaining)",
+		LOG_INF("STCC4: discarding warm-up reading (%u remaining)",
 			state.stcc4_discards_remaining);
 		state.stcc4.valid = false;
 		return 0;

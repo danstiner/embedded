@@ -28,7 +28,7 @@ config SHT4X_ENABLE
 	  Enable probing for and using temperature and humidity sensor, if hardware is present.
 
 config SHT4X_USE_HEATER
-	bool "Use the built-in heater on the SHT4X for increased accuracy at high RH levels"
+	bool "Use the built-in heater on the SHT4x for increased accuracy at high RH levels"
 	default n
 	help
 	  Maximum duty cycle for using the heater is 5%

@@ -6,7 +6,7 @@ Low power sensor for relative humidity, temperature, and water leaks utilizing t
 
 The `bl54l15u_hygrometer` board has two hardware revisions:
 
-- **2026v4** (default): Resistive water-leak sensor, SHT4x, buzzer, CR2 lithium batttery
+- **2026v4** (default): Resistive water-leak sensor, SHT4x, buzzer, CR2 lithium battery
 - **2026v3**: SHT4x, optional BME688/STCC4, nPM2100 PMIC + 2×AAA alkaline
 
 This project also can be used with the BL54L15u DevKit.
