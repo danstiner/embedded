@@ -95,7 +95,7 @@ void LeakReporterThread(void *, void *, void *)
 }
 
 K_THREAD_DEFINE(leak_reporter_tid, 768, LeakReporterThread, nullptr, nullptr, nullptr,
-		K_LOWEST_APPLICATION_THREAD_PRIO, 0, 0);
+		K_HIGHEST_APPLICATION_THREAD_PRIO, 0, 0);
 } /* namespace */
 
 void AppTask::ReportLeak()
