@@ -15,7 +15,7 @@ This project also can be used with the BL54L15u DevKit.
 
 Debug build advertising over BLE in the BTHome format, with RTT logging:
 ```sh
-west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF_FILE=$(pwd)/sysbuild/mcuboot_extra_rtt.conf
+west build -b bl54l15u_hygrometer/nrf54l15/cpuapp -p -- -DBOARD_ROOT=.. -DEXTRA_CONF_FILE=prj_extra_rtt.conf -Dmcuboot_EXTRA_CONF_FILE="$(pwd)/sysbuild/mcuboot.conf;$(pwd)/sysbuild/mcuboot_extra_rtt.conf"
 ```
 
 Release build with reduced power use:
