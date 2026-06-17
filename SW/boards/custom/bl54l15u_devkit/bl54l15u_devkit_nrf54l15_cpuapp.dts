@@ -16,9 +16,12 @@
 /dts-v1/;
 
 #include <nordic/nrf54l15_cpuapp.dtsi>
-#include "bl54l15u_devkit-pinctrl.dtsi"
 #include <dt-bindings/regulator/npm13xx.h>
 #include <zephyr/dt-bindings/input/input-event-codes.h>
+#include "bl54l15u_devkit-pinctrl.dtsi"
+#include "../bl54l15u_partitions.dtsi"
+
+/* Static flash partitions (PM disabled for this board in project sysbuild config). */
 
 / {
 	model = "BL54L15u DevKit";
@@ -225,9 +228,6 @@
 &temp {
 	status = "okay";
 };
-
-/* Include default memory partition configuration */
-#include <vendor/nordic/nrf54l15_cpuapp_partition.dtsi>
 
 /* Disable unused peripherals for power savings */
 

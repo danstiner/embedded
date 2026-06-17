@@ -88,6 +88,19 @@ def read_partition(partitions_yml: Path, name: str):
     return int(addr.group(1), 0), int(size.group(1), 0)
 
 
+def read_factory_data_dts(image_dir: Path):
+    """Return (address, size) for the factory-data partition from the compiled
+    devicetree. Used when Partition Manager is disabled (no partitions.yml)."""
+    dts = (image_dir / "zephyr" / "zephyr.dts").read_text()
+    for m in re.finditer(r"partition@[0-9a-fA-F]+\s*\{(.*?)\}", dts, re.S):
+        block = m.group(1)
+        if 'label = "factory-data"' in block:
+            reg = re.search(r"reg\s*=\s*<\s*(0x[0-9a-fA-F]+)\s+(0x[0-9a-fA-F]+)", block)
+            if reg:
+                return int(reg.group(1), 0), int(reg.group(2), 0)
+    raise SystemExit(f"factory-data partition not found in {image_dir / 'zephyr' / 'zephyr.dts'}")
+
+
 def find_matter_dir(image_dir: Path) -> Path:
     """Locate the connectedhomeip (matter) module the build used. The build records it
     in kconfig_module_dirs.cmake; fall back to the standard west layout."""
@@ -182,7 +195,11 @@ def main():
 
     vid = int(cfg["CONFIG_CHIP_DEVICE_VENDOR_ID"], 0)
     pid = int(cfg["CONFIG_CHIP_DEVICE_PRODUCT_ID"], 0)
-    addr, size = read_partition(build_dir / "partitions.yml", "factory_data")
+    partitions_yml = build_dir / "partitions.yml"
+    if partitions_yml.exists():
+        addr, size = read_partition(partitions_yml, "factory_data")   # Partition Manager boards
+    else:
+        addr, size = read_factory_data_dts(image_dir)                 # devicetree fixed-partitions
     matter_dir = find_matter_dir(image_dir)
 
     gen = matter_dir / "scripts/tools/nrfconnect/generate_nrfconnect_chip_factory_data.py"
