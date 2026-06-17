@@ -1,0 +1,54 @@
+/*
+ *
+ * Shared static flash partition layout for nRF54L15 boards with factory-data.
+ *
+ * Devicetree fixed-partitions. The full 1524 KB is used.
+ *
+ * Differs from <vendor/nordic/nrf54l15_cpuapp_partition.dtsi> in the following:
+ * - boot is trimmed to 48KB
+ * - storage is trimmed to 24KB
+ * - factory-data partition is added for Matter-enabled devices
+ * - slot partitions expanded to 724 KB to fit large Matter-enabled images
+ */
+
+&cpuapp_rram {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x0 DT_SIZE_K(48)>;
+		};
+
+		/* slot0 spans the MCUboot pad (0x800) + app; the pad lives inside
+		 * the slot, do not give it a separate node. */
+		slot0_partition: partition@c000 {
+			label = "image-0";
+			reg = <0xc000 DT_SIZE_K(724)>;
+		};
+
+		slot1_partition: partition@c1000 {
+			label = "image-1";
+			reg = <0xc1000 DT_SIZE_K(724)>;
+		};
+
+		factory_data: partition@176000 {
+			label = "factory-data";
+			reg = <0x176000 DT_SIZE_K(4)>;
+		};
+
+		storage_partition: partition@177000 {
+			label = "storage";
+			reg = <0x177000 DT_SIZE_K(24)>;
+		};
+	};
+};
+
+/ {
+	aliases {
+		/* Matter FactoryDataProvider resolves DT_ALIAS(factory_data). */
+		factory-data = &factory_data;
+	};
+};

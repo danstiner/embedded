@@ -5,13 +5,16 @@ endchoice
 
 if BOOTLOADER_MCUBOOT
 
-config PM_OVERRIDE_EXTERNAL_DRIVER_CHECK
-	default y
-
 # MCUboot padding size
 config PM_MCUBOOT_PAD
 	default 0x800
 
 endif # BOOTLOADER_MCUBOOT
+
+# Partition Manager is deprecated in NCS 3.3. bl54l15u_hygrometer is migrated to
+# devicetree fixed-partitions (bl54l15u_partitions.dtsi); disable PM so the DTS
+# layout takes effect. Other board targets still use pm_static_*.yml until migrated.
+config PARTITION_MANAGER
+	default n if BOARD_BL54L15U_HYGROMETER
 
 source "share/sysbuild/Kconfig"
