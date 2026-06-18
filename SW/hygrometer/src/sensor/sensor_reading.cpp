@@ -151,34 +151,10 @@ static uint8_t cr2_percent(int32_t mv)
 #endif /* HAVE_BATT_ADC */
 
 #if HAVE_BATT_PMIC
-/* Fuel-gauge SoC% → coarse health with hysteresis (for the PMIC/alkaline path). */
+/* Fuel-gauge SoC% → coarse health enum */
 static enum battery_health soc_health(uint8_t soc)
 {
-	static enum battery_health h = BATTERY_OK;
-	switch (h) {
-	case BATTERY_OK:
-		if (soc <= 5) {
-			h = BATTERY_CRITICAL;
-		} else if (soc <= 15) {
-			h = BATTERY_LOW;
-		}
-		break;
-	case BATTERY_LOW:
-		if (soc <= 5) {
-			h = BATTERY_CRITICAL;
-		} else if (soc >= 20) {
-			h = BATTERY_OK;
-		}
-		break;
-	case BATTERY_CRITICAL:
-		if (soc >= 20) {
-			h = BATTERY_OK;
-		} else if (soc >= 10) {
-			h = BATTERY_LOW;
-		}
-		break;
-	}
-	return h;
+	return soc <= 5 ? BATTERY_CRITICAL : soc <= 15 ? BATTERY_LOW : BATTERY_OK;
 }
 #endif /* HAVE_BATT_PMIC */
 
