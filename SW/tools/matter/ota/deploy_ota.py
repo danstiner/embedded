@@ -87,7 +87,7 @@ def read_kconfig(image_dir: Path, key: str) -> str:
 
 @dataclass
 class OtaImage:
-    path: Path
+    data: bytes
     slug: str
     vid: int
     pid: int
@@ -108,7 +108,7 @@ class OtaImage:
                 "softwareVersion": self.version,
                 "softwareVersionString": self.version_string,
                 "minApplicableSoftwareVersion": 0,
-                "maxApplicableSoftwareVersion": self.version - 1,
+                "maxApplicableSoftwareVersion": max(0, self.version - 1),
                 "otaUrl": f"file:///{self.stem}.ota",
                 "otaFileSize": self.size,
                 "otaChecksum": self.checksum_b64,
@@ -146,12 +146,12 @@ def parse_ota_image(build_dir: Path) -> OtaImage:
 
     data = ota.read_bytes()
     return OtaImage(
-        path=ota,
+        data=data,
         slug=slug,
-        vid=int(field(r"Vendor Id:\s*(\d+)")),
-        pid=int(field(r"Product Id:\s*(\d+)")),
-        version=int(field(r"Version:\s*(\d+)")),
-        version_string=field(r"Version String:\s*(\S+)"),
+        vid=int(field(r"\] Vendor Id:\s*(\d+)")),
+        pid=int(field(r"\] Product Id:\s*(\d+)")),
+        version=int(field(r"\] Version:\s*(\d+)")),
+        version_string=field(r"\] Version String:\s*(\S+)"),
         size=len(data),
         checksum_b64=base64.b64encode(hashlib.sha256(data).digest()).decode(),
     )
@@ -163,7 +163,7 @@ def stage(images: list[OtaImage], stage_dir: Path) -> list[Path]:
     for img in images:
         ota_dst = stage_dir / f"{img.stem}.ota"
         json_dst = stage_dir / f"{img.stem}.json"
-        ota_dst.write_bytes(img.path.read_bytes())
+        ota_dst.write_bytes(img.data)
         json_dst.write_text(json.dumps(img.descriptor(), indent=2) + "\n")
         files += [ota_dst, json_dst]
         print(f"Staged {img.stem}: VID 0x{img.vid:04X} PID 0x{img.pid:04X} "
