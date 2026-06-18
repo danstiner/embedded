@@ -181,6 +181,12 @@ void AppTask::UpdateSensorAttributes()
 				0, DataModel::MakeNullable(static_cast<uint8_t>(pct * 2)));
 		}
 #endif
+	} else {
+		/* BatChargeLevel is non-nullable per spec, so it can't show "unknown". */
+		Clusters::PowerSource::Attributes::BatVoltage::SetNull(0);
+#if defined(CONFIG_APP_MATTER_BATTERY_PERCENT)
+		Clusters::PowerSource::Attributes::BatPercentRemaining::SetNull(0);
+#endif
 	}
 
 #if defined(CONFIG_APP_MATTER_LEAK)
