@@ -1,5 +1,7 @@
-# Vendor prefixes for this project's out-of-tree bindings (soily,* nodes:
-# leak-sensor, adc-vbatt, bl54l15u-*). Registering them here silences the
-# "unknown vendor prefix" devicetree warning and lets Twister (warnings-as-
-# errors) build the tests.
-soily	Soily
+# Vendor prefix for this project's own (non-vendor) devicetree nodes — the
+# local,* compatibles (leak-sensor, adc-vbatt, bl54l15u-*). Registering it
+# silences the "unknown vendor prefix" warning, which Twister promotes to a
+# hard error (it builds with --edtlib-Werror). This copy covers the native_sim
+# unit test and the hygrometer app image; the per-board copies under
+# boards/local/*/dts/bindings cover the firmware app + mcuboot images.
+local	Local

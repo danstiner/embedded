@@ -39,7 +39,7 @@
 	};
 
 	leak_sensor: leak-sensor {
-		compatible = "soily,leak-sensor";
+		compatible = "local,leak-sensor";
 		drive-gpios = <&test_gpio 0 GPIO_ACTIVE_HIGH>;
 		sense-gpios = <&test_gpio 1 GPIO_ACTIVE_HIGH>;
 		io-channels = <&test_adc 0>;

@@ -25,7 +25,7 @@
 
 / {
 	model = "BL54L15u DevKit";
-	compatible = "soily,bl54l15u-devkit";
+	compatible = "local,bl54l15u-devkit";
 
 	chosen {
 		zephyr,code-partition = &slot0_partition;

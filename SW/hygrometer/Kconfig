@@ -79,7 +79,7 @@ config APP_LEAK_SENSOR
 	select ADC
 	help
 	  Drive/sense a resistive leak sensor (2026v4 hardware). Requires a
-	  "soily,leak-sensor" node in devicetree. A strong (low-resistance) wet
+	  "local,leak-sensor" node in devicetree. A strong (low-resistance) wet
 	  bridge across the electrodes triggers a GPIO interrupt that wakes the
 	  device immediately; every measurement cycle also samples the sense
 	  divider with the SAADC so a software threshold can catch high-resistance

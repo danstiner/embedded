@@ -2,7 +2,7 @@
 &cpuapp_rram {
 	/delete-node/ partitions;
 };
-#include "../../boards/custom/bl54l15u_partitions.dtsi"
+#include "../../boards/local/bl54l15u_partitions.dtsi"
 
 /* I2C for SHT4x humidity/temperature sensor */
 &i2c21 {

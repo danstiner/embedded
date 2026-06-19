@@ -11,7 +11,7 @@ description: |
   resolves high-resistance (damp, ~1 MΩ) leaks that fall below the digital GPIO
   high threshold.
 
-compatible: "soily,leak-sensor"
+compatible: "local,leak-sensor"
 
 properties:
   drive-gpios:

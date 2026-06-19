@@ -2,7 +2,7 @@
 # native_sim with the emulated ADC/GPIO drivers.
 cmake_minimum_required(VERSION 3.20.0)
 
-# Resolve the out-of-tree "soily,leak-sensor" binding under hygrometer/dts/bindings.
+# Resolve the out-of-tree "local,leak-sensor" binding under hygrometer/dts/bindings.
 set(DTS_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})

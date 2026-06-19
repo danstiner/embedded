@@ -21,7 +21,7 @@
 
 / {
 	model = "BL54L15u Hygrometer";
-	compatible = "soily,bl54l15u-hygrometer";
+	compatible = "local,bl54l15u-hygrometer";
 
 	chosen {
 		zephyr,code-partition = &slot0_partition;

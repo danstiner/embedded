@@ -108,7 +108,7 @@
 / {
 	/* Battery voltage source consumed by sensor_reading.cpp via ADC_DT_SPEC_GET */
 	vbatt: vbatt {
-		compatible = "soily,adc-vbatt";
+		compatible = "local,adc-vbatt";
 		io-channels = <&adc 0>;
 	};
 
@@ -120,7 +120,7 @@
 	 * io-channels samples the same node with the SAADC so a software threshold
 	 * can resolve high-resistance damp conditions the digital edge would miss. */
 	leak_sensor: leak-sensor {
-		compatible = "soily,leak-sensor";
+		compatible = "local,leak-sensor";
 		drive-gpios = <&gpio0 1 GPIO_ACTIVE_HIGH>;  /* P0.01 LEAK_DRIVE */
 		sense-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;  /* P1.07 LEAK_SENSE */
 		io-channels = <&adc 1>;                     /* P1.07 = AIN3 */

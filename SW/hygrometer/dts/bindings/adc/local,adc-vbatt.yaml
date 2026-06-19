@@ -3,7 +3,7 @@ description: |
   gauge). Points at a single ADC io-channel; the firmware converts the sampled
   voltage to a state-of-charge estimate.
 
-compatible: "soily,adc-vbatt"
+compatible: "local,adc-vbatt"
 
 include: base.yaml
 
