@@ -1,0 +1,47 @@
+/*
+ * Self-contained emulated leak-sensor front-end for the unit tests. Defines its
+ * own adc_emul + gpio_emul controllers (rather than extending a board's nodes)
+ * so the suite runs on any platform with the emulators — native_sim (CI) and
+ * qemu_x86 (local). leak.cpp binds against these via the leak_sensor node.
+ */
+
+#include <zephyr/dt-bindings/adc/adc.h>
+#include <zephyr/dt-bindings/gpio/gpio.h>
+
+/ {
+	test_gpio: gpio_emul {
+		status = "okay";
+		compatible = "zephyr,gpio-emul";
+		rising-edge;
+		falling-edge;
+		high-level;
+		low-level;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+
+	test_adc: adc_emul {
+		status = "okay";
+		compatible = "zephyr,adc-emul";
+		nchannels = <1>;
+		ref-internal-mv = <3300>;
+		#io-channel-cells = <1>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		channel@0 {
+			reg = <0>;
+			zephyr,gain = "ADC_GAIN_1";
+			zephyr,reference = "ADC_REF_INTERNAL";
+			zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+			zephyr,resolution = <12>;
+		};
+	};
+
+	leak_sensor: leak-sensor {
+		compatible = "soily,leak-sensor";
+		drive-gpios = <&test_gpio 0 GPIO_ACTIVE_HIGH>;
+		sense-gpios = <&test_gpio 1 GPIO_ACTIVE_HIGH>;
+		io-channels = <&test_adc 0>;
+	};
+};

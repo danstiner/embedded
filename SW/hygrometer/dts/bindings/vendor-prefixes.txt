@@ -1,0 +1,5 @@
+# Vendor prefixes for this project's out-of-tree bindings (soily,* nodes:
+# leak-sensor, adc-vbatt, bl54l15u-*). Registering them here silences the
+# "unknown vendor prefix" devicetree warning and lets Twister (warnings-as-
+# errors) build the tests.
+soily	Soily

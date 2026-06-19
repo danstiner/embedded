@@ -4,7 +4,12 @@ description: |
   Two electrodes separated by a gap. One is driven high (drive-gpios) and the
   other (sense-gpios) is read back through a pull-down: water bridging the gap
   raises the sense line. The sense GPIO supports interrupts so the device can
-  wake immediately when a leak appears.
+  wake immediately when a strong (low-resistance) leak appears.
+
+  The same sense node is also wired to an SAADC channel (io-channels) so the
+  firmware can sample its analog voltage and apply a software threshold, which
+  resolves high-resistance (damp, ~1 MΩ) leaks that fall below the digital GPIO
+  high threshold.
 
 compatible: "soily,leak-sensor"
 
@@ -18,3 +23,8 @@ properties:
     type: phandle-array
     required: true
     description: Input read across the water gap (pull-down when dry).
+
+  io-channels:
+    type: phandle-array
+    required: true
+    description: SAADC channel sampling the sense divider (analog leak level).

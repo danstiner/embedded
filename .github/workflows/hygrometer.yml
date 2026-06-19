@@ -147,3 +147,30 @@ jobs:
             SW/build/dfu_application.zip
             SW/build-bthome/dfu_application.zip
             SW/build-matter/dfu_application.zip
+
+  unit-test:
+    needs: resolve-toolchain
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/nrfconnect/sdk-nrf-toolchain:${{ needs.resolve-toolchain.outputs.toolchain-tag }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update west modules
+        working-directory: SW
+        run: west update --narrow -o=--depth=1
+
+      - name: Install qemu
+        run: apt-get update && apt-get install -y --no-install-recommends qemu-system-arm
+
+      - name: Run leak sensor unit tests (qemu_cortex_m3)
+        working-directory: SW
+        run: |
+          west twister \
+            -p qemu_cortex_m3 \
+            -T hygrometer/tests \
+            --inline-logs -v

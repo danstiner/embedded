@@ -68,14 +68,16 @@
 	status = "okay";
 };
 
-/* SAADC for CR2 battery-voltage measurement (internal VDD, no external pin) */
+/* SAADC: CR2 battery-voltage measurement (channel@0, internal VDD) and the
+ * leak-sense divider (channel@1, AIN3 / P1.07; see leak-sensor below). */
 &adc {
 	status = "okay";
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	/* Measure the chip supply (== CR2 voltage). Internal reference with
-	 * 1/4 gain gives a ~4.1 V full scale, covering a fresh CR2 (~3.2 V). */
+	/* Measure the chip supply (== CR2 voltage). The nRF54L internal reference
+	 * is 0.9 V, so 1/4 gain gives a 3.6 V full scale, covering a fresh CR2
+	 * (~3.2 V). adc_raw_to_millivolts_dt() does the raw->mV conversion. */
 	channel@0 {
 		reg = <0>;
 		zephyr,gain = "ADC_GAIN_1_4";
@@ -86,6 +88,20 @@
 		/* 2^2 = 4x oversampling. The CR2 curve is quite flat; average in
 		 * hardware to keep the reported percentage stable. */
 		zephyr,oversampling = <2>;
+	};
+
+	/* Leak sense divider for LEAK_SENSE. Driven by LEAK_DRIVE at V_bat through
+	 * R1+R2+R_water, so 1/4 gain giving a 3.6 V scale covers the full range.
+	 * High impedance of R_water and the R3 pull-down (1 MΩ) mean using a long
+	 * is high impedance (~R3 ‖ (R1+R2+R_water) ≈ 0.5 MΩ when wet, ~1 MΩ when
+	 * acquisition time to let the SAADC S/H settle in dry or damp conditions. */
+	channel@1 {
+		reg = <1>;
+		zephyr,gain = "ADC_GAIN_1_4";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40)>;
+		zephyr,input-positive = <NRF_SAADC_AIN3>;  /* P1.07 = AIN3 LEAK_SENSE */
+		zephyr,resolution = <12>;
 	};
 };
 
@@ -98,11 +114,16 @@
 
 	/* Resistive leak sensor: drive one electrode (via R1 10k), sense the other
 	 * (via R2 10k) across the water gap. The board has an external 1M pull-down
-	 * (R3) on the sense line. Water bridging the gap should pull LEAK_SENSE up. */
+	 * (R3) on the sense line, forming the divider:
+	 *   V_sense = V_drive * R3 / (R1 + R2 + R_water + R3).
+	 * sense-gpios reads the line digitally for an instant wake-on-wet edge;
+	 * io-channels samples the same node with the SAADC so a software threshold
+	 * can resolve high-resistance damp conditions the digital edge would miss. */
 	leak_sensor: leak-sensor {
 		compatible = "soily,leak-sensor";
 		drive-gpios = <&gpio0 1 GPIO_ACTIVE_HIGH>;  /* P0.01 LEAK_DRIVE */
 		sense-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;  /* P1.07 LEAK_SENSE */
+		io-channels = <&adc 1>;                     /* P1.07 = AIN3 */
 	};
 
 	/* Buzzer/siren output (P2.05 -> Q1 -> transducer). Reserved for a future

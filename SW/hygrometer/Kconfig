@@ -76,10 +76,29 @@ config APP_LEAK_SENSOR
 	bool "Enable resistive water-leak sensor"
 	default n
 	select GPIO
+	select ADC
 	help
 	  Drive/sense a resistive leak sensor (2026v4 hardware). Requires a
-	  "soily,leak-sensor" node in devicetree. A wet bridge across the
-	  electrodes triggers an interrupt that wakes the device immediately.
+	  "soily,leak-sensor" node in devicetree. A strong (low-resistance) wet
+	  bridge across the electrodes triggers a GPIO interrupt that wakes the
+	  device immediately; every measurement cycle also samples the sense
+	  divider with the SAADC so a software threshold can catch high-resistance
+	  (damp, ~1 MΩ) conditions the digital edge misses.
+
+config APP_LEAK_THRESHOLD_MV
+	int "Leak sense trip threshold (mV)"
+	default 1200
+	depends on APP_LEAK_SENSOR
+	help
+	  The sense node is a divider:
+	    V_sense = V_drive * R3 / (R1 + R2 + R_water + R3)
+	  with R1 = R2 = 10 kΩ, R3 = 1 MΩ. At V_drive ≈ 3.0 V (the GPIO drive ≈
+	  the CR2 supply), a dry/open gap sits near 0 V, 1 MΩ of water gives
+	  ≈ 1.49 V and 1.5 MΩ gives ≈ 1.20 V. The sensor reports WET when the
+	  sampled sense voltage is at or above this many millivolts; the 1200 mV
+	  default trips at R_water ≈ 1.5 MΩ, comfortably covering the 1 MΩ target.
+	  Lower = more sensitive (detects higher water resistance) but closer to
+	  the dry-state noise floor. Confirm against bench measurements.
 
 config APP_BUZZER
 	bool "Enable leak buzzer/siren output"
