@@ -48,4 +48,9 @@ int stcc4_start_conditioning(const struct device *i2c);
 int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
 			      uint16_t &correction);
 
+/* Factory reset (command 0x3632): wipe FRC + ASC history and re-arm the
+ * 2-measurement bypass phase. Sensor must be awake.
+ * Returns 0 on success, -EIO if sensor reports failure (status 0xFFFF). */
+int stcc4_perform_factory_reset(const struct device *i2c);
+
 #endif /* STCC4_H_ */

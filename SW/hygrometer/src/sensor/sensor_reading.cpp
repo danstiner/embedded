@@ -629,48 +629,146 @@ void sensor_fuel_gauge_idle_set(void)
 #endif
 }
 
-/* ---- Force recalibration STCC4 ---- */
-int sensor_force_recalibration_stcc4(uint16_t target_co2_ppm)
+/* ---- Reset + recalibrate STCC4 ---- */
+int sensor_recalibrate_stcc4(uint16_t target_ppm, uint32_t pressure_pa)
 {
 #if HAVE_STCC4_BUS && CONFIG_STCC4_ENABLE
 	if (!device_is_ready(sensor_bus)) {
 		return -ENODEV;
 	}
 
-	/* Wait for main loop to finish any in-progress STCC4 read */
+	/* Wait for the main loop to finish any in-progress STCC4 read */
 	if (k_mutex_lock(&stcc4_mutex, K_SECONDS(30)) != 0) {
-		LOG_ERR("STCC4 FRC: sensor busy, aborting");
+		LOG_ERR("STCC4 recal: sensor busy, aborting");
 		return -EBUSY;
 	}
 
+	LOG_INF("STCC4 recal: starting (target=%u ppm)", target_ppm);
+
+	/* Declare before any goto so the cleanup jump never bypasses an init */
+	int ret = 0;
+	int16_t co2 = 0;
+	uint16_t correction = 0;
+
 	stcc4_exit_sleep(sensor_bus);
 
-	/* Single-shot measurement so sensor is in idle mode (not sleep) for FRC */
-	int16_t co2_discard;
-	int ret = stcc4_measure(sensor_bus, co2_discard);
+	/* Wipe all learned FRC/ASC calibration before recalibrating */
+	ret = stcc4_perform_factory_reset(sensor_bus);
 	if (ret) {
-		LOG_ERR("STCC4 pre-FRC measurement failed: %d", ret);
-		stcc4_enter_sleep(sensor_bus);
-		k_mutex_unlock(&stcc4_mutex);
-		return ret;
+		LOG_ERR("STCC4 recal: factory reset failed: %d", ret);
+		goto out;
 	}
-	LOG_INF("STCC4 pre-FRC reading: %d ppm", co2_discard);
 
-	uint16_t correction;
-	ret = stcc4_force_recalibration(sensor_bus, target_co2_ppm, correction);
+	/* Condition the sensor (required after factory reset / long idle).
+	 * start_conditioning returns immediately; we must wait it out. */
+	stcc4_start_conditioning(sensor_bus);
+	k_sleep(K_MSEC(STCC4_CONDITIONING_MS));
 
+	/* Refresh RH/T compensation from a fresh SHT4x reading. The FRC path
+	 * previously skipped this, leaving stale (or default) compensation. */
+	{
+		struct sensor_value value;
+
+		if (sensor_sample_fetch(sht4x) == 0) {
+			sensor_channel_get(sht4x, SENSOR_CHAN_AMBIENT_TEMP, &value);
+			uint16_t temp_ticks = temp_to_raw_ticks(&value);
+
+			sensor_channel_get(sht4x, SENSOR_CHAN_HUMIDITY, &value);
+			uint16_t hum_ticks = hum_to_raw_ticks(&value);
+
+			stcc4_set_rht_compensation(sensor_bus, temp_ticks, hum_ticks);
+		} else {
+			LOG_WRN("STCC4 recal: SHT4x fetch failed, using default compensation");
+		}
+	}
+	if (pressure_pa != 0) {
+		stcc4_set_pressure_compensation(sensor_bus, (uint16_t)(pressure_pa / 2));
+	}
+
+	/* Datasheet: take the 2-measurement post-reset bypass plus >=30 single-shot
+	 * measurements, staying in idle (stcc4_measure does not sleep the sensor),
+	 * before forced recalibration. */
+	for (int i = 0; i < 32; i++) {
+		ret = stcc4_measure(sensor_bus, co2);
+		if (ret) {
+			LOG_ERR("STCC4 recal: measurement %d failed: %d", i, ret);
+			goto out;
+		}
+		if (i >= 29) {
+			LOG_INF("STCC4 recal: pre-FRC reading %d = %d ppm", i + 1, co2);
+		}
+	}
+
+	ret = stcc4_force_recalibration(sensor_bus, target_ppm, correction);
+	if (ret == 0) {
+		/* Correction decodes as raw - 32768 ppm */
+		LOG_INF("STCC4 recal: done, target=%u ppm, correction=%d ppm", target_ppm,
+			(int32_t)correction - 32768);
+	}
+
+out:
 	stcc4_enter_sleep(sensor_bus);
 	k_mutex_unlock(&stcc4_mutex);
-
-	if (ret) {
-		LOG_ERR("STCC4 FRC failed: %d", ret);
-	} else {
-		LOG_INF("STCC4 FRC done: target=%u ppm, correction=0x%04X", target_co2_ppm,
-			correction);
-	}
-
 	return ret;
 #else
+	ARG_UNUSED(target_ppm);
+	ARG_UNUSED(pressure_pa);
 	return -ENOTSUP;
+#endif
+}
+
+/* ---- Async wrapper: run recalibration off a dedicated work queue ---- */
+#if HAVE_STCC4_BUS && CONFIG_STCC4_ENABLE
+/* The recalibration sequence blocks for ~40 s — far too long for the system
+ * work queue, which BLE/Thread share. Give it its own thread + stack. */
+#define STCC4_RECAL_STACK_SIZE 2048
+static K_THREAD_STACK_DEFINE(stcc4_recal_stack, STCC4_RECAL_STACK_SIZE);
+static struct k_work_q stcc4_recal_wq;
+static bool stcc4_recal_wq_started;
+
+static struct {
+	struct k_work work;
+	uint16_t target_ppm;
+	uint32_t pressure_pa;
+	void (*done)(int result);
+} stcc4_recal_ctx;
+
+static void stcc4_recal_work_handler(struct k_work *work)
+{
+	ARG_UNUSED(work);
+
+	int ret = sensor_recalibrate_stcc4(stcc4_recal_ctx.target_ppm, stcc4_recal_ctx.pressure_pa);
+	if (stcc4_recal_ctx.done) {
+		stcc4_recal_ctx.done(ret);
+	}
+}
+#endif
+
+void sensor_recalibrate_stcc4_async(uint16_t target_ppm, uint32_t pressure_pa,
+				    void (*done)(int result))
+{
+#if HAVE_STCC4_BUS && CONFIG_STCC4_ENABLE
+	if (!stcc4_recal_wq_started) {
+		k_work_queue_start(&stcc4_recal_wq, stcc4_recal_stack,
+				   K_THREAD_STACK_SIZEOF(stcc4_recal_stack),
+				   K_LOWEST_APPLICATION_THREAD_PRIO, NULL);
+		k_work_init(&stcc4_recal_ctx.work, stcc4_recal_work_handler);
+		stcc4_recal_wq_started = true;
+	}
+
+	/* Ignore the request if a recalibration is already queued or running */
+	if (k_work_busy_get(&stcc4_recal_ctx.work) != 0) {
+		LOG_WRN("STCC4 recal already in progress, ignoring request");
+		return;
+	}
+
+	stcc4_recal_ctx.target_ppm = target_ppm;
+	stcc4_recal_ctx.pressure_pa = pressure_pa;
+	stcc4_recal_ctx.done = done;
+	k_work_submit_to_queue(&stcc4_recal_wq, &stcc4_recal_ctx.work);
+#else
+	ARG_UNUSED(target_ppm);
+	ARG_UNUSED(pressure_pa);
+	ARG_UNUSED(done);
 #endif
 }

@@ -93,7 +93,18 @@ void sensor_fuel_gauge_init(void);
  * not being run by sensor_read_battery(). */
 void sensor_fuel_gauge_idle_set(void);
 
-/** Force recalibration of STCC4 CO2 sensor.
- *  Wakes sensor, runs FRC at target_co2_ppm, puts sensor back to sleep.
- *  Returns 0 on success, negative errno on failure. */
-int sensor_force_recalibration_stcc4(uint16_t target_co2_ppm);
+/** Reset and recalibrate the STCC4 CO2 sensor (datasheet-correct sequence,
+ *  ~80 s, blocking). Wakes the sensor, performs a factory reset (wiping all
+ *  learned FRC/ASC calibration), conditions it, refreshes RH/T (and pressure,
+ *  if pressure_pa != 0) compensation, takes 30 single-shot measurements while
+ *  staying in idle, runs forced recalibration to target_ppm, then sleeps.
+ *  Must be called from a thread that can block for ~80 s (NOT the system work
+ *  queue). Returns 0 on success, negative errno on failure. */
+int sensor_recalibrate_stcc4(uint16_t target_ppm, uint32_t pressure_pa);
+
+/** Asynchronous wrapper for sensor_recalibrate_stcc4(): runs the sequence on a
+ *  dedicated work queue so the caller (BLE/Matter thread) never blocks. If
+ *  `done` is non-NULL it is invoked with the result from the work-queue thread.
+ *  Calls made while a recalibration is already pending are ignored. */
+void sensor_recalibrate_stcc4_async(uint16_t target_ppm, uint32_t pressure_pa,
+				    void (*done)(int result));

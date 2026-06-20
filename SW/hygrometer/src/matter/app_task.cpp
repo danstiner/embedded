@@ -15,6 +15,9 @@
 /* Boolean State has no ember Set accessor; it uses the code-driven cluster object. */
 #include <app/clusters/boolean-state-server/CodegenIntegration.h>
 #endif
+#if defined(CONFIG_APP_MATTER_CO2)
+#include "co2_mode_manager.h"
+#endif
 
 #include <zephyr/logging/log.h>
 
@@ -111,6 +114,33 @@ void AppTask::ReportLeak()
 	}
 }
 #endif /* CONFIG_APP_MATTER_LEAK */
+
+#if defined(CONFIG_APP_MATTER_CO2)
+void AppTask::RequestCo2Recalibration()
+{
+	/* Pass current pressure for compensation when a BME688 is fitted; 0 lets
+	 * the sensor keep its sea-level default. Read here (Matter thread) is safe:
+	 * `sensors` is only ever written on this thread. */
+	uint32_t pressure_pa = sensors.bme688.valid ? sensors.bme688.pressure_Pa : 0;
+
+	LOG_INF("CO2 recalibration requested via Mode Select");
+	sensor_recalibrate_stcc4_async(420, pressure_pa, AppTask::Co2RecalibrationDone);
+}
+
+void AppTask::Co2RecalibrationDone(int result)
+{
+	LOG_INF("CO2 recalibration finished (result %d), returning Mode Select to Normal", result);
+
+	/* Runs on the sensor work-queue thread; the attribute write must hop to the
+	 * Matter thread. The resulting CurrentMode=0 callback is a no-op. */
+	DeviceLayer::PlatformMgr().ScheduleWork(
+		[](intptr_t) {
+			Clusters::ModeSelect::Attributes::CurrentMode::Set(kSensorEndpointId,
+									   Co2Cal::kModeNormal);
+		},
+		0);
+}
+#endif /* CONFIG_APP_MATTER_CO2 */
 
 void AppTask::SensorTimerCallback(k_timer *timer)
 {
@@ -212,6 +242,10 @@ CHIP_ERROR AppTask::Init()
 		ReturnLogErrorOnFailure(co2.Init());
 		co2.SetMinMeasuredValue(MakeNullable(0.0f));
 		co2.SetMaxMeasuredValue(MakeNullable(40000.0f));
+		/* The Mode Select cluster serves SupportedModes via an
+		 * AttributeAccessInterface, so it needs a registered manager or HA
+		 * shows an empty dropdown and ChangeToMode fails. */
+		Clusters::ModeSelect::setSupportedModesManager(Co2Cal::GetModeManager());
 		return CHIP_NO_ERROR;
 	};
 #endif

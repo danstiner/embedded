@@ -33,9 +33,70 @@
 		/* Endpoint: 0, Cluster: ICD Management (server), big-endian */                    \
                                                                                                    \
 		/* 0 - UserActiveModeTriggerInstruction, */                                        \
-		43,  'P', 'r', 'e', 's', 's', ' ', 't', 'h', 'e', ' ', 'b', 'u', 't', 't',         \
-		'o', 'n', ' ', 's', 'p', 'e', 'c', 'i', 'f', 'i', 'e', 'd', ' ', 'i', 'n',         \
-		' ', 'd', 'o', 'c', 'u', 'm', 'e', 'n', 't', 'a', 't', 'i', 'o', 'n',              \
+		43,                                                                                \
+		'P',                                                                               \
+		'r',                                                                               \
+		'e',                                                                               \
+		's',                                                                               \
+		's',                                                                               \
+		' ',                                                                               \
+		't',                                                                               \
+		'h',                                                                               \
+		'e',                                                                               \
+		' ',                                                                               \
+		'b',                                                                               \
+		'u',                                                                               \
+		't',                                                                               \
+		't',                                                                               \
+		'o',                                                                               \
+		'n',                                                                               \
+		' ',                                                                               \
+		's',                                                                               \
+		'p',                                                                               \
+		'e',                                                                               \
+		'c',                                                                               \
+		'i',                                                                               \
+		'f',                                                                               \
+		'i',                                                                               \
+		'e',                                                                               \
+		'd',                                                                               \
+		' ',                                                                               \
+		'i',                                                                               \
+		'n',                                                                               \
+		' ',                                                                               \
+		'd',                                                                               \
+		'o',                                                                               \
+		'c',                                                                               \
+		'u',                                                                               \
+		'm',                                                                               \
+		'e',                                                                               \
+		'n',                                                                               \
+		't',                                                                               \
+		'a',                                                                               \
+		't',                                                                               \
+		'i',                                                                               \
+		'o',                                                                               \
+		'n',                                                                               \
+                                                                                                   \
+		/* Endpoint: 1, Cluster: Mode Select (server), big-endian */                       \
+                                                                                                   \
+		/* 44 - Description, */                                                            \
+		15,                                                                                \
+		'C',                                                                               \
+		'O',                                                                               \
+		'2',                                                                               \
+		' ',                                                                               \
+		'c',                                                                               \
+		'a',                                                                               \
+		'l',                                                                               \
+		'i',                                                                               \
+		'b',                                                                               \
+		'r',                                                                               \
+		'a',                                                                               \
+		't',                                                                               \
+		'i',                                                                               \
+		'o',                                                                               \
+		'n',                                                                               \
                                                                                                    \
 	}
 
@@ -46,15 +107,76 @@
 		/* Endpoint: 0, Cluster: ICD Management (server), little-endian */                 \
                                                                                                    \
 		/* 0 - UserActiveModeTriggerInstruction, */                                        \
-		43,  'P', 'r', 'e', 's', 's', ' ', 't', 'h', 'e', ' ', 'b', 'u', 't', 't',         \
-		'o', 'n', ' ', 's', 'p', 'e', 'c', 'i', 'f', 'i', 'e', 'd', ' ', 'i', 'n',         \
-		' ', 'd', 'o', 'c', 'u', 'm', 'e', 'n', 't', 'a', 't', 'i', 'o', 'n',              \
+		43,                                                                                \
+		'P',                                                                               \
+		'r',                                                                               \
+		'e',                                                                               \
+		's',                                                                               \
+		's',                                                                               \
+		' ',                                                                               \
+		't',                                                                               \
+		'h',                                                                               \
+		'e',                                                                               \
+		' ',                                                                               \
+		'b',                                                                               \
+		'u',                                                                               \
+		't',                                                                               \
+		't',                                                                               \
+		'o',                                                                               \
+		'n',                                                                               \
+		' ',                                                                               \
+		's',                                                                               \
+		'p',                                                                               \
+		'e',                                                                               \
+		'c',                                                                               \
+		'i',                                                                               \
+		'f',                                                                               \
+		'i',                                                                               \
+		'e',                                                                               \
+		'd',                                                                               \
+		' ',                                                                               \
+		'i',                                                                               \
+		'n',                                                                               \
+		' ',                                                                               \
+		'd',                                                                               \
+		'o',                                                                               \
+		'c',                                                                               \
+		'u',                                                                               \
+		'm',                                                                               \
+		'e',                                                                               \
+		'n',                                                                               \
+		't',                                                                               \
+		'a',                                                                               \
+		't',                                                                               \
+		'i',                                                                               \
+		'o',                                                                               \
+		'n',                                                                               \
+                                                                                                   \
+		/* Endpoint: 1, Cluster: Mode Select (server), little-endian */                    \
+                                                                                                   \
+		/* 44 - Description, */                                                            \
+		15,                                                                                \
+		'C',                                                                               \
+		'O',                                                                               \
+		'2',                                                                               \
+		' ',                                                                               \
+		'c',                                                                               \
+		'a',                                                                               \
+		'l',                                                                               \
+		'i',                                                                               \
+		'b',                                                                               \
+		'r',                                                                               \
+		'a',                                                                               \
+		't',                                                                               \
+		'i',                                                                               \
+		'o',                                                                               \
+		'n',                                                                               \
                                                                                                    \
 	}
 
 #endif // CHIP_CONFIG_BIG_ENDIAN_TARGET
 
-#define GENERATED_DEFAULTS_COUNT (1)
+#define GENERATED_DEFAULTS_COUNT (2)
 
 // This is an array of EmberAfAttributeMinMaxValue structures.
 #define GENERATED_MIN_MAX_DEFAULT_COUNT 0
@@ -63,7 +185,7 @@
 	}
 
 // This is an array of EmberAfAttributeMetadata structures.
-#define GENERATED_ATTRIBUTE_COUNT 214
+#define GENERATED_ATTRIBUTE_COUNT 220
 #define GENERATED_ATTRIBUTES                                                                       \
 	{                                                                                          \
                                                                                                    \
@@ -659,6 +781,22 @@
 		 ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE) |                                            \
 			 ZAP_ATTRIBUTE_MASK(READABLE)}, /* ClusterRevision */                      \
                                                                                                    \
+		/* Endpoint: 1, Cluster: Mode Select (server) */                                   \
+		{ZAP_LONG_DEFAULTS_INDEX(44), 0x00000000, 65, ZAP_TYPE(CHAR_STRING),               \
+		 ZAP_ATTRIBUTE_MASK(READABLE)}, /* Description */                                  \
+		{ZAP_SIMPLE_DEFAULT(0), 0x00000001, 2, ZAP_TYPE(ENUM16),                           \
+		 ZAP_ATTRIBUTE_MASK(READABLE) |                                                    \
+			 ZAP_ATTRIBUTE_MASK(NULLABLE)}, /* StandardNamespace */                    \
+		{ZAP_EMPTY_DEFAULT(), 0x00000002, 0, ZAP_TYPE(ARRAY),                              \
+		 ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE) |                                            \
+			 ZAP_ATTRIBUTE_MASK(READABLE)}, /* SupportedModes */                       \
+		{ZAP_SIMPLE_DEFAULT(0), 0x00000003, 1, ZAP_TYPE(INT8U),                            \
+		 ZAP_ATTRIBUTE_MASK(READABLE)}, /* CurrentMode */                                  \
+		{ZAP_SIMPLE_DEFAULT(0), 0x0000FFFC, 4, ZAP_TYPE(BITMAP32),                         \
+		 ZAP_ATTRIBUTE_MASK(READABLE)}, /* FeatureMap */                                   \
+		{ZAP_SIMPLE_DEFAULT(2), 0x0000FFFD, 2, ZAP_TYPE(INT16U),                           \
+		 ZAP_ATTRIBUTE_MASK(READABLE)}, /* ClusterRevision */                              \
+                                                                                                   \
 		/* Endpoint: 1, Cluster: Temperature Measurement (server) */                       \
 		{ZAP_SIMPLE_DEFAULT(0x8000), 0x00000000, 2, ZAP_TYPE(TEMPERATURE),                 \
 		 ZAP_ATTRIBUTE_MASK(READABLE) | ZAP_ATTRIBUTE_MASK(NULLABLE)}, /* MeasuredValue */ \
@@ -742,7 +880,12 @@
 // clang-format on
 
 // Cluster function static arrays
-#define GENERATED_FUNCTION_ARRAYS
+#define GENERATED_FUNCTION_ARRAYS                                                                  \
+	const EmberAfGenericClusterFunction chipFuncArrayModeSelectServer[] = {                    \
+		(EmberAfGenericClusterFunction)emberAfModeSelectClusterServerInitCallback,         \
+		(EmberAfGenericClusterFunction)                                                    \
+			MatterModeSelectClusterServerPreAttributeChangedCallback,                  \
+	};
 
 // clang-format off
 #define GENERATED_COMMANDS { \
@@ -846,12 +989,16 @@
   0x00000000 /* Identify */, \
   0x00000040 /* TriggerEffect */, \
   chip::kInvalidCommandId /* end of list */, \
+  /* Endpoint: 1, Cluster: Mode Select (server) */\
+  /*   AcceptedCommandList (index=71) */ \
+  0x00000000 /* ChangeToMode */, \
+  chip::kInvalidCommandId /* end of list */, \
 }
 
 // clang-format on
 
 // This is an array of EmberAfCluster structures.
-#define GENERATED_CLUSTER_COUNT 22
+#define GENERATED_CLUSTER_COUNT 23
 // clang-format off
 #define GENERATED_CLUSTERS { \
   { \
@@ -1089,9 +1236,22 @@
       .eventCount = 0, \
     },\
   { \
+      /* Endpoint: 1, Cluster: Mode Select (server) */ \
+      .clusterId = 0x00000050, \
+      .attributes = ZAP_ATTRIBUTE_INDEX(192), \
+      .attributeCount = 6, \
+      .clusterSize = 74, \
+      .mask = ZAP_CLUSTER_MASK(SERVER) | ZAP_CLUSTER_MASK(INIT_FUNCTION) | ZAP_CLUSTER_MASK(PRE_ATTRIBUTE_CHANGED_FUNCTION), \
+      .functions = chipFuncArrayModeSelectServer, \
+      .acceptedCommandList = ZAP_GENERATED_COMMANDS_INDEX( 71 ), \
+      .generatedCommandList = nullptr, \
+      .eventList = nullptr, \
+      .eventCount = 0, \
+    },\
+  { \
       /* Endpoint: 1, Cluster: Temperature Measurement (server) */ \
       .clusterId = 0x00000402, \
-      .attributes = ZAP_ATTRIBUTE_INDEX(192), \
+      .attributes = ZAP_ATTRIBUTE_INDEX(198), \
       .attributeCount = 5, \
       .clusterSize = 12, \
       .mask = ZAP_CLUSTER_MASK(SERVER), \
@@ -1104,7 +1264,7 @@
   { \
       /* Endpoint: 1, Cluster: Pressure Measurement (server) */ \
       .clusterId = 0x00000403, \
-      .attributes = ZAP_ATTRIBUTE_INDEX(197), \
+      .attributes = ZAP_ATTRIBUTE_INDEX(203), \
       .attributeCount = 5, \
       .clusterSize = 12, \
       .mask = ZAP_CLUSTER_MASK(SERVER), \
@@ -1117,7 +1277,7 @@
   { \
       /* Endpoint: 1, Cluster: Relative Humidity Measurement (server) */ \
       .clusterId = 0x00000405, \
-      .attributes = ZAP_ATTRIBUTE_INDEX(202), \
+      .attributes = ZAP_ATTRIBUTE_INDEX(208), \
       .attributeCount = 5, \
       .clusterSize = 12, \
       .mask = ZAP_CLUSTER_MASK(SERVER), \
@@ -1130,7 +1290,7 @@
   { \
       /* Endpoint: 1, Cluster: Carbon Dioxide Concentration Measurement (server) */ \
       .clusterId = 0x0000040D, \
-      .attributes = ZAP_ATTRIBUTE_INDEX(207), \
+      .attributes = ZAP_ATTRIBUTE_INDEX(213), \
       .attributeCount = 7, \
       .clusterSize = 2, \
       .mask = ZAP_CLUSTER_MASK(SERVER), \
@@ -1144,13 +1304,13 @@
 
 // clang-format on
 
-#define ZAP_FIXED_ENDPOINT_DATA_VERSION_COUNT 21
+#define ZAP_FIXED_ENDPOINT_DATA_VERSION_COUNT 22
 
 // This is an array of EmberAfEndpointType structures.
 #define GENERATED_ENDPOINT_TYPES                                                                   \
 	{                                                                                          \
 		{ZAP_CLUSTER_INDEX(0), 16, 227},                                                   \
-		{ZAP_CLUSTER_INDEX(16), 6, 38},                                                    \
+		{ZAP_CLUSTER_INDEX(16), 7, 112},                                                   \
 	}
 
 // Largest attribute size is needed for various buffers
@@ -1163,7 +1323,7 @@ static_assert(ATTRIBUTE_LARGEST <= CHIP_CONFIG_MAX_ATTRIBUTE_STORE_ELEMENT_SIZE,
 #define ATTRIBUTE_SINGLETONS_SIZE (0)
 
 // Total size of attribute storage
-#define ATTRIBUTE_MAX_SIZE (265)
+#define ATTRIBUTE_MAX_SIZE (339)
 
 // Number of fixed endpoints
 #define FIXED_ENDPOINT_COUNT (2)

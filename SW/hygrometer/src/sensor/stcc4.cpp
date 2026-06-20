@@ -13,15 +13,16 @@
 LOG_MODULE_REGISTER(stcc4, LOG_LEVEL_INF);
 
 /* I2C commands (big-endian) */
-#define CMD_GET_PRODUCT_ID       0x365B
-#define CMD_EXIT_SLEEP           0x00 /* Single byte! */
-#define CMD_SET_RHT_COMP         0xE000
-#define CMD_SET_PRESSURE_COMP    0xE016
-#define CMD_ENTER_SLEEP          0x3650
-#define CMD_MEASURE_SINGLE_SHOT  0x219D
-#define CMD_READ_MEASUREMENT     0xEC05
-#define CMD_FORCE_RECALIBRATION  0x362F
-#define CMD_PERFORM_CONDITIONING 0x29BC
+#define CMD_GET_PRODUCT_ID        0x365B
+#define CMD_EXIT_SLEEP            0x00 /* Single byte! */
+#define CMD_SET_RHT_COMP          0xE000
+#define CMD_SET_PRESSURE_COMP     0xE016
+#define CMD_ENTER_SLEEP           0x3650
+#define CMD_MEASURE_SINGLE_SHOT   0x219D
+#define CMD_READ_MEASUREMENT      0xEC05
+#define CMD_FORCE_RECALIBRATION   0x362F
+#define CMD_PERFORM_CONDITIONING  0x29BC
+#define CMD_PERFORM_FACTORY_RESET 0x3632
 
 /* Sensirion CRC-8: polynomial 0x31, init 0xFF */
 static uint8_t sensirion_crc8(const uint8_t *data, size_t len)
@@ -269,5 +270,36 @@ int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
 	}
 
 	LOG_INF("FRC correction: 0x%04X", correction);
+	return 0;
+}
+
+int stcc4_perform_factory_reset(const struct device *i2c)
+{
+	int ret = send_cmd(i2c, CMD_PERFORM_FACTORY_RESET);
+	if (ret) {
+		LOG_ERR("factory_reset write failed: %d", ret);
+		return ret;
+	}
+
+	/* Sensor needs ~90ms to perform the factory reset */
+	k_msleep(100);
+
+	/* Read 1-word status: 0 = pass, 0xFFFF = fail */
+	uint8_t data[2];
+
+	ret = read_words(i2c, data, 1);
+	if (ret) {
+		LOG_ERR("factory_reset read failed: %d", ret);
+		return ret;
+	}
+
+	uint16_t status = ((uint16_t)data[0] << 8) | data[1];
+
+	if (status == 0xFFFF) {
+		LOG_ERR("factory_reset failed (sensor returned 0xFFFF)");
+		return -EIO;
+	}
+
+	LOG_INF("STCC4 factory reset done (status 0x%04X)", status);
 	return 0;
 }

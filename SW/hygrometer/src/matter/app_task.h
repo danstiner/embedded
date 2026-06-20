@@ -25,8 +25,20 @@ class AppTask
 	void ReportLeak();
 #endif
 
+#if defined(CONFIG_APP_MATTER_CO2)
+	/* Kick off a CO2 reset + recalibration (Mode Select -> Recalibrate). Called
+	 * on the Matter thread; the work itself runs off a dedicated work queue. */
+	void RequestCo2Recalibration();
+#endif
+
       private:
 	CHIP_ERROR Init();
+
+#if defined(CONFIG_APP_MATTER_CO2)
+	/* Recalibration completion callback (runs on the sensor work-queue thread):
+	 * schedules the Mode Select flip back to Normal on the Matter thread. */
+	static void Co2RecalibrationDone(int result);
+#endif
 
 	void UpdateSensorAttributes();
 

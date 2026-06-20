@@ -35,6 +35,7 @@ void MatterAdministratorCommissioningPluginServerInitCallback();
 void MatterOperationalCredentialsPluginServerInitCallback();
 void MatterGroupKeyManagementPluginServerInitCallback();
 void MatterIcdManagementPluginServerInitCallback();
+void MatterModeSelectPluginServerInitCallback();
 void MatterTemperatureMeasurementPluginServerInitCallback();
 void MatterPressureMeasurementPluginServerInitCallback();
 void MatterRelativeHumidityMeasurementPluginServerInitCallback();
@@ -57,6 +58,7 @@ void MatterCarbonDioxideConcentrationMeasurementPluginServerInitCallback();
 	MatterOperationalCredentialsPluginServerInitCallback();                                    \
 	MatterGroupKeyManagementPluginServerInitCallback();                                        \
 	MatterIcdManagementPluginServerInitCallback();                                             \
+	MatterModeSelectPluginServerInitCallback();                                                \
 	MatterTemperatureMeasurementPluginServerInitCallback();                                    \
 	MatterPressureMeasurementPluginServerInitCallback();                                       \
 	MatterRelativeHumidityMeasurementPluginServerInitCallback();                               \

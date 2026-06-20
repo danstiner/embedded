@@ -42,6 +42,13 @@ if(CONFIG_APP_USE_MATTER)
     src/matter/main.cpp
     src/matter/app_task.cpp
   )
+  # CO2 recalibration via Mode Select cluster (2026v3 / STCC4 only).
+  # zcl_callbacks.cpp provides the MatterPostAttributeChangeCallback override; on
+  # v4 the SDK's weak no-op default is used instead.
+  target_sources_ifdef(CONFIG_APP_MATTER_CO2 app PRIVATE
+    src/matter/co2_mode_manager.cpp
+    src/matter/zcl_callbacks.cpp
+  )
   ncs_configure_data_model()
 else()
   target_sources(app PRIVATE
