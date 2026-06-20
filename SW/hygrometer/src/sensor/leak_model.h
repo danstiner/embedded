@@ -17,8 +17,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define LEAK_R3_OHM 1000000	     /* R3, sense pull-down */
-#define LEAK_R_FIXED_OHM 1020000     /* R1 + R2 + R3, the fixed divider legs */
+#define LEAK_R3_OHM      1000000 /* R3, sense pull-down */
+#define LEAK_R_FIXED_OHM 1020000 /* R1 + R2 + R3, the fixed divider legs */
 
 /** True when the sampled sense voltage is at or above the trip threshold. */
 static inline bool leak_is_wet(int32_t sense_mv, int32_t threshold_mv)

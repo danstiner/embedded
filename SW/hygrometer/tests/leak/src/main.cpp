@@ -33,8 +33,8 @@ static sensor_state state;
 /* Inject a sensed voltage (mV) on the emulated ADC and run one read cycle. */
 static int sample_at(int mv)
 {
-	zassert_ok(adc_emul_const_value_set(t_adc.dev, t_adc.channel_id, mv),
-		   "adc_emul set %d mV", mv);
+	zassert_ok(adc_emul_const_value_set(t_adc.dev, t_adc.channel_id, mv), "adc_emul set %d mV",
+		   mv);
 	return leak_read(state);
 }
 
@@ -112,16 +112,15 @@ ZTEST(leak, test_wake_suppressed_when_wet)
 
 ZTEST(leak, test_divider_math)
 {
-	zassert_within(leak_sense_mv(1000000, 3000), 1485, 5,
-		       "1 Mohm at 3.0 V should be ~1.49 V");
+	zassert_within(leak_sense_mv(1000000, 3000), 1485, 5, "1 Mohm at 3.0 V should be ~1.49 V");
 	zassert_equal(leak_water_ohm(0, 3000), INT32_MAX, "0 mV reads as open");
 
 	const int32_t rs[] = {200000, 500000, 1000000, 1500000};
 	for (size_t i = 0; i < ARRAY_SIZE(rs); i++) {
 		int32_t v = leak_sense_mv(rs[i], 3000);
 		int32_t r = leak_water_ohm(v, 3000);
-		zassert_within(r, rs[i], rs[i] / 100 + 1000,
-			       "round-trip R=%d -> %d mV -> %d ohm", rs[i], v, r);
+		zassert_within(r, rs[i], rs[i] / 100 + 1000, "round-trip R=%d -> %d mV -> %d ohm",
+			       rs[i], v, r);
 	}
 }
 

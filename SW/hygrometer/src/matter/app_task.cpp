@@ -55,7 +55,8 @@ void UpdateStatusLed()
 
 /* Callbacks run on the Matter thread; the LED state is owned by the app task
  * thread (the board library also calls UpdateStatusLed there), so hop over. */
-class WindowLedDelegate : public AppDelegate {
+class WindowLedDelegate : public AppDelegate
+{
 	void OnCommissioningWindowOpened() override
 	{
 		Nrf::PostTask([] {
