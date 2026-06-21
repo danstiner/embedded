@@ -60,6 +60,9 @@ static int64_t stcc4_cond_until;
  * factory reset; sensor_read_stcc4 reads it in continuous mode (no single-shot/sleep) and
  * reports the value as invalid until the deadline passes. */
 static int64_t stcc4_warmup_until;
+/* Number of single-shots to discard after (re)entering single-shot mode: the bypass phase
+ * emits a fixed 390 ppm placeholder for the first 2 single-shots (datasheet §1.1.2). */
+#define STCC4_BYPASS_DISCARDS 2
 #else
 #define HAVE_STCC4_BUS 0
 #endif
@@ -276,7 +279,7 @@ void sensor_init(sensor_state &state)
 		}
 		if (present) {
 			state.have_stcc4 = true;
-			state.stcc4_discards_remaining = 2;
+			state.stcc4_discards_remaining = STCC4_BYPASS_DISCARDS;
 			LOG_INF("STCC4 detected");
 			/* Clear any persisted testing mode (it freezes the sensor at the
 			 * placeholder output) and log a one-shot self-test health verdict. */
@@ -508,10 +511,12 @@ int sensor_read_stcc4(sensor_state &state)
 			return 0;
 		}
 
-		/* Warm-up window elapsed: stop continuous mode and fall through to single-shot. */
+		/* Warm-up window elapsed: stop continuous mode and fall through to single-shot.
+		 * Re-arm the discard counter — restarting single-shot re-triggers the bypass phase. */
 		stcc4_stop_continuous(sensor_bus);
 		stcc4_enter_sleep(sensor_bus);
 		stcc4_warmup_until = 0;
+		state.stcc4_discards_remaining = STCC4_BYPASS_DISCARDS;
 		LOG_INF("STCC4 warm-up complete, resuming single-shot");
 	}
 
