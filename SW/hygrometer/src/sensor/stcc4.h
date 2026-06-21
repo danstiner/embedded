@@ -71,9 +71,10 @@
  *   measure:     every cycle — wake → push RH/T(+P) compensation → single-shot → sleep.
  *   recalibrate: wake → conditioning → refresh compensation → 32 single-shots @10 s (idle) →
  *                FRC → sleep; aborts if a warm-up reading has a non-zero status.
- *   factory rst: wake → perform_factory_reset → conditioning → sleep.
- *   (A continuous-mode warm-up after a cold start / factory reset, to clear initial operation
- *    quickly, is the recommended next step — see §1.1.4 and the duty-cycle note above.)
+ *   factory rst: wake → perform_factory_reset → conditioning → start continuous warm-up
+ *                (CONFIG_APP_CO2_WARMUP_MIN, §1.1.4) and return immediately; the measurement
+ *                loop reads the sensor in continuous mode (CO2 reported invalid) until the
+ *                warm-up window ends, then stops continuous and resumes single-shot.
  */
 
 #ifndef STCC4_H_
@@ -126,10 +127,20 @@ int stcc4_set_rht_compensation(const struct device *i2c, uint16_t raw_temp, uint
  * Datasheet Table 11: Input = P[Pa] / 2, e.g. 50650 for standard atmosphere. */
 int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_pa_div2);
 
-/* Trigger single-shot measurement, wait, and read CO2.
- * If status is non-null, the sensor status word is returned in it (bit 2 / value
- * 4 = testing mode active; non-zero generally means the reading is not valid). */
+/* Trigger a single-shot measurement, wait, and read CO2. If status is non-null, the sensor
+ * status word is returned in it (testing mode = STCC4_STATUS_TESTING_MODE; any non-zero value
+ * means the reading is not trustworthy). */
 int stcc4_measure(const struct device *i2c, int16_t &co2_ppm, uint16_t *status = nullptr);
+
+/* Continuous measurement mode (datasheet §3.4.1/§3.4.2): the sensor self-measures every 1 s.
+ * Used for the post-factory-reset initial-operation warm-up — start, then poll
+ * stcc4_read_continuous (no per-read trigger; the sensor stays awake), then stop. */
+int stcc4_start_continuous(const struct device *i2c);
+int stcc4_stop_continuous(const struct device *i2c);
+
+/* Read the latest result while in continuous mode (no single-shot trigger). Same decode and
+ * status semantics as stcc4_measure. */
+int stcc4_read_continuous(const struct device *i2c, int16_t &co2_ppm, uint16_t *status = nullptr);
 
 /* The sensor conditions itself internally for up to 22s after the start command;
  * it must stay awake and unread for that long (no completion signal). */

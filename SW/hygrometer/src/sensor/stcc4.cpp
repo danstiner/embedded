@@ -25,6 +25,8 @@ LOG_MODULE_REGISTER(stcc4, LOG_LEVEL_INF);
 #define CMD_PERFORM_FACTORY_RESET 0x3632
 #define CMD_PERFORM_SELF_TEST     0x278C
 #define CMD_DISABLE_TESTING_MODE  0x3F3D
+#define CMD_START_CONTINUOUS      0x218B
+#define CMD_STOP_CONTINUOUS       0x3F86
 
 /* Sensirion CRC-8: polynomial 0x31, init 0xFF */
 static uint8_t sensirion_crc8(const uint8_t *data, size_t len)
@@ -183,21 +185,11 @@ int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_
 	return 0;
 }
 
-int stcc4_measure(const struct device *i2c, int16_t &co2_ppm, uint16_t *status)
+/* Read the latest measurement result (CO2 + status). Used after a single-shot trigger and
+ * directly while in continuous mode (where the sensor refreshes the result every 1 s). */
+static int read_measurement_result(const struct device *i2c, int16_t &co2_ppm, uint16_t *status)
 {
-	int ret;
-
-	/* Trigger single-shot measurement */
-	ret = send_cmd(i2c, CMD_MEASURE_SINGLE_SHOT);
-	if (ret) {
-		LOG_ERR("measure_single_shot failed: %d", ret);
-		return ret;
-	}
-
-	k_msleep(500);
-
-	/* Read measurement */
-	ret = send_cmd(i2c, CMD_READ_MEASUREMENT);
+	int ret = send_cmd(i2c, CMD_READ_MEASUREMENT);
 	if (ret) {
 		LOG_ERR("read_measurement cmd failed: %d", ret);
 		return ret;
@@ -217,13 +209,54 @@ int stcc4_measure(const struct device *i2c, int16_t &co2_ppm, uint16_t *status)
 	/* Datasheet Table 11: CO2 output is signed int16 ppm, used directly (C = Output). */
 	co2_ppm = (int16_t)(((uint16_t)data[0] << 8) | data[1]);
 
-	/* Status word at data[6..7]. Datasheet §3.4.13: testing mode = 2nd MSB of the
-	 * status LSB byte (STCC4_STATUS_TESTING_MODE, 0x0040). Any non-zero status means the
-	 * reading should not be trusted (see sensor_read_stcc4). */
+	/* Status word at data[6..7]. Datasheet §3.4.13: testing mode = 2nd MSB of the status
+	 * LSB byte (STCC4_STATUS_TESTING_MODE, 0x0040). Any non-zero status means the reading
+	 * should not be trusted (see sensor_read_stcc4). */
 	if (status) {
 		*status = ((uint16_t)data[6] << 8) | data[7];
 	}
 
+	return 0;
+}
+
+int stcc4_measure(const struct device *i2c, int16_t &co2_ppm, uint16_t *status)
+{
+	int ret = send_cmd(i2c, CMD_MEASURE_SINGLE_SHOT);
+	if (ret) {
+		LOG_ERR("measure_single_shot failed: %d", ret);
+		return ret;
+	}
+
+	k_msleep(500);
+	return read_measurement_result(i2c, co2_ppm, status);
+}
+
+int stcc4_read_continuous(const struct device *i2c, int16_t &co2_ppm, uint16_t *status)
+{
+	return read_measurement_result(i2c, co2_ppm, status);
+}
+
+int stcc4_start_continuous(const struct device *i2c)
+{
+	int ret = send_cmd(i2c, CMD_START_CONTINUOUS);
+	if (ret) {
+		LOG_ERR("start_continuous failed: %d", ret);
+		return ret;
+	}
+
+	k_msleep(1000); /* first result ready after ~1 s (1 s internal sampling) */
+	return 0;
+}
+
+int stcc4_stop_continuous(const struct device *i2c)
+{
+	int ret = send_cmd(i2c, CMD_STOP_CONTINUOUS);
+	if (ret) {
+		LOG_ERR("stop_continuous failed: %d", ret);
+		return ret;
+	}
+
+	k_msleep(1200); /* datasheet §3.4.2 execution time */
 	return 0;
 }
 

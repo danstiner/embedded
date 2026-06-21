@@ -56,6 +56,10 @@ static K_MUTEX_DEFINE(stcc4_mutex);
 /* Uptime before which the STCC4 must not be read or slept: conditioning runs
  * inside the sensor for STCC4_CONDITIONING_MS after boot (no completion signal). */
 static int64_t stcc4_cond_until;
+/* While non-zero (an uptime deadline), the STCC4 is in a continuous-mode warm-up after a
+ * factory reset; sensor_read_stcc4 reads it in continuous mode (no single-shot/sleep) and
+ * reports the value as invalid until the deadline passes. */
+static int64_t stcc4_warmup_until;
 #else
 #define HAVE_STCC4_BUS 0
 #endif
@@ -263,7 +267,14 @@ void sensor_init(sensor_state &state)
 	if (device_is_ready(sensor_bus)) {
 		k_mutex_lock(&stcc4_mutex, K_FOREVER);
 		stcc4_exit_sleep(sensor_bus);
-		if (stcc4_probe(sensor_bus)) {
+		bool present = stcc4_probe(sensor_bus);
+		if (!present) {
+			/* A reboot during a continuous-mode warm-up leaves the sensor in continuous
+			 * mode, where get_product_id NACKs. Stop it and retry once. */
+			stcc4_stop_continuous(sensor_bus);
+			present = stcc4_probe(sensor_bus);
+		}
+		if (present) {
 			state.have_stcc4 = true;
 			state.stcc4_discards_remaining = 2;
 			LOG_INF("STCC4 detected");
@@ -476,6 +487,32 @@ int sensor_read_stcc4(sensor_state &state)
 	if (k_mutex_lock(&stcc4_mutex, K_NO_WAIT) != 0) {
 		LOG_INF("STCC4: skipping read, FRC in progress");
 		return -EBUSY;
+	}
+
+	if (stcc4_warmup_until != 0) {
+		if (k_uptime_get() < stcc4_warmup_until) {
+			/* Post-factory-reset initial-operation warm-up: the sensor is in continuous
+			 * mode, so read it without triggering a single-shot or sleeping it. Not yet
+			 * accurate — log but report invalid. */
+			stcc4_push_compensation(state.bme688.valid ? state.bme688.pressure_Pa : 0);
+
+			int16_t wco2 = 0;
+			uint16_t wstatus = 0;
+			int wret = stcc4_read_continuous(sensor_bus, wco2, &wstatus);
+			k_mutex_unlock(&stcc4_mutex);
+
+			if (wret == 0) {
+				LOG_INF("STCC4 warm-up: CO2=%d ppm (status 0x%04X)", wco2, wstatus);
+			}
+			state.stcc4.valid = false;
+			return 0;
+		}
+
+		/* Warm-up window elapsed: stop continuous mode and fall through to single-shot. */
+		stcc4_stop_continuous(sensor_bus);
+		stcc4_enter_sleep(sensor_bus);
+		stcc4_warmup_until = 0;
+		LOG_INF("STCC4 warm-up complete, resuming single-shot");
 	}
 
 	/* Wake sensor from sleep before measurement */
@@ -738,6 +775,11 @@ int sensor_recalibrate_stcc4(uint16_t target_ppm, uint32_t pressure_pa)
 		return -ENODEV;
 	}
 
+	if (stcc4_warmup_until != 0) {
+		LOG_WRN("STCC4 recal: warm-up in progress, ignoring request");
+		return -EBUSY;
+	}
+
 	/* Wait for the main loop to finish any in-progress STCC4 read */
 	if (k_mutex_lock(&stcc4_mutex, K_SECONDS(30)) != 0) {
 		LOG_ERR("STCC4 recal: sensor busy, aborting");
@@ -766,6 +808,11 @@ int sensor_factory_reset_stcc4(void)
 		return -ENODEV;
 	}
 
+	if (stcc4_warmup_until != 0) {
+		LOG_WRN("STCC4 factory reset: warm-up in progress, ignoring request");
+		return -EBUSY;
+	}
+
 	if (k_mutex_lock(&stcc4_mutex, K_SECONDS(30)) != 0) {
 		LOG_ERR("STCC4 factory reset: sensor busy, aborting");
 		return -EBUSY;
@@ -775,16 +822,29 @@ int sensor_factory_reset_stcc4(void)
 
 	stcc4_exit_sleep(sensor_bus);
 	int ret = stcc4_perform_factory_reset(sensor_bus);
-	if (ret == 0) {
-		/* Factory reset re-enables the bypass phase; condition the sensor to begin the
-		 * recovery warm-up. Full accuracy still needs a long warm-up afterwards. */
-		stcc4_start_conditioning(sensor_bus);
-		k_sleep(K_MSEC(STCC4_CONDITIONING_MS));
-		LOG_INF("STCC4 factory reset: done");
-	} else {
+	if (ret != 0) {
 		LOG_ERR("STCC4 factory reset failed: %d", ret);
+		stcc4_enter_sleep(sensor_bus);
+		k_mutex_unlock(&stcc4_mutex);
+		return ret;
 	}
-	stcc4_enter_sleep(sensor_bus); /* always sleep, even on error */
+
+	/* Factory reset re-enabled the bypass phase; condition the sensor. */
+	stcc4_start_conditioning(sensor_bus);
+	k_sleep(K_MSEC(STCC4_CONDITIONING_MS));
+
+	if (CONFIG_APP_CO2_WARMUP_MIN > 0) {
+		/* Begin the initial-operation warm-up (datasheet §1.1.4): leave the sensor in
+		 * continuous mode and return now (so the Mode Select snaps back to Measure); the
+		 * measurement loop drives it and ends the warm-up after CONFIG_APP_CO2_WARMUP_MIN. */
+		stcc4_start_continuous(sensor_bus);
+		stcc4_warmup_until = k_uptime_get() + (int64_t)CONFIG_APP_CO2_WARMUP_MIN * 60 * 1000;
+		LOG_INF("STCC4 factory reset: done, warming up %d min in continuous mode",
+			CONFIG_APP_CO2_WARMUP_MIN);
+	} else {
+		stcc4_enter_sleep(sensor_bus);
+		LOG_INF("STCC4 factory reset: done");
+	}
 
 	k_mutex_unlock(&stcc4_mutex);
 	return ret;

@@ -25,6 +25,19 @@ config APP_CO2_RECAL_TARGET_PPM
 	  (~430 ppm in 2026, rising ~2.5 ppm/yr); update it as the baseline drifts.
 	  The BTHome characteristic can still override per-request with a 2-byte value.
 
+config APP_CO2_WARMUP_MIN
+	int "CO2 sensor warm-up after factory reset (minutes)"
+	default 720
+	range 0 1440
+	depends on STCC4_ENABLE
+	help
+	  After a user-triggered STCC4 factory reset, run the sensor in continuous
+	  measurement mode for this long to clear the bypass phase and reach accuracy
+	  (datasheet §1.1.4: up to 12 h continuous). CO2 reads as unavailable during the
+	  warm-up; it runs in the background (the Mode Select returns to Measure right
+	  away). 0 disables the warm-up (conditioning only). Continuous mode draws
+	  ~950 µA, so this is a one-time recovery cost, not the steady-state current.
+
 config APP_PRESSURE_INTERVAL_DIVISOR
 	int "Only fetch BME688 pressure every Nth measurement cycle"
 	default 1
