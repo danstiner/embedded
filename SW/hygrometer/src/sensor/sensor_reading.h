@@ -11,10 +11,8 @@
 
 struct sht4x_reading {
 	int64_t timestamp;
-	int16_t temperature_cC;  /* 0.01 deg C units */
-	uint16_t humidity_cPct;  /* 0.01 % units */
-	uint16_t temp_raw_ticks; /* raw SHT4x ticks for STCC4 compensation */
-	uint16_t hum_raw_ticks;  /* raw SHT4x ticks for STCC4 compensation */
+	int16_t temperature_cC; /* 0.01 deg C units */
+	uint16_t humidity_cPct; /* 0.01 % units */
 	bool valid;
 };
 
@@ -93,12 +91,13 @@ void sensor_fuel_gauge_init(void);
  * not being run by sensor_read_battery(). */
 void sensor_fuel_gauge_idle_set(void);
 
-/** Reset and recalibrate the STCC4 CO2 sensor (datasheet-correct sequence,
- *  ~80 s, blocking). Wakes the sensor, performs a factory reset (wiping all
- *  learned FRC/ASC calibration), conditions it, refreshes RH/T (and pressure,
- *  if pressure_pa != 0) compensation, takes 30 single-shot measurements while
- *  staying in idle, runs forced recalibration to target_ppm, then sleeps.
- *  Must be called from a thread that can block for ~80 s (NOT the system work
+/** Recalibrate the STCC4 CO2 sensor via forced recalibration (datasheet §3.4.15,
+ *  ~6 min, blocking). Non-destructive: a new FRC replaces the previous correction
+ *  offset; no factory reset / history wipe. Wakes the sensor, conditions it,
+ *  refreshes RH/T (and pressure, if pressure_pa != 0) compensation, takes 30+
+ *  single-shot measurements at a ~10 s interval while staying in idle, runs
+ *  forced recalibration to target_ppm, then sleeps.
+ *  Must be called from a thread that can block for ~6 min (NOT the system work
  *  queue). Returns 0 on success, negative errno on failure. */
 int sensor_recalibrate_stcc4(uint16_t target_ppm, uint32_t pressure_pa);
 
@@ -108,3 +107,13 @@ int sensor_recalibrate_stcc4(uint16_t target_ppm, uint32_t pressure_pa);
  *  Calls made while a recalibration is already pending are ignored. */
 void sensor_recalibrate_stcc4_async(uint16_t target_ppm, uint32_t pressure_pa,
 				    void (*done)(int result));
+
+/** Factory-reset the STCC4 (datasheet §3.4.11): wipes FRC + ASC history and re-enables the
+ *  bypass phase, then conditions the sensor. Destructive recovery for a unit stuck at the
+ *  placeholder/floor; the sensor needs a long warm-up before readings are accurate again.
+ *  Blocking (~25 s); must NOT run on the system work queue. Returns 0 on success. */
+int sensor_factory_reset_stcc4(void);
+
+/** Asynchronous wrapper for sensor_factory_reset_stcc4(): runs on the same dedicated work
+ *  queue as recalibration (one op at a time). `done` (if non-NULL) gets the result. */
+void sensor_factory_reset_stcc4_async(void (*done)(int result));

@@ -26,9 +26,11 @@ class AppTask
 #endif
 
 #if defined(CONFIG_APP_MATTER_CO2)
-	/* Kick off a CO2 reset + recalibration (Mode Select -> Recalibrate). Called
-	 * on the Matter thread; the work itself runs off a dedicated work queue. */
+	/* Kick off a CO2 forced recalibration (Mode Select -> Recalibrate). Called on
+	 * the Matter thread; the work itself runs off a dedicated work queue. */
 	void RequestCo2Recalibration();
+	/* Kick off a CO2 sensor factory reset (Mode Select -> Factory Reset). */
+	void RequestCo2FactoryReset();
 #endif
 
       private:
@@ -36,8 +38,10 @@ class AppTask
 
 #if defined(CONFIG_APP_MATTER_CO2)
 	/* Recalibration completion callback (runs on the sensor work-queue thread):
-	 * schedules the Mode Select flip back to Normal on the Matter thread. */
+	 * schedules the Mode Select flip back to Measure on the Matter thread. */
 	static void Co2RecalibrationDone(int result);
+	/* Factory-reset completion callback; flips Mode Select back to Measure. */
+	static void Co2FactoryResetDone(int result);
 #endif
 
 	void UpdateSensorAttributes();

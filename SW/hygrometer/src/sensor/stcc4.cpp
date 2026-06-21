@@ -23,6 +23,8 @@ LOG_MODULE_REGISTER(stcc4, LOG_LEVEL_INF);
 #define CMD_FORCE_RECALIBRATION   0x362F
 #define CMD_PERFORM_CONDITIONING  0x29BC
 #define CMD_PERFORM_FACTORY_RESET 0x3632
+#define CMD_PERFORM_SELF_TEST     0x278C
+#define CMD_DISABLE_TESTING_MODE  0x3F3D
 
 /* Sensirion CRC-8: polynomial 0x31, init 0xFF */
 static uint8_t sensirion_crc8(const uint8_t *data, size_t len)
@@ -181,7 +183,7 @@ int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_
 	return 0;
 }
 
-int stcc4_measure(const struct device *i2c, int16_t &co2_ppm)
+int stcc4_measure(const struct device *i2c, int16_t &co2_ppm, uint16_t *status)
 {
 	int ret;
 
@@ -212,8 +214,15 @@ int stcc4_measure(const struct device *i2c, int16_t &co2_ppm)
 		return ret;
 	}
 
-	/* CO2 is a signed 16-bit value in ppm at offset 0 */
+	/* Datasheet Table 11: CO2 output is signed int16 ppm, used directly (C = Output). */
 	co2_ppm = (int16_t)(((uint16_t)data[0] << 8) | data[1]);
+
+	/* Status word at data[6..7]. Datasheet §3.4.13: testing mode = 2nd MSB of the
+	 * status LSB byte (STCC4_STATUS_TESTING_MODE, 0x0040). Any non-zero status means the
+	 * reading should not be trusted (see sensor_read_stcc4). */
+	if (status) {
+		*status = ((uint16_t)data[6] << 8) | data[7];
+	}
 
 	return 0;
 }
@@ -239,7 +248,8 @@ int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
 	/* Command */
 	buf[0] = (uint8_t)(CMD_FORCE_RECALIBRATION >> 8);
 	buf[1] = (uint8_t)(CMD_FORCE_RECALIBRATION & 0xFF);
-	/* Target CO2 word + CRC */
+	/* Datasheet Table 11: FRC target input is the CO2 ppm value directly
+	 * (Input = C_Target), no scaling. */
 	buf[2] = (uint8_t)(target_co2_ppm >> 8);
 	buf[3] = (uint8_t)(target_co2_ppm & 0xFF);
 	buf[4] = sensirion_crc8(&buf[2], 2);
@@ -253,7 +263,7 @@ int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
 	/* Sensor needs ~90ms to perform FRC */
 	k_msleep(100);
 
-	/* Read 1-word result: correction value */
+	/* Read 1-word result: raw correction value (decode in caller) */
 	uint8_t data[2];
 
 	ret = read_words(i2c, data, 1);
@@ -269,7 +279,58 @@ int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
 		return -EIO;
 	}
 
-	LOG_INF("FRC correction: 0x%04X", correction);
+	/* Datasheet Table 11: applied correction C_FRC = Output - 32768 (ppm, signed). */
+	int delta = correction - 32768;
+
+	/* A correction this large means the FRC railed: the sensor had no valid reading to
+	 * correct against (e.g. it was railed at the placeholder/output floor). Reject it
+	 * rather than bake in a garbage offset. */
+	if (delta > 3000 || delta < -3000) {
+		LOG_ERR("FRC railed (raw=0x%04X, correction=%d ppm) — no valid reading", correction,
+			delta);
+		return -EIO;
+	}
+
+	LOG_INF("FRC raw=0x%04X, correction=%d ppm", correction, delta);
+	return 0;
+}
+
+int stcc4_disable_testing_mode(const struct device *i2c)
+{
+	int ret = send_cmd(i2c, CMD_DISABLE_TESTING_MODE);
+	if (ret) {
+		LOG_ERR("STCC4 disable_testing_mode failed: %d", ret);
+		return ret;
+	}
+
+	k_msleep(1);
+	return 0;
+}
+
+int stcc4_self_test(const struct device *i2c, uint16_t *result)
+{
+	int ret = send_cmd(i2c, CMD_PERFORM_SELF_TEST);
+	if (ret) {
+		LOG_ERR("STCC4 self_test cmd failed: %d", ret);
+		return ret;
+	}
+
+	k_msleep(360); /* datasheet §3.4.12 execution time */
+
+	uint8_t data[2];
+
+	ret = read_words(i2c, data, 1);
+	if (ret) {
+		LOG_ERR("STCC4 self_test read failed: %d", ret);
+		return ret;
+	}
+
+	/* Datasheet §3.4.12: 0x0000 = pass; non-zero bits flag faults (bit0 supply,
+	 * bits3:1 debug, bit4 SHT not connected, bits6:5 memory). Caller logs/interprets. */
+	if (result) {
+		*result = ((uint16_t)data[0] << 8) | data[1];
+	}
+
 	return 0;
 }
 
@@ -277,29 +338,26 @@ int stcc4_perform_factory_reset(const struct device *i2c)
 {
 	int ret = send_cmd(i2c, CMD_PERFORM_FACTORY_RESET);
 	if (ret) {
-		LOG_ERR("factory_reset write failed: %d", ret);
+		LOG_ERR("STCC4 factory_reset cmd failed: %d", ret);
 		return ret;
 	}
 
-	/* Sensor needs ~90ms to perform the factory reset */
-	k_msleep(100);
+	k_msleep(90); /* datasheet §3.4.11 execution time */
 
-	/* Read 1-word status: 0 = pass, 0xFFFF = fail */
+	/* Datasheet §3.4.11: read-back word 0 = pass, 0xFFFF = command failed. */
 	uint8_t data[2];
 
 	ret = read_words(i2c, data, 1);
 	if (ret) {
-		LOG_ERR("factory_reset read failed: %d", ret);
+		LOG_ERR("STCC4 factory_reset read failed: %d", ret);
 		return ret;
 	}
 
 	uint16_t status = ((uint16_t)data[0] << 8) | data[1];
-
 	if (status == 0xFFFF) {
-		LOG_ERR("factory_reset failed (sensor returned 0xFFFF)");
+		LOG_ERR("STCC4 factory_reset reported failure");
 		return -EIO;
 	}
 
-	LOG_INF("STCC4 factory reset done (status 0x%04X)", status);
 	return 0;
 }

@@ -1,4 +1,5 @@
 #include "app_task.h"
+#include "co2_mode_manager.h"
 
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
@@ -17,10 +18,14 @@ void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath &a
 #if defined(CONFIG_APP_MATTER_CO2)
 	if (attributePath.mClusterId == ModeSelect::Id &&
 	    attributePath.mAttributeId == ModeSelect::Attributes::CurrentMode::Id) {
-		/* Only "Recalibrate" (1) starts work; the firmware's own flip back to
-		 * Normal (0) lands here too and is intentionally ignored. */
-		if (value != nullptr && size >= 1 && *value == 1) {
-			AppTask::Instance().RequestCo2Recalibration();
+		/* Recalibrate/Factory Reset start work; the firmware's own flip back to
+		 * Measure (0) lands here too and is intentionally ignored. */
+		if (value != nullptr && size >= 1) {
+			if (*value == Co2Cal::kModeRecalibrate) {
+				AppTask::Instance().RequestCo2Recalibration();
+			} else if (*value == Co2Cal::kModeFactoryReset) {
+				AppTask::Instance().RequestCo2FactoryReset();
+			}
 		}
 	}
 #endif

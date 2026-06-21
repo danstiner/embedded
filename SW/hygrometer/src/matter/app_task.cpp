@@ -124,15 +124,35 @@ void AppTask::RequestCo2Recalibration()
 	uint32_t pressure_pa = sensors.bme688.valid ? sensors.bme688.pressure_Pa : 0;
 
 	LOG_INF("CO2 recalibration requested via Mode Select");
-	sensor_recalibrate_stcc4_async(420, pressure_pa, AppTask::Co2RecalibrationDone);
+	sensor_recalibrate_stcc4_async(CONFIG_APP_CO2_RECAL_TARGET_PPM, pressure_pa,
+				       AppTask::Co2RecalibrationDone);
 }
 
 void AppTask::Co2RecalibrationDone(int result)
 {
-	LOG_INF("CO2 recalibration finished (result %d), returning Mode Select to Normal", result);
+	LOG_INF("CO2 recalibration finished (result %d), returning Mode Select to Measure", result);
 
 	/* Runs on the sensor work-queue thread; the attribute write must hop to the
 	 * Matter thread. The resulting CurrentMode=0 callback is a no-op. */
+	DeviceLayer::PlatformMgr().ScheduleWork(
+		[](intptr_t) {
+			Clusters::ModeSelect::Attributes::CurrentMode::Set(kSensorEndpointId,
+									   Co2Cal::kModeNormal);
+		},
+		0);
+}
+
+void AppTask::RequestCo2FactoryReset()
+{
+	LOG_INF("CO2 factory reset requested via Mode Select");
+	sensor_factory_reset_stcc4_async(AppTask::Co2FactoryResetDone);
+}
+
+void AppTask::Co2FactoryResetDone(int result)
+{
+	LOG_INF("CO2 factory reset finished (result %d), returning Mode Select to Measure", result);
+
+	/* Runs on the sensor work-queue thread; hop to the Matter thread for the write. */
 	DeviceLayer::PlatformMgr().ScheduleWork(
 		[](intptr_t) {
 			Clusters::ModeSelect::Attributes::CurrentMode::Set(kSensorEndpointId,

@@ -12,6 +12,19 @@ config APP_CO2_INTERVAL_DIVISOR
 	  STCC4 CO2 read cadence. Last-known values are reused in the
 	  advertisements between fetches.
 
+config APP_CO2_RECAL_TARGET_PPM
+	int "CO2 forced-recalibration target (ppm)"
+	default 430
+	range 350 600
+	depends on STCC4_ENABLE
+	help
+	  Assumed outdoor-air CO2 concentration used as the FRC target by both the
+	  Matter (Mode Select) and BTHome recalibration triggers. Any error here
+	  biases every later reading by the same amount, so set it to the actual
+	  clean outdoor air at your location. The default tracks the global average
+	  (~430 ppm in 2026, rising ~2.5 ppm/yr); update it as the baseline drifts.
+	  The BTHome characteristic can still override per-request with a 2-byte value.
+
 config APP_PRESSURE_INTERVAL_DIVISOR
 	int "Only fetch BME688 pressure every Nth measurement cycle"
 	default 1

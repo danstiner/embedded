@@ -31,7 +31,7 @@ static ssize_t co2_cal_write_cb(struct bt_conn *conn, const struct bt_gatt_attr 
 	uint16_t target;
 
 	if (len == 0) {
-		target = 420;
+		target = CONFIG_APP_CO2_RECAL_TARGET_PPM;
 	} else if (len == 2) {
 		target = sys_get_le16(static_cast<const uint8_t *>(buf));
 	} else {

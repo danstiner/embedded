@@ -28,8 +28,9 @@ ModeOptionStructType BuildOption(const char *label, uint8_t mode)
 /* String literals have static storage duration, so the CharSpans stay valid for
  * the program lifetime — required because HA reads SupportedModes lazily. */
 const ModeOptionStructType kOptions[] = {
-	BuildOption("Normal", Co2Cal::kModeNormal),
-	BuildOption("Recalibrate (outdoor air)", Co2Cal::kModeRecalibrate),
+	BuildOption("Measure", Co2Cal::kModeNormal),
+	BuildOption("Recalibrate (requires 10min outdoor air)", Co2Cal::kModeRecalibrate),
+	BuildOption("Factory Reset (requires 12hr outdoor air)", Co2Cal::kModeFactoryReset),
 };
 
 class Co2CalModesManager : public SupportedModesManager
