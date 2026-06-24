@@ -279,12 +279,12 @@ void sensor_init(sensor_state &state)
 
 	if (device_is_ready(bme688_dev)) {
 		state.have_bme688 = true;
-		/* Disable the gas hotplate: we read only pressure, but the driver enables run_gas so
-		 * each forced measurement would heat to ~320 °C/197 ms — wasted power and a heat
+		/* Disable the gas hotplate: we read only pressure, but the driver enables run_gas
+		 * so each forced measurement would heat to ~320 °C/197 ms — wasted power and a heat
 		 * source beside the STCC4/SHT4x. Set heat_off (CTRL_GAS_0 bit 3): the driver never
-		 * writes 0x70, so it survives a PM resume that re-asserts run_gas. Also clear run_gas
-		 * so the gas step (and its ~197 ms wait) is skipped in normal operation. T/P/H
-		 * unaffected. */
+		 * writes 0x70, so it survives a PM resume that re-asserts run_gas. Also clear
+		 * run_gas so the gas step (and its ~197 ms wait) is skipped in normal operation.
+		 * T/P/H unaffected. */
 		const uint16_t bme_addr = DT_REG_ADDR(DT_NODELABEL(bme688));
 		int g0 = i2c_reg_write_byte(sensor_bus, bme_addr, BME688_REG_CTRL_GAS_0,
 					    BME688_CTRL_GAS_0_HEAT_OFF);
@@ -324,7 +324,8 @@ void sensor_init(sensor_state &state)
 			uint16_t self_test = 0;
 			if (stcc4_self_test(sensor_bus, &self_test) == 0) {
 				/* 0x0000 and 0x0010 are both "pass" (§3.4.12); bit 4 (no SHT on the
-				 * STCC4 controller pads) is expected here — we compensate in software. */
+				 * STCC4 controller pads) is expected here — we compensate in
+				 * software. */
 				if ((self_test & ~STCC4_SELF_TEST_SHT_NOT_CONNECTED) == 0) {
 					LOG_INF("STCC4 self-test: pass (0x%04X)", self_test);
 				} else {
@@ -528,16 +529,17 @@ int sensor_read_stcc4(sensor_state &state)
 	/* Skip if FRC is in progress */
 	if (k_mutex_lock(&stcc4_mutex, K_NO_WAIT) != 0) {
 #if IS_ENABLED(CONFIG_APP_CO2_REPORT_DURING_CALIBRATION)
-		/* Debug: surface the FRC warm-up loop's latest reading instead of going unavailable.
-		 * Gated on RECALIBRATE so a factory-reset's brief mutex hold can't report a stale FRC
-		 * value; reading the atomic adds no I2C traffic. */
+		/* Debug: surface the FRC warm-up loop's latest reading instead of going
+		 * unavailable. Gated on RECALIBRATE so a factory-reset's brief mutex hold can't
+		 * report a stale FRC value; reading the atomic adds no I2C traffic. */
 		if (atomic_get(&stcc4_state) == CO2_STATE_RECALIBRATE) {
 			int frc_co2 = (int)atomic_get(&stcc4_frc_co2);
 			if (frc_co2 >= 0) {
 				state.stcc4.co2_ppm = (uint16_t)frc_co2;
 				state.stcc4.timestamp = uptime_ms;
 				state.stcc4.valid = true;
-				LOG_INF("STCC4: reporting FRC warm-up reading %d ppm (debug)", frc_co2);
+				LOG_INF("STCC4: reporting FRC warm-up reading %d ppm (debug)",
+					frc_co2);
 				return 0;
 			}
 		}
@@ -560,7 +562,9 @@ int sensor_read_stcc4(sensor_state &state)
 
 			if (wret == 0) {
 				const int64_t warmup_remaining_ms = uptime_ms - stcc4_warmup_until;
-				LOG_INF("STCC4 warm-up: CO2=%d ppm (status 0x%04X), %lld ms remaining", wco2, wstatus, warmup_remaining_ms);
+				LOG_INF("STCC4 warm-up: CO2=%d ppm (status 0x%04X), %lld ms "
+					"remaining",
+					wco2, wstatus, warmup_remaining_ms);
 			}
 #if IS_ENABLED(CONFIG_APP_CO2_REPORT_DURING_CALIBRATION)
 			/* Debug: surface the continuous warm-up readings instead of hiding them. */
@@ -576,7 +580,8 @@ int sensor_read_stcc4(sensor_state &state)
 		}
 
 		/* Warm-up window elapsed: stop continuous mode and fall through to single-shot.
-		 * Re-arm the discard counter — restarting single-shot re-triggers the bypass phase. */
+		 * Re-arm the discard counter — restarting single-shot re-triggers the bypass phase.
+		 */
 		stcc4_stop_continuous(sensor_bus);
 		stcc4_enter_sleep(sensor_bus);
 		stcc4_warmup_until = 0;
@@ -604,7 +609,8 @@ int sensor_read_stcc4(sensor_state &state)
 		return ret;
 	}
 
-	/* Non-zero status could mean testing mode, or other undocumented failure case. Unsure if measurement is real. */
+	/* Non-zero status could mean testing mode, or other undocumented failure case. Unsure if
+	 * measurement is real. */
 	if (status != 0) {
 		LOG_WRN("STCC4: potentially invalid reading, status 0x%04X (CO2=%d)", status, co2);
 		// state.stcc4.valid = false;
@@ -798,7 +804,8 @@ static int recalibrate_stcc4_locked(uint16_t target_ppm, uint32_t pressure_pa)
 	 * same cadence it runs at day to day; the datasheet allows larger sampling intervals as
 	 * long as total operation time grows to match. Log every reading so a stuck (non-varying)
 	 * sensor is visible. */
-	const int interval_s = CONFIG_APP_MEASUREMENT_INTERVAL_SEC * CONFIG_APP_CO2_INTERVAL_DIVISOR;
+	const int interval_s =
+		CONFIG_APP_MEASUREMENT_INTERVAL_SEC * CONFIG_APP_CO2_INTERVAL_DIVISOR;
 	int16_t co2 = 0;
 
 #if IS_ENABLED(CONFIG_APP_CO2_REPORT_DURING_CALIBRATION)
@@ -811,7 +818,8 @@ static int recalibrate_stcc4_locked(uint16_t target_ppm, uint32_t pressure_pa)
 		k_sleep(K_SECONDS(interval_s));
 
 		/* Refresh RH/T(+pressure) compensation before each shot exactly as steady-state
-		 * reads do, so the FRC anchors against the same compensated value later reads see. */
+		 * reads do, so the FRC anchors against the same compensated value later reads see.
+		 */
 		stcc4_push_compensation(pressure_pa);
 
 		uint16_t meas_status = 0;
@@ -919,9 +927,11 @@ int sensor_factory_reset_stcc4(void)
 	if (CONFIG_APP_CO2_WARMUP_MIN > 0) {
 		/* Begin the initial-operation warm-up (datasheet §1.1.4): leave the sensor in
 		 * continuous mode and return now (so the Mode Select snaps back to Measure); the
-		 * measurement loop drives it and ends the warm-up after CONFIG_APP_CO2_WARMUP_MIN. */
+		 * measurement loop drives it and ends the warm-up after CONFIG_APP_CO2_WARMUP_MIN.
+		 */
 		stcc4_start_continuous(sensor_bus);
-		stcc4_warmup_until = k_uptime_get() + (int64_t)CONFIG_APP_CO2_WARMUP_MIN * 60 * 1000;
+		stcc4_warmup_until =
+			k_uptime_get() + (int64_t)CONFIG_APP_CO2_WARMUP_MIN * 60 * 1000;
 		LOG_INF("STCC4 factory reset: done, warming up %d min in continuous mode",
 			CONFIG_APP_CO2_WARMUP_MIN);
 	} else {

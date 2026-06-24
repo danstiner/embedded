@@ -33,7 +33,10 @@ class AppTask
 	void RequestCo2FactoryReset();
 	/* True while the firmware is reflecting sensor state into CurrentMode; the Mode
 	 * Select pre/post attribute callbacks ignore those self-writes. */
-	static bool IsCo2ModeReflecting() { return sCo2ModeReflecting; }
+	static bool IsCo2ModeReflecting()
+	{
+		return sCo2ModeReflecting;
+	}
 #endif
 
       private:

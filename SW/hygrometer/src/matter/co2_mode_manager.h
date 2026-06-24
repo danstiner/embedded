@@ -20,7 +20,7 @@ constexpr uint8_t kModeFactoryReset = 2;
  * Register it with ModeSelect::setSupportedModesManager() after Server::Init(). */
 chip::app::Clusters::ModeSelect::SupportedModesManager *GetModeManager();
 
-/* Set the Mode Select Description to "CO₂ sensor state" — Home Assistant uses it as the
+/* Set the Mode Select Description to "CO₂ sensor" — Home Assistant uses it as the
  * select entity's name. Call after Server::Init(). */
 void ApplyDescription();
 

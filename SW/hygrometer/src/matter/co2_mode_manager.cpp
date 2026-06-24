@@ -84,11 +84,10 @@ SupportedModesManager *GetModeManager()
 
 void ApplyDescription()
 {
-	/* "CO₂ sensor state", char_string wire format = 1-byte length + UTF-8 bytes
+	/* "CO₂ sensor", char_string wire format = 1-byte length + UTF-8 bytes
 	 * (₂ = U+2082 → E2 82 82). No typed Description::Set accessor is generated, so write
 	 * via the local attribute API (bypasses external ACL; Description is RAM-backed). */
-	uint8_t desc[] = {12,  'C', 'O', 0xE2, 0x82, 0x82, ' ', 's', 'e', 'n',
-			  's', 'o', 'r'};
+	uint8_t desc[] = {12, 'C', 'O', 0xE2, 0x82, 0x82, ' ', 's', 'e', 'n', 's', 'o', 'r'};
 	emberAfWriteAttribute(kCo2Endpoint, ModeSelect::Id, ModeSelect::Attributes::Description::Id,
 			      desc, ZCL_CHAR_STRING_ATTRIBUTE_TYPE);
 }

@@ -16,8 +16,8 @@ using chip::Protocols::InteractionModel::Status;
  * while a maintenance op is already running, so CurrentMode never moves and the controller sees
  * the failure — instead of the request silently doing nothing while the UI shows it "ran". */
 chip::Protocols::InteractionModel::Status
-MatterPreAttributeChangeCallback(const chip::app::ConcreteAttributePath &attributePath, uint8_t type,
-				 uint16_t size, uint8_t *value)
+MatterPreAttributeChangeCallback(const chip::app::ConcreteAttributePath &attributePath,
+				 uint8_t type, uint16_t size, uint8_t *value)
 {
 #if defined(CONFIG_APP_MATTER_CO2)
 	if (attributePath.mClusterId == ModeSelect::Id &&
@@ -39,8 +39,8 @@ MatterPreAttributeChangeCallback(const chip::app::ConcreteAttributePath &attribu
 /* Global weak hook invoked by the ember attribute store after any attribute
  * write. HA's Mode Select select entity issues ChangeToMode, whose cluster-server
  * handler sets CurrentMode -> ember write -> this callback. */
-void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath &attributePath, uint8_t type,
-				       uint16_t size, uint8_t *value)
+void MatterPostAttributeChangeCallback(const chip::app::ConcreteAttributePath &attributePath,
+				       uint8_t type, uint16_t size, uint8_t *value)
 {
 #if defined(CONFIG_APP_MATTER_CO2)
 	if (attributePath.mClusterId == ModeSelect::Id &&
