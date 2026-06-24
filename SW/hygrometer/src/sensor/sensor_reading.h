@@ -91,14 +91,32 @@ void sensor_fuel_gauge_init(void);
  * not being run by sensor_read_battery(). */
 void sensor_fuel_gauge_idle_set(void);
 
+/** Current STCC4 maintenance state. Values are 1:1 with the Matter Mode Select modes
+ *  (Co2Cal::kModeNormal/kModeRecalibrate/kModeFactoryReset) so the Matter layer can
+ *  reflect this straight into CurrentMode. FACTORY_RESET covers both the reset itself
+ *  and the long warm-up that follows it. */
+enum co2_state {
+	CO2_STATE_MEASURE = 0,
+	CO2_STATE_RECALIBRATE = 1,
+	CO2_STATE_FACTORY_RESET = 2,
+};
+
+/** Lock-free snapshot of the current CO2 maintenance state. Safe from any thread
+ *  (incl. the Matter thread while a recalibration holds the sensor mutex). */
+enum co2_state sensor_co2_state(void);
+
+/** Last applied FRC correction (C_FRC = Output − 32768, signed ppm), for diagnostics.
+ *  Returns INT32_MIN if no recalibration has completed since boot. Lock-free. */
+int sensor_co2_last_frc_offset(void);
+
 /** Recalibrate the STCC4 CO2 sensor via forced recalibration (datasheet §3.4.15,
- *  ~6 min, blocking). Non-destructive: a new FRC replaces the previous correction
- *  offset; no factory reset / history wipe. Wakes the sensor, conditions it,
- *  refreshes RH/T (and pressure, if pressure_pa != 0) compensation, takes 30+
- *  single-shot measurements at a ~10 s interval while staying in idle, runs
- *  forced recalibration to target_ppm, then sleeps.
- *  Must be called from a thread that can block for ~6 min (NOT the system work
- *  queue). Returns 0 on success, negative errno on failure. */
+ *  blocking). Non-destructive: a new FRC replaces the previous correction
+ *  offset; no factory reset / history wipe. Wakes the sensor,
+ *  conditions it, takes 30 single-shot measurements spaced at the steady-state CO2
+ *  interval (held in idle with fresh RH/T compensation each shot, as the datasheet
+ *  requires before FRC), runs forced recalibration to target_ppm, then sleeps.
+ *  Must be called from a thread that can block for the full sequence (NOT the system
+ *  work queue). Returns 0 on success, negative errno on failure. */
 int sensor_recalibrate_stcc4(uint16_t target_ppm, uint32_t pressure_pa);
 
 /** Asynchronous wrapper for sensor_recalibrate_stcc4(): runs the sequence on a

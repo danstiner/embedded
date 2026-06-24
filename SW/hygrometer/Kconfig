@@ -12,6 +12,16 @@ config APP_CO2_INTERVAL_DIVISOR
 	  STCC4 CO2 read cadence. Last-known values are reused in the
 	  advertisements between fetches.
 
+config APP_CO2_REPORT_DURING_CALIBRATION
+	bool "Report CO2 readings during recalibration / factory-reset warm-up (debug)"
+	default n
+	depends on STCC4_ENABLE
+	help
+	  Diagnostic: keep publishing CO2 during the maintenance phases that normally
+	  report unavailable — the FRC recalibration warm-up (single-shot) and the
+	  post-factory-reset continuous warm-up — so the readings can be watched as
+	  they converge. Testing only.
+
 config APP_CO2_RECAL_TARGET_PPM
 	int "CO2 forced-recalibration target (ppm)"
 	default 430

@@ -1,7 +1,12 @@
 #include "co2_mode_manager.h"
 
+#include <app-common/zap-generated/attribute-type.h>
 #include <app-common/zap-generated/cluster-objects.h>
+#include <app/util/attribute-table.h>
 #include <lib/support/Span.h>
+
+#include <cstdio>
+#include <cstring>
 
 using namespace chip;
 using namespace chip::app::Clusters;
@@ -29,7 +34,7 @@ ModeOptionStructType BuildOption(const char *label, uint8_t mode)
  * the program lifetime — required because HA reads SupportedModes lazily. */
 const ModeOptionStructType kOptions[] = {
 	BuildOption("Measure", Co2Cal::kModeNormal),
-	BuildOption("Recalibrate (requires 10min outdoor air)", Co2Cal::kModeRecalibrate),
+	BuildOption("Recalibrate (requires ~30 min outdoor air)", Co2Cal::kModeRecalibrate),
 	BuildOption("Factory Reset (requires 12hr outdoor air)", Co2Cal::kModeFactoryReset),
 };
 
@@ -75,5 +80,35 @@ namespace Co2Cal
 SupportedModesManager *GetModeManager()
 {
 	return &sManager;
+}
+
+void ApplyDescription()
+{
+	/* "CO₂ sensor state", char_string wire format = 1-byte length + UTF-8 bytes
+	 * (₂ = U+2082 → E2 82 82). No typed Description::Set accessor is generated, so write
+	 * via the local attribute API (bypasses external ACL; Description is RAM-backed). */
+	uint8_t desc[] = {12,  'C', 'O', 0xE2, 0x82, 0x82, ' ', 's', 'e', 'n',
+			  's', 'o', 'r'};
+	emberAfWriteAttribute(kCo2Endpoint, ModeSelect::Id, ModeSelect::Attributes::Description::Id,
+			      desc, ZCL_CHAR_STRING_ATTRIBUTE_TYPE);
+}
+
+void SetCalOffset(int offset_ppm)
+{
+	/* char_string wire format = 1-byte length + UTF-8 bytes (₂ = E2 82 82). HA surfaces the
+	 * Description as the select entity's name, so this exposes the offset for diagnostics. */
+	char text[52];
+	int n = snprintf(text, sizeof(text), "CO\xE2\x82\x82 sensor: offset %d ppm", offset_ppm);
+	if (n < 0) {
+		return;
+	}
+	if (n > (int)sizeof(text)) {
+		n = (int)sizeof(text);
+	}
+	uint8_t buf[1 + sizeof(text)];
+	buf[0] = (uint8_t)n;
+	memcpy(&buf[1], text, (size_t)n);
+	emberAfWriteAttribute(kCo2Endpoint, ModeSelect::Id, ModeSelect::Attributes::Description::Id,
+			      buf, ZCL_CHAR_STRING_ATTRIBUTE_TYPE);
 }
 } /* namespace Co2Cal */

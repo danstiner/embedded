@@ -130,16 +130,8 @@ void AppTask::RequestCo2Recalibration()
 
 void AppTask::Co2RecalibrationDone(int result)
 {
-	LOG_INF("CO2 recalibration finished (result %d), returning Mode Select to Measure", result);
-
-	/* Runs on the sensor work-queue thread; the attribute write must hop to the
-	 * Matter thread. The resulting CurrentMode=0 callback is a no-op. */
-	DeviceLayer::PlatformMgr().ScheduleWork(
-		[](intptr_t) {
-			Clusters::ModeSelect::Attributes::CurrentMode::Set(kSensorEndpointId,
-									   Co2Cal::kModeNormal);
-		},
-		0);
+	/* CurrentMode is driven by ReflectCo2Mode() from the sensor op state; just log. */
+	LOG_INF("CO2 recalibration finished (result %d)", result);
 }
 
 void AppTask::RequestCo2FactoryReset()
@@ -150,15 +142,26 @@ void AppTask::RequestCo2FactoryReset()
 
 void AppTask::Co2FactoryResetDone(int result)
 {
-	LOG_INF("CO2 factory reset finished (result %d), returning Mode Select to Measure", result);
+	/* A successful factory reset hands off to the warm-up; CurrentMode stays Factory Reset
+	 * (driven by ReflectCo2Mode()) until the warm-up ends. Just log the kick-off result. */
+	LOG_INF("CO2 factory reset finished (result %d)", result);
+}
 
-	/* Runs on the sensor work-queue thread; hop to the Matter thread for the write. */
-	DeviceLayer::PlatformMgr().ScheduleWork(
-		[](intptr_t) {
-			Clusters::ModeSelect::Attributes::CurrentMode::Set(kSensorEndpointId,
-									   Co2Cal::kModeNormal);
-		},
-		0);
+bool AppTask::sCo2ModeReflecting;
+
+void AppTask::ReflectCo2Mode()
+{
+	/* co2_state values are 1:1 with the Mode Select modes (Measure/Recalibrate/Factory
+	 * Reset = 0/1/2), so the state maps straight onto CurrentMode. */
+	uint8_t want = static_cast<uint8_t>(sensor_co2_state());
+	uint8_t current = Co2Cal::kModeNormal;
+	Clusters::ModeSelect::Attributes::CurrentMode::Get(kSensorEndpointId, &current);
+	if (current == want) {
+		return;
+	}
+	sCo2ModeReflecting = true;
+	Clusters::ModeSelect::Attributes::CurrentMode::Set(kSensorEndpointId, want);
+	sCo2ModeReflecting = false;
 }
 #endif /* CONFIG_APP_MATTER_CO2 */
 
@@ -209,6 +212,16 @@ void AppTask::UpdateSensorAttributes()
 			DataModel::MakeNullable(static_cast<float>(sensors.stcc4.co2_ppm)));
 	} else {
 		co2_instance.SetMeasuredValue(DataModel::NullNullable);
+	}
+	ReflectCo2Mode();
+
+	/* Diagnostic: surface the last FRC correction in the Mode Select Description (HA shows it
+	 * as the entity name). Pushed only on change; INT32_MIN = no recal since boot. */
+	int frc_offset = sensor_co2_last_frc_offset();
+	static int pushed_frc_offset = INT32_MIN;
+	if (frc_offset != INT32_MIN && frc_offset != pushed_frc_offset) {
+		pushed_frc_offset = frc_offset;
+		Co2Cal::SetCalOffset(frc_offset);
 	}
 #endif
 
@@ -266,6 +279,7 @@ CHIP_ERROR AppTask::Init()
 		 * AttributeAccessInterface, so it needs a registered manager or HA
 		 * shows an empty dropdown and ChangeToMode fails. */
 		Clusters::ModeSelect::setSupportedModesManager(Co2Cal::GetModeManager());
+		Co2Cal::ApplyDescription();
 		return CHIP_NO_ERROR;
 	};
 #endif

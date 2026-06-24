@@ -69,8 +69,9 @@
  *                window) → periodic single-shot (first 2 discarded; readings with a non-zero
  *                status word are discarded).
  *   measure:     every cycle — wake → push RH/T(+P) compensation → single-shot → sleep.
- *   recalibrate: wake → conditioning → refresh compensation → 32 single-shots @10 s (idle) →
- *                FRC → sleep; aborts if a warm-up reading has a non-zero status.
+ *   recalibrate: condition → 30 single-shots (fresh RH/T+P comp each) spaced at the steady-state
+ *                CO2 interval, held in idle → FRC on the last reading (idle, not sleep, §3.4.15)
+ *                → sleep.
  *   factory rst: wake → perform_factory_reset → conditioning → start continuous warm-up
  *                (CONFIG_APP_CO2_WARMUP_MIN, §1.1.4) and return immediately; the measurement
  *                loop reads the sensor in continuous mode (CO2 reported invalid) until the

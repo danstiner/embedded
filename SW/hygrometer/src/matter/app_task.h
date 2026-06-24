@@ -31,17 +31,24 @@ class AppTask
 	void RequestCo2Recalibration();
 	/* Kick off a CO2 sensor factory reset (Mode Select -> Factory Reset). */
 	void RequestCo2FactoryReset();
+	/* True while the firmware is reflecting sensor state into CurrentMode; the Mode
+	 * Select pre/post attribute callbacks ignore those self-writes. */
+	static bool IsCo2ModeReflecting() { return sCo2ModeReflecting; }
 #endif
 
       private:
 	CHIP_ERROR Init();
 
 #if defined(CONFIG_APP_MATTER_CO2)
-	/* Recalibration completion callback (runs on the sensor work-queue thread):
-	 * schedules the Mode Select flip back to Measure on the Matter thread. */
+	/* Recalibration completion callback (runs on the sensor work-queue thread).
+	 * CurrentMode is driven by ReflectCo2Mode(); this just logs the result. */
 	static void Co2RecalibrationDone(int result);
-	/* Factory-reset completion callback; flips Mode Select back to Measure. */
+	/* Factory-reset completion callback; logs the result. */
 	static void Co2FactoryResetDone(int result);
+	/* Mirror the sensor's CO2 maintenance state into Mode Select CurrentMode. Runs on
+	 * the Matter thread each measurement cycle; writes only on change. */
+	void ReflectCo2Mode();
+	static bool sCo2ModeReflecting;
 #endif
 
 	void UpdateSensorAttributes();
