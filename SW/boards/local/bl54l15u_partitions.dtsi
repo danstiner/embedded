@@ -12,6 +12,11 @@
  */
 
 &cpuapp_rram {
+	/* This layout spans the full 1524 KB: reclaim any FLRP reservation and replace
+	 * whatever partition map the board ships. /delete-node/ on an absent node (the
+	 * custom boards ship none) is a no-op; on the stock DK it drops the 64 KiB layout. */
+	reg = <0x0 DT_SIZE_K(1524)>;
+	/delete-node/ partitions;
 	partitions {
 		compatible = "fixed-partitions";
 		#address-cells = <1>;

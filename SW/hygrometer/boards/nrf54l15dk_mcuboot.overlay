@@ -1,0 +1,9 @@
+/*
+ * MCUboot image: the same flash map as the application. The stock DK ships a 64 KiB
+ * boot_partition, which MCUboot's nRF54L FPROTECT rejects (>62 KiB;
+ * bootloader/mcuboot/boot/zephyr/main.c). Our custom boards bake this layout into their
+ * board DTS so their MCUboot image inherits it; the stock DK gets it here, wired in for
+ * this board only by sysbuild.cmake. The dtsi sets the RRAM size and drops the stock
+ * partitions itself.
+ */
+#include "../../boards/local/bl54l15u_partitions.dtsi"

@@ -1,8 +1,15 @@
-/* Unified flash partitions — replace the stock nRF54L15 layout (PM deprecated in NCS 3.3). */
-&cpuapp_rram {
-	/delete-node/ partitions;
-};
+/*
+ * Stock nrf54l15dk: shared flash map + SHT4x. The 48 KiB partition layout and full RRAM
+ * size come from bl54l15u_partitions.dtsi (which also drops the stock 64 KiB layout);
+ * MCUboot gets the same map via sysbuild.cmake + nrf54l15dk_mcuboot.overlay.
+ */
 #include "../../boards/local/bl54l15u_partitions.dtsi"
+
+/* Reclaim the SRAM the stock DK reserves for FLRP (RRAM is reclaimed in the dtsi). */
+&cpuapp_sram {
+	reg = <0x20000000 DT_SIZE_K(256)>;
+	ranges = <0x0 0x20000000 0x40000>;
+};
 
 /* I2C for SHT4x humidity/temperature sensor */
 &i2c21 {
@@ -53,14 +60,3 @@
 &uart30 {
 	status = "disabled";
 };
-
-// restore full RRAM and SRAM space - by default some parts are dedicated to FLRP
-&cpuapp_rram {
-	reg = <0x0 DT_SIZE_K(1524)>;
-};
-
-&cpuapp_sram {
-	reg = <0x20000000 DT_SIZE_K(256)>;
-	ranges = <0x0 0x20000000  0x40000>;
-};
-

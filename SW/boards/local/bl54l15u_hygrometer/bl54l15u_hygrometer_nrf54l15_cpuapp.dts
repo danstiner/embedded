@@ -46,11 +46,7 @@
 	};
 };
 
-/* Use full RRAM and SRAM - no FLPR core reservation */
-&cpuapp_rram {
-	reg = <0x0 DT_SIZE_K(1524)>;
-};
-
+/* Use full SRAM - no FLPR core reservation (RRAM size set in bl54l15u_partitions.dtsi) */
 &cpuapp_sram {
 	status = "okay";
 	reg = <0x20000000 DT_SIZE_K(256)>;
