@@ -1015,7 +1015,7 @@ static void stcc4_submit_op(enum stcc4_op op, uint16_t target_ppm, uint32_t pres
 	if (!stcc4_recal_wq_started) {
 		k_work_queue_start(&stcc4_recal_wq, stcc4_recal_stack,
 				   K_THREAD_STACK_SIZEOF(stcc4_recal_stack),
-				   K_LOWEST_APPLICATION_THREAD_PRIO, NULL);
+				   K_LOWEST_APPLICATION_THREAD_PRIO, nullptr);
 		k_work_init(&stcc4_recal_ctx.work, stcc4_recal_work_handler);
 		stcc4_recal_wq_started = true;
 	}
