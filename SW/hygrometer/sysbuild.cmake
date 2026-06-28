@@ -1,16 +1,9 @@
-# Stock nrf54l15dk only: hand MCUboot the shared 48 KiB partition layout.
-#
-# A board overlay reaches only the application image; MCUboot is a separate sysbuild
-# image. The custom boards bake bl54l15u_partitions.dtsi into their board DTS, so their
-# MCUboot image inherits it and needs nothing here. The stock DK ships a 64 KiB
-# boot_partition that MCUboot's nRF54L FPROTECT rejects (>62 KiB), so feed our layout to
-# its MCUboot image too. (A board-extension overlay can't do this — board dirs only apply
-# revision-suffixed overlays — so the per-image hook is the idiomatic route; see the
-# bl54l15u_devkit board's sysbuild.cmake for the same pattern.)
+# Stock nrf54l15dk: feed MCUboot the shared partition layout. MCUboot is a separate
+# sysbuild image that a board/app overlay doesn't reach, and the stock 64K boot trips its
+# nRF54L FPROTECT 62K cap. Custom boards bake the layout into their board DTS (MCUboot
+# inherits it), so this is guarded to the stock DK — applying it there too would
+# double-include the dtsi (ninja: defined as an output multiple times).
 if(BOARD MATCHES "nrf54l15dk")
-  list(APPEND mcuboot_EXTRA_DTC_OVERLAY_FILE
-       ${CMAKE_CURRENT_LIST_DIR}/boards/nrf54l15dk_mcuboot.overlay)
-  set(mcuboot_EXTRA_DTC_OVERLAY_FILE ${mcuboot_EXTRA_DTC_OVERLAY_FILE}
-      CACHE INTERNAL "nrf54l15dk MCUboot partition overlay" FORCE
-  )
+  set(mcuboot_EXTRA_DTC_OVERLAY_FILE
+      ${CMAKE_CURRENT_LIST_DIR}/../boards/local/bl54l15u_partitions.dtsi CACHE INTERNAL "")
 endif()

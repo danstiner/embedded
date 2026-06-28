@@ -1,8 +1,5 @@
-/*
- * Stock nrf54l15dk: shared flash map + SHT4x. The 48 KiB partition layout and full RRAM
- * size come from bl54l15u_partitions.dtsi (which also drops the stock 64 KiB layout);
- * MCUboot gets the same map via sysbuild.cmake + nrf54l15dk_mcuboot.overlay.
- */
+/* Stock nrf54l15dk: app peripherals; the partition + full-RRAM map comes from
+ * bl54l15u_partitions.dtsi (MCUboot gets the same file via sysbuild.cmake). */
 #include "../../boards/local/bl54l15u_partitions.dtsi"
 
 /* Reclaim the SRAM the stock DK reserves for FLRP (RRAM is reclaimed in the dtsi). */
