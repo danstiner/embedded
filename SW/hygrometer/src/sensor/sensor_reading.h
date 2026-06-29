@@ -3,18 +3,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-struct sht45_reading {
+/* Each reading's `valid` flag is true when the last *attempted* read of that
+ * sensor succeeded. It persists across divisor skip cycles — a skip is not a
+ * read — so the last value keeps being reported until the next attempt.
+ * Consumers treat invalid as unknown: Matter writes null, BTHome omits the
+ * field from the advertisement. */
+
+struct sht4x_reading {
 	int64_t timestamp;
-	int16_t temperature_cC;  /* 0.01 deg C units */
-	uint16_t humidity_cPct;  /* 0.01 % units */
-	uint16_t temp_raw_ticks; /* raw SHT4x ticks for STCC4 compensation */
-	uint16_t hum_raw_ticks;  /* raw SHT4x ticks for STCC4 compensation */
+	int16_t temperature_cC; /* 0.01 deg C units */
+	uint16_t humidity_cPct; /* 0.01 % units */
 	bool valid;
 };
 
 struct bme688_reading {
 	int64_t timestamp;
-	int16_t pressure_kPa; /* kPa (for Matter PressureMeasurement) */
+	int16_t pressure_hPa; /* hPa = 0.1 kPa, the Matter PressureMeasurement encoding */
 	uint32_t pressure_Pa; /* Pa  (for BTHome, STCC4 compensation) */
 	bool valid;
 };
@@ -25,33 +29,58 @@ struct stcc4_reading {
 	bool valid;
 };
 
+/* Coarse battery health. For a flat-curve coin cell this is more meaningful than
+ * a percentage; values mirror Matter's Power Source BatChargeLevel enum. */
+enum battery_health {
+	BATTERY_OK = 0,
+	BATTERY_LOW = 1,
+	BATTERY_CRITICAL = 2,
+};
+
 struct battery_reading {
 	int64_t timestamp;
-	uint8_t soc_pct; /* state of charge 0-100% */
+	uint16_t millivolts; /* measured terminal voltage (mV) */
+	enum battery_health health;
+	uint8_t percent; /* coarse charge estimate, 0-100; 0xFF = unknown */
+	bool valid;
+};
+
+struct leak_reading {
+	int64_t timestamp;
+	bool wet; /* true when water bridges the leak electrodes */
 	bool valid;
 };
 
 struct sensor_state {
-	bool have_sht45;
+	bool have_sht4x;
 	bool have_bme688;
 	bool have_stcc4;
 	bool have_battery;
+	bool have_leak;
 
-	struct sht45_reading sht45;
+	struct sht4x_reading sht4x;
 	struct bme688_reading bme688;
 	struct stcc4_reading stcc4;
 	uint8_t stcc4_discards_remaining;
 	struct battery_reading battery;
+	struct leak_reading leak;
 };
 
 /** Probe all sensors, populate have_* flags. Call once at boot. */
 void sensor_init(sensor_state &state);
 
-/** Individual sensor read functions. Each updates its sub-struct + timestamp. */
-int sensor_read_sht45(sensor_state &state);
+/** Individual sensor read functions. Each updates its sub-struct + timestamp
+ *  and sets `valid` to whether this attempt produced a usable value. */
+int sensor_read_sht4x(sensor_state &state);
 int sensor_read_bme688(sensor_state &state);
 int sensor_read_stcc4(sensor_state &state);
 int sensor_read_battery(sensor_state &state);
+
+/** One measurement cycle: read SHT4x + battery every call, BME688 on a
+ *  pressure-divisor cycle and STCC4 on a CO2-divisor cycle (see
+ *  CONFIG_APP_*_INTERVAL_DIVISOR). Shared by the BTHome and Matter loops so the
+ *  cadence stays identical. */
+void sensor_read_cycle(sensor_state &state, uint32_t cycle);
 
 /** Initialize fuel gauge. Call once after sensor_init. */
 void sensor_fuel_gauge_init(void);
@@ -62,7 +91,47 @@ void sensor_fuel_gauge_init(void);
  * not being run by sensor_read_battery(). */
 void sensor_fuel_gauge_idle_set(void);
 
-/** Force recalibration of STCC4 CO2 sensor.
- *  Wakes sensor, runs FRC at target_co2_ppm, puts sensor back to sleep.
- *  Returns 0 on success, negative errno on failure. */
-int sensor_force_recalibration_stcc4(uint16_t target_co2_ppm);
+/** Current STCC4 maintenance state. Values are 1:1 with the Matter Mode Select modes
+ *  (Co2Cal::kModeNormal/kModeRecalibrate/kModeFactoryReset) so the Matter layer can
+ *  reflect this straight into CurrentMode. FACTORY_RESET covers both the reset itself
+ *  and the long warm-up that follows it. */
+enum co2_state {
+	CO2_STATE_MEASURE = 0,
+	CO2_STATE_RECALIBRATE = 1,
+	CO2_STATE_FACTORY_RESET = 2,
+};
+
+/** Lock-free snapshot of the current CO2 maintenance state. Safe from any thread
+ *  (incl. the Matter thread while a recalibration holds the sensor mutex). */
+enum co2_state sensor_co2_state(void);
+
+/** Last applied FRC correction (C_FRC = Output − 32768, signed ppm), for diagnostics.
+ *  Returns INT32_MIN if no recalibration has completed since boot. Lock-free. */
+int sensor_co2_last_frc_offset(void);
+
+/** Recalibrate the STCC4 CO2 sensor via forced recalibration (datasheet §3.4.15,
+ *  blocking). Non-destructive: a new FRC replaces the previous correction
+ *  offset; no factory reset / history wipe. Wakes the sensor,
+ *  conditions it, takes 30 single-shot measurements spaced at the steady-state CO2
+ *  interval (held in idle with fresh RH/T compensation each shot, as the datasheet
+ *  requires before FRC), runs forced recalibration to target_ppm, then sleeps.
+ *  Must be called from a thread that can block for the full sequence (NOT the system
+ *  work queue). Returns 0 on success, negative errno on failure. */
+int sensor_recalibrate_stcc4(uint16_t target_ppm, uint32_t pressure_pa);
+
+/** Asynchronous wrapper for sensor_recalibrate_stcc4(): runs the sequence on a
+ *  dedicated work queue so the caller (BLE/Matter thread) never blocks. If
+ *  `done` is non-NULL it is invoked with the result from the work-queue thread.
+ *  Calls made while a recalibration is already pending are ignored. */
+void sensor_recalibrate_stcc4_async(uint16_t target_ppm, uint32_t pressure_pa,
+				    void (*done)(int result));
+
+/** Factory-reset the STCC4 (datasheet §3.4.11): wipes FRC + ASC history and re-enables the
+ *  bypass phase, then conditions the sensor. Destructive recovery for a unit stuck at the
+ *  placeholder/floor; the sensor needs a long warm-up before readings are accurate again.
+ *  Blocking (~25 s); must NOT run on the system work queue. Returns 0 on success. */
+int sensor_factory_reset_stcc4(void);
+
+/** Asynchronous wrapper for sensor_factory_reset_stcc4(): runs on the same dedicated work
+ *  queue as recalibration (one op at a time). `done` (if non-NULL) gets the result. */
+void sensor_factory_reset_stcc4_async(void (*done)(int result));

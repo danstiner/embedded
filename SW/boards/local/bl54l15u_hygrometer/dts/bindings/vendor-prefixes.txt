@@ -1,0 +1,4 @@
+# Register the "local" vendor prefix for this board's local,* devicetree nodes
+# (bl54l15u-hygrometer, adc-vbatt, leak-sensor). BOARD_DIR is in DTS_ROOT for
+# every image built for this board, so this covers the app and mcuboot builds.
+local	Local

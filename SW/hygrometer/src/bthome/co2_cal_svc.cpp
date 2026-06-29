@@ -21,22 +21,6 @@ LOG_MODULE_REGISTER(co2_cal_svc, LOG_LEVEL_INF);
 #define CO2_CAL_SVC_UUID BT_UUID_DECLARE_128(CO2_CAL_SVC_UUID_VAL)
 #define CO2_CAL_CHR_UUID BT_UUID_DECLARE_128(CO2_CAL_CHR_UUID_VAL)
 
-static uint16_t frc_target_ppm;
-
-static void frc_work_handler(struct k_work *work)
-{
-	ARG_UNUSED(work);
-
-	LOG_INF("STCC4: forcing recalibration");
-
-	int ret = sensor_force_recalibration_stcc4(frc_target_ppm);
-	if (ret) {
-		LOG_ERR("FRC work failed: %d", ret);
-	}
-}
-
-static K_WORK_DEFINE(frc_work, frc_work_handler);
-
 static ssize_t co2_cal_write_cb(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 				const void *buf, uint16_t len, uint16_t offset, uint8_t flags)
 {
@@ -47,17 +31,17 @@ static ssize_t co2_cal_write_cb(struct bt_conn *conn, const struct bt_gatt_attr 
 	uint16_t target;
 
 	if (len == 0) {
-		target = 420;
+		target = CONFIG_APP_CO2_RECAL_TARGET_PPM;
 	} else if (len == 2) {
 		target = sys_get_le16(static_cast<const uint8_t *>(buf));
 	} else {
 		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
 	}
 
-	LOG_INF("CO2 FRC requested: target=%u ppm", target);
+	LOG_INF("CO2 recalibration requested: target=%u ppm", target);
 
-	frc_target_ppm = target;
-	k_work_submit(&frc_work);
+	/* No pressure compensation override; the sensor layer owns the work queue. */
+	sensor_recalibrate_stcc4_async(target, 0, nullptr);
 
 	return len;
 }

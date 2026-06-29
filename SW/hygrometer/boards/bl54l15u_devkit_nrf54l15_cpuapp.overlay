@@ -9,7 +9,7 @@
 &i2c21 {
     status = "okay";
 
-    sht45: sht4x@44 {
+    sht4x: sht4x@44 {
         compatible = "sensirion,sht4x";
         reg = <0x44>;
         repeatability = <2>;

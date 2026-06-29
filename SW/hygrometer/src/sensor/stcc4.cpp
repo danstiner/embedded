@@ -13,16 +13,20 @@
 LOG_MODULE_REGISTER(stcc4, LOG_LEVEL_INF);
 
 /* I2C commands (big-endian) */
-#define CMD_GET_PRODUCT_ID       0x365B
-#define CMD_EXIT_SLEEP           0x00 /* Single byte! */
-#define CMD_SET_RHT_COMP         0xE000
-#define CMD_SET_PRESSURE_COMP    0xE016
-#define CMD_STOP_CONTINUOUS      0x3F86
-#define CMD_ENTER_SLEEP          0x3650
-#define CMD_MEASURE_SINGLE_SHOT  0x219D
-#define CMD_READ_MEASUREMENT     0xEC05
-#define CMD_FORCE_RECALIBRATION  0x362F
-#define CMD_PERFORM_CONDITIONING 0x29BC
+#define CMD_GET_PRODUCT_ID        0x365B
+#define CMD_EXIT_SLEEP            0x00 /* Single byte! */
+#define CMD_SET_RHT_COMP          0xE000
+#define CMD_SET_PRESSURE_COMP     0xE016
+#define CMD_ENTER_SLEEP           0x3650
+#define CMD_MEASURE_SINGLE_SHOT   0x219D
+#define CMD_READ_MEASUREMENT      0xEC05
+#define CMD_FORCE_RECALIBRATION   0x362F
+#define CMD_PERFORM_CONDITIONING  0x29BC
+#define CMD_PERFORM_FACTORY_RESET 0x3632
+#define CMD_PERFORM_SELF_TEST     0x278C
+#define CMD_DISABLE_TESTING_MODE  0x3F3D
+#define CMD_START_CONTINUOUS      0x218B
+#define CMD_STOP_CONTINUOUS       0x3F86
 
 /* Sensirion CRC-8: polynomial 0x31, init 0xFF */
 static uint8_t sensirion_crc8(const uint8_t *data, size_t len)
@@ -121,18 +125,6 @@ int stcc4_exit_sleep(const struct device *i2c)
 	return 0;
 }
 
-int stcc4_stop_continuous(const struct device *i2c)
-{
-	int ret = send_cmd(i2c, CMD_STOP_CONTINUOUS);
-	if (ret) {
-		LOG_ERR("STCC4 stop_continuous failed: %d", ret);
-		return ret;
-	}
-
-	k_msleep(1200);
-	return 0;
-}
-
 int stcc4_enter_sleep(const struct device *i2c)
 {
 	int ret = send_cmd(i2c, CMD_ENTER_SLEEP);
@@ -193,21 +185,11 @@ int stcc4_set_pressure_compensation(const struct device *i2c, uint16_t pressure_
 	return 0;
 }
 
-int stcc4_measure(const struct device *i2c, int16_t &co2_ppm)
+/* Read the latest measurement result (CO2 + status). Used after a single-shot trigger and
+ * directly while in continuous mode (where the sensor refreshes the result every 1 s). */
+static int read_measurement_result(const struct device *i2c, int16_t &co2_ppm, uint16_t *status)
 {
-	int ret;
-
-	/* Trigger single-shot measurement */
-	ret = send_cmd(i2c, CMD_MEASURE_SINGLE_SHOT);
-	if (ret) {
-		LOG_ERR("measure_single_shot failed: %d", ret);
-		return ret;
-	}
-
-	k_msleep(500);
-
-	/* Read measurement */
-	ret = send_cmd(i2c, CMD_READ_MEASUREMENT);
+	int ret = send_cmd(i2c, CMD_READ_MEASUREMENT);
 	if (ret) {
 		LOG_ERR("read_measurement cmd failed: %d", ret);
 		return ret;
@@ -224,23 +206,69 @@ int stcc4_measure(const struct device *i2c, int16_t &co2_ppm)
 		return ret;
 	}
 
-	/* CO2 is a signed 16-bit value in ppm at offset 0 */
+	/* Datasheet Table 11: CO2 output is signed int16 ppm, used directly (C = Output). */
 	co2_ppm = (int16_t)(((uint16_t)data[0] << 8) | data[1]);
+
+	/* Status word at data[6..7]. Datasheet §3.4.13: testing mode = 2nd MSB of the status
+	 * LSB byte (STCC4_STATUS_TESTING_MODE, 0x0040). Any non-zero status means the reading
+	 * should not be trusted (see sensor_read_stcc4). */
+	if (status) {
+		*status = ((uint16_t)data[6] << 8) | data[7];
+	}
 
 	return 0;
 }
 
-int stcc4_perform_conditioning(const struct device *i2c)
+int stcc4_measure(const struct device *i2c, int16_t &co2_ppm, uint16_t *status)
+{
+	int ret = send_cmd(i2c, CMD_MEASURE_SINGLE_SHOT);
+	if (ret) {
+		LOG_ERR("measure_single_shot failed: %d", ret);
+		return ret;
+	}
+
+	k_msleep(500);
+	return read_measurement_result(i2c, co2_ppm, status);
+}
+
+int stcc4_read_continuous(const struct device *i2c, int16_t &co2_ppm, uint16_t *status)
+{
+	return read_measurement_result(i2c, co2_ppm, status);
+}
+
+int stcc4_start_continuous(const struct device *i2c)
+{
+	int ret = send_cmd(i2c, CMD_START_CONTINUOUS);
+	if (ret) {
+		LOG_ERR("start_continuous failed: %d", ret);
+		return ret;
+	}
+
+	k_msleep(1000); /* first result ready after ~1 s (1 s internal sampling) */
+	return 0;
+}
+
+int stcc4_stop_continuous(const struct device *i2c)
+{
+	int ret = send_cmd(i2c, CMD_STOP_CONTINUOUS);
+	if (ret) {
+		LOG_ERR("stop_continuous failed: %d", ret);
+		return ret;
+	}
+
+	k_msleep(1200); /* datasheet §3.4.2 execution time */
+	return 0;
+}
+
+int stcc4_start_conditioning(const struct device *i2c)
 {
 	int ret = send_cmd(i2c, CMD_PERFORM_CONDITIONING);
 	if (ret) {
-		LOG_ERR("perform_conditioning failed: %d", ret);
+		LOG_ERR("start_conditioning failed: %d", ret);
 		return ret;
 	}
 
 	LOG_INF("STCC4 conditioning started (~22s)");
-	k_msleep(22000);
-	LOG_INF("STCC4 conditioning complete");
 
 	return 0;
 }
@@ -253,7 +281,8 @@ int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
 	/* Command */
 	buf[0] = (uint8_t)(CMD_FORCE_RECALIBRATION >> 8);
 	buf[1] = (uint8_t)(CMD_FORCE_RECALIBRATION & 0xFF);
-	/* Target CO2 word + CRC */
+	/* Datasheet Table 11: FRC target input is the CO2 ppm value directly
+	 * (Input = C_Target), no scaling. */
 	buf[2] = (uint8_t)(target_co2_ppm >> 8);
 	buf[3] = (uint8_t)(target_co2_ppm & 0xFF);
 	buf[4] = sensirion_crc8(&buf[2], 2);
@@ -267,7 +296,7 @@ int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
 	/* Sensor needs ~90ms to perform FRC */
 	k_msleep(100);
 
-	/* Read 1-word result: correction value */
+	/* Read 1-word result: raw correction value (decode in caller) */
 	uint8_t data[2];
 
 	ret = read_words(i2c, data, 1);
@@ -283,6 +312,85 @@ int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
 		return -EIO;
 	}
 
-	LOG_INF("FRC correction: 0x%04X", correction);
+	/* Datasheet Table 11: applied correction C_FRC = Output - 32768 (ppm, signed). */
+	int delta = correction - 32768;
+
+	/* A correction this large means the FRC railed: the sensor had no valid reading to
+	 * correct against (e.g. it was railed at the placeholder/output floor). Reject it
+	 * rather than bake in a garbage offset. */
+	if (delta > 3000 || delta < -3000) {
+		LOG_ERR("FRC railed (raw=0x%04X, correction=%d ppm) — no valid reading", correction,
+			delta);
+		return -EIO;
+	}
+
+	LOG_INF("FRC raw=0x%04X, correction=%d ppm", correction, delta);
+	return 0;
+}
+
+int stcc4_disable_testing_mode(const struct device *i2c)
+{
+	int ret = send_cmd(i2c, CMD_DISABLE_TESTING_MODE);
+	if (ret) {
+		LOG_ERR("STCC4 disable_testing_mode failed: %d", ret);
+		return ret;
+	}
+
+	k_msleep(1);
+	return 0;
+}
+
+int stcc4_self_test(const struct device *i2c, uint16_t *result)
+{
+	int ret = send_cmd(i2c, CMD_PERFORM_SELF_TEST);
+	if (ret) {
+		LOG_ERR("STCC4 self_test cmd failed: %d", ret);
+		return ret;
+	}
+
+	k_msleep(360); /* datasheet §3.4.12 execution time */
+
+	uint8_t data[2];
+
+	ret = read_words(i2c, data, 1);
+	if (ret) {
+		LOG_ERR("STCC4 self_test read failed: %d", ret);
+		return ret;
+	}
+
+	/* Datasheet §3.4.12: 0x0000 = pass; non-zero bits flag faults (bit0 supply,
+	 * bits3:1 debug, bit4 SHT not connected, bits6:5 memory). Caller logs/interprets. */
+	if (result) {
+		*result = ((uint16_t)data[0] << 8) | data[1];
+	}
+
+	return 0;
+}
+
+int stcc4_perform_factory_reset(const struct device *i2c)
+{
+	int ret = send_cmd(i2c, CMD_PERFORM_FACTORY_RESET);
+	if (ret) {
+		LOG_ERR("STCC4 factory_reset cmd failed: %d", ret);
+		return ret;
+	}
+
+	k_msleep(90); /* datasheet §3.4.11 execution time */
+
+	/* Datasheet §3.4.11: read-back word 0 = pass, 0xFFFF = command failed. */
+	uint8_t data[2];
+
+	ret = read_words(i2c, data, 1);
+	if (ret) {
+		LOG_ERR("STCC4 factory_reset read failed: %d", ret);
+		return ret;
+	}
+
+	uint16_t status = ((uint16_t)data[0] << 8) | data[1];
+	if (status == 0xFFFF) {
+		LOG_ERR("STCC4 factory_reset reported failure");
+		return -EIO;
+	}
+
 	return 0;
 }

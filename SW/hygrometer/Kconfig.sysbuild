@@ -5,9 +5,6 @@ endchoice
 
 if BOOTLOADER_MCUBOOT
 
-config PM_OVERRIDE_EXTERNAL_DRIVER_CHECK
-	default y
-
 # MCUboot padding size
 config PM_MCUBOOT_PAD
 	default 0x800
