@@ -26,9 +26,6 @@ Correctness
       while wet the drive stays high (current through the water) until the next read.
 - [ ] `src/sensor/sensor_reading.cpp` `sensor_read_battery()` (PMIC path): `battery.valid` is
       only set when the fuel gauge initialised, so a gauge init failure also hides the voltage.
-- [ ] `sensor_reading.cpp` `sensor_read_stcc4()`: the `-EBUSY` return while a recal holds the
-      mutex leaves `stcc4.valid` set, so the pre-recal CO2 value is republished for the whole
-      recalibration.
 - [ ] `sensor_reading.cpp` `stcc4_push_compensation()`: the recal thread and the main loop
       both fetch the SHT4x with no shared lock; the Zephyr sht4x driver has none of its own.
 - [ ] `src/bthome/co2_cal_svc.cpp`: the write accepts any 16-bit FRC target on an

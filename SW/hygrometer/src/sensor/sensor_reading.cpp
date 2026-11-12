@@ -542,6 +542,7 @@ int sensor_read_stcc4(sensor_state &state)
 		}
 #endif
 		LOG_INF("STCC4: skipping read, FRC in progress");
+		state.stcc4.valid = false;
 		return -EBUSY;
 	}
 
