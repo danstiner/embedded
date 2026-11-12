@@ -10,10 +10,15 @@ gerbers/
 *.bak
 *.bck
 *.kicad_pcb-bak
+*.kicad_sch-bak
 *~
 _autosave-*
 *.tmp
 *-backups/
+# Per-user and regenerated state
+*.kicad_prl
+fp-info-cache
+
 # Netlist files (exported from Eeschema)
 *.net
 # Autorouter files (exported from Pcbnew)
