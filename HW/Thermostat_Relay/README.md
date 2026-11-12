@@ -109,7 +109,7 @@ The TLP3109A datasheet recommends 5 to 25 mA. `I = (V_GPIO − V_LED) / R`:
 
 ### 5.3 Pull-down: 10 kΩ (R2)
 
-Optional pull-down to hold the LED input at ~0 V when not being driven (R-2). Overrides the pull-up
+Pull-down to hold the LED input at ~0 V when not being driven (R-2). Overrides the pull-up
 glitch during boot that some ESP32 pins exhibit. Cannot override a pin that actively drives high
 during boot, those high-level glitch pins should be avoided.
 
@@ -118,34 +118,23 @@ during boot, those high-level glitch pins should be avoided.
 One LED per channel, from the control input to ground, lit while the ESP32 commands the
 channel closed. At 2.2 kΩ it draws about 0.7 mA.
 
-### 5.5 Clamp: SMBJ48CA bidirectional TVS (D1, D2)
+### 5.5 Clamp: Bidirectional TVS (D1)
 
-When the switch opens on a relay coil or gas valve, the coil forces its current to keep
-flowing and the voltage across the switch rises until something conducts. The TVS is that
-something, at a controlled voltage (R-5).
+When the switch opens on a relay coil or gas valve, the coil's inductance creates a voltage
+spike across the switch. A bidirectional TVS across the switch limits that voltage (R-5).
 
-|                        | SMBJ48CA   | Needed                            |
+|                        | SMBJ48CA   | Requirement                       |
 | ---------------------- | ---------- | --------------------------------- |
 | Does not conduct below | 48 V       | ≥ 45 V peak                       |
 | Clamps at, for 2.1 A   | about 64 V | ≤ 80 V (switch's recommended max) |
-| Leakage                | a few µA   | see 5.7                           |
+| Leakage                | 1 µA max   | see 5.7                           |
 
-The SMBJ48CA figures (breakdown 53.3 to 58.9 V, 77.4 V at 7.8 A) are the standard values
-for the type, from memory; confirm them on the datasheet of the brand bought. 2.1 A is
-the peak of 1.5 A RMS, the most the coil can carry at the instant the switch opens; the
-64 V figure is interpolated between those two points. TI measured about ±46 V on a relay coil
-with a 40 V TVS in TIDA-010085, which is the same behavior one size down.
+Littelfuse SMBJ datasheet (rev. 07/04/25): breakdown 53.3 to 58.9 V at 1 mA, 77.4 V max at
+7.8 A. The 64 V figure is interpolated between those points at 2.1 A, the peak of 1.5 A RMS.
+TI measured about ±46 V on a relay coil with a 40 V TVS in TIDA-010085.
 
-I have no inductance figures for furnace coils, but the load current bounds the energy. A
-coil drawing 1.5 A at 24 VAC has at most 16 Ω of reactance, 42 mH at 60 Hz, so at the
-current peak it stores no more than ½ × 42 mH × (2.1 A)² ≈ 0.1 J (in general, VA / ω). A
-600 W TVS absorbs roughly 0.6 J in a 1 ms pulse. The test in section 8 measures it on a
-real coil.
-
-An RC snubber is ruled out by R-6: 100 nF passes about 1.2 mA at 60 Hz with the switch
-open. A rectifier and capacitor across the switch, as power-stealing thermostats have,
-would also absorb the kick but leaks through the load in the same way. The TVS goes
-across the switch, not from W to C, so it works without a C wire.
+An RC snubber is ruled out by R-6: a typical 100 nF passes about 1.1 mA at 60 Hz with the
+switch open, which could trigger a phantom call for heat on a modern furnace control board.
 
 ### 5.6 Fuse: 3 A fast-acting, surface-mount (F1)
 
@@ -179,8 +168,8 @@ option: it has no defined rating and fails by burning the board.
 
 ### 5.7 Leakage when open (R-6)
 
-At 30 VAC, 60 Hz: 1 µA (switch) + 5.2 µA (its 460 pF) + 5 µA (TVS) + about 11 µA (TVS
-capacitance, assumed 1 nF) ≈ 23 µA, against a 100 µA limit.
+At 30 VAC, 60 Hz: 1 µA (switch) + 5.2 µA (its 460 pF) + 1 µA (TVS) + about 6 µA (TVS
+capacitance, about 500 pF read off the datasheet graph) ≈ 13 µA, against a 100 µA limit.
 
 ### 5.8 Isolation (R-7)
 
@@ -204,7 +193,7 @@ package allows and route no copper under U1 and U2.
 | U1, U2 | TLP3109A                  | Toshiba TLP3109A(TP,F                 | 2.54SOP6 (Toshiba 11-7C1S) |
 | R1, R3 | 220 Ω 1 %                 | any                                   | 0603                       |
 | R2, R4 | 10 kΩ                     | any                                   | 0603                       |
-| D1, D2 | SMBJ48CA                  | Littelfuse, Vishay or equivalent      | SMB                        |
+| D1, D2 | SMBJ48CA                  | Littelfuse SMBJ48CA or equivalent     | SMB                        |
 | R5, R6 | 2.2 kΩ                    | any; optional                         | 0603                       |
 | D3, D4 | red LED                   | any high-brightness; optional         | 0603                       |
 | F1     | 3 A very fast             | Littelfuse 0451003.MRL (to confirm)   | Nano2                      |
@@ -270,8 +259,8 @@ Not yet run. Bench first, on a spare 24 VAC transformer, then the furnace.
 - A firmware hang with an output high keeps that channel closed until the watchdog fires.
 - This board is not a safety device; the furnace's own limit and flame safeties remain in
   charge.
-- To confirm by test or datasheet: hot on-resistance, coil energy, TVS values and
-  capacitance, transformer short-circuit current, the fuse's ratings and melting I²t,
+- To confirm by test or datasheet: hot on-resistance, coil energy, TVS capacitance,
+  transformer short-circuit current, the fuse's ratings and melting I²t,
   the TLP3109A's creepage distance.
 
 ## 10. How this document maps to the usual process
@@ -301,3 +290,5 @@ Further reading:
 - [KiCad documentation](https://docs.kicad.org/): schematic capture, ERC, layout and DRC.
 - [Toshiba TLP3109A datasheet](https://toshiba.semicon-storage.com/info/docget.jsp?did=65124&prodName=TLP3109A),
   the source for section 5.1.
+- [Littelfuse SMBJ48CA product page](https://www.littelfuse.com/products/overvoltage-protection/tvs-diodes/surface-mount/smbj/smbj48ca),
+  which links the SMBJ series datasheet, the source for section 5.5.
