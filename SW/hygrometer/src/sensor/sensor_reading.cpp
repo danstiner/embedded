@@ -701,10 +701,12 @@ int sensor_read_battery(sensor_state &state)
 	LOG_INF("BAT_V: %d.%03dV", voltage.val1, voltage.val2 / 1000);
 	state.battery.millivolts = (uint16_t)(voltage.val1 * 1000 + voltage.val2 / 1000);
 
-	/* Default to unknown rather than the memset-zero OK/0% defaults */
+	/* The voltage stands on its own. Without the fuel gauge the charge is unknown
+	 * (percent 0xFF); health has no "unknown", so it stays OK. */
 	state.battery.percent = 0xFF;
+	state.battery.health = BATTERY_OK;
 	state.battery.timestamp = k_uptime_get();
-	state.battery.valid = false;
+	state.battery.valid = true;
 
 #if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
 	if (fg_initialized) {
@@ -744,7 +746,6 @@ int sensor_read_battery(sensor_state &state)
 		uint8_t soc = CLAMP((int)fg_last_soc, 0, 100);
 		state.battery.health = soc_health(soc);
 		state.battery.percent = soc;
-		state.battery.valid = true;
 		LOG_INF("BAT_%%: %u%%", soc);
 	}
 #endif /* CONFIG_NRF_FUEL_GAUGE */
