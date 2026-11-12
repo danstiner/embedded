@@ -214,15 +214,6 @@ void AppTask::UpdateSensorAttributes()
 		co2_instance.SetMeasuredValue(DataModel::NullNullable);
 	}
 	ReflectCo2Mode();
-
-	/* Diagnostic: surface the last FRC correction in the Mode Select Description (HA shows it
-	 * as the entity name). Pushed only on change; INT32_MIN = no recal since boot. */
-	int frc_offset = sensor_co2_last_frc_offset();
-	static int pushed_frc_offset = INT32_MIN;
-	if (frc_offset != INT32_MIN && frc_offset != pushed_frc_offset) {
-		pushed_frc_offset = frc_offset;
-		Co2Cal::SetCalOffset(frc_offset);
-	}
 #endif
 
 	/* Battery (Power Source on endpoint 0) — present on every board revision.

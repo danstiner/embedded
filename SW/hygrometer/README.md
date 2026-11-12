@@ -91,8 +91,8 @@ regenerated `zap-generated/` files and `hygrometer.matter` alongside the `.zap`.
 ## Calibrating the CO2 sensor
 
 The STCC4 (2026v3 only) self-calibrates given weekly fresh-air exposure; frequent
-power-cycling or reflashing can leave it reading with a fixed offset. The Matter *CO₂ sensor*
-select (Mode Select, endpoint 1) mirrors the live operation — it holds the in-progress state
+power-cycling or reflashing can leave it reading with a fixed offset. The Matter *CO₂ sensor
+mode* select (Mode Select, endpoint 1) mirrors the live operation — it holds the in-progress state
 until the operation (warm-up included) finishes, then returns to *Measure*, and rejects a
 concurrent request. Recalibration is also triggerable over BTHome by writing the
 CO2-calibration GATT characteristic (`a1b2c3d4-…-781`; empty for the default target, or a
