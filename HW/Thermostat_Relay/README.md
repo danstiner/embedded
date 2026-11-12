@@ -15,53 +15,46 @@ drives a relay coil and can draw an ampere or more of current.
 
 ## Requirements
 
-| ID  | Requirement                                                                                   |
-| --- | --------------------------------------------------------------------------------------------- |
-| R1  | Switch two independent circuits, R–W and R–G, each from one 3.3 V GPIO; high = closed         |
-| R2  | A circuit is open when its input is low or floating, or the ESP32 is off, in reset or booting |
-| R3  | Carry 1.5 A RMS continuously per circuit at 60 °C, and switch loads as small as 1 mA          |
-| R4  | Withstand 45 V peak when open (Class 2 transformer limit: 30 V RMS open-circuit, 42.4 V peak) |
-| R5  | Survive switching off a 1.5 A inductive load                                                  |
-| R6  | Leak less than 100 µA through an open circuit                                                 |
-| R7  | Galvanically isolate the ESP32 from the 24 VAC side: no shared ground or reference            |
-| R8  | Draw no more than 10 mA per closed circuit from the ESP32, indicator LEDs not fitted          |
-| R9  | Interrupt a short on the field wiring without damage to the wiring                            |
-| R10 | Surface-mount parts that can be reflowed on a hot plate; through-hole connectors              |
+| ID  | Requirement                                                                                 |
+| --- | ------------------------------------------------------------------------------------------- |
+| R1  | Switch two independent circuits, R–W and R–G, each from one 3.3 V GPIO; high = closed       |
+| R2  | A circuit is open when its input is low or floating, or the MCU is off, in reset or booting |
+| R3  | Carry 1.5 A RMS continuously per circuit at 60 °C, and switch loads as small as 1 mA        |
+| R4  | Withstand 45 V peak (Class 2 transformer limit: 30 V RMS open-circuit, 42.4 V peak)         |
+| R5  | Survive switching off a 1.5 A inductive load                                                |
+| R6  | Leak less than 100 µA through an open circuit                                               |
+| R7  | Galvanically isolate the MCU from the 24 VAC side                                           |
+| R8  | Draw no more than 10 mA per closed circuit from the MCU                                     |
+| R9  | Interrupt a short on the field wiring without damage to the wiring                          |
+| R10 | Surface-mount parts that can be reflowed on a hot plate; through-hole connectors            |
 
-The 1.5 A and 60 °C figures in R3 are my assumptions, chosen to be conservative. R4 follows
-from the wiring class: thermostat circuits are Class 2, and a Class 2 transformer is limited
-to 30 V RMS open-circuit (42.4 V peak) and 100 VA by UL 5085-3 and NEC (NFPA 70) Chapter 9,
-Table 11(A); see Bel Fuse's
-[summary of the Class 2 limits](https://www.belfuse.com/resource-library/tech-paper/ul-class-2-and-3-vs-iec-class-I-II-and-III).
-45 V adds a small margin. TI's reference designs for the same job assume 24 VAC ±20 %, a
-41 V peak.
+Notes
+- 1.5 A and 60 °C figures are conservative assumptions for absolute peak inductive load and heat
+- 30 V RMS maximum for thermostat circuits follows from them being Class 2 under UL 5085-3
 
-Not in this revision: a power supply (the ESP32 runs from USB; 24 VAC power and battery
-backup are planned for v2), cooling or second-stage outputs, current sensing, and an
-independent watchdog (a supervisor MCU is a v3 idea; for now a firmware hang is covered
-only by the ESP32's own watchdog).
+## Design trades
 
-## 2. Approach
+### 24 VAC switch
 
-|                          | Relay      | **PhotoMOS** | Driver IC + FETs | TPSI8830    | TRIAC       |
-| ------------------------ | ---------- | ------------ | ---------------- | ----------- | ----------- |
-| Hold current (R8)        | 70–90 mA ✗ | 5–10 mA      | ~5 mA            | ~5 mA       | ~10 mA      |
-| 1 mA load (R3)           | marginal   | ✓            | ✓                | ✓           | ✗           |
-| Leakage (R6)             | ✓          | ✓            | ✓                | ✓           | ✗ (snubber) |
-| Parts per channel        | 4          | 3            | ~10              | 3–4         | 5+          |
-| Available to buy         | ✓          | ✓            | ✓                | ✗ (preview) | ✓           |
-| Short-circuit protection | rugged     | none         | possible         | built in    | none        |
+|                          | Relay    | **PhotoMOS** | Driver IC + FETs | TPSI8830    | TRIAC       |
+| ------------------------ | -------- | ------------ | ---------------- | ----------- | ----------- |
+| Hold current (R8)        | 70–90 mA | 5–10 mA      | ~5 mA            | ~5 mA       | ~10 mA      |
+| 1 mA load (R3)           | marginal | ✓            | ✓                | ✓           | ✗           |
+| Leakage (R6)             | ✓        | ✓            | ✓                | ✓           | ✗ (snubber) |
+| Parts per channel        | 4        | 3            | ~10              | 3–4         | 5+          |
+| Available to buy         | ✓        | ✓            | ✓                | ✗ (preview) | ✓           |
+| Short-circuit protection | rugged   | none         | possible         | built in    | none        |
 
 **Chosen: PhotoMOS.** An LED inside the package lights a photovoltaic cell that turns on
 two back-to-back MOSFETs. It meets every requirement with three parts per channel. It
-gives up short-circuit protection, which a fuse partly covers (section 3.6).
+does not have short-circuit protection inherently, but a fuse can be added.
 
-TI's two reference designs for 24 VAC thermostat switching (section 8) both use discrete
+TI's reference designs for 24 VAC thermostat switching (section 8) both use discrete
 MOSFET pairs with a separate isolated gate drive. Their reasons are cost per channel in
 volume and switching in microseconds, which a power-stealing thermostat needs. Neither
-applies to a two-channel prototype.
+applies to a two-channel prototype with no power supply.
 
-TI's TPSI8830 would be the better switch once it can be bought: 30 mΩ and it shuts itself
+TI's TPSI8830 may be the better switch once it can be bought: 30 mΩ and it shuts itself
 off on a short.
 
 ## 3. Circuit
