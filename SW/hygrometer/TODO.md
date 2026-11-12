@@ -32,7 +32,7 @@ Correctness
 - [ ] `sensor_reading.cpp` `stcc4_push_compensation()`: the recal thread and the main loop
       both fetch the SHT4x with no shared lock; the Zephyr sht4x driver has none of its own.
 - [ ] `src/bthome/co2_cal_svc.cpp`: the recalibration characteristic is unauthenticated, so
-      anyone in BLE range can trigger a recal (target now limited to 350-600 ppm).
+      anyone in BLE range can trigger a recal.
 - [ ] `src/sensor/stcc4.cpp` `stcc4_force_recalibration()`: the ±3000 ppm check returns `-EIO`
       after the sensor has already applied the correction, and the offset is then never
       recorded. Datasheet "railed" is a magnitude near 32767.

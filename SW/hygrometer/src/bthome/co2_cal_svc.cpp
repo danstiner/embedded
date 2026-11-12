@@ -34,8 +34,8 @@ static ssize_t co2_cal_write_cb(struct bt_conn *conn, const struct bt_gatt_attr 
 		target = CONFIG_APP_CO2_RECAL_TARGET_PPM;
 	} else if (len == 2) {
 		target = sys_get_le16(static_cast<const uint8_t *>(buf));
-		/* Same bounds as the Kconfig default; an FRC to an absurd target persists
-		 * in the sensor and biases every later reading. */
+		/* Mirrors CONFIG_APP_CO2_RECAL_TARGET_PPM's Kconfig range; a wrong target
+		 * biases every later reading. */
 		if (target < 350 || target > 600) {
 			return BT_GATT_ERR(BT_ATT_ERR_VALUE_NOT_ALLOWED);
 		}
