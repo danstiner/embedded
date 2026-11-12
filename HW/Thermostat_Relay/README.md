@@ -136,35 +136,42 @@ TI measured about ±46 V on a relay coil with a 40 V TVS in TIDA-010085.
 An RC snubber is ruled out by R-6: a typical 100 nF passes about 1.1 mA at 60 Hz with the
 switch open, which could trigger a phantom call for heat on a modern furnace control board.
 
-### 5.6 Fuse: 3 A fast-acting, surface-mount (F1)
+### 5.6 Fuse: 3 A very fast-acting (F1)
 
 Protects the thermostat cable and transformer from a short (R-9); older furnaces may have
-no fuse of their own. F1 carries both channels: 1.5 A on one (R-3) plus a fan relay on
-the other, or all 1.7 A a 40 VA transformer can supply, is about 1.7 A continuous. A fuse
-run continuously at 60 °C should be loaded to about two thirds of its rating (the usual
-75 % rule and roughly 10 % more for temperature; rules of thumb, not from this fuse's
-datasheet), which needs 3 A. Furnace control boards that have a fuse commonly use 3 A
-too. The cost is that 3 A is above the switch's 1.95 A hot rating, so the fuse protects
-against shorts, not sustained overloads. Proposed part: Littelfuse 0451003 (Nano2, 125 V). Its ratings,
-including breaking capacity against a shorted transformer's 10 to 20 A (my estimate), are
-still to be confirmed on the datasheet.
+no fuse of their own. One fuse on R serves both channels.
 
-Fuse or resettable PTC:
+| Littelfuse 0451003.MRL      | Datasheet                 | Needed                                                              |
+| --------------------------- | ------------------------- | ------------------------------------------------------------------- |
+| Voltage rating              | 125 VAC                   | 30 V RMS (R-4)                                                      |
+| Interrupting rating         | 50 A at 125 VAC           | transformer short-circuit current: unmeasured, estimated 10 to 20 A |
+| Continuous current at 60 °C | 2.2 A (3 A × 75 % × 97 %) | 1.7 A                                                               |
+| Opens at 200 % (6 A)        | within 5 s                | –                                                                   |
+| Melting I²t                 | 1.65 A²s                  | below the switch's 8 A²s                                            |
+| Cold resistance             | 23 mΩ                     | –                                                                   |
 
-|                                          | Fast fuse, 3 A (chosen)              | PTC, e.g. 2920L110/60 (1.1 A hold)                        |
-| ---------------------------------------- | ------------------------------------ | --------------------------------------------------------- |
-| Carries 1.5 A at 60 °C                   | yes                                  | no: hold current falls with temperature, to roughly 0.8 A |
-| Clears a hard short in                   | milliseconds                         | about 0.5 s (listing figure)                              |
-| Lets through, against the switch's 8 A²s | to be confirmed, expected well under | tens of A²s                                               |
-| Maximum fault current                    | 50 A AC (listing)                    | 20 A (listing)                                            |
-| After a fault                            | replace the part                     | resets itself                                             |
+- Sizing: F1 carries at most about 1.7 A: 1.5 A on one channel (R-3) plus a fan relay on
+  the other, or everything a 40 VA transformer can supply. The datasheet derates 25 % for
+  continuous operation and about 3 % more at 60 °C (read off its curve). A 2.5 A fuse
+  would leave 1.8 A, too little margin. Furnace control boards commonly use 3 A too.
+- Overloads: 3 A is above the switch's 1.95 A hot rating, so the fuse protects against
+  shorts, not sustained overloads.
+- Shorts: the switch tolerates 9 A for 100 ms, about 8 A²s. At 9 A the fuse melts in
+  roughly 20 ms (1.65 A²s / (9 A)²), so the switch should survive a short the transformer
+  limits to 9 A. Above 9 A the switch is outside its rating however fast the fuse clears.
 
-The PTC fails on two counts. To carry 1.5 A hot it would need a hold current over 2 A,
-which trips even more slowly; and at any size it lets through several times the energy
-the PhotoMOS survives (9 A for 0.1 s is about 8 A²s), so it would protect the wiring but
-not the switch. A fast fuse might save the switch; that is not guaranteed, because a
-shorted transformer can exceed 9 A outright. A fuse drawn as a thin PCB trace is not an
-option: it has no defined rating and fails by burning the board.
+Why not a resettable PTC:
+
+|                                      | Fuse, 3 A (chosen) | PTC, e.g. 2920L110/60 (1.1 A hold)      |
+| ------------------------------------ | ------------------ | --------------------------------------- |
+| Carries 1.5 A at 60 °C               | yes                | no: hold current falls to roughly 0.8 A |
+| Clears a 9 A short in                | about 20 ms        | about 0.5 s (listing figure)            |
+| Lets through (switch survives 8 A²s) | about 1.65 A²s     | tens of A²s                             |
+| After a fault                        | replace the part   | resets itself                           |
+
+A PTC large enough to carry 1.5 A hot trips more slowly still, so it would protect the
+wiring but not the switch. A fuse drawn as a thin PCB trace is not an option: it has no
+defined rating and fails by burning the board.
 
 ### 5.7 Leakage when open (R-6)
 
@@ -196,7 +203,7 @@ package allows and route no copper under U1 and U2.
 | D1, D2 | SMBJ48CA                  | Littelfuse SMBJ48CA or equivalent     | SMB                        |
 | R5, R6 | 2.2 kΩ                    | any; optional                         | 0603                       |
 | D3, D4 | red LED                   | any high-brightness; optional         | 0603                       |
-| F1     | 3 A very fast             | Littelfuse 0451003.MRL (to confirm)   | Nano2                      |
+| F1     | 3 A very fast             | Littelfuse 0451003.MRL                | Nano2                      |
 | J1     | 1×3 pin header            | any                                   | 2.54 mm, through-hole      |
 | J2     | 4-position screw terminal | Phoenix MKDS 1,5/4-5,08 or equivalent | 5.08 mm, through-hole      |
 
@@ -218,18 +225,6 @@ ESP32 pin choice: use pins that are high-impedance at boot, for example GPIO 25 
 a classic ESP32 dev board. Avoid strapping pins (0, 2, 5, 12, 15), pins that emit signals
 at boot (1, 3, 14), flash pins (6–11) and input-only pins (34–39). Other ESP32 variants
 differ; check the module's datasheet.
-
-
-| Color         | Terminal | Function                    |
-| ------------- | -------- | --------------------------- |
-| Red           | R        | 24 VAC power supply         |
-| Blue or Black | C        | Common return circuit       |
-| White         | W        | Heat call                   |
-| Yellow        | Y        | Cooling call                |
-| Green         | G        | Fan or blower control       |
-| Orange/Blue   | O/B      | Heat-pump reversing valve   |
-| Brown or Gray | AUX/E    | Auxiliary or emergency heat |
-| Extra (Y2/W2) | –        | Second stage cooling/heat   |
 
 ## 8. Verification
 
@@ -260,8 +255,7 @@ Not yet run. Bench first, on a spare 24 VAC transformer, then the furnace.
 - This board is not a safety device; the furnace's own limit and flame safeties remain in
   charge.
 - To confirm by test or datasheet: hot on-resistance, coil energy, TVS capacitance,
-  transformer short-circuit current, the fuse's ratings and melting I²t,
-  the TLP3109A's creepage distance.
+  transformer short-circuit current, the TLP3109A's creepage distance.
 
 ## 10. How this document maps to the usual process
 
@@ -292,3 +286,4 @@ Further reading:
   the source for section 5.1.
 - [Littelfuse SMBJ48CA product page](https://www.littelfuse.com/products/overvoltage-protection/tvs-diodes/surface-mount/smbj/smbj48ca),
   which links the SMBJ series datasheet, the source for section 5.5.
+- Littelfuse 451/453 series fuse datasheet (rev. 08/23/21), the source for section 5.6.
