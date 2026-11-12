@@ -1,0 +1,40 @@
+
+--- f = 10 MHz, probe 50 mm, coat = 0.3 mm, +6.0 pF parasitic ---
+case             C_pF   G_mS  D=G/wC  Rp_ohm
+dry              11.3   0.10    0.14    9990
+moist lo-EC      17.9   0.36    0.32    2806
+moist hi-EC      24.8   0.53    0.34    1903
+sat lo-EC        23.7   0.37    0.25    2697
+sat hi-EC        30.4   0.30    0.16    3363
+
+--- f = 10 MHz, probe 50 mm, coat = 0.0 mm, +6.0 pF parasitic ---
+case             C_pF   G_mS  D=G/wC  Rp_ohm
+dry              11.1   0.14    0.20    6998
+moist lo-EC      20.1   0.96    0.76    1040
+moist hi-EC      23.2   2.74    1.88     364
+sat lo-EC        34.8   2.13    0.98     469
+sat hi-EC        52.3   7.26    2.21     138
+
+--- f = 60 MHz, probe 50 mm, coat = 0.0 mm, +6.0 pF parasitic ---
+case             C_pF   G_mS  D=G/wC  Rp_ohm
+dry              11.1   0.16    0.04    6439
+moist lo-EC      19.6   0.98    0.13    1018
+moist hi-EC      19.7   2.83    0.38     353
+sat lo-EC        32.9   2.18    0.18     459
+sat hi-EC        33.6   7.83    0.62     128
+
+--- f = 60 MHz, probe 80 mm, coat = 0.0 mm, +6.0 pF parasitic ---
+case             C_pF   G_mS  D=G/wC  Rp_ohm
+dry              14.2   0.25    0.05    4025
+moist lo-EC      27.8   1.57    0.15     636
+moist hi-EC      28.0   4.53    0.43     221
+sat lo-EC        49.1   3.48    0.19     287
+sat hi-EC        50.2  12.53    0.66      80
+
+--- f = 60 MHz, probe 80 mm, coat = 0.3 mm, +6.0 pF parasitic ---
+case             C_pF   G_mS  D=G/wC  Rp_ohm
+dry              14.2   0.19    0.04    5224
+moist lo-EC      21.7   0.71    0.09    1404
+moist hi-EC      22.5   1.90    0.22     527
+sat lo-EC        28.6   0.93    0.09    1078
+sat hi-EC        31.1   2.71    0.23     369
