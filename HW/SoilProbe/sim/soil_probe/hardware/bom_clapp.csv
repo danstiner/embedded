@@ -1,0 +1,20 @@
+ref,qty,value,package,candidate_mpn,est_usd_each_qty1,verify_on_digikey,notes
+Q1,1,NPN MMBT3904,SOT-23,MMBT3904LT1G,0.10,yes,BFR93A alternative if more fT wanted
+Q2,1,P-FET load switch,SOT-23,DMG2305UX-7,0.30,yes,or drive VOSC from an nRF high-drive GPIO
+L1,1,470 nH +/-2% wirewound,0603,LQW18ANR47G00D,0.25,yes (confirm Q@80MHz and SRF),Coilcraft 0603HP-R47 series as alternative
+C1,1,22 pF C0G 50 V,0603,GRM1885C1H220JA01D,0.05,yes,divider
+C2,1,22 pF C0G 50 V,0603,GRM1885C1H220JA01D,0.05,yes,divider
+C3,1,10 pF C0G,0603,generic,0.05,no,pick-off
+C4,1,10 nF X7R,0603,generic,0.02,no,DC block in resonator
+C5 C7 C8,3,100 nF X7R,0603,generic,0.02,no,decoupling
+C6,1,100 pF C0G,0603,generic,0.05,no,peak detector
+R1 R2,2,22 k,0603,generic,0.01,no,bias
+R3,1,390 R,0603,generic,0.01,no,emitter; sets Ie ~2.5 mA
+R4,1,1 M,0603,generic,0.01,no,squarer self-bias
+R5,1,100 k,0603,generic,0.01,no,peak detector bleed
+R6,1,33 R,0603,generic,0.01,no,series on QD to nRF
+R7,1,100 k,0603,generic,0.01,no,Q2 gate pull-up
+U1,1,74LVC1G04 inverter,SOT-353,74LVC1G04GW.125,0.25,yes,squarer
+U2,1,74LVC161 4-bit counter,TSSOP-16,SN74LVC161APWR,0.45,yes (f_max at 3.0 V),/16 prescaler; alt: 4x 74LVC1G74
+D1,1,BAT54 Schottky,SOT-23,BAT54.215,0.15,yes,peak detector (optional)
+,,,,,~2.00 total,,excluding probe PCB and the nRF54L15/EC/NTC parts already on the node

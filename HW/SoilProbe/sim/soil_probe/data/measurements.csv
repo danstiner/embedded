@@ -1,0 +1,3 @@
+phase,soil,batch,theta_v,ec_w_Sm,ec_bulk_Sm,temp_C,insertion_mm,gap_mm,repeat,f_Hz,C_pF,vpk_V,idrive,notes
+1,glycerol,liq,,,,23.0,80,0,1,,,,,example row: reference liquid
+3,potting,B03,0.20,0.03,0.0045,22.5,80,0,1,,,,,example row: soil beaker, insertion 1 of 5
