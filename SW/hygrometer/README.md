@@ -75,6 +75,36 @@ remove the stale device entry from the controller.
 Commissioning, OTA-over-Matter, and Matter/Thread troubleshooting are board-agnostic and
 documented in the shared guide: [`../docs/matter.md`](../docs/matter.md).
 
+### Regenerating the Matter data model (ZAP)
+
+The CO2 (2026v3) and leak (2026v4) builds use separate data models. After editing a
+`.zap` (e.g. with `west zap-gui -z src/default_zap/v3/hygrometer.zap`), regenerate just
+that revision so the other stays byte-identical:
+
+```sh
+west zap-generate -z src/default_zap/v3/hygrometer.zap
+```
+
+Omitting `-z` prompts interactively because both revisions ship a `.zap`. Commit the
+regenerated `zap-generated/` files and `hygrometer.matter` alongside the `.zap`.
+
+## Calibrating the CO2 sensor
+
+The STCC4 (2026v3 only) self-calibrates given weekly fresh-air exposure; frequent
+power-cycling or reflashing can leave it reading with a fixed offset. The Matter *CO₂ sensor*
+select (Mode Select, endpoint 1) mirrors the live operation — it holds the in-progress state
+until the operation (warm-up included) finishes, then returns to *Measure*, and rejects a
+concurrent request. Recalibration is also triggerable over BTHome by writing the
+CO2-calibration GATT characteristic (`a1b2c3d4-…-781`; empty for the default target, or a
+2-byte little-endian ppm override):
+
+- **Recalibrate (outdoor air)** — leave the device in stable outdoor shade (>~10 °C) for an
+  hour, then select this. Non-destructive; forces the reading to
+  `CONFIG_APP_CO2_RECAL_TARGET_PPM` (default 430 ppm) after 30 readings at the CO2 read
+  interval (~60 min with the release overlay).
+- **Factory Reset** — recovery for a unit stuck at the 380 ppm floor. Destructive: wipes
+  calibration history and runs a ~12 h warm-up (`CONFIG_APP_CO2_WARMUP_MIN`), abandoned on reboot.
+
 ## References
 
 - [nRF54L15 Product Specification](https://infocenter.nordicsemi.com/topic/ps_nrf54l15/index.html)
