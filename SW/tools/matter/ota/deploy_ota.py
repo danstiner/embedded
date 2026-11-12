@@ -182,15 +182,13 @@ def remote_updates_dir(args) -> str:
     """Find the Matter Server's config mount on the HA host. Creating a missing path
     would succeed inside the SSH container but land somewhere the add-on never reads."""
     candidates = [f"{root}/{ADDON_SLUG}" for root in REMOTE_CONFIG_ROOTS]
-    probe = "".join(f"[ -d {d} ] && echo {d} && exit 0; " for d in candidates) + "exit 1"
-    res = subprocess.run(ssh_base(args) + [probe], capture_output=True, text=True)
-    if res.returncode == 0:
-        return f"{res.stdout.strip()}/updates"
-    if res.returncode == 1:
-        raise SystemExit(f"None of {', '.join(candidates)} exist on {args.host}: is the "
-                         f"{ADDON_SLUG} add-on installed and its config mapped into "
-                         "the SSH add-on?")
-    raise SystemExit(f"ssh to {args.host} failed: {res.stderr.strip()}")
+    probe = " || ".join(f"ls -d {d} 2>/dev/null" for d in candidates)
+    found = subprocess.run(ssh_base(args) + [probe],
+                           stdout=subprocess.PIPE, text=True).stdout.strip()
+    if not found:
+        raise SystemExit(f"No {ADDON_SLUG} config mount ({', '.join(candidates)}) "
+                         f"on {args.host}")
+    return f"{found}/updates"
 
 
 def deploy_files(args, files: list[Path]) -> None:
