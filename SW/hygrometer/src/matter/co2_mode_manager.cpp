@@ -5,9 +5,6 @@
 #include <app/util/attribute-table.h>
 #include <lib/support/Span.h>
 
-#include <cstdio>
-#include <cstring>
-
 using namespace chip;
 using namespace chip::app::Clusters;
 using namespace chip::app::Clusters::ModeSelect;
@@ -84,30 +81,12 @@ SupportedModesManager *GetModeManager()
 
 void ApplyDescription()
 {
-	/* "CO₂ sensor", char_string wire format = 1-byte length + UTF-8 bytes
+	/* "CO₂ sensor mode", char_string wire format = 1-byte length + UTF-8 bytes
 	 * (₂ = U+2082 → E2 82 82). No typed Description::Set accessor is generated, so write
 	 * via the local attribute API (bypasses external ACL; Description is RAM-backed). */
-	uint8_t desc[] = {12, 'C', 'O', 0xE2, 0x82, 0x82, ' ', 's', 'e', 'n', 's', 'o', 'r'};
+	uint8_t desc[] = {17,  'C', 'O', 0xE2, 0x82, 0x82, ' ', 's', 'e',
+			  'n', 's', 'o', 'r',  ' ',  'm',  'o', 'd', 'e'};
 	emberAfWriteAttribute(kCo2Endpoint, ModeSelect::Id, ModeSelect::Attributes::Description::Id,
 			      desc, ZCL_CHAR_STRING_ATTRIBUTE_TYPE);
-}
-
-void SetCalOffset(int offset_ppm)
-{
-	/* char_string wire format = 1-byte length + UTF-8 bytes (₂ = E2 82 82). HA surfaces the
-	 * Description as the select entity's name, so this exposes the offset for diagnostics. */
-	char text[52];
-	int n = snprintf(text, sizeof(text), "CO\xE2\x82\x82 sensor: offset %d ppm", offset_ppm);
-	if (n < 0) {
-		return;
-	}
-	if (n > (int)sizeof(text)) {
-		n = (int)sizeof(text);
-	}
-	uint8_t buf[1 + sizeof(text)];
-	buf[0] = (uint8_t)n;
-	memcpy(&buf[1], text, (size_t)n);
-	emberAfWriteAttribute(kCo2Endpoint, ModeSelect::Id, ModeSelect::Attributes::Description::Id,
-			      buf, ZCL_CHAR_STRING_ATTRIBUTE_TYPE);
 }
 } /* namespace Co2Cal */

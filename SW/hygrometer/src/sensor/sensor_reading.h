@@ -105,10 +105,6 @@ enum co2_state {
  *  (incl. the Matter thread while a recalibration holds the sensor mutex). */
 enum co2_state sensor_co2_state(void);
 
-/** Last applied FRC correction (C_FRC = Output − 32768, signed ppm), for diagnostics.
- *  Returns INT32_MIN if no recalibration has completed since boot. Lock-free. */
-int sensor_co2_last_frc_offset(void);
-
 /** Recalibrate the STCC4 CO2 sensor via forced recalibration (datasheet §3.4.15,
  *  blocking). Non-destructive: a new FRC replaces the previous correction
  *  offset; no factory reset / history wipe. Wakes the sensor,

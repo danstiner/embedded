@@ -73,9 +73,6 @@ static int64_t stcc4_warmup_until;
 /* Current maintenance state, reflected into the Matter Mode Select. Atomic so the Matter
  * thread can read it without contending for stcc4_mutex (a recal holds it ~30 min). */
 static atomic_t stcc4_state = ATOMIC_INIT(CO2_STATE_MEASURE);
-/* Last applied FRC correction (C_FRC = Output − 32768, signed ppm); INT32_MIN = no recal since
- * boot. Surfaced over Matter for diagnostics via sensor_co2_last_frc_offset(). */
-static atomic_t stcc4_last_frc_offset = ATOMIC_INIT(INT32_MIN);
 #if IS_ENABLED(CONFIG_APP_CO2_REPORT_DURING_CALIBRATION)
 /* Debug: latest CO2 from the FRC warm-up loop (recal thread → read thread) so the read path can
  * report it instead of -EBUSY while the recal holds stcc4_mutex. Negative/INT32_MIN = none. */
@@ -851,7 +848,6 @@ static int recalibrate_stcc4_locked(uint16_t target_ppm, uint32_t pressure_pa)
 		/* Datasheet Table 11: applied correction C_FRC = Output - 32768 (ppm).
 		 * A magnitude near 32767 means the FRC railed (no valid reading to
 		 * correct against). */
-		atomic_set(&stcc4_last_frc_offset, (int)correction - 32768);
 		LOG_INF("STCC4 recal: done, target=%u ppm, applied correction=%d ppm", target_ppm,
 			correction - 32768);
 	}
@@ -1063,14 +1059,5 @@ enum co2_state sensor_co2_state(void)
 	return (enum co2_state)atomic_get(&stcc4_state);
 #else
 	return CO2_STATE_MEASURE;
-#endif
-}
-
-int sensor_co2_last_frc_offset(void)
-{
-#if HAVE_STCC4_BUS && CONFIG_STCC4_ENABLE
-	return (int)atomic_get(&stcc4_last_frc_offset);
-#else
-	return INT32_MIN;
 #endif
 }
