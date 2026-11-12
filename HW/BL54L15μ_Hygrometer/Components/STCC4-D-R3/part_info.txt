@@ -1,0 +1,9 @@
+Manufacturer=Sensirion
+PartNumber=STCC4-D-R3
+PartCategory=Integrated Circuit
+PackageCategory=Other
+PinCount=8
+Version=1.4
+Released=2025-07-26 10:21:04
+Downloaded=2025-12-18 01:21:37
+3D=Y
