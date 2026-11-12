@@ -64,7 +64,7 @@ Two identical channels share one fused R input. Only one channel is shown.
 ```
  logic side (3.3 V, USB ground) :        furnace side (24 VAC, floating)
                                 :
- HEAT_EN o--+--[R1 220R]---+    :    +------+--- [F1 3A]-- o R
+ HEAT_EN o--+--[R1 220Ω]---+    :    +------+--- [F1 3A]-- o R
             |            1 | U1 :    | 6    |
          [R2 10k]        [LED]~~:~~[FETs]  [D1 TVS]
             |            2 |    :    | 4    |
@@ -86,33 +86,20 @@ Two identical channels share one fused R input. Only one channel is shown.
 - Pins 4 and 6 (the two drains) are the switch; pin 5 (common source) is left open. That
   puts the two MOSFETs in series back to back, which is what lets the part block and
   conduct both polarities of AC.
-- Heat: at 1.5 A and the maximum 65 mΩ the switch dissipates 0.15 W, a rise of about
-  37 °C. Allowing 1.6× for hot resistance (my estimate) gives 0.23 W against 0.26 W
-  allowed at 60 °C, so about 10 % margin on a pessimistic estimate. By the datasheet's own
-  current derating, 1.5 A is 77 % of the 1.95 A allowed at 60 °C. The thermal resistance,
-  about 250 °C/W, is derived from the datasheet's derating figure. Give pins 4 and 6
-  generous copper on the PCB to carry heat away.
-- 100 V was chosen over the 60 V parts common in HVAC for margin, not because 60 V is
-  impossible. A 60 V switch works with a tighter clamp (43 V standoff, about 55 V at
-  1 A), but that leaves under 10 % headroom, nothing for a surge, and a PhotoMOS has no
-  avalanche rating to absorb an overshoot. Both TI reference designs use 100 V MOSFETs:
-  TIDA-00751 allows for a 42 V peak and up to 84 V in a mis-wired two-transformer
-  system; TIDA-010085 notes that the surge clamp can reach 65 V.
+- Heat: at 1.5 A and the maximum 65 mΩ the switch generates about 0.15 W of heat
+- 100 V off-state max was chosen to have margin to clamp surges over the expected 42.4 V peak
+  Class 2 transformer output, similar to TI reference design TIDA-010085.
 
 Parts considered (DigiKey, 2026-11-12, quantity 1):
 
-| Part              | Rating       | At 60 °C | R_on max | Isolation | Price                | Outcome                                                |
-| ----------------- | ------------ | -------- | -------- | --------- | -------------------- | ------------------------------------------------------ |
-| **TLP3109A(TP,F** | 100 V, 3 A   | 1.95 A   | 65 mΩ    | 1500 V    | $4.14, in stock      | chosen                                                 |
-| TLP3546A(TP1,F    | 100 V, 3.5 A | 2.3 A    | 80 mΩ    | 2500 V    | $4.11, none in stock | unavailable                                            |
-| TLP241BF(D4TP4,F  | 100 V, 2 A   | 1.3 A    | 200 mΩ   | 5000 V    | $2.55                | fallback: enough for mA loads, short of 1.5 A when hot |
-| TLP3556A(TP1,F    | 100 V, 2 A   | 1.3 A    | 200 mΩ   | 2500 V    | $3.62                | same as TLP241BF, dearer                               |
-| AQV252GAX         | 60 V, 2.5 A  | –        | ~100 mΩ  | –         | $5.89                | 60 V and dearer                                        |
-| TLP3122A          | 60 V, 1.4 A  | –        | 250 mΩ   | –         | $2.16                | 60 V, under 1.5 A                                      |
+| Part         | Rating       | At 60 °C | R_on max | Isolation | Price           | Outcome     |
+| ------------ | ------------ | -------- | -------- | --------- | --------------- | ----------- |
+| **TLP3109A** | 100 V, 3 A   | 1.95 A   | 65 mΩ    | 1500 V    | $4.14, in stock | chosen      |
+| TLP3546A     | 100 V, 3.5 A | 2.3 A    | 80 mΩ    | 2500 V    | $4.11, no stock | unavailable |
 
-### 5.2 LED resistor: 220 Ω (R1, R3)
+### 5.2 LED resistor: 220 Ω (R1)
 
-The datasheet recommends 5 to 25 mA. `I = (V_GPIO − V_LED) / R`:
+The TLP3109A datasheet recommends 5 to 25 mA. `I = (V_GPIO − V_LED) / R`:
 
 | Case            | V_GPIO | V_LED  | I      |
 | --------------- | ------ | ------ | ------ |
@@ -120,28 +107,16 @@ The datasheet recommends 5 to 25 mA. `I = (V_GPIO − V_LED) / R`:
 | Nominal         | 3.3 V  | 1.65 V | 7.5 mA |
 | Worst-case high | 3.47 V | 1.50 V | 9.0 mA |
 
-The low case is still above the recommended minimum and 1.8× the trigger current. The
-high case, plus 0.3 mA in the pull-down, stays under 10 mA (R-8). The GPIO drives the LED
-directly; no transistor is needed. The 3.0 V low figure is my assumption for a sagging
-3.3 V rail.
+### 5.3 Pull-down: 10 kΩ (R2)
 
-### 5.3 Pull-down: 10 kΩ (R2, R4)
+Optional pull-down to hold the LED input at ~0 V when not being driven (R-2). Overrides the pull-up
+glitch during boot that some ESP32 pins exhibit. Cannot override a pin that actively drives high
+during boot, those high-level glitch pins should be avoided.
 
-Holds the input at 0 V when the GPIO is not driving it (R-2). Against the roughly 45 kΩ
-internal pull-up some ESP32 pins apply during reset, the input sits at 0.6 V, too low to
-light the LED. It cannot override a pin that actively drives high during boot, so pin
-choice matters (section 7).
-
-### 5.4 Optional indicator: 2.2 kΩ and a red LED (R5/D3, R6/D4)
+### 5.4 Optional indicator: 2.2 kΩ and a red LED
 
 One LED per channel, from the control input to ground, lit while the ESP32 commands the
-channel closed. It shows the commanded state, not that current is flowing in the furnace
-circuit; an indicator on the field side would leak through the load and break R-6.
-
-At 2.2 kΩ it draws about 0.7 mA, which a modern high-brightness 0603 LED shows clearly
-indoors. Fitted, a channel draws about 8.5 mA nominal and up to 10.2 mA worst case, just
-over the R-8 limit, which is why R-8 is stated without them. Leave R5, D3, R6 and D4 off
-the board to save the current in a battery-backed build.
+channel closed. At 2.2 kΩ it draws about 0.7 mA.
 
 ### 5.5 Clamp: SMBJ48CA bidirectional TVS (D1, D2)
 
@@ -159,7 +134,7 @@ The SMBJ48CA figures (breakdown 53.3 to 58.9 V, 77.4 V at 7.8 A) are the standar
 for the type, from memory; confirm them on the datasheet of the brand bought. 2.1 A is
 the peak of 1.5 A RMS, the most the coil can carry at the instant the switch opens; the
 64 V figure is interpolated between those two points. TI measured about ±46 V on a relay coil
-with a 40 V TVS in TIDA-010085, which is the same behaviour one size down.
+with a 40 V TVS in TIDA-010085, which is the same behavior one size down.
 
 I have no inductance figures for furnace coils, but the load current bounds the energy. A
 coil drawing 1.5 A at 24 VAC has at most 16 Ω of reactance, 42 mH at 60 Hz, so at the
@@ -172,7 +147,7 @@ open. A rectifier and capacitor across the switch, as power-stealing thermostats
 would also absorb the kick but leaks through the load in the same way. The TVS goes
 across the switch, not from W to C, so it works without a C wire.
 
-### 5.6 Fuse: 3 A very-fast-acting, surface-mount (F1)
+### 5.6 Fuse: 3 A fast-acting, surface-mount (F1)
 
 Protects the thermostat cable and transformer from a short (R-9); older furnaces may have
 no fuse of their own. F1 carries both channels: 1.5 A on one (R-3) plus a fan relay on
