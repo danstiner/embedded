@@ -26,6 +26,8 @@ Correctness
       both fetch the SHT4x with no shared lock; the Zephyr sht4x driver has none of its own.
 - [ ] `src/bthome/co2_cal_svc.cpp`: the recalibration characteristic is unauthenticated, so
       anyone in BLE range can trigger a recal.
+- [ ] `src/sensor/stcc4.cpp` `stcc4_force_recalibration()`: a correction beyond ±3000 ppm is
+      only logged; it stays applied and the Mode Select returns to *Measure* as if it worked.
 - [ ] STCC4 non-zero status word: unclear what read status 0x0004 or 0x0104 means. The code
       now logs a warning and accepts the value (invalidation commented out), but `stcc4.h`
       still says such readings are discarded. Understand the status bits, then make the code

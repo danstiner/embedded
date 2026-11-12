@@ -315,10 +315,8 @@ int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
 	/* Datasheet Table 11: applied correction C_FRC = Output - 32768 (ppm, signed). */
 	int delta = correction - 32768;
 
-	/* A correction this large is implausible in outdoor air: the sensor had no valid
-	 * reading to correct against (e.g. it sat at the placeholder/output floor). The sensor
-	 * has already applied it, so this only reports the failure; recovery is another FRC
-	 * or a factory reset. */
+	/* Implausible in outdoor air: likely a bad target or no valid reading to correct
+	 * against. The sensor has already applied it, so this only reports the failure. */
 	if (delta > 3000 || delta < -3000) {
 		LOG_ERR("FRC applied an implausible correction (raw=0x%04X, %d ppm)", correction,
 			delta);
