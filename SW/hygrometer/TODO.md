@@ -22,8 +22,6 @@
 ## Code review findings (verified against source 2026-11-11)
 
 Correctness
-- [ ] `src/sensor/leak.cpp` `leak_read()`: an ADC failure returns without `leak_park()`, so
-      while wet the drive stays high (current through the water) until the next read.
 - [ ] `src/sensor/sensor_reading.cpp` `sensor_read_battery()` (PMIC path): `battery.valid` is
       only set when the fuel gauge initialised, so a gauge init failure also hides the voltage.
 - [ ] `sensor_reading.cpp` `sensor_read_stcc4()`: the `-EBUSY` return while a recal holds the

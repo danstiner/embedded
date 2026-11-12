@@ -150,6 +150,9 @@ int leak_read(sensor_state &state)
 	if (ret) {
 		LOG_WRN("Leak ADC read failed: %d", ret);
 		state.leak.valid = false;
+		if (leak_wet_state) {
+			leak_park(); /* end the measurement pulse */
+		}
 		return ret;
 	}
 
