@@ -701,10 +701,9 @@ int sensor_read_battery(sensor_state &state)
 	LOG_INF("BAT_V: %d.%03dV", voltage.val1, voltage.val2 / 1000);
 	state.battery.millivolts = (uint16_t)(voltage.val1 * 1000 + voltage.val2 / 1000);
 
-	/* The voltage stands on its own. Without the fuel gauge the charge is unknown
-	 * (percent 0xFF); health has no "unknown", so it stays OK. */
+	/* Valid on voltage alone. Without the fuel gauge the charge is unknown (0xFF) and
+	 * health, having no unknown state, stays at its zero-init OK. */
 	state.battery.percent = 0xFF;
-	state.battery.health = BATTERY_OK;
 	state.battery.timestamp = k_uptime_get();
 	state.battery.valid = true;
 
