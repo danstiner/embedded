@@ -208,23 +208,19 @@ static uint16_t hum_to_raw_ticks(const struct sensor_value *val)
 	return (uint16_t)raw;
 }
 
-/* Fetch the SHT4x and push RH/T (+ pressure when pressure_pa != 0) compensation to the STCC4.
- * Shared by the periodic read and the FRC routine so both use identical Table 11 conversions;
- * logs the values applied so CO2 readings can be correlated with environment. The sensor must
- * be awake. On SHT4x failure the previous compensation (retained across sleep) is kept. */
+/* Latest SHT4x reading as compensation ticks, (T << 16) | RH; 0 = none yet (a real RH is
+ * never 0 ticks). Published by sensor_read_sht4x() so the recal thread never touches the
+ * SHT4x: the Zephyr driver has no locking of its own. */
+static atomic_t stcc4_rht_ticks;
+
+/* Push RH/T (+ pressure when pressure_pa != 0) compensation to the STCC4. Shared by the
+ * periodic read and the FRC routine. The sensor must be awake. */
 static void stcc4_push_compensation(uint32_t pressure_pa)
 {
-	struct sensor_value temp, hum;
+	const uint32_t rht = (uint32_t)atomic_get(&stcc4_rht_ticks);
 
-	if (sensor_sample_fetch(sht4x) == 0) {
-		sensor_channel_get(sht4x, SENSOR_CHAN_AMBIENT_TEMP, &temp);
-		sensor_channel_get(sht4x, SENSOR_CHAN_HUMIDITY, &hum);
-		stcc4_set_rht_compensation(sensor_bus, temp_to_raw_ticks(&temp),
-					   hum_to_raw_ticks(&hum));
-		LOG_INF("STCC4 comp: T=%d.%02d°C RH=%d.%02d%%", temp.val1, temp.val2 / 10000,
-			hum.val1, hum.val2 / 10000);
-	} else {
-		LOG_WRN("STCC4 comp: SHT4x fetch failed, keeping prior compensation");
+	if (rht != 0) {
+		stcc4_set_rht_compensation(sensor_bus, (uint16_t)(rht >> 16), (uint16_t)rht);
 	}
 
 	if (pressure_pa != 0) {
@@ -459,15 +455,20 @@ int sensor_read_sht4x(sensor_state &state)
 		return ret;
 	}
 
-	struct sensor_value value;
+	struct sensor_value temp, hum;
 
-	sensor_channel_get(sht4x, SENSOR_CHAN_AMBIENT_TEMP, &value);
-	state.sht4x.temperature_cC = value.val1 * 100 + value.val2 / 10000;
-	LOG_INF("SHT4x: T=%d.%02d°C", value.val1, value.val2 / 10000);
+	sensor_channel_get(sht4x, SENSOR_CHAN_AMBIENT_TEMP, &temp);
+	state.sht4x.temperature_cC = temp.val1 * 100 + temp.val2 / 10000;
+	LOG_INF("SHT4x: T=%d.%02d°C", temp.val1, temp.val2 / 10000);
 
-	sensor_channel_get(sht4x, SENSOR_CHAN_HUMIDITY, &value);
-	state.sht4x.humidity_cPct = value.val1 * 100 + value.val2 / 10000;
-	LOG_INF("SHT4x: RH=%d.%02d%%", value.val1, value.val2 / 10000);
+	sensor_channel_get(sht4x, SENSOR_CHAN_HUMIDITY, &hum);
+	state.sht4x.humidity_cPct = hum.val1 * 100 + hum.val2 / 10000;
+	LOG_INF("SHT4x: RH=%d.%02d%%", hum.val1, hum.val2 / 10000);
+
+#if HAVE_STCC4_BUS && CONFIG_STCC4_ENABLE
+	atomic_set(&stcc4_rht_ticks,
+		   ((uint32_t)temp_to_raw_ticks(&temp) << 16) | hum_to_raw_ticks(&hum));
+#endif
 
 	state.sht4x.timestamp = k_uptime_get();
 	state.sht4x.valid = true;
@@ -816,7 +817,7 @@ static int recalibrate_stcc4_locked(uint16_t target_ppm, uint32_t pressure_pa)
 
 		/* Refresh RH/T(+pressure) compensation before each shot exactly as steady-state
 		 * reads do, so the FRC anchors against the same compensated value later reads see.
-		 */
+		 * The RH/T is the main loop's latest, up to one measurement interval old. */
 		stcc4_push_compensation(pressure_pa);
 
 		uint16_t meas_status = 0;

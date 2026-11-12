@@ -29,8 +29,6 @@ Correctness
 - [ ] `sensor_reading.cpp` `sensor_read_stcc4()`: the `-EBUSY` return while a recal holds the
       mutex leaves `stcc4.valid` set, so the pre-recal CO2 value is republished for the whole
       recalibration.
-- [ ] `sensor_reading.cpp` `stcc4_push_compensation()`: the recal thread and the main loop
-      both fetch the SHT4x with no shared lock; the Zephyr sht4x driver has none of its own.
 - [ ] `src/bthome/co2_cal_svc.cpp`: the write accepts any 16-bit FRC target on an
       unauthenticated characteristic; Kconfig limits the target to 350-600 ppm.
 - [ ] `src/sensor/stcc4.cpp` `stcc4_force_recalibration()`: the ±3000 ppm check returns `-EIO`
@@ -48,8 +46,6 @@ Correctness
       unlocked. Latent: only one trigger thread exists per binary (Matter or BTHome).
 
 Efficiency
-- [ ] `sensor_reading.cpp`: every CO2 read fetches the SHT4x a second time in
-      `stcc4_push_compensation()`; `sensor_read_cycle()` fetched it moments earlier.
-- [ ] `sensor_reading.cpp`: the 12 h post-factory-reset warm-up re-fetches the SHT4x and
-      rewrites compensation every cycle for a reading it discards.
+- [ ] `sensor_reading.cpp`: the 12 h post-factory-reset warm-up rewrites compensation every
+      cycle for a reading it discards.
 - [ ] `sensor_reading.cpp`: a 2 KB stack is permanently reserved for the recal work queue.
