@@ -10,9 +10,10 @@ For each build directory the script:
   1. reads `matter.ota` and extracts VID/PID/SoftwareVersion from its header
      (via the matter module's ota_image_tool.py, located from the build);
   2. writes a DCL-style JSON descriptor with a base64 SHA-256 checksum;
-  3. scp's both files to /app_configs/core_matter_server/updates/ on the HA
-     host and restarts the add-on with `ha apps restart core_matter_server`
-     (it only scans that folder at startup).
+  3. scp's both files to the add-on's updates folder as mounted in the SSH
+     add-on (/app_configs/core_matter_server/updates/, or /addon_configs/...
+     before HA renamed add-ons to apps) and restarts the add-on with
+     `ha apps restart core_matter_server` (it only scans that folder at startup).
 
 Then install the staged update from the HA UI (Settings > Devices > the device
 > its Update entity), or wait for the device's next OTA check.
@@ -26,7 +27,7 @@ Example usage, run from the SW/ directory:
 Prerequisites on the Home Assistant side:
   * The official "Terminal & SSH" (or "Advanced SSH & Web Terminal") add-on
     with your SSH public key, so `ssh root@homeassistant.local` works without
-    a password prompt. The add-on exposes /app_configs and the `ha` CLI.
+    a password prompt. The add-on exposes the config mount and the `ha` CLI.
   * The Matter Server add-on.
 
 Notes:
@@ -48,7 +49,8 @@ from pathlib import Path
 THIS_DIR = Path(__file__).resolve().parent
 
 ADDON_SLUG = "core_matter_server"
-REMOTE_UPDATES_DIR = f"/app_configs/{ADDON_SLUG}/updates"
+# Where the SSH add-on mounts add-on configs: current name first, pre-rename name second.
+REMOTE_CONFIG_ROOTS = ("/app_configs", "/addon_configs")
 
 
 def find_matter_dir(image_dir: Path) -> Path:
@@ -176,9 +178,25 @@ def ssh_base(args) -> list[str]:
     return ["ssh", "-p", str(args.ssh_port), f"{args.ssh_user}@{args.host}"]
 
 
+def remote_updates_dir(args) -> str:
+    """Find the Matter Server's config mount on the HA host. Creating a missing path
+    would succeed inside the SSH container but land somewhere the add-on never reads."""
+    candidates = [f"{root}/{ADDON_SLUG}" for root in REMOTE_CONFIG_ROOTS]
+    probe = "".join(f"[ -d {d} ] && echo {d} && exit 0; " for d in candidates) + "exit 1"
+    res = subprocess.run(ssh_base(args) + [probe], capture_output=True, text=True)
+    if res.returncode == 0:
+        return f"{res.stdout.strip()}/updates"
+    if res.returncode == 1:
+        raise SystemExit(f"None of {', '.join(candidates)} exist on {args.host}: is the "
+                         f"{ADDON_SLUG} add-on installed and its config mapped into "
+                         "the SSH add-on?")
+    raise SystemExit(f"ssh to {args.host} failed: {res.stderr.strip()}")
+
+
 def deploy_files(args, files: list[Path]) -> None:
-    subprocess.run(ssh_base(args) + [f"mkdir -p {REMOTE_UPDATES_DIR}"], check=True)
-    dest = f"{args.ssh_user}@{args.host}:{REMOTE_UPDATES_DIR}/"
+    updates_dir = remote_updates_dir(args)
+    subprocess.run(ssh_base(args) + [f"mkdir -p {updates_dir}"], check=True)
+    dest = f"{args.ssh_user}@{args.host}:{updates_dir}/"
     subprocess.run(
         ["scp", "-P", str(args.ssh_port)] + [str(f) for f in files] + [dest],
         check=True,
@@ -206,8 +224,8 @@ def main() -> int:
     images = [parse_ota_image(d) for d in args.build_dir]
     files = stage(images, args.stage_dir)
     if args.stage_only:
-        print(f"\nStage-only: copy these to {REMOTE_UPDATES_DIR}/ on the HA host "
-              f"and restart the {ADDON_SLUG} add-on.")
+        print(f"\nStage-only: copy these to the {ADDON_SLUG} add-on's updates/ folder "
+              "and restart the add-on.")
         return 0
 
     deploy_files(args, files)
