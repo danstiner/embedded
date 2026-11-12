@@ -22,10 +22,9 @@
 ## Code review findings (verified against source 2026-11-11)
 
 Correctness
-- [ ] `src/sensor/sensor_reading.cpp` `sensor_read_battery()` (PMIC path): `battery.valid` is
-      only set when the fuel gauge initialised, so a gauge init failure also hides the voltage.
-- [ ] `sensor_reading.cpp` `stcc4_push_compensation()`: the recal thread and the main loop
-      both fetch the SHT4x with no shared lock; the Zephyr sht4x driver has none of its own.
+- [ ] `src/sensor/sensor_reading.cpp` `stcc4_push_compensation()`: the recal thread and the
+      main loop both fetch the SHT4x with no shared lock; the Zephyr sht4x driver has none of
+      its own.
 - [ ] `src/bthome/co2_cal_svc.cpp`: the recalibration characteristic is unauthenticated, so
       anyone in BLE range can trigger a recal.
 - [ ] `src/sensor/stcc4.cpp` `stcc4_force_recalibration()`: the ±3000 ppm check returns `-EIO`
