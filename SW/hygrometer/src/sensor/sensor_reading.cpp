@@ -845,9 +845,7 @@ static int recalibrate_stcc4_locked(uint16_t target_ppm, uint32_t pressure_pa)
 	int ret = stcc4_force_recalibration(sensor_bus, target_ppm, correction);
 
 	if (ret == 0) {
-		/* Datasheet Table 11: applied correction C_FRC = Output - 32768 (ppm).
-		 * A magnitude near 32767 means the FRC railed (no valid reading to
-		 * correct against). */
+		/* Datasheet Table 11: applied correction C_FRC = Output - 32768 (ppm). */
 		LOG_INF("STCC4 recal: done, target=%u ppm, applied correction=%d ppm", target_ppm,
 			correction - 32768);
 	}
