@@ -69,7 +69,7 @@
  *                window) → periodic single-shot (first 2 discarded; readings with a non-zero
  *                status word are discarded).
  *   measure:     every cycle — wake → push RH/T(+P) compensation → single-shot → sleep.
- *   recalibrate: condition → 30 single-shots (fresh RH/T+P comp each) spaced at the steady-state
+ *   recalibrate: condition → 30 single-shots (RH/T+P comp each) spaced at the steady-state
  *                CO2 interval, held in idle → FRC on the last reading (idle, not sleep, §3.4.15)
  *                → sleep.
  *   factory rst: wake → perform_factory_reset → conditioning → start continuous warm-up

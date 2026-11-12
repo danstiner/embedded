@@ -213,8 +213,8 @@ static uint16_t hum_to_raw_ticks(const struct sensor_value *val)
  * SHT4x: the Zephyr driver has no locking of its own. */
 static atomic_t stcc4_rht_ticks;
 
-/* Push RH/T (+ pressure when pressure_pa != 0) compensation to the STCC4. Shared by the
- * periodic read and the FRC routine. The sensor must be awake. */
+/* Push RH/T (+ pressure when pressure_pa != 0) compensation to the STCC4, which must be
+ * awake. */
 static void stcc4_push_compensation(uint32_t pressure_pa)
 {
 	const uint32_t rht = (uint32_t)atomic_get(&stcc4_rht_ticks);

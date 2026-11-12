@@ -109,7 +109,7 @@ enum co2_state sensor_co2_state(void);
  *  blocking). Non-destructive: a new FRC replaces the previous correction
  *  offset; no factory reset / history wipe. Wakes the sensor,
  *  conditions it, takes 30 single-shot measurements spaced at the steady-state CO2
- *  interval (held in idle with fresh RH/T compensation each shot, as the datasheet
+ *  interval (held in idle with RH/T compensation each shot, as the datasheet
  *  requires before FRC), runs forced recalibration to target_ppm, then sleeps.
  *  Must be called from a thread that can block for the full sequence (NOT the system
  *  work queue). Returns 0 on success, negative errno on failure. */
