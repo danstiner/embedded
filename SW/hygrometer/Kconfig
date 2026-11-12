@@ -193,11 +193,12 @@ config APP_MATTER_LEAK
 
 config APP_MATTER_BATTERY_PERCENT
 	bool "Expose battery percentage over Matter (Power Source BatPercentRemaining)"
-	default y if $(dt_nodelabel_enabled,npm2100_vbat)
+	default y if !APP_LEAK_SENSOR
 	help
-	  Set for boards with a real fuel gauge (nPM2100, 2026v3) where a charge
-	  percentage is meaningful. Boards on a flat CR2 curve (2026v4) report only
-	  the coarse BatChargeLevel and omit this attribute from their data model.
+	  Follows the data model: the CO2 (v3) model has the attribute, so every
+	  board built with it must drive it (null when no fuel gauge supplies a
+	  percentage). The leak (v4) model omits it; a flat CR2 curve only supports
+	  the coarse BatChargeLevel.
 
 choice OPENTHREAD_NORDIC_LIBRARY_CONFIGURATION
 	default OPENTHREAD_NORDIC_LIBRARY_MTD
