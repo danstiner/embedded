@@ -1,0 +1,17 @@
+{
+  "meta": {
+    "filename": "Thermostat_RelayBoard.kicad_pro",
+    "version": 3
+  },
+  "schematic": {
+    "legacy_lib_dir": "",
+    "legacy_lib_list": []
+  },
+  "sheets": [
+    [
+      "7b81de3f-d469-53fb-9228-9ef6edb09893",
+      "Root"
+    ]
+  ],
+  "text_variables": {}
+}
