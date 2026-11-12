@@ -315,11 +315,12 @@ int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
 	/* Datasheet Table 11: applied correction C_FRC = Output - 32768 (ppm, signed). */
 	int delta = correction - 32768;
 
-	/* A correction this large means the FRC railed: the sensor had no valid reading to
-	 * correct against (e.g. it was railed at the placeholder/output floor). Reject it
-	 * rather than bake in a garbage offset. */
+	/* A correction this large is implausible in outdoor air: the sensor had no valid
+	 * reading to correct against (e.g. it sat at the placeholder/output floor). The sensor
+	 * has already applied it, so this only reports the failure; recovery is another FRC
+	 * or a factory reset. */
 	if (delta > 3000 || delta < -3000) {
-		LOG_ERR("FRC railed (raw=0x%04X, correction=%d ppm) — no valid reading", correction,
+		LOG_ERR("FRC applied an implausible correction (raw=0x%04X, %d ppm)", correction,
 			delta);
 		return -EIO;
 	}
