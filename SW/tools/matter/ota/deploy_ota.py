@@ -10,7 +10,7 @@ For each build directory the script:
   1. reads `matter.ota` and extracts VID/PID/SoftwareVersion from its header
      (via the matter module's ota_image_tool.py, located from the build);
   2. writes a DCL-style JSON descriptor with a base64 SHA-256 checksum;
-  3. scp's both files to /addon_configs/core_matter_server/updates/ on the HA
+  3. scp's both files to /app_configs/core_matter_server/updates/ on the HA
      host and restarts the add-on with `ha apps restart core_matter_server`
      (it only scans that folder at startup).
 
@@ -26,7 +26,7 @@ Example usage, run from the SW/ directory:
 Prerequisites on the Home Assistant side:
   * The official "Terminal & SSH" (or "Advanced SSH & Web Terminal") add-on
     with your SSH public key, so `ssh root@homeassistant.local` works without
-    a password prompt. The add-on exposes /addon_configs and the `ha` CLI.
+    a password prompt. The add-on exposes /app_configs and the `ha` CLI.
   * The Matter Server add-on.
 
 Notes:
@@ -48,7 +48,7 @@ from pathlib import Path
 THIS_DIR = Path(__file__).resolve().parent
 
 ADDON_SLUG = "core_matter_server"
-REMOTE_UPDATES_DIR = f"/addon_configs/{ADDON_SLUG}/updates"
+REMOTE_UPDATES_DIR = f"/app_configs/{ADDON_SLUG}/updates"
 
 
 def find_matter_dir(image_dir: Path) -> Path:
