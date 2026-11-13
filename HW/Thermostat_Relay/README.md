@@ -19,7 +19,7 @@ drives a relay coil and can draw an ampere or more of current.
 | ---- | ------------------------------------------------------------------------------------------- |
 | R-1  | Switch two independent circuits, R–W and R–G, each from one 3.3 V GPIO; high = closed       |
 | R-2  | A circuit is open when its input is low or floating, or the MCU is off, in reset or booting |
-| R-3  | Carry 1.5 A RMS continuously per circuit at 60 °C, and switch loads as small as 1 mA        |
+| R-3  | Carry 1.5 A RMS continuously per circuit at 50 °C, and switch loads as small as 1 mA        |
 | R-4  | Withstand 45 V peak (Class 2 transformer limit: 30 V RMS open-circuit, 42.4 V peak)         |
 | R-5  | Survive switching off a 1.5 A inductive load                                                |
 | R-6  | Leak less than 100 µA through an open circuit                                               |
@@ -29,7 +29,7 @@ drives a relay coil and can draw an ampere or more of current.
 | R-10 | Surface-mount parts that can be reflowed on a hot plate; through-hole connectors            |
 
 Notes
-- 1.5 A and 60 °C figures are conservative assumptions for absolute peak inductive load and heat
+- 1.5 A and 50 °C figures are conservative assumptions for absolute peak inductive load and heat
 - 30 V RMS maximum for thermostat circuits follows from them being Class 2 under UL 5085-3
 
 ## 4. Design trades
@@ -78,7 +78,7 @@ Two identical channels share the R input, each with its own fuse. Only one chann
 | Datasheet value                 |                               | Requirement     |
 | ------------------------------- | ----------------------------- | --------------- |
 | Off-state voltage               | 100 V max                     | 45 V peak (R-4) |
-| On-state current, AC connection | 3 A at 25 °C, 1.95 A at 60 °C | 1.5 A (R-3)     |
+| On-state current, AC connection | 3 A at 25 °C, 2.25 A at 50 °C | 1.5 A (R-3)     |
 | On-resistance                   | 50 mΩ typ, 65 mΩ max          | –               |
 | LED trigger current             | 3 mA max                      | see 5.2         |
 | Off-state leakage, capacitance  | 1 µA max, 460 pF              | see 5.7         |
@@ -94,10 +94,10 @@ Two identical channels share the R input, each with its own fuse. Only one chann
 
 Parts considered (DigiKey, 2026-11-12, quantity 1):
 
-| Part         | Rating       | At 60 °C | R_on max | Isolation | Price           | Outcome     |
+| Part         | Rating       | At 50 °C | R_on max | Isolation | Price           | Outcome     |
 | ------------ | ------------ | -------- | -------- | --------- | --------------- | ----------- |
-| **TLP3109A** | 100 V, 3 A   | 1.95 A   | 65 mΩ    | 1500 V    | $4.14, in stock | chosen      |
-| TLP3546A     | 100 V, 3.5 A | 2.3 A    | 80 mΩ    | 2500 V    | $4.11, no stock | unavailable |
+| **TLP3109A** | 100 V, 3 A   | 2.25 A   | 65 mΩ    | 1500 V    | $4.14, in stock | chosen      |
+| TLP3546A     | 100 V, 3.5 A | 2.6 A    | 80 mΩ    | 2500 V    | $4.11, no stock | unavailable |
 
 ### 5.2 LED resistor: 220 Ω (R1)
 
@@ -149,20 +149,20 @@ wire cannot take out the heat, and each fuse is sized for one load, not the sum.
 | ---------------------- | ------------------------------ | ------------------------------------------------------------------- |
 | Voltage rating         | 125 VAC                        | 30 V RMS (R-4)                                                      |
 | Interrupting rating    | 50 A at 125 VAC                | transformer short-circuit current: unmeasured, estimated 10 to 20 A |
-| Continuous current     | 1.9 A at 25 °C, 1.8 A at 60 °C | 1.5 A (R-3)                                                         |
+| Continuous current     | 1.9 A at 25 °C, 1.8 A at 50 °C | 1.5 A (R-3)                                                         |
 | Opens at 200 % (5 A)   | within 5 s                     | –                                                                   |
 | Melting I²t            | 1.03 A²s                       | below the switch's 8 A²s                                            |
 | Cold resistance        | 29 mΩ                          | –                                                                   |
 
 - Sizing: Littelfuse's guidance is to run a fuse at no more than 75 % of its rating at
   25 °C, which gives 1.9 A. Temperature is a small further correction for this fuse, about
-  3 % at 60 °C, so it does not drive the choice. A 2 A fuse gives exactly 1.5 A at 25 °C,
+  2 % at 50 °C, so it does not drive the choice. A 2 A fuse gives exactly 1.5 A at 25 °C,
   no margin at any temperature; 2.5 A is the next size.
 - Compared with others: TI recommends a 2 A fast fuse for its 1 A design (TIDA-010085) and
   tested with 1.5 A. Honeywell rates the T6 Pro's W terminal at 1 A; ecobee rates its
   terminals at 3 A. Furnace control boards fuse the whole 24 V circuit at 3 or 5 A, so a
   2.5 A fuse here should open first.
-- Overloads: 2.5 A is above the switch's 1.95 A rating at 60 °C, so the fuse protects
+- Overloads: 2.5 A is above the switch's 2.25 A rating at 50 °C, so the fuse protects
   against shorts, not sustained overloads.
 - Shorts: the switch tolerates 9 A for 100 ms, about 8 A²s. At 9 A the fuse melts in
   roughly 13 ms (1.03 A²s / (9 A)²), so the switch should survive a short the transformer
@@ -171,12 +171,12 @@ wire cannot take out the heat, and each fuse is sized for one load, not the sum.
 
 Why not a resettable PTC:
 
-|                                      | Fuse, 2.5 A (chosen) | PTC, e.g. 2920L110/60 (1.1 A hold)      |
-| ------------------------------------ | -------------------- | --------------------------------------- |
-| Carries 1.5 A at 60 °C               | yes                  | no: hold current falls to roughly 0.8 A |
-| Clears a 9 A short in                | about 13 ms          | about 0.5 s (listing figure)            |
-| Lets through (switch survives 8 A²s) | about 1 A²s          | tens of A²s                             |
-| After a fault                        | replace the part     | resets itself                           |
+|                                      | Fuse, 2.5 A (chosen) | PTC, e.g. 2920L110/60 (1.1 A hold) |
+| ------------------------------------ | -------------------- | ---------------------------------- |
+| Carries 1.5 A at 50 °C               | yes                  | no: hold current falls to 0.83 A   |
+| Clears a 9 A short in                | about 13 ms          | about 0.5 s (at 8 A)               |
+| Lets through (switch survives 8 A²s) | about 1 A²s          | tens of A²s                        |
+| After a fault                        | replace the part     | resets itself                      |
 
 A PTC large enough to carry 1.5 A hot trips more slowly still, so it would protect the
 wiring but not the switch. A fuse drawn as a thin PCB trace is not an option: it has no
@@ -206,7 +206,7 @@ copper under U1 and U2.
 
 | Ref    | Value              | Part                | Footprint   | Description                                   |
 | ------ | ------------------ | ------------------- | ----------- | --------------------------------------------- |
-| U1, U2 | TLP3109A           | Toshiba             | 2.54SOP6    | PhotoMOS relay, 100 V, 1.5 A at 60 °C (5.1)   |
+| U1, U2 | TLP3109A           | Toshiba             | 2.54SOP6    | PhotoMOS relay, 100 V, 1.5 A at 50 °C (5.1)   |
 | R1, R3 | 220 Ω, 1 %         | any                 | 0603        | RES - Input current limit (5.2)               |
 | R2, R4 | 10 kΩ              | any                 | 0603        | Input pull-down (5.3)                         |
 | D1, D2 | 48 V               | SMBJ48CA            | SMB         | Bidirectional TVS, 48 V standoff (5.5)        |
@@ -257,7 +257,7 @@ Not yet run. Bench first, on a spare 24 VAC transformer, then the furnace.
 
 - A hard short on W or G while that channel is closed may destroy the PhotoMOS before the
   fuse clears.
-- A sustained overload above the switch's 1.95 A rating can overheat a PhotoMOS without
+- A sustained overload above the switch's 2.25 A rating can overheat a PhotoMOS without
   blowing its fuse, which holds 2.5 A indefinitely.
 - A firmware hang with an output high keeps that channel closed until the watchdog fires.
 - This board is not a safety device; the furnace's own limit and flame safeties remain in
@@ -294,5 +294,5 @@ Further reading:
   the source for section 5.1.
 - [Littelfuse SMBJ48CA product page](https://www.littelfuse.com/products/overvoltage-protection/tvs-diodes/surface-mount/smbj/smbj48ca),
   which links the SMBJ series datasheet, the source for section 5.5.
-- Littelfuse 451/453 series fuse datasheet (rev. 08/23/21) and Fuseology design guide, the
-  sources for section 5.6.
+- Littelfuse 451/453 series fuse datasheet (rev. 08/23/21), Fuseology design guide and
+  2920L PTC datasheet (rev. 06/04/24), the sources for section 5.6.
