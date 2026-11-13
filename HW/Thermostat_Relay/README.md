@@ -119,10 +119,11 @@ guaranteed off below 0.1 mA of LED current, and a 45 kΩ pull-up supplies only a
 Cannot override a pin that actively drives high during boot, those high-level glitch pins
 should be avoided.
 
-### 5.4 Optional indicator: 2.2 kΩ and a red LED
+### 5.4 Optional indicator: 4.7 kΩ and a red LED
 
 One LED per channel, from the control input to ground, lit while the ESP32 commands the
-channel closed. At 2.2 kΩ it draws about 0.7 mA.
+channel closed. At 4.7 kΩ it draws about 0.3 mA, 0.4 mA worst case. With the pull-down and
+indicator both fitted, a closed channel draws at most 9.0 + 0.35 + 0.4 = 9.7 mA (R-8).
 
 ### 5.5 Clamp: Bidirectional TVS (D1)
 
@@ -213,7 +214,7 @@ copper under U1 and U2.
 | R2, R4 | 10 kΩ              | any                | 0603        | Input pull-down, optional (5.3)               |
 | D1, D2 | 48 V               | SMBJ48CA           | SMB         | Bidirectional TVS, 48 V standoff (5.5)        |
 | F1, F2 | 2 A very fast      | Littelfuse 0451002 | Nano2       | Fuse, ≥ 30 VAC, ≥ 20 A interrupting (5.6)     |
-| R5, R6 | 2.2 kΩ             | any                | 0603        | RES - Indicator current limit, optional (5.4) |
+| R5, R6 | 4.7 kΩ             | any                | 0603        | RES - Indicator current limit, optional (5.4) |
 | D3, D4 | Red LED            | any                | 0603        | LED, Red, SMD - Indicator, optional (5.4)     |
 | J1     | 1×3 pin header     | any                | 2.54 mm THT | MCU Connection                                |
 | J2     | 1×4 screw terminal | Phoenix MKDS 1,5   | 5.08 mm THT | Furnace connection                            |
