@@ -225,17 +225,26 @@ The schematic reuses KiCad's TLP3546 symbol, which has the same pin functions.
 
 ## 7. Connections
 
-| J1 (to ESP32) |         | J2 (to furnace) |                           |
-| ------------- | ------- | --------------- | ------------------------- |
-| 1             | HEAT_EN | 1               | R (24 VAC hot)            |
-| 2             | FAN_EN  | 2               | C (parked, not connected) |
-| 3             | GND     | 3               | W (heat)                  |
-|               |         | 4               | G (fan)                   |
+J1, to the ESP32:
 
-ESP32 pin choice: use pins that are high-impedance at boot, for example GPIO 25 and 26 on
-a classic ESP32 dev board. Avoid strapping pins (0, 2, 5, 12, 15), pins that emit signals
-at boot (1, 3, 14), flash pins (6–11) and input-only pins (34–39). Other ESP32 variants
-differ; check the module's datasheet.
+| Pin | Signal  | Function                  |
+| --- | ------- | ------------------------- |
+| 1   | HEAT_EN | High closes R to W (heat) |
+| 2   | FAN_EN  | High closes R to G (fan)  |
+| 3   | GND     | Logic ground              |
+
+ESP32 pin choice: use GPIOs that are high-impedance at boot. Avoid strapping pins, pins that
+emit signals at boot, flash pins and input-only pins. These differ between ESP32 variants;
+check the module's datasheet.
+
+J2, to the furnace:
+
+| Pin | Signal | Function              |
+| --- | ------ | --------------------- |
+| 1   | R      | 24 VAC hot            |
+| 2   | C      | Unused, not connected |
+| 3   | W      | Heat                  |
+| 4   | G      | Fan                   |
 
 ## 8. Verification
 
@@ -267,33 +276,14 @@ Not yet run. Bench first, on a spare 24 VAC transformer, then the furnace.
 - To confirm by test or datasheet: hot on-resistance, coil energy, TVS capacitance,
   transformer short-circuit current, the TLP3109A's creepage distance.
 
-## 10. How this document maps to the usual process
+## 10. References
 
-A small board normally gets one design document like this one, written before the
-schematic and updated as the design is built and tested:
-
-1. Requirements: what it must do, with numbers (section 3).
-2. Architecture and trade-offs: the options and why one won (section 4).
-3. Detailed design: part selection and worst-case calculations from datasheets (5, 6).
-4. Schematic capture and electrical rules check (done: `Thermostat_Relay.kicad_sch`).
-5. Design review, then PCB layout and design rules check.
-6. Build, bring-up and verification against the requirements (section 8).
-7. Record what was learned; revise.
-
-Further reading:
-
-- TI reference design guides for this same application, which are good models of the
-  format: [TIDA-00751, 24 V AC solid-state relay](https://www.ti.com/lit/pdf/tidub92) and
-  [TIDA-010085, 24 VAC multi-channel SSR](https://www.ti.com/lit/pdf/tiduez1). Both run
-  system description → specifications → design theory and calculations → test results.
-- Hunter Scott, *Designing Electronics That Work* (No Starch Press): the practical
-  process from requirements through bring-up and manufacturing.
-- [NASA Systems Engineering Handbook](https://www.nasa.gov/reference/systems-engineering-handbook/):
-  the formal version of requirements, trade studies and verification, far heavier than a
-  hobby board needs but the source of the vocabulary.
-- [KiCad documentation](https://docs.kicad.org/): schematic capture, ERC, layout and DRC.
-- [Toshiba TLP3109A datasheet](https://toshiba.semicon-storage.com/info/docget.jsp?did=65124&prodName=TLP3109A),
-  the source for section 5.1.
+- TI reference design guides for HVAC solid-state relays:
+  [TIDA-00751, 24 V AC solid-state relay](https://www.ti.com/lit/pdf/tidub92) and
+  [TIDA-010085, 24 VAC multi-channel SSR](https://www.ti.com/lit/pdf/tiduez1).
+- Hunter Scott, *Designing Electronics That Work* (No Starch Press)
+- [NASA Systems Engineering Handbook](https://www.nasa.gov/reference/systems-engineering-handbook/)
+- [Toshiba TLP3109A datasheet](https://toshiba.semicon-storage.com/info/docget.jsp?did=65124&prodName=TLP3109A)
 - [Littelfuse SMBJ48CA product page](https://www.littelfuse.com/products/overvoltage-protection/tvs-diodes/surface-mount/smbj/smbj48ca),
   which links the SMBJ series datasheet, the source for section 5.5.
 - Littelfuse 451/453 series fuse datasheet (rev. 08/23/21), Fuseology design guide and
