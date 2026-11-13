@@ -2771,6 +2771,17 @@
 				)
 			)
 		)
+		(property "Manufacturer" "Yageo"
+			(at 109.22 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "MPN" "RC0603FR-07220RL"
 			(at 109.22 104.14 0)
 			(hide yes)
@@ -2872,6 +2883,17 @@
 				)
 			)
 		)
+		(property "Manufacturer" "Würth Elektronik"
+			(at 93.98 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "MPN" "150060SS75000"
 			(at 93.98 119.38 0)
 			(hide yes)
@@ -2963,6 +2985,17 @@
 			)
 		)
 		(property "Tolerance" "1%"
+			(at 109.22 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
 			(at 109.22 55.88 0)
 			(hide yes)
 			(show_name no)
@@ -3159,6 +3192,17 @@
 				)
 			)
 		)
+		(property "Manufacturer" "Würth Elektronik"
+			(at 93.98 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "MPN" "150060SS75000"
 			(at 93.98 71.12 0)
 			(hide yes)
@@ -3239,6 +3283,17 @@
 			)
 		)
 		(property "Description" "600 W bidirectional TVS, 48 V standoff, SMB"
+			(at 144.78 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Littelfuse"
 			(at 144.78 109.22 0)
 			(hide yes)
 			(show_name no)
@@ -3331,6 +3386,17 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 101.6 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
 			(at 101.6 63.5 0)
 			(hide yes)
 			(show_name no)
@@ -3434,6 +3500,17 @@
 			)
 		)
 		(property "Optional" "indicator LED; omit to save 0.3 mA"
+			(at 93.98 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
 			(at 93.98 111.76 0)
 			(hide yes)
 			(show_name no)
@@ -3601,6 +3678,17 @@
 			)
 		)
 		(property "Description" "600 W bidirectional TVS, 48 V standoff, SMB"
+			(at 144.78 60.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Littelfuse"
 			(at 144.78 60.96 0)
 			(hide yes)
 			(show_name no)
@@ -3786,6 +3874,17 @@
 				)
 			)
 		)
+		(property "Manufacturer" "Yageo"
+			(at 101.6 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "MPN" "RC0603FR-0710KL"
 			(at 101.6 111.76 0)
 			(hide yes)
@@ -3945,6 +4044,17 @@
 			)
 		)
 		(property "Description" "Photo MOSFET relay, 1-Form-A, 100 V, 3 A (A connection), 65 mohm max, 1500 Vrms isolation, Toshiba 2.54SOP6 (11-7C1S); footprint to be drawn"
+			(at 127 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Toshiba"
 			(at 127 106.68 0)
 			(hide yes)
 			(show_name no)
@@ -4211,6 +4321,17 @@
 				)
 			)
 		)
+		(property "Manufacturer" "Littelfuse"
+			(at 152.4 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "MPN" "0451002.MRL"
 			(at 152.4 104.14 0)
 			(hide yes)
@@ -4368,6 +4489,17 @@
 			)
 		)
 		(property "Description" "SMD fuse, very fast-acting, 2 A, 125 V"
+			(at 152.4 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Littelfuse"
 			(at 152.4 55.88 0)
 			(hide yes)
 			(show_name no)
@@ -4537,6 +4669,17 @@
 			)
 		)
 		(property "Description" "Photo MOSFET relay, 1-Form-A, 100 V, 3 A (A connection), 65 mohm max, 1500 Vrms isolation, Toshiba 2.54SOP6 (11-7C1S); footprint to be drawn"
+			(at 127 58.42 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Toshiba"
 			(at 127 58.42 0)
 			(hide yes)
 			(show_name no)
@@ -4807,6 +4950,17 @@
 			)
 		)
 		(property "Optional" "indicator LED; omit to save 0.3 mA"
+			(at 93.98 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
 			(at 93.98 63.5 0)
 			(hide yes)
 			(show_name no)
