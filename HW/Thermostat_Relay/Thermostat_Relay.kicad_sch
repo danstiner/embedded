@@ -3106,13 +3106,23 @@
 	)
 	(wire
 		(pts
-			(xy 144.78 55.88) (xy 160.02 55.88)
+			(xy 144.78 55.88) (xy 148.59 55.88)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "8ea3c00e-009c-57b5-8578-3bfe4ccb0049")
+		(uuid "3263729c-37c1-4151-9b4e-e0586c8a21b9")
+	)
+	(wire
+		(pts
+			(xy 156.21 55.88) (xy 160.02 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "89b9e586-ff5f-48c5-a3c6-99f502ef45b3")
 	)
 	(junction
 		(at 144.78 55.88)
@@ -3120,7 +3130,7 @@
 		(color 0 0 0 0)
 		(uuid "40fdd481-24a7-503d-9347-328a71cdf9e0")
 	)
-	(label "R_FUSED"
+	(label "R"
 		(at 160.02 55.88 0)
 		(effects
 			(font
@@ -4073,13 +4083,23 @@
 	)
 	(wire
 		(pts
-			(xy 144.78 104.14) (xy 160.02 104.14)
+			(xy 144.78 104.14) (xy 148.59 104.14)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "81e65a47-05f9-5701-b863-64c498585669")
+		(uuid "c52a5c2e-797f-4182-9fd5-81e13fa73d50")
+	)
+	(wire
+		(pts
+			(xy 156.21 104.14) (xy 160.02 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "21733ba0-488e-442b-96b5-17345153198d")
 	)
 	(junction
 		(at 144.78 104.14)
@@ -4087,7 +4107,7 @@
 		(color 0 0 0 0)
 		(uuid "19e3befb-91cc-593a-a99d-9de9cf1ade65")
 	)
-	(label "R_FUSED"
+	(label "R"
 		(at 160.02 104.14 0)
 		(effects
 			(font
@@ -4331,7 +4351,7 @@
 	)
 	(symbol
 		(lib_id "Device:Fuse")
-		(at 190.5 68.58 90)
+		(at 152.4 55.88 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4341,7 +4361,7 @@
 		(dnp no)
 		(uuid "cfcecafb-73d7-5fc6-b965-a605e0b031b2")
 		(property "Reference" "F1"
-			(at 190.5 63.5 90)
+			(at 152.4 50.8 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4350,8 +4370,8 @@
 				)
 			)
 		)
-		(property "Value" "3A very fast"
-			(at 190.5 66.04 90)
+		(property "Value" "2.5A very fast"
+			(at 152.4 53.34 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4361,7 +4381,7 @@
 			)
 		)
 		(property "Footprint" "Fuse:Fuse_Littelfuse-NANO2-451_453"
-			(at 190.5 68.58 0)
+			(at 152.4 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4372,7 +4392,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 190.5 68.58 0)
+			(at 152.4 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4382,8 +4402,8 @@
 				)
 			)
 		)
-		(property "Description" "SMD fuse, very fast-acting, 2 A, 125 V"
-			(at 190.5 68.58 0)
+		(property "Description" "SMD fuse, very fast-acting, 2.5 A, 125 V"
+			(at 152.4 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4393,8 +4413,8 @@
 				)
 			)
 		)
-		(property "MPN" "0451003.MRL"
-			(at 190.5 68.58 0)
+		(property "MPN" "045102.5MRL"
+			(at 152.4 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4419,28 +4439,108 @@
 			)
 		)
 	)
+	(symbol
+		(lib_id "Device:Fuse")
+		(at 152.4 104.14 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "c6b2b56d-b625-4c28-9f49-619a2a3fa1d6")
+		(property "Reference" "F2"
+			(at 152.4 99.06 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "2.5A very fast"
+			(at 152.4 101.6 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Fuse:Fuse_Littelfuse-NANO2-451_453"
+			(at 152.4 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 152.4 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "SMD fuse, very fast-acting, 2.5 A, 125 V"
+			(at 152.4 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "045102.5MRL"
+			(at 152.4 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "aeba3090-9e76-4913-b5bc-bcdcb169d39c")
+		)
+		(pin "2"
+			(uuid "f43787bc-abe2-4920-82ff-ceab5a2f6d03")
+		)
+		(instances
+			(project "Thermostat_Relay"
+				(path "/7b81de3f-d469-53fb-9228-9ef6edb09893"
+					(reference "F2")
+					(unit 1)
+				)
+			)
+		)
+	)
 	(wire
 		(pts
-			(xy 194.31 68.58) (xy 203.2 68.58)
+			(xy 203.2 68.58) (xy 195.58 68.58)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "3e9c065a-84ae-5b60-a0af-ee773f169b8c")
+		(uuid "97a5ee4b-c0ee-4d99-9a38-8dfdc4840fb5")
 	)
-	(wire
-		(pts
-			(xy 186.69 68.58) (xy 180.34 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7aef6bf1-0e00-5bf6-9e13-6e7d37614ccc")
-	)
-	(label "R_FUSED"
-		(at 180.34 68.58 180)
+	(label "R"
+		(at 195.58 68.58 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4582,7 +4682,7 @@
 		)
 		(uuid "dd932ce1-6d53-5634-968a-b95839a22275")
 	)
-	(text "Notes\n1. Logic high closes a channel. R2/R4 keep it open while the GPIO floats (reset, boot, unpowered).\n2. LED current: (3.3 V - 1.65 V) / 220R = 7.5 mA nominal, 5.4 mA worst case (datasheet minimum 5 mA).\n3. U1/U2 pins 4 and 6 are the AC switch (A connection); pin 5, the common source, stays open.\n4. D1/D2 clamp inductive turn-off to about 64 V at 2.1 A peak; they do not conduct below 48 V.\n5. Rated 1.5 A RMS per channel, about 2.2 A total. F1 opens on a W or G short to C.\n6. No connection between GND and any J2 terminal. Layout: keep logic and field copper apart.\n7. R5/D3 and R6/D4 are optional indicators of the commanded state (0.7 mA each when on).\nSee README.md for requirements, calculations and the test plan."
+	(text "Notes\n1. Logic high closes a channel. R2/R4 keep it open while the GPIO floats (reset, boot, unpowered).\n2. LED current: (3.3 V - 1.65 V) / 220R = 7.5 mA nominal, 5.4 mA worst case (datasheet minimum 5 mA).\n3. U1/U2 pins 4 and 6 are the AC switch (A connection); pin 5, the common source, stays open.\n4. D1/D2 clamp inductive turn-off to about 64 V at 2.1 A peak; they do not conduct below 48 V.\n5. Rated 1.5 A RMS per channel. F1/F2 (2.5 A each) open on a W or G short to C.\n6. No connection between GND and any J2 terminal. Layout: keep logic and field copper apart.\n7. R5/D3 and R6/D4 are optional indicators of the commanded state (0.7 mA each when on).\nSee README.md for requirements, calculations and the test plan."
 		(exclude_from_sim no)
 		(at 40.64 165.1 0)
 		(effects

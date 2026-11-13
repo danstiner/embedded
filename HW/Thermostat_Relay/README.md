@@ -61,12 +61,12 @@ back-to-back MOSFETs and overcurrent protection into a single package with 30 m�
 
 ## 5. Circuit
 
-Two identical channels share one fused R input. Only one channel is shown.
+Two identical channels share the R input, each with its own fuse. Only one channel is shown.
 
 ```
  logic side (3.3 V, USB ground) :        furnace side (24 VAC, floating)
                                 :
- HEAT_EN o--+--[R1 220Ω]---+    :    +------+--- [F1 3A]-- o R
+ HEAT_EN o--+--[R1 220Ω]---+    :    +------+--[F1 2.5A]-- o R
             |            1 | U1 :    | 6    |
          [R2 10k]        [LED]~~:~~[FETs]  [D1 TVS]
             |            2 |    :    | 4    |
@@ -138,40 +138,45 @@ TI measured about ±46 V on a relay coil with a 40 V TVS in TIDA-010085.
 An RC snubber is ruled out by R-6: a typical 100 nF passes about 1.1 mA at 60 Hz with the
 switch open, which could trigger a phantom call for heat on a modern furnace control board.
 
-### 5.6 Fuse: 3 A very fast-acting (F1)
+### 5.6 Fuses: 2.5 A very fast-acting, one per channel (F1, F2)
 
-Protects the thermostat cable and transformer from a short of W or G to C while that
-channel is closed (R-9); older furnaces may have no fuse of their own. One fuse on R serves
-both channels. A short from R to C does not pass through this board.
+Each fuse opens on a short of its W or G wire to C while that channel is closed (R-9),
+protecting the cable, the transformer and, for moderate fault currents, the switch. A short
+from R to C does not pass through this board. One fuse per channel means a fault on the fan
+wire cannot take out the heat, and each fuse is sized for one load, not the sum.
 
-| Littelfuse 0451003.MRL      | Datasheet                 | Needed                                                              |
-| --------------------------- | ------------------------- | ------------------------------------------------------------------- |
-| Voltage rating              | 125 VAC                   | 30 V RMS (R-4)                                                      |
-| Interrupting rating         | 50 A at 125 VAC           | transformer short-circuit current: unmeasured, estimated 10 to 20 A |
-| Continuous current at 60 °C | 2.2 A (3 A × 75 % × 97 %) | 1.7 A                                                               |
-| Opens at 200 % (6 A)        | within 5 s                | –                                                                   |
-| Melting I²t                 | 1.65 A²s                  | below the switch's 8 A²s                                            |
-| Cold resistance             | 23 mΩ                     | –                                                                   |
+| Littelfuse 045102.5MRL | Datasheet                      | Needed                                                              |
+| ---------------------- | ------------------------------ | ------------------------------------------------------------------- |
+| Voltage rating         | 125 VAC                        | 30 V RMS (R-4)                                                      |
+| Interrupting rating    | 50 A at 125 VAC                | transformer short-circuit current: unmeasured, estimated 10 to 20 A |
+| Continuous current     | 1.9 A at 25 °C, 1.8 A at 60 °C | 1.5 A (R-3)                                                         |
+| Opens at 200 % (5 A)   | within 5 s                     | –                                                                   |
+| Melting I²t            | 1.03 A²s                       | below the switch's 8 A²s                                            |
+| Cold resistance        | 29 mΩ                          | –                                                                   |
 
-- Sizing: F1 carries at most about 1.7 A: 1.5 A on one channel (R-3) plus a fan relay on
-  the other, or everything a 40 VA transformer can supply. The datasheet derates 25 % for
-  continuous operation and about 3 % more at 60 °C (read off its curve). A 2.5 A fuse
-  would leave 1.8 A, too little margin. Furnace control boards commonly use 3 A too.
-- Overloads: 3 A is above the switch's 1.95 A hot rating, so the fuse protects against
-  shorts, not sustained overloads.
+- Sizing: Littelfuse's guidance is to run a fuse at no more than 75 % of its rating at
+  25 °C, which gives 1.9 A. Temperature is a small further correction for this fuse, about
+  3 % at 60 °C, so it does not drive the choice. A 2 A fuse gives exactly 1.5 A at 25 °C,
+  no margin at any temperature; 2.5 A is the next size.
+- Compared with others: TI recommends a 2 A fast fuse for its 1 A design (TIDA-010085) and
+  tested with 1.5 A. Honeywell rates the T6 Pro's W terminal at 1 A; ecobee rates its
+  terminals at 3 A. Furnace control boards fuse the whole 24 V circuit at 3 or 5 A, so a
+  2.5 A fuse here should open first.
+- Overloads: 2.5 A is above the switch's 1.95 A rating at 60 °C, so the fuse protects
+  against shorts, not sustained overloads.
 - Shorts: the switch tolerates 9 A for 100 ms, about 8 A²s. At 9 A the fuse melts in
-  roughly 20 ms (1.65 A²s / (9 A)²), so the switch should survive a short the transformer
+  roughly 13 ms (1.03 A²s / (9 A)²), so the switch should survive a short the transformer
   limits to 9 A. Above 9 A the switch is outside its rating however fast the fuse clears.
   For scale, TI measured about 7 A peak from a shorted 20 VA transformer in TIDA-010085.
 
 Why not a resettable PTC:
 
-|                                      | Fuse, 3 A (chosen) | PTC, e.g. 2920L110/60 (1.1 A hold)      |
-| ------------------------------------ | ------------------ | --------------------------------------- |
-| Carries 1.5 A at 60 °C               | yes                | no: hold current falls to roughly 0.8 A |
-| Clears a 9 A short in                | about 20 ms        | about 0.5 s (listing figure)            |
-| Lets through (switch survives 8 A²s) | about 1.65 A²s     | tens of A²s                             |
-| After a fault                        | replace the part   | resets itself                           |
+|                                      | Fuse, 2.5 A (chosen) | PTC, e.g. 2920L110/60 (1.1 A hold)      |
+| ------------------------------------ | -------------------- | --------------------------------------- |
+| Carries 1.5 A at 60 °C               | yes                  | no: hold current falls to roughly 0.8 A |
+| Clears a 9 A short in                | about 13 ms          | about 0.5 s (listing figure)            |
+| Lets through (switch survives 8 A²s) | about 1 A²s          | tens of A²s                             |
+| After a fault                        | replace the part     | resets itself                           |
 
 A PTC large enough to carry 1.5 A hot trips more slowly still, so it would protect the
 wiring but not the switch. A fuse drawn as a thin PCB trace is not an option: it has no
@@ -199,19 +204,19 @@ copper under U1 and U2.
 
 ## 6. Bill of materials
 
-| Ref    | Value                     | Part                                  | Package                    |
-| ------ | ------------------------- | ------------------------------------- | -------------------------- |
-| U1, U2 | TLP3109A                  | Toshiba TLP3109A(TP,F                 | 2.54SOP6 (Toshiba 11-7C1S) |
-| R1, R3 | 220 Ω 1 %                 | any                                   | 0603                       |
-| R2, R4 | 10 kΩ                     | any                                   | 0603                       |
-| D1, D2 | SMBJ48CA                  | Littelfuse SMBJ48CA or equivalent     | SMB                        |
-| R5, R6 | 2.2 kΩ                    | any; optional                         | 0603                       |
-| D3, D4 | red LED                   | any high-brightness; optional         | 0603                       |
-| F1     | 3 A very fast             | Littelfuse 0451003.MRL                | Nano2                      |
-| J1     | 1×3 pin header            | any                                   | 2.54 mm, through-hole      |
-| J2     | 4-position screw terminal | Phoenix MKDS 1,5/4-5,08 or equivalent | 5.08 mm, through-hole      |
+| Ref    | Value              | Part                | Footprint   | Description                                   |
+| ------ | ------------------ | ------------------- | ----------- | --------------------------------------------- |
+| U1, U2 | TLP3109A           | Toshiba             | 2.54SOP6    | PhotoMOS relay, 100 V, 1.5 A at 60 °C (5.1)   |
+| R1, R3 | 220 Ω, 1 %         | any                 | 0603        | RES - Input current limit (5.2)               |
+| R2, R4 | 10 kΩ              | any                 | 0603        | Input pull-down (5.3)                         |
+| D1, D2 | 48 V               | SMBJ48CA            | SMB         | Bidirectional TVS, 48 V standoff (5.5)        |
+| F1, F2 | 2.5 A very fast    | Littelfuse 045102.5 | Nano2       | Fuse, ≥ 30 VAC, ≥ 20 A interrupting (5.6)     |
+| R5, R6 | 2.2 kΩ             | any                 | 0603        | RES - Indicator current limit, optional (5.4) |
+| D3, D4 | Red LED            | any                 | 0603        | LED, Red, SMD - Indicator, optional (5.4)     |
+| J1     | 1×3 pin header     | any                 | 2.54 mm THT | MCU Connection                                |
+| J2     | 1×4 screw terminal | Phoenix MKDS 1,5    | 5.08 mm THT | Furnace connection                            |
 
-About $11 in parts, of which the two PhotoMOS relays are $8.28. KiCad has no stock
+About $12 in parts, of which the two PhotoMOS relays are $8.28. KiCad has no stock
 footprint for the TLP3109A's package, so `Components/TLP3109A/footprints.pretty` holds one drawn from
 Toshiba's 2.54SOP6 land pattern (0.8 × 1.2 mm pads, rows 6.3 mm apart, 2.54 mm pitch).
 The schematic reuses KiCad's TLP3546 symbol, which has the same pin functions.
@@ -252,10 +257,8 @@ Not yet run. Bench first, on a spare 24 VAC transformer, then the furnace.
 
 - A hard short on W or G while that channel is closed may destroy the PhotoMOS before the
   fuse clears.
-- Both channels at 1.5 A together (3 A through F1) is not supported; the fuse is sized for
-  about 2.2 A continuous in total.
 - A sustained overload above the switch's 1.95 A rating can overheat a PhotoMOS without
-  blowing the fuse, which holds 3 A indefinitely.
+  blowing its fuse, which holds 2.5 A indefinitely.
 - A firmware hang with an output high keeps that channel closed until the watchdog fires.
 - This board is not a safety device; the furnace's own limit and flame safeties remain in
   charge.
@@ -291,4 +294,5 @@ Further reading:
   the source for section 5.1.
 - [Littelfuse SMBJ48CA product page](https://www.littelfuse.com/products/overvoltage-protection/tvs-diodes/surface-mount/smbj/smbj48ca),
   which links the SMBJ series datasheet, the source for section 5.5.
-- Littelfuse 451/453 series fuse datasheet (rev. 08/23/21), the source for section 5.6.
+- Littelfuse 451/453 series fuse datasheet (rev. 08/23/21) and Fuseology design guide, the
+  sources for section 5.6.
