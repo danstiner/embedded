@@ -139,7 +139,7 @@ to prevent damage to the switch.
 An RC snubber is ruled out by R-6: a typical 100 nF passes about 1.1 mA at 60 Hz with the
 switch open, which could trigger a phantom call for heat on a modern furnace control board.
 
-### 5.6 Fuses: 2 A fast-acting, one per channel (F1, F2)
+### 5.6 Fuses: 2 A very fast-acting, one per channel (F1, F2)
 
 Each fuse opens if its W or G circuit is shorted while that channel is closed (R-9): a
 shorted relay coil, or the wire touching the transformer's return or grounded metal. That
@@ -147,7 +147,7 @@ protects the cable, the transformer and, for moderate fault currents, the switch
 per channel means a fault on the fan wire cannot take out the heat, and each fuse is sized
 for one load, not the sum.
 
-| Littelfuse 0451002.MRL | Datasheet                       | Needed                                                              |
+| Littelfuse 0451002.MRL | Datasheet                       | Requirement                                                         |
 | ---------------------- | ------------------------------- | ------------------------------------------------------------------- |
 | Voltage rating         | 125 VAC                         | 30 V RMS (R-4)                                                      |
 | Interrupting rating    | 50 A at 125 VAC                 | transformer short-circuit current: unmeasured, estimated 10 to 20 A |
