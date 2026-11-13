@@ -4682,7 +4682,7 @@
 		)
 		(uuid "dd932ce1-6d53-5634-968a-b95839a22275")
 	)
-	(text "Notes\n1. Logic high closes a channel. R2/R4 (optional) keep it open while the GPIO floats (reset, boot, unpowered).\n2. LED current: (3.3 V - 1.65 V) / 220R = 7.5 mA nominal, 5.4 mA worst case (datasheet minimum 5 mA).\n3. U1/U2 pins 4 and 6 are the AC switch (A connection); pin 5, the common source, stays open.\n4. D1/D2 clamp inductive turn-off to about 62 V at 1.4 A peak; they do not conduct below 48 V.\n5. Rated 1 A RMS per channel. F1/F2 (2 A each) open on a W or G short to C.\n6. No connection between GND and any J2 terminal. Layout: keep logic and field copper apart.\n7. R5/D3 and R6/D4 are optional indicators of the commanded state (0.7 mA each when on).\nSee README.md for requirements, calculations and the test plan."
+	(text "Notes\n1. Logic high closes a channel. R2/R4 (optional) keep it open while the GPIO floats (reset, boot, unpowered).\n2. LED current: (3.3 V - 1.65 V) / 220R = 7.5 mA nominal, 5.4 mA worst case (datasheet minimum 5 mA).\n3. U1/U2 pins 4 and 6 are the AC switch (A connection); pin 5, the common source, stays open.\n4. D1/D2 clamp inductive turn-off to about 62 V at 1.4 A peak; they do not conduct below 48 V.\n5. Rated 1 A RMS per channel. F1/F2 (2 A each) open on a shorted W or G circuit.\n6. No connection between GND and any J2 terminal. Layout: keep logic and field copper apart.\n7. R5/D3 and R6/D4 are optional indicators of the commanded state (0.7 mA each when on).\nSee README.md for requirements, calculations and the test plan."
 		(exclude_from_sim no)
 		(at 40.64 165.1 0)
 		(effects

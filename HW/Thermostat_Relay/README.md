@@ -29,8 +29,9 @@ drives a relay coil and can draw an ampere or more of current.
 | R-10 | Surface-mount parts that can be reflowed on a hot plate; through-hole connectors            |
 
 Notes
-- 1 A matches what commercial thermostats rate each terminal for (Honeywell T6 Pro: 0.02 to
-  1.0 A); 50 °C is a conservative ambient
+- 1 A is the load current TI's 24 VAC thermostat relay reference design (TIDA-010085) is
+  specified for, and more than half of what a 40 VA Class 2 transformer can supply (1.7 A)
+- 50 °C is a conservative ambient
 - 30 V RMS maximum for thermostat circuits follows from them being Class 2 under UL 5085-3
 
 ## 4. Design trades
@@ -54,7 +55,7 @@ Downsides of PhotoMOS are slightly higher cost and LED aging.
 TI's reference designs for 24 VAC thermostat switching (section 10) both use discrete MOSFET pairs
 with a separate isolated gate drive. This is likely a lower cost design at scale production,
 using either small transformers or capacitive isolation instead of optocouplers. It also enables
-microsecond switching for power-stealing, potential to add current-sensing circuitry, and ability
+microsecond switching for power-stealing, adding current-sensing circuitry, and the ability
 to share one isolated supply across all channels. None of these are relevant to a v1 prototype.
 
 TI's upcoming TPSI8830 is worth watching: it integrates a capacitively isolated driver with
@@ -126,27 +127,25 @@ channel closed. At 2.2 kΩ it draws about 0.7 mA.
 ### 5.5 Clamp: Bidirectional TVS (D1)
 
 When the switch opens on a relay coil or gas valve, the coil's inductance creates a voltage
-spike across the switch. A bidirectional TVS across the switch limits that voltage (R-5).
+spike across the switch. A bidirectional TVS across the switch limits that voltage (R-5)
+to prevent damage to the switch.
 
-|                        | SMBJ48CA   | Requirement                       |
-| ---------------------- | ---------- | --------------------------------- |
-| Does not conduct below | 48 V       | ≥ 45 V peak                       |
-| Clamps at, for 1.4 A   | about 62 V | ≤ 80 V (switch's recommended max) |
-| Leakage                | 1 µA max   | see 5.7                           |
-
-Littelfuse SMBJ datasheet (rev. 07/04/25): breakdown 53.3 to 58.9 V at 1 mA, 77.4 V max at
-7.8 A. The 62 V figure is interpolated between those points at 1.4 A, the peak of 1 A RMS.
-TI measured about ±46 V on a relay coil with a 40 V TVS in TIDA-010085.
+|                     | SMBJ48CA       | Requirement                       |
+| ------------------- | -------------- | --------------------------------- |
+| Reverse stand off   | 48 V           | ≥ 45 V peak (R-4)                 |
+| Max clamp           | 77.4 V @ 7.8 A | ≤ 80 V (switch's recommended max) |
+| Max reverse leakage | 1 µA           | < 100 µA total leakage (R-6)      |
 
 An RC snubber is ruled out by R-6: a typical 100 nF passes about 1.1 mA at 60 Hz with the
 switch open, which could trigger a phantom call for heat on a modern furnace control board.
 
-### 5.6 Fuses: 2 A very fast-acting, one per channel (F1, F2)
+### 5.6 Fuses: 2 A fast-acting, one per channel (F1, F2)
 
-Each fuse opens on a short of its W or G wire to C while that channel is closed (R-9),
-protecting the cable, the transformer and, for moderate fault currents, the switch. A short
-from R to C does not pass through this board. One fuse per channel means a fault on the fan
-wire cannot take out the heat, and each fuse is sized for one load, not the sum.
+Each fuse opens if its W or G circuit is shorted while that channel is closed (R-9): a
+shorted relay coil, or the wire touching the transformer's return or grounded metal. That
+protects the cable, the transformer and, for moderate fault currents, the switch. One fuse
+per channel means a fault on the fan wire cannot take out the heat, and each fuse is sized
+for one load, not the sum.
 
 | Littelfuse 0451002.MRL | Datasheet                       | Needed                                                              |
 | ---------------------- | ------------------------------- | ------------------------------------------------------------------- |
@@ -162,9 +161,8 @@ wire cannot take out the heat, and each fuse is sized for one load, not the sum.
   2 % at 50 °C. That leaves about 50 % margin over a 1 A load, which also allows for relay
   coil inrush.
 - Compared with others: TI recommends the same 2 A fast fuse for its 1 A design
-  (TIDA-010085) and tested with 1.5 A. Honeywell rates the T6 Pro's W terminal at 1 A;
-  ecobee rates its terminals at 3 A. Furnace control boards fuse the whole 24 V circuit at
-  3 or 5 A, so a 2 A fuse here should open first.
+  (TIDA-010085) and tested with 1.5 A. Furnace control boards commonly fuse the whole 24 V
+  circuit at 3 or 5 A, so a 2 A fuse here should open first.
 - Overloads: the fuse's 2 A rating is below the switch's 2.25 A rating at 50 °C. It holds
   2 A indefinitely and opens slowly just above that (only 4 A in 5 s is specified), so
   moderate overloads are covered loosely, not tightly.
@@ -243,19 +241,19 @@ differ; check the module's datasheet.
 
 Not yet run. Bench first, on a spare 24 VAC transformer, then the furnace.
 
-| Test                                                             | Checks        | Pass                                                 |
-| ---------------------------------------------------------------- | ------------- | ---------------------------------------------------- |
-| Inputs open: resistance R–W, R–G                                 | R-2           | open circuit                                         |
-| Resistance from J1 GND to every J2 terminal                      | R-7           | open circuit                                         |
-| Input driven to 3.3 V through an ammeter                         | R-8           | 6.5–9.5 mA; R–W below 0.5 Ω                          |
-| Input tied to 3.3 V through 47 kΩ                                | R-2           | stays open                                           |
-| Open channel, µA meter in series with a 1 kΩ load                | R-6           | < 100 µA                                             |
-| Closed into 22 kΩ, scope the load                                | R-3           | clean sine                                           |
-| Closed into 24 Ω, 50 W (1 A) for 30 min                          | R-3           | drop < 0.2 V, case rise < 50 °C                      |
-| Switch a 24 VAC relay coil off 20 times, scope across the switch | R-5           | peak ≤ 80 V                                          |
-| Reset and unplug the ESP32 while a channel is closed             | R-2           | load drops, no pulse at boot                         |
-| Channel closed, short W to C (last: blows the fuse)              | R-9           | fuse opens, wiring undamaged; switch may not survive |
-| On the furnace: idle 10 min, then G, then W, then reset mid-call | R-1, R-2, R-6 | no phantom call; normal cycles; call drops on reset  |
+| Test                                                                     | Checks        | Pass                                                 |
+| ------------------------------------------------------------------------ | ------------- | ---------------------------------------------------- |
+| Inputs open: resistance R–W, R–G                                         | R-2           | open circuit                                         |
+| Resistance from J1 GND to every J2 terminal                              | R-7           | open circuit                                         |
+| Input driven to 3.3 V through an ammeter                                 | R-8           | 6.5–9.5 mA; R–W below 0.5 Ω                          |
+| Input tied to 3.3 V through 47 kΩ                                        | R-2           | stays open                                           |
+| Open channel, µA meter in series with a 1 kΩ load                        | R-6           | < 100 µA                                             |
+| Closed into 22 kΩ, scope the load                                        | R-3           | clean sine                                           |
+| Closed into 24 Ω, 50 W (1 A) for 30 min                                  | R-3           | drop < 0.2 V, case rise < 50 °C                      |
+| Switch a 24 VAC relay coil off 20 times, scope across the switch         | R-5           | peak ≤ 80 V                                          |
+| Reset and unplug the ESP32 while a channel is closed                     | R-2           | load drops, no pulse at boot                         |
+| Channel closed, short W to the transformer return (last: blows the fuse) | R-9           | fuse opens, wiring undamaged; switch may not survive |
+| On the furnace: idle 10 min, then G, then W, then reset mid-call         | R-1, R-2, R-6 | no phantom call; normal cycles; call drops on reset  |
 
 ## 9. Known limitations and open questions
 
