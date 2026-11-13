@@ -19,7 +19,7 @@ drives a relay coil and can draw an ampere or more of current.
 | ---- | ------------------------------------------------------------------------------------------- |
 | R-1  | Switch two independent circuits, R–W and R–G, each from one 3.3 V GPIO; high = closed       |
 | R-2  | A circuit is open when its input is low or floating, or the MCU is off, in reset or booting |
-| R-3  | Carry 1 A RMS continuously per circuit at 50 °C,   and switch loads as small as 1 mA        |
+| R-3  | Carry 1 A RMS continuously per circuit at 50 °C, and switch loads as small as 1 mA          |
 | R-4  | Withstand 45 V peak (Class 2 transformer limit: 30 V RMS open-circuit, 42.4 V peak)         |
 | R-5  | Survive switching off a 1 A inductive load                                                  |
 | R-6  | Leak less than 100 µA through an open circuit                                               |
