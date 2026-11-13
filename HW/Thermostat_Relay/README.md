@@ -36,26 +36,28 @@ Notes
 
 ### 4.1 24 VAC switch
 
-|                          | Relay    | **PhotoMOS** | Driver IC + FETs | TPSI8830    | TRIAC       |
-| ------------------------ | -------- | ------------ | ---------------- | ----------- | ----------- |
-| Hold current (R-8)       | 70–90 mA | 5–10 mA      | ~5 mA            | ~5 mA       | ~10 mA      |
-| 1 mA load (R-3)          | marginal | ✓            | ✓                | ✓           | ✗           |
-| Leakage (R-6)            | ✓        | ✓            | ✓                | ✓           | ✗ (snubber) |
-| Parts per channel        | 4        | 3            | ~10              | 3–4         | 5+          |
-| Available to buy         | ✓        | ✓            | ✓                | ✗ (preview) | ✓           |
-| Short-circuit protection | rugged   | none         | possible         | built in    | none        |
+|                          | Relay    | **PhotoMOS** | Driver + FETs | TPSI8830    | TRIAC       |
+| ------------------------ | -------- | ------------ | ------------- | ----------- | ----------- |
+| Hold current (R-8)       | 70–90 mA | 5–10 mA      | ~5 mA         | ~5 mA       | ~10 mA      |
+| 1 mA load (R-3)          | marginal | ✓            | ✓             | ✓           | ✗           |
+| Leakage (R-6)            | ✓        | ✓            | ✓             | ✓           | ✗ (snubber) |
+| Parts per channel        | 4        | 4            | ~10           | 3–4         | 5+          |
+| Available to buy         | ✓        | ✓            | ✓             | ✗ (preview) | ✓           |
+| Short-circuit protection | rugged   | none         | possible      | built in    | none        |
 
-**Chosen: PhotoMOS.** An LED inside the package lights a photovoltaic cell that turns on
-two back-to-back MOSFETs. It meets every requirement with three parts per channel. It
-does not have short-circuit protection inherently, but a fuse can be added.
+**Chosen: PhotoMOS.** An LED inside the package lights a photovoltaic cell that turns on two
+back-to-back MOSFETs. It meets every requirement with only four parts per channel, making it easy
+to use for bringing up a v1 board. A separate fuse is added for short-circuit protection.
+Downsides of PhotoMOS are slightly higher cost and photo degradation failure modes.
 
-TI's reference designs for 24 VAC thermostat switching (section 10) both use discrete
-MOSFET pairs with a separate isolated gate drive. Their reasons are cost per channel in
-volume and switching in microseconds, which a power-stealing thermostat needs. Neither
-applies to a two-channel prototype with no power supply.
+TI's reference designs for 24 VAC thermostat switching (section 10) both use discrete MOSFET pairs
+with a separate isolated gate drive. This is likely a lower cost design at scale production,
+using either small transformers or capacitive isolation instead of optocouplers. It also enables
+microsecond switching for power-stealing, potential to add current-sensing circuitry, and ability
+to share one isolated supply across all channels. None of these are relevant to a v1 prototype.
 
-TI's TPSI8830 may be the better switch once it can be purchased: 30 mΩ and it shuts itself
-off on a short.
+TI's upcoming TPSI8830 is worth watching: it integrates a capacitively isolated driver with
+back-to-back MOSFETs and overcurrent protection into a single package with 30 mΩ on resistance.
 
 ## 5. Circuit
 
@@ -138,8 +140,9 @@ switch open, which could trigger a phantom call for heat on a modern furnace con
 
 ### 5.6 Fuse: 3 A very fast-acting (F1)
 
-Protects the thermostat cable and transformer from a short (R-9); older furnaces may have
-no fuse of their own. One fuse on R serves both channels.
+Protects the thermostat cable and transformer from a short of W or G to C while that
+channel is closed (R-9); older furnaces may have no fuse of their own. One fuse on R serves
+both channels. A short from R to C does not pass through this board.
 
 | Littelfuse 0451003.MRL      | Datasheet                 | Needed                                                              |
 | --------------------------- | ------------------------- | ------------------------------------------------------------------- |
@@ -159,6 +162,7 @@ no fuse of their own. One fuse on R serves both channels.
 - Shorts: the switch tolerates 9 A for 100 ms, about 8 A²s. At 9 A the fuse melts in
   roughly 20 ms (1.65 A²s / (9 A)²), so the switch should survive a short the transformer
   limits to 9 A. Above 9 A the switch is outside its rating however fast the fuse clears.
+  For scale, TI measured about 7 A peak from a shorted 20 VA transformer in TIDA-010085.
 
 Why not a resettable PTC:
 
@@ -188,10 +192,10 @@ to float with the line it switches.
 
 The only link between the two sides is the light path inside U1 and U2, rated 1500 V RMS.
 That is far above anything a 24 VAC Class 2 circuit produces, but it is functional
-isolation, not a safety rating. The datasheet does not
-state the package's creepage distance. The field side is never connected to logic ground;
-C is a parking terminal. For the PCB: keep logic and field copper as far apart as the
-package allows and route no copper under U1 and U2.
+isolation, not a safety rating. The datasheet does not state the package's creepage
+distance. The field side is never connected to logic ground; C is a parking terminal. For
+the PCB: keep logic and field copper as far apart as the package allows and route no
+copper under U1 and U2.
 
 ## 6. Bill of materials
 
@@ -230,27 +234,28 @@ differ; check the module's datasheet.
 
 Not yet run. Bench first, on a spare 24 VAC transformer, then the furnace.
 
-| Test                                                             | Checks        | Pass                                                |
-| ---------------------------------------------------------------- | ------------- | --------------------------------------------------- |
-| Inputs open: resistance R–W, R–G                                 | R-2           | open circuit                                        |
-| Resistance from J1 GND to every J2 terminal                      | R-7           | open circuit                                        |
-| Input driven to 3.3 V through an ammeter                         | R-8           | 6.5–9.5 mA; R–W below 0.5 Ω                         |
-| Input tied to 3.3 V through 47 kΩ                                | R-2           | stays open                                          |
-| Open channel, µA meter in series with a 1 kΩ load                | R-6           | < 100 µA                                            |
-| Closed into 22 kΩ, scope the load                                | R-3           | clean sine                                          |
-| Closed into 16 Ω, 50 W (1.5 A) for 30 min                        | R-3           | drop < 0.3 V, case rise < 50 °C                     |
-| Switch a 24 VAC relay coil off 20 times, scope across the switch | R-5           | peak ≤ 80 V                                         |
-| Reset and unplug the ESP32 while a channel is closed             | R-2           | load drops, no pulse at boot                        |
-| Short R to C at the terminals (last: blows the fuse)             | R-9           | fuse opens, nothing else damaged                    |
-| On the furnace: idle 10 min, then G, then W, then reset mid-call | R-1, R-2, R-6 | no phantom call; normal cycles; call drops on reset |
+| Test                                                             | Checks        | Pass                                                 |
+| ---------------------------------------------------------------- | ------------- | ---------------------------------------------------- |
+| Inputs open: resistance R–W, R–G                                 | R-2           | open circuit                                         |
+| Resistance from J1 GND to every J2 terminal                      | R-7           | open circuit                                         |
+| Input driven to 3.3 V through an ammeter                         | R-8           | 6.5–9.5 mA; R–W below 0.5 Ω                          |
+| Input tied to 3.3 V through 47 kΩ                                | R-2           | stays open                                           |
+| Open channel, µA meter in series with a 1 kΩ load                | R-6           | < 100 µA                                             |
+| Closed into 22 kΩ, scope the load                                | R-3           | clean sine                                           |
+| Closed into 16 Ω, 50 W (1.5 A) for 30 min                        | R-3           | drop < 0.3 V, case rise < 50 °C                      |
+| Switch a 24 VAC relay coil off 20 times, scope across the switch | R-5           | peak ≤ 80 V                                          |
+| Reset and unplug the ESP32 while a channel is closed             | R-2           | load drops, no pulse at boot                         |
+| Channel closed, short W to C (last: blows the fuse)              | R-9           | fuse opens, wiring undamaged; switch may not survive |
+| On the furnace: idle 10 min, then G, then W, then reset mid-call | R-1, R-2, R-6 | no phantom call; normal cycles; call drops on reset  |
 
 ## 9. Known limitations and open questions
 
 - A hard short on W or G while that channel is closed may destroy the PhotoMOS before the
   fuse clears.
 - Both channels at 1.5 A together (3 A through F1) is not supported; the fuse is sized for
-  about 2 A continuous in total.
-- A sustained overload between 2 and 3 A can overheat a PhotoMOS without blowing the fuse.
+  about 2.2 A continuous in total.
+- A sustained overload above the switch's 1.95 A rating can overheat a PhotoMOS without
+  blowing the fuse, which holds 3 A indefinitely.
 - A firmware hang with an output high keeps that channel closed until the watchdog fires.
 - This board is not a safety device; the furnace's own limit and flame safeties remain in
   charge.
