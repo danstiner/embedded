@@ -48,7 +48,7 @@ Notes
 **Chosen: PhotoMOS.** An LED inside the package lights a photovoltaic cell that turns on two
 back-to-back MOSFETs. It meets every requirement with only four parts per channel, making it easy
 to use for bringing up a v1 board. A separate fuse is added for short-circuit protection.
-Downsides of PhotoMOS are slightly higher cost and photo degradation failure modes.
+Downsides of PhotoMOS are slightly higher cost and LED aging.
 
 TI's reference designs for 24 VAC thermostat switching (section 10) both use discrete MOSFET pairs
 with a separate isolated gate drive. This is likely a lower cost design at scale production,
