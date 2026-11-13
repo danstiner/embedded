@@ -2771,6 +2771,17 @@
 				)
 			)
 		)
+		(property "MPN" "RC0603FR-07220RL"
+			(at 109.22 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "b8c55ca7-e6be-596f-8d68-aecbd6d6d9a3")
 		)
@@ -2861,6 +2872,17 @@
 				)
 			)
 		)
+		(property "MPN" "150060SS75000"
+			(at 93.98 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "a4c9572e-f296-541a-91b9-d064d3a3646b")
 		)
@@ -2941,6 +2963,17 @@
 			)
 		)
 		(property "Tolerance" "1%"
+			(at 109.22 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0603FR-07220RL"
 			(at 109.22 55.88 0)
 			(hide yes)
 			(show_name no)
@@ -3126,6 +3159,17 @@
 				)
 			)
 		)
+		(property "MPN" "150060SS75000"
+			(at 93.98 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "46e2560d-735a-5b34-ba13-2fc0cb6783f2")
 		)
@@ -3195,6 +3239,17 @@
 			)
 		)
 		(property "Description" "600 W bidirectional TVS, 48 V standoff, SMB"
+			(at 144.78 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "SMBJ48CA"
 			(at 144.78 109.22 0)
 			(hide yes)
 			(show_name no)
@@ -3276,6 +3331,17 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 101.6 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0603FR-0710KL"
 			(at 101.6 63.5 0)
 			(hide yes)
 			(show_name no)
@@ -3368,6 +3434,17 @@
 			)
 		)
 		(property "Optional" "indicator LED; omit to save 0.3 mA"
+			(at 93.98 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0603FR-074K7L"
 			(at 93.98 111.76 0)
 			(hide yes)
 			(show_name no)
@@ -3534,6 +3611,17 @@
 				)
 			)
 		)
+		(property "MPN" "SMBJ48CA"
+			(at 144.78 60.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "aa8ed918-8e1e-55cd-a0f7-ba8964bb9171")
 		)
@@ -3688,6 +3776,17 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 101.6 111.76 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0603FR-0710KL"
 			(at 101.6 111.76 0)
 			(hide yes)
 			(show_name no)
@@ -4708,6 +4807,17 @@
 			)
 		)
 		(property "Optional" "indicator LED; omit to save 0.3 mA"
+			(at 93.98 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0603FR-074K7L"
 			(at 93.98 63.5 0)
 			(hide yes)
 			(show_name no)
