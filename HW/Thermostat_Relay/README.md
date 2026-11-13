@@ -221,7 +221,8 @@ copper under U1 and U2.
 
 About $12 in parts, of which the two PhotoMOS relays are $8.28. KiCad has no stock
 footprint for the TLP3109A's package, so `Components/TLP3109A/footprints.pretty` holds one drawn from
-Toshiba's 2.54SOP6 land pattern (0.8 × 1.2 mm pads, rows 6.3 mm apart, 2.54 mm pitch).
+Toshiba's 2.54SOP6 land pattern (2.54 mm pitch), with the pads lengthened outward from 1.2 to
+1.8 mm for hand soldering. The resistors, LEDs and TVS use KiCad's hand-solder footprints.
 The schematic reuses KiCad's TLP3546 symbol, which has the same pin functions.
 
 ## 7. Connections
