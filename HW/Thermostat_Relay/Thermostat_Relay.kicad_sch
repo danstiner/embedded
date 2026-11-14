@@ -2000,7 +2000,7 @@
 	)
 	(text "R  24 VAC hot"
 		(exclude_from_sim no)
-		(at 216 69.18 0)
+		(at 216 71.72 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2080,7 +2080,7 @@
 	)
 	(text "C  common return, unused"
 		(exclude_from_sim no)
-		(at 216 71.72 0)
+		(at 216 69.18 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2163,7 +2163,7 @@
 		(uuid "1b0f11ab-672d-5b0c-8e52-9f7ee8737b21")
 	)
 	(no_connect
-		(at 203.2 71.12)
+		(at 203.2 68.58)
 		(uuid "61cc1bed-44d1-5516-98b0-766b80dcf4d4")
 	)
 	(wire
@@ -2408,7 +2408,7 @@
 	)
 	(wire
 		(pts
-			(xy 203.2 68.58) (xy 195.58 68.58)
+			(xy 203.2 71.12) (xy 195.58 71.12)
 		)
 		(stroke
 			(width 0)
@@ -2647,7 +2647,7 @@
 		(uuid "7c880654-baf2-5048-97e1-b871127908ad")
 	)
 	(label "R"
-		(at 195.58 68.58 180)
+		(at 195.58 71.12 180)
 		(effects
 			(font
 				(size 1.27 1.27)

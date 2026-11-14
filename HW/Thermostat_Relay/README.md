@@ -202,10 +202,33 @@ to float with the line it switches.
 
 The only link between the two sides is the light path inside U1 and U2, rated 1500 V RMS.
 That is far above anything a 24 VAC Class 2 circuit produces, but it is functional
-isolation, not a safety rating. The datasheet does not state the package's creepage
-distance. The field side is never connected to logic ground; C is a parking terminal. For
-the PCB: keep logic and field copper as far apart as the package allows and route no
-copper under U1 and U2.
+isolation, not a safety rating. The field side is never connected to logic ground; C is a
+parking terminal.
+
+### 5.9 PCB layout
+
+| Rule                                 | Value     | Basis                                                        |
+| ------------------------------------ | --------- | ------------------------------------------------------------ |
+| Field trace width, 1 oz outer layer  | ≥ 0.93 mm | IPC-2152: 10 °C rise at 2 A (fuse rating)                    |
+| Spacing between different field nets | ≥ 0.64 mm | IPC-2221C Table 6-1, 51–100 V, bare external conductors (B2) |
+| Logic copper to field copper         | ≥ 4.0 mm  | creepage of the 2.54SOP package; no copper under U1 and U2   |
+
+- Trace width: the minimum comes from the Brooks and Adam fit to the IPC-2152 data that
+  KiCad's calculator uses, ΔT = 215.3 · I² · W^−1.15 · Th^−1 (W and Th in mils), for a 10
+  °C rise at 2 A in 35 µm copper. The older IPC-2221 formula gives 0.78 mm for the same
+  conditions. The board uses copper pours at least 2.2 mm wide for the switched nets on
+  the front, a pour on the back for R, and 1.0 mm traces with two vias from each fuse to
+  that pour. A short does not matter here: the fuse melts in milliseconds.
+- Field spacing: the working voltage is at most 42.4 V peak (R-4), but the clamp lets a
+  turn-off transient reach 77 V (5.5), so the 51–100 V row applies. It asks for 0.64 mm
+  between bare conductors, 0.5 mm between uncoated component leads and 0.3 mm under solder
+  mask. Using 0.64 mm everywhere covers all three.
+- Logic to field: no standard sets a distance for functional isolation of a Class 2
+  circuit, so the relay package is the limit. The TLP3109A datasheet does not state its
+  creepage; Toshiba's 2014 photocoupler catalog lists 4.0 mm minimum creepage and
+  clearance for the 2.54SOP4/6/8 package family. The footprint's input and output pads are
+  5.1 mm apart, and the layout keeps at least 4.9 mm between all logic and field copper,
+  including the ground pour on the back of the logic side.
 
 ## 6. Bill of materials
 
@@ -245,8 +268,8 @@ J2, to the furnace:
 
 | Pin | Signal | Function              |
 | --- | ------ | --------------------- |
-| 1   | R      | 24 VAC hot            |
-| 2   | C      | Unused, not connected |
+| 1   | C      | Unused, not connected |
+| 2   | R      | 24 VAC hot            |
 | 3   | W      | Heat                  |
 | 4   | G      | Fan                   |
 
@@ -279,7 +302,8 @@ Not yet run. Bench first, on a spare 24 VAC transformer, then the furnace.
   charge.
 - To confirm by test or datasheet: hot on-resistance, coil energy, relay coil inrush
   against the fuse, TVS capacitance,
-  transformer short-circuit current, the TLP3109A's creepage distance.
+  transformer short-circuit current. The TLP3109A's 4.0 mm creepage is a package-family
+  figure from a 2014 catalog that predates the part; confirm with Toshiba if it matters.
 
 ## 10. References
 
@@ -291,5 +315,10 @@ Not yet run. Bench first, on a spare 24 VAC transformer, then the furnace.
 - [Toshiba TLP3109A datasheet](https://toshiba.semicon-storage.com/info/docget.jsp?did=65124&prodName=TLP3109A)
 - [Littelfuse SMBJ48CA product page](https://www.littelfuse.com/products/overvoltage-protection/tvs-diodes/surface-mount/smbj/smbj48ca),
   which links the SMBJ series datasheet, the source for section 5.5.
+- IPC-2221C Table 6-1 (conductor spacing) and the IPC-2152 trace heating fit, both as
+  implemented in the open-source
+  [KiCad PCB Calculator](https://gitlab.com/kicad/code/kicad/-/tree/master/pcb_calculator),
+  and Toshiba's *Photocouplers and Photorelays* catalog (Sep. 2014), section 9, the
+  sources for section 5.9.
 - Littelfuse 466 series fuse datasheet (rev. 12/16/20), Fuseology design guide and
   2920L PTC datasheet (rev. 06/04/24), the sources for section 5.6.
