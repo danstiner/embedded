@@ -42,8 +42,6 @@ Correctness
       now logs a warning and accepts the value (invalidation commented out), but `stcc4.h`
       still says such readings are discarded. Understand the status bits, then make the code
       and the header agree.
-- [ ] `Kconfig` `APP_MATTER_BATTERY_PERCENT`: defaults on only for nPM2100, so the nPM1304
-      devkit builds the v3 data model but never sets `BatPercentRemaining`.
 - [ ] `sensor_reading.cpp` `stcc4_submit_op()`: lazy work-queue init and the busy check are
       unlocked. Latent: only one trigger thread exists per binary (Matter or BTHome).
 
