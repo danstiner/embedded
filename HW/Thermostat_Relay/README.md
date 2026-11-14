@@ -148,27 +148,29 @@ protects the cable, the transformer and, for moderate fault currents, the switch
 per channel means a fault on the fan wire cannot take out the heat, and each fuse is sized
 for one load, not the sum.
 
-| Littelfuse 0451002.MRL | Datasheet                       | Requirement                                                         |
-| ---------------------- | ------------------------------- | ------------------------------------------------------------------- |
-| Voltage rating         | 125 VAC                         | 30 V RMS (R-4)                                                      |
-| Interrupting rating    | 50 A at 125 VAC                 | transformer short-circuit current: unmeasured, estimated 10 to 20 A |
-| Continuous current     | 1.5 A at 25 °C, 1.47 A at 50 °C | 1 A (R-3)                                                           |
-| Opens at 200 % (4 A)   | within 5 s                      | –                                                                   |
-| Melting I²t            | 0.53 A²s                        | below the switch's 8 A²s                                            |
-| Cold resistance        | 37 mΩ                           | –                                                                   |
+| Littelfuse 0466002.NR | Datasheet                            | Requirement                                                         |
+| --------------------- | ------------------------------------ | ------------------------------------------------------------------- |
+| Voltage rating        | 63 VAC                               | 30 V RMS (R-4)                                                      |
+| Interrupting rating   | 50 A at 63 VAC                       | transformer short-circuit current: unmeasured, estimated 10 to 20 A |
+| Continuous current    | 1.5 A at 25 °C, about 1.3 A at 50 °C | 1 A (R-3)                                                           |
+| Opens at 200 % (4 A)  | within 5 s                           | –                                                                   |
+| Opens at 300 % (6 A)  | within 0.2 s                         | –                                                                   |
+| Melting I²t           | 0.23 A²s                             | below the switch's 8 A²s                                            |
+| Cold resistance       | 30 mΩ                                | –                                                                   |
 
 - Sizing: Littelfuse's guidance is to run a fuse at no more than 75 % of its rating at
-  25 °C, which gives 1.5 A. Temperature is a small further correction for this fuse, about
-  2 % at 50 °C. That leaves about 50 % margin over a 1 A load, which also allows for relay
-  coil inrush.
+  25 °C, which gives 1.5 A. The datasheet rerates a further 20 % at 70 °C; interpolating,
+  about 11 % at 50 °C gives 1.3 A. That leaves about 30 % margin over a 1 A load. Relay
+  coil inrush against the low melting I²t is unverified (section 9).
 - Compared with others: TI recommends the same 2 A fast fuse for its 1 A design
-  (TIDA-010085) and tested with 1.5 A. Furnace control boards commonly fuse the whole 24 V
-  circuit at 3 or 5 A, so a 2 A fuse here should open first.
+  (TIDA-010085) and tested with the 1.5 A part of this series. Furnace control boards
+  commonly fuse the whole 24 V circuit at 3 or 5 A, so a 2 A fuse here should open first.
 - Overloads: the fuse's 2 A rating is below the switch's 2.25 A rating at 50 °C. It holds
-  2 A indefinitely and opens slowly just above that (only 4 A in 5 s is specified), so
+  2 A indefinitely and opens slowly just above that (4 A in 5 s and 6 A in 0.2 s are
+  specified), so
   moderate overloads are covered loosely, not tightly.
 - Shorts: the switch tolerates 9 A for 100 ms, about 8 A²s. At 9 A the fuse melts in
-  roughly 7 ms (0.53 A²s / (9 A)²), so the switch should survive a short the transformer
+  roughly 3 ms (0.23 A²s / (9 A)²), so the switch should survive a short the transformer
   limits to 9 A. Above 9 A the switch is outside its rating however fast the fuse clears.
   For scale, TI measured about 7 A peak from a shorted 20 VA transformer in TIDA-010085.
 
@@ -177,8 +179,8 @@ Why not a resettable PTC:
 |                                      | Fuse, 2 A (chosen) | PTC, e.g. 2920L110/60 (1.1 A hold) |
 | ------------------------------------ | ------------------ | ---------------------------------- |
 | Carries 1 A at 50 °C                 | yes                | no: hold current falls to 0.83 A   |
-| Clears a 9 A short in                | about 7 ms         | about 0.5 s (at 8 A)               |
-| Lets through (switch survives 8 A²s) | about 0.5 A²s      | tens of A²s                        |
+| Clears a 9 A short in                | about 3 ms         | about 0.5 s (at 8 A)               |
+| Lets through (switch survives 8 A²s) | about 0.2 A²s      | tens of A²s                        |
 | After a fault                        | replace the part   | resets itself                      |
 
 A PTC large enough to carry 1 A hot trips more slowly still, so it would protect the
@@ -213,13 +215,13 @@ copper under U1 and U2.
 | R1, R3 | 220 Ω, 1 %         | any                | 0603        | RES - Input current limit (5.2)               |
 | R2, R4 | 10 kΩ              | any                | 0603        | Input pull-down, optional (5.3)               |
 | D1, D2 | 48 V               | SMBJ48CA           | SMB         | Bidirectional TVS, 48 V standoff (5.5)        |
-| F1, F2 | 2 A very fast      | Littelfuse 0451002 | Nano2       | Fuse, ≥ 30 VAC, ≥ 20 A interrupting (5.6)     |
+| F1, F2 | 2 A very fast      | Littelfuse 0466002 | 1206        | Fuse, ≥ 30 VAC, ≥ 20 A interrupting (5.6)     |
 | R5, R6 | 4.7 kΩ             | any                | 0603        | RES - Indicator current limit, optional (5.4) |
 | D3, D4 | Red LED            | any                | 0603        | LED, Red, SMD - Indicator, optional (5.4)     |
 | J1     | 1×3 pin header     | any                | 2.54 mm THT | MCU Connection                                |
 | J2     | 1×4 screw terminal | Phoenix MKDS 1,5   | 5.08 mm THT | Furnace connection                            |
 
-About $12 in parts, of which the two PhotoMOS relays are $8.28. KiCad has no stock
+About $14 in parts, of which the two PhotoMOS relays are $8.28. KiCad has no stock
 footprint for the TLP3109A's package, so `Components/TLP3109A/footprints.pretty` holds one drawn from
 Toshiba's 2.54SOP6 land pattern (2.54 mm pitch), with the pads lengthened outward from 1.2 to
 1.8 mm for hand soldering. The resistors, LEDs and TVS use KiCad's hand-solder footprints.
@@ -271,11 +273,12 @@ Not yet run. Bench first, on a spare 24 VAC transformer, then the furnace.
 - A hard short on W or G while that channel is closed may destroy the PhotoMOS before the
   fuse clears.
 - A moderate overload just above the switch's 2.25 A rating can overheat a PhotoMOS before
-  its 2 A fuse opens; the fuse's opening time is only specified at 4 A.
+  its 2 A fuse opens; the fuse's opening time is only specified at 4 A and above.
 - A firmware hang with an output high keeps that channel closed until the watchdog fires.
 - This board is not a safety device; the furnace's own limit and flame safeties remain in
   charge.
-- To confirm by test or datasheet: hot on-resistance, coil energy, TVS capacitance,
+- To confirm by test or datasheet: hot on-resistance, coil energy, relay coil inrush
+  against the fuse, TVS capacitance,
   transformer short-circuit current, the TLP3109A's creepage distance.
 
 ## 10. References
@@ -288,5 +291,5 @@ Not yet run. Bench first, on a spare 24 VAC transformer, then the furnace.
 - [Toshiba TLP3109A datasheet](https://toshiba.semicon-storage.com/info/docget.jsp?did=65124&prodName=TLP3109A)
 - [Littelfuse SMBJ48CA product page](https://www.littelfuse.com/products/overvoltage-protection/tvs-diodes/surface-mount/smbj/smbj48ca),
   which links the SMBJ series datasheet, the source for section 5.5.
-- Littelfuse 451/453 series fuse datasheet (rev. 08/23/21), Fuseology design guide and
+- Littelfuse 466 series fuse datasheet (rev. 12/16/20), Fuseology design guide and
   2920L PTC datasheet (rev. 06/04/24), the sources for section 5.6.
