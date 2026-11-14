@@ -558,7 +558,7 @@ int sensor_read_stcc4(sensor_state &state)
 			k_mutex_unlock(&stcc4_mutex);
 
 			if (wret == 0) {
-				const int64_t warmup_remaining_ms = uptime_ms - stcc4_warmup_until;
+				const int64_t warmup_remaining_ms = stcc4_warmup_until - uptime_ms;
 				LOG_INF("STCC4 warm-up: CO2=%d ppm (status 0x%04X), %lld ms "
 					"remaining",
 					wco2, wstatus, warmup_remaining_ms);

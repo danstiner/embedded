@@ -34,8 +34,6 @@ Correctness
 - [ ] `src/sensor/stcc4.cpp` `stcc4_force_recalibration()`: the ±3000 ppm check returns `-EIO`
       after the sensor has already applied the correction, and the offset is then never
       recorded. Datasheet "railed" is a magnitude near 32767.
-- [ ] `sensor_reading.cpp` `sensor_read_stcc4()`: warm-up "ms remaining" operands are reversed
-      (`uptime_ms - stcc4_warmup_until`), so the log is always negative.
 - [ ] STCC4 non-zero status word: unclear what read status 0x0004 or 0x0104 means. The code
       now logs a warning and accepts the value (invalidation commented out), but `stcc4.h`
       still says such readings are discarded. Understand the status bits, then make the code
