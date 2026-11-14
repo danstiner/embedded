@@ -2586,7 +2586,7 @@
 		)
 		(uuid "e3250a60-bec4-59f7-ac8a-1bbbeefaa2eb")
 	)
-	(label "HEAT_EN"
+	(label "W_EN"
 		(at 63.5 60.96 0)
 		(effects
 			(font
@@ -2626,7 +2626,7 @@
 		)
 		(uuid "431d9319-ad78-538b-8d0d-3bb3d0f75c7f")
 	)
-	(label "HEAT_EN"
+	(label "W_EN"
 		(at 88.9 55.88 180)
 		(effects
 			(font
@@ -2636,7 +2636,7 @@
 		)
 		(uuid "76bd3383-b2b8-5890-988d-cccbf392846d")
 	)
-	(label "FAN_EN"
+	(label "G_EN"
 		(at 88.9 104.14 180)
 		(effects
 			(font
@@ -2666,7 +2666,7 @@
 		)
 		(uuid "87ea2695-466f-5ffc-b4fb-f75a0f2cc538")
 	)
-	(label "FAN_EN"
+	(label "G_EN"
 		(at 63.5 63.5 0)
 		(effects
 			(font

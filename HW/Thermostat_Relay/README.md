@@ -68,7 +68,7 @@ Two identical channels share the R input, each with its own fuse. Only one chann
 ```
  logic side (3.3 V, USB ground) :        furnace side (24 VAC, floating)
                                 :
- HEAT_EN o--+--[R1 220Ω]---+    :    +------+---[F1 2A]--- o R
+ W_EN    o--+--[R1 220Ω]---+    :    +------+---[F1 2A]--- o R
             |            1 | U1 :    | 6    |
          [R2 10k]        [LED]~~:~~[FETs]  [D1 TVS]
             |            2 |    :    | 4    |
@@ -216,7 +216,7 @@ parking terminal.
 - Trace width: the minimum comes from the Brooks and Adam fit to the IPC-2152 data that
   KiCad's calculator uses, ΔT = 215.3 · I² · W^−1.15 · Th^−1 (W and Th in mils), for a 10
   °C rise at 2 A in 35 µm copper. The older IPC-2221 formula gives 0.78 mm for the same
-  conditions. The board uses copper pours at least 2.2 mm wide for the switched nets on
+  conditions. The board uses copper pours at least 1.4 mm wide for the switched nets on
   the front, a pour on the back for R, and 1.0 mm traces with two vias from each fuse to
   that pour. A short does not matter here: the fuse melts in milliseconds.
 - Field spacing: the working voltage is at most 42.4 V peak (R-4), but the clamp lets a
@@ -228,7 +228,7 @@ parking terminal.
   creepage; Toshiba's 2014 photocoupler catalog lists 4.0 mm minimum creepage and
   clearance for the 2.54SOP4/6/8 package family. The footprint's input and output pads are
   5.1 mm apart, and the layout keeps at least 4.9 mm between all logic and field copper,
-  including the ground pour on the back of the logic side.
+  including the ground pours on both layers of the logic side.
 
 ## 6. Bill of materials
 
@@ -254,11 +254,11 @@ The schematic reuses KiCad's TLP3546 symbol, which has the same pin functions.
 
 J1, to the ESP32:
 
-| Pin | Signal  | Function                  |
-| --- | ------- | ------------------------- |
-| 1   | HEAT_EN | High closes R to W (heat) |
-| 2   | FAN_EN  | High closes R to G (fan)  |
-| 3   | GND     | Logic ground              |
+| Pin | Signal | Function                  |
+| --- | ------ | ------------------------- |
+| 1   | W_EN   | High closes R to W (heat) |
+| 2   | G_EN   | High closes R to G (fan)  |
+| 3   | GND    | Logic ground              |
 
 ESP32 pin choice: use GPIOs that are high-impedance at boot. Avoid strapping pins, pins that
 emit signals at boot, flash pins and input-only pins. These differ between ESP32 variants;
