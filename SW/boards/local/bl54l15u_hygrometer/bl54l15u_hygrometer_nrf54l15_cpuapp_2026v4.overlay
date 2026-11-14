@@ -1,0 +1,139 @@
+/*
+ * BL54L15u Hygrometer — 2026v4 board revision
+ *
+ * Differences from the base 2026v3 devicetree:
+ *   - No PMIC: runs directly off a CR2 cell.
+ *   - No BME688 / STCC4, single I2C bus.
+ *   - No status LED.
+ *   - Adds a resistive leak sensor: LEAK_DRIVE=P0.01, LEAK_SENSE=P1.07.
+ *   - Adds a buzzer/siren on P2.05 (driven via Q1)
+ *
+ * The base DTS keeps SHT4x on I2C21 (SDA=P1.14, SCL=P1.04), unchanged here.
+ */
+
+#include <zephyr/dt-bindings/adc/adc.h>
+#include <zephyr/dt-bindings/adc/nrf-saadc.h>
+#include <zephyr/dt-bindings/gpio/gpio.h>
+
+/* ---- Remove 2026v3-only hardware ---- */
+
+/* No nPM2100 PMIC on v4. Disable the PMIC and each of its child devices
+ * individually — a node's own status is not inherited from its parent, so the
+ * regulator/vbat/watchdog children would otherwise still report "okay" and the
+ * firmware would pick the PMIC battery path instead of the SAADC one. */
+&npm2100_pmic {
+	status = "disabled";
+};
+
+&npm2100_ldsw {
+	status = "disabled";
+};
+
+&npm2100_vbat {
+	status = "disabled";
+};
+
+&npm2100_wdt {
+	status = "disabled";
+};
+
+/* No BME688 / STCC4 and no I2C20 bus on v4 */
+&bme688 {
+	status = "disabled";
+};
+
+&i2c20 {
+	status = "disabled";
+};
+
+/* No status LED on v4. Disable the child too (status is not inherited) so the
+ * boot_led alias resolves as not-okay and the boot-LED code is skipped. */
+&leds {
+	status = "disabled";
+};
+
+&red_led {
+	status = "disabled";
+};
+
+/* ---- Add 2026v4 hardware ---- */
+
+/* P0.01 (LEAK_DRIVE) lives on gpio0; P2.05 (buzzer) on gpio2.
+ * gpio1 (SHT4x I2C, leak sense) is already enabled by the base DTS. */
+&gpio0 {
+	status = "okay";
+};
+
+&gpio2 {
+	status = "okay";
+};
+
+/* SAADC: CR2 battery-voltage measurement (channel@0, internal VDD) and the
+ * leak-sense divider (channel@1, AIN3 / P1.07; see leak-sensor below). */
+&adc {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	/* Measure the chip supply (== CR2 voltage). The nRF54L internal reference
+	 * is 0.9 V, so 1/4 gain gives a 3.6 V full scale, covering a fresh CR2
+	 * (~3.2 V). adc_raw_to_millivolts_dt() does the raw->mV conversion. */
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1_4";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,input-positive = <NRF_SAADC_VDD>;
+		zephyr,resolution = <12>;
+		/* 2^2 = 4x oversampling. The CR2 curve is quite flat; average in
+		 * hardware to keep the reported percentage stable. */
+		zephyr,oversampling = <2>;
+	};
+
+	/* Leak sense divider for LEAK_SENSE. Driven by LEAK_DRIVE at V_bat through
+	 * R1+R2+R_water, so 1/4 gain giving a 3.6 V scale covers the full range.
+	 * High impedance of R_water and the R3 pull-down (1 MΩ) mean using a long
+	 * is high impedance (~R3 ‖ (R1+R2+R_water) ≈ 0.5 MΩ when wet, ~1 MΩ when
+	 * acquisition time to let the SAADC S/H settle in dry or damp conditions. */
+	channel@1 {
+		reg = <1>;
+		zephyr,gain = "ADC_GAIN_1_4";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40)>;
+		zephyr,input-positive = <NRF_SAADC_AIN3>;  /* P1.07 = AIN3 LEAK_SENSE */
+		zephyr,resolution = <12>;
+	};
+};
+
+/ {
+	/* Battery voltage source consumed by sensor_reading.cpp via ADC_DT_SPEC_GET */
+	vbatt: vbatt {
+		compatible = "local,adc-vbatt";
+		io-channels = <&adc 0>;
+	};
+
+	/* Resistive leak sensor: drive one electrode (via R1 10k), sense the other
+	 * (via R2 10k) across the water gap. The board has an external 1M pull-down
+	 * (R3) on the sense line, forming the divider:
+	 *   V_sense = V_drive * R3 / (R1 + R2 + R_water + R3).
+	 * sense-gpios reads the line digitally for an instant wake-on-wet edge;
+	 * io-channels samples the same node with the SAADC so a software threshold
+	 * can resolve high-resistance damp conditions the digital edge would miss. */
+	leak_sensor: leak-sensor {
+		compatible = "local,leak-sensor";
+		drive-gpios = <&gpio0 1 GPIO_ACTIVE_HIGH>;  /* P0.01 LEAK_DRIVE */
+		sense-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;  /* P1.07 LEAK_SENSE */
+		io-channels = <&adc 1>;                     /* P1.07 = AIN3 */
+	};
+
+	/* Buzzer/siren output (P2.05 -> Q1 -> transducer). Reserved for a future
+	 * audible-alarm feature; firmware does not drive it yet. Modelled as a
+	 * gpio-leds output so the pin has a GPIO_DT_SPEC without a custom binding. */
+	buzzer: buzzer {
+		compatible = "gpio-leds";
+		siren: siren {
+			gpios = <&gpio2 5 GPIO_ACTIVE_HIGH>;
+			label = "Leak siren";
+		};
+	};
+};

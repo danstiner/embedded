@@ -4,16 +4,16 @@ on:
   push:
     paths:
       - SW/hygrometer/**
-      - SW/boards/nordic/bl54l15u_devkit/**
-      - SW/boards/nordic/bl54l15u_hygrometer/**
+      - SW/boards/local/bl54l15u_devkit/**
+      - SW/boards/local/bl54l15u_hygrometer/**
       - SW/west/**
       - SW/tidy.sh
       - .github/workflows/hygrometer.yml
   pull_request:
     paths:
       - SW/hygrometer/**
-      - SW/boards/nordic/bl54l15u_devkit/**
-      - SW/boards/nordic/bl54l15u_hygrometer/**
+      - SW/boards/local/bl54l15u_devkit/**
+      - SW/boards/local/bl54l15u_hygrometer/**
       - SW/west/**
       - SW/tidy.sh
       - .github/workflows/hygrometer.yml
@@ -60,8 +60,10 @@ jobs:
             name: nrf54l15dk
           - board: bl54l15u_devkit@2026v2/nrf54l15/cpuapp
             name: bl54l15u_devkit
-          - board: bl54l15u_hygrometer/nrf54l15/cpuapp
-            name: bl54l15u_hygrometer
+          - board: bl54l15u_hygrometer@2026v3/nrf54l15/cpuapp
+            name: bl54l15u_hygrometer_2026v3
+          - board: bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp
+            name: bl54l15u_hygrometer_2026v4
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -126,6 +128,7 @@ jobs:
             -- -DBOARD_ROOT=$(pwd) \
             -DEXTRA_CONF_FILE="prj_extra_release.conf;prj_extra_matter.conf" \
             -DSB_EXTRA_CONF_FILE=sysbuild_extra_matter.conf \
+            -DEXTRA_DTC_OVERLAY_FILE=boards/matter.overlay \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Run clang-tidy (Matter)
@@ -144,3 +147,30 @@ jobs:
             SW/build/dfu_application.zip
             SW/build-bthome/dfu_application.zip
             SW/build-matter/dfu_application.zip
+
+  unit-test:
+    needs: resolve-toolchain
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/nrfconnect/sdk-nrf-toolchain:${{ needs.resolve-toolchain.outputs.toolchain-tag }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update west modules
+        working-directory: SW
+        run: west update --narrow -o=--depth=1
+
+      - name: Install qemu
+        run: apt-get update && apt-get install -y --no-install-recommends qemu-system-arm
+
+      - name: Run leak sensor unit tests (qemu_cortex_m3)
+        working-directory: SW
+        run: |
+          west twister \
+            -p qemu_cortex_m3 \
+            -T hygrometer/tests \
+            --inline-logs -v

@@ -1,7 +1,7 @@
 // Hygrometer firmware — BTHome BLE build
 //
 // Supports both BL54L15u Hygrometer and BL54L15u DevKit boards.
-// Reads SHT45 (temp/humidity), optional BME688 (pressure), optional STCC4 (CO2).
+// Reads SHT4x (temp/humidity), optional BME688 (pressure), optional STCC4 (CO2).
 //
 // Simple loop architecture: always-on, always connectable, sleeps between readings.
 
@@ -21,10 +21,15 @@
 #include <zephyr/logging/log.h>
 
 #include "bthome.h"
-#include "co2_cal_svc.h"
 #include "led_svc.h"
+#if IS_ENABLED(CONFIG_STCC4_ENABLE)
+#include "co2_cal_svc.h"
+#endif
 #include "sensor/sht4x.h"
 #include "sensor/sensor_reading.h"
+#if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
+#include "sensor/leak.h"
+#endif
 
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 
@@ -52,9 +57,10 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 constexpr bt_data AD_FLAG_BYTES =
 	BT_DATA_BYTES(BT_DATA_FLAGS, BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR);
 
-/* Max service data: UUID(2) + info(1) + packet_id(2) + battery%(2) + temp(3) + hum(3) + pressure(4)
- * + co2(3) */
-#define SERVICE_DATA_MAX 20
+/* Max service data: UUID(2) + info(1) + packet_id(2) + temp(3) + hum(3) + pressure(4)
+ * + co2(3) + battery_low(2) + moisture(2). No single board populates every field
+ * (pressure/CO2 are v3-only, moisture is v4-only), but size for the worst case. */
+#define SERVICE_DATA_MAX 22
 
 static uint8_t service_data[SERVICE_DATA_MAX];
 static size_t service_data_len;
@@ -75,22 +81,22 @@ static struct bt_data sd[] = {
 	BT_DATA_BYTES(BT_DATA_UUID128_ALL, SMP_SVC_UUID_BYTES),
 };
 
-/* SHT45 I2C bus for direct heater commands */
-#if DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
-static const struct device *sht45_bus = DEVICE_DT_GET(DT_BUS(DT_NODELABEL(sht45)));
+/* SHT4x I2C bus for direct heater commands */
+#if DT_NODE_HAS_STATUS(DT_NODELABEL(sht4x), okay)
+static const struct device *sht4x_bus = DEVICE_DT_GET(DT_BUS(DT_NODELABEL(sht4x)));
 #endif
 
 /*
  * Fire SHT4x heater via direct I2C for decontamination.
  */
-#if IS_ENABLED(CONFIG_SHT4X_USE_HEATER) && DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
+#if IS_ENABLED(CONFIG_SHT4X_USE_HEATER) && DT_NODE_HAS_STATUS(DT_NODELABEL(sht4x), okay)
 static void sht4x_heater_pulse(void)
 {
 	int power = CONFIG_SHT4X_HEATER_PULSE_POWER;
 	int duration = IS_ENABLED(CONFIG_SHT4X_HEATER_LONG_PULSE_DURATION) ? 0 : 1;
 
 	uint8_t cmd = sht4x_heater_cmd[power][duration];
-	int ret = i2c_write(sht45_bus, &cmd, 1, SHT4X_I2C_ADDR);
+	int ret = i2c_write(sht4x_bus, &cmd, 1, SHT4X_I2C_ADDR);
 
 	if (ret) {
 		LOG_ERR("SHT4x heater cmd failed: %d", ret);
@@ -102,7 +108,7 @@ static void sht4x_heater_pulse(void)
 	uint8_t buf[6];
 
 	for (int attempt = 0; attempt < 10; attempt++) {
-		ret = i2c_read(sht45_bus, buf, sizeof(buf), SHT4X_I2C_ADDR);
+		ret = i2c_read(sht4x_bus, buf, sizeof(buf), SHT4X_I2C_ADDR);
 		if (ret == 0) {
 			break;
 		}
@@ -126,9 +132,9 @@ static void sht4x_heater_pulse(void)
 }
 #endif
 
-static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC,
-				       opt_u16 humidity_mPct, opt_u32 pressure_Pa, opt_u16 co2_ppm,
-				       opt_u8 bat_soc)
+static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_cC,
+				       opt_u16 humidity_cPct, opt_u32 pressure_Pa, opt_u16 co2_ppm,
+				       opt_u8 battery_low, opt_u8 moisture)
 {
 	size_t idx = 0;
 
@@ -138,31 +144,27 @@ static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC
 	/* Device info */
 	service_data[idx++] = BTHOME_DEVICE_INFO;
 
-	/* Packet ID: uint8, rolling counter */
+	/* BTHome v2 requires objects in ascending object-ID order */
+
+	/* 0x00 Packet ID: uint8, rolling counter */
 	service_data[idx++] = BTHOME_OBJ_PACKET_ID;
 	service_data[idx++] = packet_id;
 
-	/* Battery state-of-charge %: uint8, 1% */
-	if (bat_soc.is_some) {
-		service_data[idx++] = BTHOME_OBJ_BATTERY;
-		service_data[idx++] = bat_soc.value;
-	}
-
-	/* Temperature: sint16, factor 0.01 °C */
-	if (temperature_mC.is_some) {
+	/* 0x02 Temperature: sint16, factor 0.01 °C */
+	if (temperature_cC.is_some) {
 		service_data[idx++] = BTHOME_OBJ_TEMP;
-		service_data[idx++] = (uint8_t)(temperature_mC.value & 0xFF);
-		service_data[idx++] = (uint8_t)((temperature_mC.value >> 8) & 0xFF);
+		service_data[idx++] = (uint8_t)(temperature_cC.value & 0xFF);
+		service_data[idx++] = (uint8_t)((temperature_cC.value >> 8) & 0xFF);
 	}
 
-	/* Humidity: uint16, factor 0.01 % */
-	if (humidity_mPct.is_some) {
+	/* 0x03 Humidity: uint16, factor 0.01 % */
+	if (humidity_cPct.is_some) {
 		service_data[idx++] = BTHOME_OBJ_HUMIDITY;
-		service_data[idx++] = (uint8_t)(humidity_mPct.value & 0xFF);
-		service_data[idx++] = (uint8_t)((humidity_mPct.value >> 8) & 0xFF);
+		service_data[idx++] = (uint8_t)(humidity_cPct.value & 0xFF);
+		service_data[idx++] = (uint8_t)((humidity_cPct.value >> 8) & 0xFF);
 	}
 
-	/* Pressure: uint24, factor 0.01 hPa */
+	/* 0x04 Pressure: uint24, factor 0.01 hPa */
 	if (pressure_Pa.is_some) {
 		service_data[idx++] = BTHOME_OBJ_PRESSURE;
 		service_data[idx++] = (uint8_t)(pressure_Pa.value & 0xFF);
@@ -170,11 +172,23 @@ static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC
 		service_data[idx++] = (uint8_t)((pressure_Pa.value >> 16) & 0xFF);
 	}
 
-	/* CO2: uint16, factor 1 ppm */
+	/* 0x12 CO2: uint16, factor 1 ppm */
 	if (co2_ppm.is_some) {
 		service_data[idx++] = BTHOME_OBJ_CO2;
 		service_data[idx++] = (uint8_t)(co2_ppm.value & 0xFF);
 		service_data[idx++] = (uint8_t)((co2_ppm.value >> 8) & 0xFF);
+	}
+
+	/* 0x15 Battery low: uint8 binary, 0 = normal, 1 = low */
+	if (battery_low.is_some) {
+		service_data[idx++] = BTHOME_OBJ_BATTERY_LOW;
+		service_data[idx++] = battery_low.value ? 1 : 0;
+	}
+
+	/* 0x20 Moisture/water-leak: uint8 binary, 0 = dry, 1 = wet */
+	if (moisture.is_some) {
+		service_data[idx++] = BTHOME_OBJ_MOISTURE;
+		service_data[idx++] = moisture.value ? 1 : 0;
 	}
 
 	__ASSERT(idx <= SERVICE_DATA_MAX, "BTHome service data overflow");
@@ -182,11 +196,12 @@ static void bthome_update_service_data(uint8_t packet_id, opt_i16 temperature_mC
 }
 
 /* ---- Update BTHome advertisement data ---- */
-static void update_advertisement(uint8_t packet_id, opt_i16 temperature_mC, opt_u16 humidity_mPct,
-				 opt_u32 pressure_Pa, opt_u16 co2_ppm, opt_u8 bat_soc)
+static void update_advertisement(uint8_t packet_id, opt_i16 temperature_cC, opt_u16 humidity_cPct,
+				 opt_u32 pressure_Pa, opt_u16 co2_ppm, opt_u8 battery_low,
+				 opt_u8 moisture)
 {
-	bthome_update_service_data(packet_id, temperature_mC, humidity_mPct, pressure_Pa, co2_ppm,
-				   bat_soc);
+	bthome_update_service_data(packet_id, temperature_cC, humidity_cPct, pressure_Pa, co2_ppm,
+				   battery_low, moisture);
 	ad[1] = (struct bt_data)BT_DATA(BT_DATA_SVC_DATA16, service_data,
 					(uint8_t)service_data_len);
 
@@ -243,6 +258,11 @@ BT_CONN_CB_DEFINE(conn_cbs) = {
 static const struct gpio_dt_spec boot_led = GPIO_DT_SPEC_GET(DT_ALIAS(boot_led), gpios);
 #endif
 
+#if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
+/* Signalled by the leak ISR so the main loop wakes immediately on a leak. */
+static K_SEM_DEFINE(leak_wake_sem, 0, 1);
+#endif
+
 int main()
 {
 	/* LDOSW is managed by sensor_init() — enabled for probing,
@@ -288,18 +308,23 @@ int main()
 	}
 #endif
 
+#if IS_ENABLED(CONFIG_STCC4_ENABLE)
 	co2_cal_svc_init();
+#endif
 
 	sensor_state sensors;
 	sensor_init(sensors);
 	sensor_fuel_gauge_init();
+#if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
+	leak_init(sensors, &leak_wake_sem);
+#endif
 
 	uint32_t cycle = 0;
 
 	/* Start BLE advertising */
 	k_work_init(&advertise_work, advertise);
 	update_advertisement(cycle, opt_i16_none(), opt_u16_none(), opt_u32_none(), opt_u16_none(),
-			     opt_u8_none());
+			     opt_u8_none(), opt_u8_none());
 	int err = bt_enable(bt_ready);
 	if (err) {
 		LOG_ERR("Bluetooth init failed (err %d)", err);
@@ -307,33 +332,39 @@ int main()
 	}
 
 	while (true) {
-		bool co2_cycle = (cycle % CONFIG_APP_CO2_INTERVAL_DIVISOR) == 0;
-		bool pressure_cycle = (cycle % CONFIG_APP_PRESSURE_INTERVAL_DIVISOR) == 0;
-
-		sensor_read_sht45(sensors);
-#if IS_ENABLED(CONFIG_SHT4X_USE_HEATER) && DT_NODE_HAS_STATUS(DT_NODELABEL(sht45), okay)
-		if (sensors.sht45.valid) {
+		sensor_read_cycle(sensors, cycle);
+#if IS_ENABLED(CONFIG_SHT4X_USE_HEATER) && DT_NODE_HAS_STATUS(DT_NODELABEL(sht4x), okay)
+		if (sensors.sht4x.valid) {
 			sht4x_heater_pulse();
 		}
 #endif
 
-		if (pressure_cycle) {
-			sensor_read_bme688(sensors);
+		opt_u8 moisture = opt_u8_none();
+#if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
+		leak_read(sensors);
+		if (sensors.leak.valid) {
+			moisture = opt_u8_some(sensors.leak.wet ? 1 : 0);
+		}
+#endif
+
+		opt_u8 battery_low = opt_u8_none();
+		if (sensors.battery.valid) {
+			battery_low = opt_u8_some(sensors.battery.health != BATTERY_OK ? 1 : 0);
 		}
 
-		if (co2_cycle) {
-			sensor_read_stcc4(sensors);
-		}
-
-		sensor_read_battery(sensors);
-
-		update_advertisement(++cycle, {sensors.sht45.temperature_cC, sensors.sht45.valid},
-				     {sensors.sht45.humidity_cPct, sensors.sht45.valid},
+		update_advertisement(++cycle, {sensors.sht4x.temperature_cC, sensors.sht4x.valid},
+				     {sensors.sht4x.humidity_cPct, sensors.sht4x.valid},
 				     {sensors.bme688.pressure_Pa, sensors.bme688.valid},
-				     {sensors.stcc4.co2_ppm, sensors.stcc4.valid},
-				     {sensors.battery.soc_pct, sensors.battery.valid});
+				     {sensors.stcc4.co2_ppm, sensors.stcc4.valid}, battery_low,
+				     moisture);
 		sensor_fuel_gauge_idle_set();
+
+#if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
+		/* Wake early if the leak ISR fires, otherwise sleep the full interval. */
+		k_sem_take(&leak_wake_sem, K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
+#else
 		k_sleep(K_SECONDS(CONFIG_APP_MEASUREMENT_INTERVAL_SEC));
+#endif
 	}
 
 	return 0;

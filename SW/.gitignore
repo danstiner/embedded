@@ -12,3 +12,6 @@ target/
 
 # West
 build*/
+
+# Twister test output
+twister-out*/

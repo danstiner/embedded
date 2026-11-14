@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Lints <build-dir>'s compile_commands.json via run-clang-tidy, which must be on PATH.
 # Usage: ./tidy.sh <build-dir> [source-filter]
 
 BUILD_DIR="${1:?Usage: $0 <build-dir> [source-filter]}"
@@ -57,14 +58,4 @@ with open(sys.argv[2], 'w') as f:
     json.dump(cmds, f, indent=2)
 " "$COMPILE_DB" "$TIDY_DIR/compile_commands.json"
 
-RUN_CLANG_TIDY=$(command -v run-clang-tidy 2>/dev/null || true)
-if [ -z "$RUN_CLANG_TIDY" ]; then
-    # Homebrew LLVM on macOS
-    RUN_CLANG_TIDY=$(find /opt/homebrew/Cellar/llvm -name run-clang-tidy -type f 2>/dev/null | head -1)
-fi
-if [ -z "$RUN_CLANG_TIDY" ]; then
-    echo "Error: run-clang-tidy not found" >&2
-    exit 1
-fi
-
-"$RUN_CLANG_TIDY" -p "$TIDY_DIR" $SOURCE_FILTER
+run-clang-tidy -p "$TIDY_DIR" $SOURCE_FILTER

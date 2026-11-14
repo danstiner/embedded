@@ -8,6 +8,6 @@ manifest:
     - name: nrf
       remote: ncs
       repo-path: sdk-nrf
-      revision: v3.2.2
+      revision: v3.3.0
       import:
         path-prefix: west/ncs

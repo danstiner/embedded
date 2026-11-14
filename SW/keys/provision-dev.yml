@@ -1,3 +1,4 @@
 - keyname: BL_PUBKEY
   keys: ["keys/dev.pub", "keys/prod.pub", "keys/prod2.pub"]
   policy: lock-last
+  soc: nrf54l15
