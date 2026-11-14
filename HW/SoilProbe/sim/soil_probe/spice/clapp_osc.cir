@@ -1,0 +1,36 @@
+* Common-collector Clapp oscillator for a coated capacitive soil probe.
+* Probe modelled as Cp || (1/Gp) at the oscillation frequency (values from ../scripts/lumped_values.py).
+* Run:  ngspice -b clapp_osc.cir      or via run_clapp.py (sweeps Cp/Gp, measures f and amplitude)
+.param Cp=22p Gp=1m L=470n RL=4 C1=22p C2=22p Vcc=3.0 Re=390 Rb1=22k Rb2=22k
+
+Vcc  vcc 0   dc {Vcc}
+Rb1  vcc b   {Rb1}
+Rb2  b   0   {Rb2}
+Q1   vcc b e Q2N3904
+Re   e   0   {Re}
+C1   b   e   {C1}
+C2   e   0   {C2}
+* series resonator: base -> DC block -> L (+loss) -> sense electrode -> soil -> ground electrode (node 0)
+Cblk b   n0  10n
+L1   n0  n1  {L}
+RL   n1  s   {RL}
+Cp   s   0   {Cp}
+Rp   s   0   {1/Gp}
+* start-up kick
+Ikick 0 s pulse(0 2m 10n 0.5n 0.5n 2n 1)
+* output pick-off to the squarer (10 pF into a 1 MOhm self-biased 74LVC1G04 ~ 5 pF load)
+Cout e   out 10p
+Rsq  out 0   100k
+Csq  out 0   5p
+
+.model Q2N3904 NPN(Is=6.734f Xti=3 Eg=1.11 Vaf=74.03 Bf=416.4 Ne=1.259 Ise=6.734f
++ Ikf=66.78m Xtb=1.5 Br=.7371 Nc=2 Isc=0 Ikr=0 Rc=1 Cjc=3.638p Mjc=.3085 Vjc=.75 Fc=.5
++ Cje=4.493p Mje=.2593 Vje=.75 Tr=239.5n Tf=301.2p Itf=.4 Vtf=4 Xtf=2 Rb=10)
+
+.options reltol=1e-4 abstol=1e-12 method=gear
+.tran 25p 3u
+.control
+run
+wrdata clapp_out.txt v(e) v(s) v(out)
+.endc
+.end

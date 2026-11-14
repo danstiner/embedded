@@ -1,0 +1,9 @@
+ref,qty,value,package,candidate_mpn,est_usd_each_qty1,verify_on_digikey,notes
+U1,1,FDC2212 capacitance-to-digital,WSON-12,FDC2212DNTR,4.00,yes (price/stock; DNTT variant is obsolete),sensor f <= 10 MHz
+U2,1,40 MHz CMOS oscillator 2.5x2.0,SMD,ECS-2520MV-400-BN-TR,1.20,yes,external reference; gate between readings
+L1,1,12 uH shielded Q>=20 @10 MHz,1210/3012,e.g. LQH3NPN120MM0L or XFL3012-123,0.40,yes,tank inductor
+C1,1,10 pF C0G,0603,generic,0.05,no,fixed tank C
+C2,1,100 nF,0603,generic,0.02,no,decoupling
+C3,1,1 uF,0603,generic,0.03,no,decoupling
+R1 R2,2,4.7 k,0603,generic,0.01,no,I2C pull-ups
+,,,,,~5.70 total,,excluding probe PCB and the nRF54L15/EC/NTC parts
