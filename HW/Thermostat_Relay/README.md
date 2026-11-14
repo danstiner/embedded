@@ -63,16 +63,18 @@ back-to-back MOSFETs and overcurrent protection into a single package with 30 m�
 
 ## 5. Circuit
 
-Two identical channels share the R input, each with its own fuse. Only one channel is shown.
+Two channels share the R input, each with its own fuse. Only the heat channel is shown. The
+fan channel is the same except that its fuse is on pin 6 of the switch and G on pin 4; the
+switch is symmetric, so this only simplifies the layout.
 
 ```
  logic side (3.3 V, USB ground) :        furnace side (24 VAC, floating)
                                 :
- W_EN    o--+--[R1 220Ω]---+    :    +------+---[F1 2A]--- o R
+ W_EN    o--+--[R1 220Ω]---+    :    +------+------------- o W
             |            1 | U1 :    | 6    |
          [R2 10k]        [LED]~~:~~[FETs]  [D1 TVS]
             |            2 |    :    | 4    |
- GND     o--+--------------+    :    +------+------------- o W
+ GND     o--+--------------+    :    +------+---[F1 2A]--- o R
 ```
 
 ### 5.1 Switch: Toshiba TLP3109A (U1)
@@ -229,6 +231,10 @@ parking terminal.
   clearance for the 2.54SOP4/6/8 package family. The footprint's input and output pads are
   5.1 mm apart, and the layout keeps at least 4.9 mm between all logic and field copper,
   including the ground pours on both layers of the logic side.
+- Mounting: the board is 51 × 22 mm with four 2.2 mm holes for M2 screws on a 34.5 × 17 mm
+  pattern. The two holes on the furnace side have no copper within 2.2 mm of their center
+  on either layer, so a screw head or standoff does not sit on 24 VAC copper. The two on
+  the logic side sit in the ground pour.
 
 ## 6. Bill of materials
 
