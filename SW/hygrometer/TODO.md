@@ -26,8 +26,8 @@ Correctness
       only set when the fuel gauge initialised, so a gauge init failure also hides the voltage.
 - [ ] `sensor_reading.cpp` `stcc4_push_compensation()`: the recal thread and the main loop
       both fetch the SHT4x with no shared lock; the Zephyr sht4x driver has none of its own.
-- [ ] `src/bthome/co2_cal_svc.cpp`: the write accepts any 16-bit FRC target on an
-      unauthenticated characteristic; Kconfig limits the target to 350-600 ppm.
+- [ ] `src/bthome/co2_cal_svc.cpp`: the recalibration characteristic is unauthenticated, so
+      anyone in BLE range can trigger a recal.
 - [ ] `src/sensor/stcc4.cpp` `stcc4_force_recalibration()`: the ±3000 ppm check returns `-EIO`
       after the sensor has already applied the correction, and the offset is then never
       recorded. Datasheet "railed" is a magnitude near 32767.
