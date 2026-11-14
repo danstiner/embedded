@@ -204,8 +204,8 @@ to float with the line it switches.
 
 The only link between the two sides is the light path inside U1 and U2, rated 1500 V RMS.
 That is far above anything a 24 VAC Class 2 circuit produces, but it is functional
-isolation, not a safety rating. The field side is never connected to logic ground; C is a
-parking terminal.
+isolation, not a safety rating. The field side is never connected to logic ground, and C is
+not brought onto the board.
 
 ### 5.9 PCB layout
 
@@ -231,8 +231,8 @@ parking terminal.
   clearance for the 2.54SOP4/6/8 package family. The footprint's input and output pads are
   5.1 mm apart, and the layout keeps at least 4.9 mm between all logic and field copper,
   including the ground pours on both layers of the logic side.
-- Mounting: the board is 51 × 22 mm with four 2.2 mm holes for M2 screws on a 34.5 × 17 mm
-  pattern. The two holes on the furnace side have no copper within 2.2 mm of their center
+- Mounting: the board is 46 × 24 mm with a 2.2 mm hole for an M2 screw in each corner, on
+  a 41.5 × 19.5 mm pattern. The two holes on the furnace side have no copper within 2.2 mm of their center
   on either layer, so a screw head or standoff does not sit on 24 VAC copper. The two on
   the logic side sit in the ground pour.
 
@@ -248,9 +248,9 @@ parking terminal.
 | R5, R6 | 4.7 kΩ             | any                | 0603        | RES - Indicator current limit, optional (5.4) |
 | D3, D4 | Red LED            | any                | 0603        | LED, Red, SMD - Indicator, optional (5.4)     |
 | J1     | 1×3 pin header     | any                | 2.54 mm THT | MCU Connection                                |
-| J2     | 1×4 screw terminal | Phoenix MKDS 1,5   | 5.08 mm THT | Furnace connection                            |
+| J2     | 1×3 lever terminal | WAGO 2601-1103     | 3.5 mm THT  | Furnace connection, 26–14 AWG                 |
 
-About $14 in parts, of which the two PhotoMOS relays are $8.28. KiCad has no stock
+About $16 in parts, of which the two PhotoMOS relays are $8.28. KiCad has no stock
 footprint for the TLP3109A's package, so `Components/TLP3109A/footprints.pretty` holds one drawn from
 Toshiba's 2.54SOP6 land pattern (2.54 mm pitch), with the pads lengthened outward from 1.2 to
 1.8 mm for hand soldering. The resistors, LEDs and TVS use KiCad's hand-solder footprints.
@@ -272,12 +272,14 @@ check the module's datasheet.
 
 J2, to the furnace:
 
-| Pin | Signal | Function              |
-| --- | ------ | --------------------- |
-| 1   | C      | Unused, not connected |
-| 2   | R      | 24 VAC hot            |
-| 3   | W      | Heat                  |
-| 4   | G      | Fan                   |
+| Pin | Signal | Function   |
+| --- | ------ | ---------- |
+| 1   | R      | 24 VAC hot |
+| 2   | W      | Heat       |
+| 3   | G      | Fan        |
+
+The board has no C terminal. Cap the furnace's C wire if it is present at the thermostat
+location; it must not touch the board.
 
 ## 8. Verification
 
