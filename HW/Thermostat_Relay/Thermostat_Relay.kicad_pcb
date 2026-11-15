@@ -403,7 +403,7 @@
 		(descr "Fuse SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal with elongated pad for handsoldering. (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf)")
 		(tags "fuse handsolder")
 		(property "Reference" "F2"
-			(at 0 -1.75 0)
+			(at 6.470001 0 0)
 			(layer "F.SilkS")
 			(uuid "04f285fb-b7e5-4035-8014-cb792c079052")
 			(effects
@@ -1403,13 +1403,13 @@
 		(descr "Toshiba 2.54SOP6 (11-7C1S), 6 pin, body 4.4x6.3mm, lead span 7.0mm, pitch 2.54mm. Pads 0.8x1.8mm: Toshiba land pattern (0.8x1.2mm, rows 6.3mm apart) extended 0.6mm outward for hand soldering (https://toshiba.semicon-storage.com/us/semiconductor/design-development/package/detail.2.54SOP6.html)")
 		(tags "Toshiba 2.54SOP6 11-7C1S photorelay TLP3109A")
 		(property "Reference" "U1"
-			(at 0 -4.6 0)
+			(at -4.4 -4.52 0)
 			(layer "F.SilkS")
 			(uuid "e4a3ec48-5e8a-45d1-b132-915e6f231321")
 			(effects
 				(font
-					(size 1 1)
-					(thickness 0.15)
+					(size 0.8 0.8)
+					(thickness 0.12)
 				)
 			)
 		)
@@ -1640,7 +1640,7 @@
 		(descr "Fuse SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC-7351 nominal with elongated pad for handsoldering. (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf)")
 		(tags "fuse handsolder")
 		(property "Reference" "F1"
-			(at 0 1.75 0)
+			(at 6.470001 0 0)
 			(layer "F.SilkS")
 			(uuid "e659712f-1395-490a-8f3e-c2a732d1bc6b")
 			(effects
@@ -2308,13 +2308,13 @@
 		(descr "Toshiba 2.54SOP6 (11-7C1S), 6 pin, body 4.4x6.3mm, lead span 7.0mm, pitch 2.54mm. Pads 0.8x1.8mm: Toshiba land pattern (0.8x1.2mm, rows 6.3mm apart) extended 0.6mm outward for hand soldering (https://toshiba.semicon-storage.com/us/semiconductor/design-development/package/detail.2.54SOP6.html)")
 		(tags "Toshiba 2.54SOP6 11-7C1S photorelay TLP3109A")
 		(property "Reference" "U2"
-			(at 0 -4.6 0)
+			(at -4.4 -4.52 0)
 			(layer "F.SilkS")
 			(uuid "96d343d1-c9ba-4d8f-ace1-8f3508098d4e")
 			(effects
 				(font
-					(size 1 1)
-					(thickness 0.15)
+					(size 0.8 0.8)
+					(thickness 0.12)
 				)
 			)
 		)
@@ -4164,6 +4164,46 @@
 			)
 		)
 	)
+	(gr_line
+		(start 120 100.7)
+		(end 120 103.2)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(layer "F.SilkS")
+		(uuid "7c2e9a10-3b54-4f6d-8e21-5a9d0c4b7e00")
+	)
+	(gr_line
+		(start 120 110.6)
+		(end 120 113.4)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(layer "F.SilkS")
+		(uuid "7c2e9a10-3b54-4f6d-8e21-5a9d0c4b7e01")
+	)
+	(gr_line
+		(start 120 120.8)
+		(end 120 121.8)
+		(stroke
+			(width 0.15)
+			(type dash)
+		)
+		(layer "F.SilkS")
+		(uuid "7c2e9a10-3b54-4f6d-8e21-5a9d0c4b7e02")
+	)
+	(gr_line
+		(start 123 100)
+		(end 123 124)
+		(stroke
+			(width 0.1)
+			(type dot)
+		)
+		(layer "Dwgs.User")
+		(uuid "5b1f6c2e-8a41-4d7b-9c53-2e7d0a6f4b11")
+	)
 	(gr_arc
 		(start 100 101)
 		(mid 100.292893 100.292893)
@@ -4248,6 +4288,28 @@
 		(layer "Edge.Cuts")
 		(uuid "fefc3bfa-a2ed-4412-ab72-aef730df071f")
 	)
+	(gr_text "3.3 V LOGIC"
+		(at 110.49 122.682 0)
+		(layer "F.SilkS")
+		(uuid "1d795e00-bf58-44b6-8c89-55092009def1")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.12)
+			)
+		)
+	)
+	(gr_text "ISOLATION"
+		(at 120 122.7 0)
+		(layer "F.SilkS")
+		(uuid "fb38f36e-5b3d-4939-9ac5-e58c43902727")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.12)
+			)
+		)
+	)
 	(gr_text "G"
 		(at 129.65 108.5 0)
 		(layer "F.SilkS")
@@ -4274,6 +4336,28 @@
 		(at 129.65 115.5 0)
 		(layer "F.SilkS")
 		(uuid "026aca9e-1579-4178-92da-2f9d19518b61")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.12)
+			)
+		)
+	)
+	(gr_text "FIELD 24 VAC"
+		(at 135.128 122.682 0)
+		(layer "F.SilkS")
+		(uuid "84959f04-1e75-470a-8f65-dbd7be9c34d9")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.12)
+			)
+		)
+	)
+	(gr_text "strip 8-9 mm"
+		(at 136.398 101.854 0)
+		(layer "F.SilkS")
+		(uuid "232909f3-6e32-41a4-b886-0311698589a4")
 		(effects
 			(font
 				(size 0.8 0.8)
