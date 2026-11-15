@@ -253,8 +253,8 @@ not brought onto the board.
   clearance for the 2.54SOP4/6/8 package family. The footprint's input and output pads are
   4.89 mm apart, and the layout keeps at least that between all logic and field copper,
   including the ground pours on both layers of the logic side.
-- Mounting: the board is 46 × 24 mm with a 2.2 mm hole for an M2 screw in each corner, on
-  a 41.5 × 19.5 mm pattern. The two holes on the furnace side have no copper within 2.2 mm of their center
+- Mounting: the board is 47 × 24 mm with a 2.2 mm hole for an M2 screw in each corner, on
+  a 42.5 × 19.5 mm pattern. The two holes on the furnace side have no copper within 2.2 mm of their center
   on either layer, so a screw head or standoff does not sit on 24 VAC copper. The two on
   the logic side sit in the ground pour.
 
