@@ -243,7 +243,7 @@
       "internal_id": "",
       "mfg": "",
       "mpn": "",
-      "sch_revision": "2026v1"
+      "sch_revision": "${REVISION}"
     },
     "layer_pairs": [],
     "layer_presets": [],
@@ -674,7 +674,11 @@
       "Thermostat_Relay"
     ]
   ],
-  "text_variables": {},
+  "text_variables": {
+    "AUTHOR": "Daniel Stiner",
+    "REVISION": "2026v1",
+    "TITLE": "Thermostat Relay Board"
+  },
   "tuning_profiles": {
     "meta": {
       "version": 0
