@@ -5250,7 +5250,7 @@
 		)
 	)
 	(gr_text "${TITLE}"
-		(at 124.206 100.838 0)
+		(at 122.428 100.838 0)
 		(layer "B.SilkS")
 		(uuid "8e8869ad-3f55-4f06-b344-0a6438a42ddd")
 		(effects
