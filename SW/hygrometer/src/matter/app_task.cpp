@@ -118,33 +118,14 @@ void AppTask::ReportLeak()
 #if defined(CONFIG_APP_MATTER_CO2)
 void AppTask::RequestCo2Recalibration()
 {
-	/* Pass current pressure for compensation when a BME688 is fitted; 0 lets
-	 * the sensor keep its sea-level default. Read here (Matter thread) is safe:
-	 * `sensors` is only ever written on this thread. */
-	uint32_t pressure_pa = sensors.bme688.valid ? sensors.bme688.pressure_Pa : 0;
-
 	LOG_INF("CO2 recalibration requested via Mode Select");
-	sensor_recalibrate_stcc4_async(CONFIG_APP_CO2_RECAL_TARGET_PPM, pressure_pa,
-				       AppTask::Co2RecalibrationDone);
-}
-
-void AppTask::Co2RecalibrationDone(int result)
-{
-	/* CurrentMode is driven by ReflectCo2Mode() from the sensor op state; just log. */
-	LOG_INF("CO2 recalibration finished (result %d)", result);
+	sensor_request_stcc4_recal(CONFIG_APP_CO2_RECAL_TARGET_PPM);
 }
 
 void AppTask::RequestCo2FactoryReset()
 {
 	LOG_INF("CO2 factory reset requested via Mode Select");
-	sensor_factory_reset_stcc4_async(AppTask::Co2FactoryResetDone);
-}
-
-void AppTask::Co2FactoryResetDone(int result)
-{
-	/* A successful factory reset hands off to the warm-up; CurrentMode stays Factory Reset
-	 * (driven by ReflectCo2Mode()) until the warm-up ends. Just log the kick-off result. */
-	LOG_INF("CO2 factory reset finished (result %d)", result);
+	sensor_request_stcc4_factory_reset();
 }
 
 bool AppTask::sCo2ModeReflecting;
