@@ -1,0 +1,7 @@
+# leak.cpp references CONFIG_APP_LEAK_THRESHOLD_MV (normally from hygrometer/Kconfig).
+# Provide it here so the driver compiles standalone in the test app.
+config APP_LEAK_THRESHOLD_MV
+	int
+	default 1200
+
+source "Kconfig.zephyr"

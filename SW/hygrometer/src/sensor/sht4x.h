@@ -23,9 +23,6 @@
 /* High-repeatability measurement time: 8.3ms max, rounded up */
 #define SHT4X_MEASURE_TIME_MS 9
 
-// Above this temperature the heater should not be used
-#define SHT4X_HEATER_MAX_TEMP_C 65
-
 /*
  * Heater command bytes indexed by [power][duration]
  *   Power:    0=high (~200mW), 1=medium (~110mW), 2=low (~20mW)

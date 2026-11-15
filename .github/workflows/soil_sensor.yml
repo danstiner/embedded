@@ -4,13 +4,13 @@ on:
   push:
     paths:
       - SW/soil_sensor/**
-      - SW/boards/nordic/bl54l15u_devkit/**
+      - SW/boards/local/bl54l15u_devkit/**
       - SW/west/**
       - .github/workflows/soil_sensor.yml
   pull_request:
     paths:
       - SW/soil_sensor/**
-      - SW/boards/nordic/bl54l15u_devkit/**
+      - SW/boards/local/bl54l15u_devkit/**
       - SW/west/**
       - .github/workflows/soil_sensor.yml
 
@@ -71,7 +71,7 @@ jobs:
             ${{ runner.os }}-ccache-
 
       - name: Configure ccache
-        run: ccache -M 100M
+        run: ccache -M 200M
 
       - name: Restore signing key
         run: echo "$MCUBOOT_DEV_SIGNING_KEY" > SW/keys/dev.pem

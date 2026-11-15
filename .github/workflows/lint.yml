@@ -16,6 +16,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: jidicula/clang-format-action@v4.14.0
         with:
-          clang-format-version: 18
+          clang-format-version: 21
           check-path: SW
           exclude-regex: 'SW/(west|build)|zap-generated/'

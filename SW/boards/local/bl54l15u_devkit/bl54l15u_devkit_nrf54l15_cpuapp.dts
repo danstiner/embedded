@@ -1,0 +1,269 @@
+/*
+ * BL54L15u DevKit - nRF54L15 nPM1304 development board
+ *
+ * Hardware:
+ *   - nRF54L15 SoC (application core)
+ *   - NPM1304 PMIC at 0x6B on I2C20 (SDA=P1.07, SCL=P1.08) with RGB LED
+ *   - Button SW1 on P0.00
+ *   - Red LED on P2.08
+ *   - Internal RRAM only (no external flash)
+ *
+ * Board revisions:
+ *   2026v1: I2C20 = PMIC, I2C21 = Qwiic J1, I2C22 = Qwiic J8, no UART, bad LFXO footprint
+ *   2026v2: I2C20 = PMIC + Qwiic J1 (shared), I2C21 = Qwiic J8, adds UART + fixed LFXO
+ */
+
+/dts-v1/;
+
+#include <nordic/nrf54l15_cpuapp.dtsi>
+#include <dt-bindings/regulator/npm13xx.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include "bl54l15u_devkit-pinctrl.dtsi"
+#include "../bl54l15u_partitions.dtsi"
+
+/* Static flash partitions (PM disabled for this board in project sysbuild config). */
+
+/ {
+	model = "BL54L15u DevKit";
+	compatible = "local,bl54l15u-devkit";
+
+	chosen {
+		zephyr,code-partition = &slot0_partition;
+		zephyr,sram = &cpuapp_sram;
+		zephyr,flash-controller = &rram_controller;
+		zephyr,flash = &cpuapp_rram;
+		zephyr,ieee802154 = &ieee802154;
+	};
+
+	/* Button SW1 on P0.00 */
+	buttons: buttons {
+		compatible = "gpio-keys";
+		sw1: sw1 {
+			gpios = <&gpio0 0 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Button SW1";
+			zephyr,code = <INPUT_KEY_0>;
+		};
+	};
+
+	/* Red LED on P2.08 */
+	leds: leds {
+		compatible = "gpio-leds";
+		red_led: red_led {
+			gpios = <&gpio2 8 GPIO_ACTIVE_HIGH>;
+			label = "Red LED";
+		};
+	};
+
+	aliases {
+		sw0 = &sw1;
+		led0 = &red_led;
+		watchdog0 = &wdt31;
+	};
+};
+
+/* Use full SRAM - no FLPR core reservation (RRAM size set in bl54l15u_partitions.dtsi) */
+&cpuapp_sram {
+	status = "okay";
+	reg = <0x20000000 DT_SIZE_K(256)>;
+	ranges = <0x0 0x20000000 0x40000>;
+};
+
+/* 32.768 kHz crystal with ~9 pF load capacitance (2026v2+) */
+&lfxo {
+	status = "okay";
+	load-capacitors = "internal";
+	load-capacitance-femtofarad = <9000>;
+};
+
+&clock {
+	status = "okay";
+};
+
+/* BL54L15u module contains a 32 MHz crystal
+ * Internal load capacitance set to 15 pF */
+&hfxo {
+	load-capacitors = "internal";
+	load-capacitance-femtofarad = <15000>;
+};
+
+/* Power regulators */
+&regulators {
+	status = "okay";
+};
+
+&vregmain {
+	status = "okay";
+	regulator-initial-mode = <NRF5X_REG_MODE_DCDC>;
+};
+
+/* Radio for Thread/BLE */
+&radio {
+	status = "okay";
+};
+
+/* Global Real-Time Counter */
+&grtc {
+	owned-channels = <0 1 2 3 4 5 6 7 8 9 10 11>;
+	child-owned-channels = <3 4 7 8 9 10 11>;
+	status = "okay";
+};
+
+/* I2C20 for NPM1304 PMIC (v2: also Qwiic J1) */
+&i2c20 {
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+	pinctrl-0 = <&i2c20_default>;
+	pinctrl-1 = <&i2c20_sleep>;
+	pinctrl-names = "default", "sleep";
+
+	npm1304_pmic: pmic@6b {
+		compatible = "nordic,npm1304";
+		reg = <0x6b>;
+
+		npm1304_gpio: gpio-controller {
+			compatible = "nordic,npm1304-gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+			ngpios = <5>;
+		};
+
+		npm1304_regulators: regulators {
+			compatible = "nordic,npm1304-regulator";
+
+			npm1304_buck1: BUCK1 {
+				regulator-min-microvolt = <1000000>;
+				regulator-max-microvolt = <3300000>;
+			};
+
+			npm1304_buck2: BUCK2 {
+				regulator-min-microvolt = <1000000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-init-microvolt = <3000000>;
+			};
+
+			npm1304_ldo1: LDO1 {
+				regulator-min-microvolt = <1000000>;
+				regulator-max-microvolt = <3300000>;
+			};
+
+			npm1304_ldo2: LDO2 {
+				regulator-min-microvolt = <1000000>;
+				regulator-max-microvolt = <3300000>;
+			};
+		};
+
+		npm1304_charger: charger {
+			compatible = "nordic,npm1304-charger";
+			term-microvolt = <4100000>;      /* 4.1V for ~90% charge on standard LiPo */
+			term-warm-microvolt = <4000000>; /* 4.0V at warm temp (safer) */
+			current-microamp = <50000>;      /* 50mA charging current */
+			vbus-limit-microamp = <100000>;  /* 100mA VBUS limit (conservative USB unconfigured) */
+			thermistor-ohms = <0>;           /* NTC disabled */
+			thermistor-beta = <3950>;        /* Required property, ignored when NTC disabled */
+			charging-enable;
+		};
+
+		npm1304_leds: leds {
+			compatible = "nordic,npm1304-led";
+			/* LED0 - Blue */
+			nordic,led0-mode = "host";
+			/* LED1 - Red */
+			nordic,led1-mode = "error";
+			/* LED2 - Green */
+			nordic,led2-mode = "charging";
+		};
+
+		npm1304_wdt: watchdog {
+			compatible = "nordic,npm1304-wdt";
+		};
+	};
+};
+
+/* I2C21 for Qwiic J8 connector (v1: Qwiic J1) */
+&i2c21 {
+	status = "disabled";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+	pinctrl-0 = <&i2c21_default>;
+	pinctrl-1 = <&i2c21_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+/* IEEE 802.15.4 for Thread */
+&ieee802154 {
+	status = "okay";
+};
+
+/* Bluetooth */
+&bt_hci_controller {
+	status = "okay";
+};
+
+/* GPIO ports */
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&gpio2 {
+	status = "okay";
+};
+
+/* GPIOTE instances for GPIO interrupts/events */
+&gpiote20 {
+	status = "okay";
+};
+
+&gpiote30 {
+	status = "okay";
+};
+
+/* Temperature sensor (required for radio temperature compensation) */
+&temp {
+	status = "okay";
+};
+
+/* Disable unused peripherals for power savings */
+
+/* No UART on this board - use RTT for debug */
+&uart20 {
+	status = "disabled";
+};
+
+&uart21 {
+	status = "disabled";
+};
+
+&uart22 {
+	status = "disabled";
+};
+
+&uart30 {
+	status = "disabled";
+};
+
+/* No external SPI flash */
+&spi00 {
+	status = "disabled";
+};
+
+/* No NFC - release P1.02/P1.03 as GPIOs */
+&nfct {
+	status = "disabled";
+};
+
+&uicr {
+	nfct-pins-as-gpios;
+};
+
+/* No ADC needed */
+&adc {
+	status = "disabled";
+};
+
+/* No PWM needed */
+&pwm20 {
+	status = "disabled";
+};

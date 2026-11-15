@@ -10,12 +10,13 @@
 #define BTHOME_DEVICE_INFO 0x40 /* Unencrypted, BTHome v2 */
 
 /* BTHome object IDs — must appear in ascending order in payload */
-#define BTHOME_OBJ_PACKET_ID 0x00 /* uint8, rolling counter */
-#define BTHOME_OBJ_BATTERY   0x01 /* uint8, 1% */
-#define BTHOME_OBJ_TEMP      0x02 /* sint16, 0.01 °C */
-#define BTHOME_OBJ_HUMIDITY  0x03 /* uint16, 0.01 % */
-#define BTHOME_OBJ_PRESSURE  0x04 /* uint24, 0.01 hPa */
-#define BTHOME_OBJ_CO2       0x12 /* uint16, 1 ppm */
+#define BTHOME_OBJ_PACKET_ID   0x00 /* uint8, rolling counter */
+#define BTHOME_OBJ_TEMP        0x02 /* sint16, 0.01 °C */
+#define BTHOME_OBJ_HUMIDITY    0x03 /* uint16, 0.01 % */
+#define BTHOME_OBJ_PRESSURE    0x04 /* uint24, 0.01 hPa */
+#define BTHOME_OBJ_CO2         0x12 /* uint16, 1 ppm */
+#define BTHOME_OBJ_BATTERY_LOW 0x15 /* uint8 binary, 0 = normal, 1 = low */
+#define BTHOME_OBJ_MOISTURE    0x20 /* uint8 binary, 0 = dry, 1 = wet (water leak) */
 
 typedef struct {
 	int16_t value = 0;

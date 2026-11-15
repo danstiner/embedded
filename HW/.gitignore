@@ -1,26 +1,50 @@
-# For PCBs designed using KiCad: http://www.kicad-pcb.org/
-# KiCad local file history (KiCad 8+)
-.history/
-
-# Exported gerber plots
-gerbers/
+# KiCad, from https://github.com/github/gitignore/blob/main/KiCad.gitignore
+# Format documentation: https://kicad.org/help/file-formats/
 
 # Temporary files
 *.000
 *.bak
 *.bck
 *.kicad_pcb-bak
+*.kicad_sch-bak
+*-backups
+*-cache*
+*-bak
+*-bak*
 *~
+~*
 _autosave-*
+\#auto_saved_files\#
 *.tmp
-*-backups/
+*-save.pro
+*-save.kicad_pcb
+fp-info-cache
+~*.lck
+\#auto_saved_files#
+
 # Netlist files (exported from Eeschema)
 *.net
+
 # Autorouter files (exported from Pcbnew)
-.dsn
+*.dsn
+*.ses
+
 # Exported BOM files
 *.xml
 *.csv
+
+# Archived Backups (KiCad 6.0)
+**/*-backups/*.zip
+
+# Local git-based history (KiCad 9.0+)
+.history
+
+# Local project settings
+*.kicad_prl
+
+# Not from the template
+# Exported gerber plots
+gerbers/
 
 # Python
 __pycache__/
