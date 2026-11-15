@@ -61,6 +61,28 @@ to share one isolated supply across all channels. None of these are relevant to 
 TI's upcoming TPSI8830 is worth watching: it integrates a capacitively isolated driver with
 back-to-back MOSFETs and overcurrent protection into a single package with 30 mΩ on resistance.
 
+### 4.2 Furnace terminal block
+
+Thermostat wire is 18 AWG solid, which pushes into a spring terminal without tools. The three
+WAGO candidates are Push-in CAGE CLAMP blocks; the Phoenix MKDS is a conventional screw
+terminal. All are 3-pole with the wire parallel to the board.
+
+|                    | **2601-1103**        | 805-303             | 2060-453             | MKDS 1,5/3-5,08     |
+| ------------------ | -------------------- | ------------------- | -------------------- | ------------------- |
+| Release            | lever                | push-button         | small push-button    | screw               |
+| Solid wire         | 26–14 AWG            | 24–16 AWG           | 24–18 AWG            | 26–14 AWG           |
+| Pitch              | 3.5 mm               | 3.5 mm              | 4 mm                 | 5.08 mm             |
+| Width × depth      | 13.0 × 15.7 mm       | 12.0 × 13.6 mm      | 11.9 × 13.1 mm       | 15.2 × 9.8 mm       |
+| Height above board | about 16 mm          | 10.5 mm             | 4.5 mm               | 13.8 mm             |
+| Mounting           | THT, 2 pins per pole | THT, 1 pin per pole | SMD, 2 pads per pole | THT, 1 pin per pole |
+
+**Chosen: 2601-1103.** The lever opens by hand and the wire range leaves margin above
+18 AWG. The 805-303 is the closest alternative, smaller and lower, if it can be bought in
+single quantities. The 2060-453 is the lowest and cheapest, but 18 AWG is the top of its
+range. Either would shrink the board to roughly 44 × 22 mm. The screw terminal is the
+shallowest, but its 5.08 mm pitch makes it the widest, and it needs a screwdriver for
+every connection.
+
 ## 5. Circuit
 
 Two channels share the R input, each with its own fuse. Only the heat channel is shown. The
@@ -328,5 +350,11 @@ Not yet run. Bench first, on a spare 24 VAC transformer, then the furnace.
   [KiCad PCB Calculator](https://gitlab.com/kicad/code/kicad/-/tree/master/pcb_calculator),
   and Toshiba's *Photocouplers and Photorelays* catalog (Sep. 2014), section 9, the
   sources for section 5.9.
+- WAGO datasheets for the [2601-1103](https://www.wago.com/2601-1103),
+  [805-303](https://www.wago.com/805-303) and
+  [2060-453/998-404](https://www.wago.com/2060-453/998-404) terminal blocks, the sources for
+  section 4.2.
+- [Phoenix Contact MKDS 1,5/3-5,08 (1715734)](https://www.phoenixcontact.com/en-us/products/printed-circuit-board-terminal-mkds-15-3-508-1715734),
+  also for section 4.2.
 - Littelfuse 466 series fuse datasheet (rev. 12/16/20), Fuseology design guide and
   2920L PTC datasheet (rev. 06/04/24), the sources for section 5.6.
