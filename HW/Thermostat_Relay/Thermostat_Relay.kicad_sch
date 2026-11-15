@@ -3972,7 +3972,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "TLP3109A:Toshiba_11-7C1S_2.54SOP6_4.4x6.3mm_P2.54mm"
+		(property "Footprint" "TLP3109A:2p54SOP6_TOS-M"
 			(at 127 106.68 0)
 			(hide yes)
 			(show_name no)
@@ -4597,7 +4597,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "TLP3109A:Toshiba_11-7C1S_2.54SOP6_4.4x6.3mm_P2.54mm"
+		(property "Footprint" "TLP3109A:2p54SOP6_TOS-M"
 			(at 127 58.42 0)
 			(hide yes)
 			(show_name no)

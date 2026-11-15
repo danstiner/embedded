@@ -251,7 +251,7 @@ not brought onto the board.
   circuit, so the relay package is the limit. The TLP3109A datasheet does not state its
   creepage; Toshiba's 2014 photocoupler catalog lists 4.0 mm minimum creepage and
   clearance for the 2.54SOP4/6/8 package family. The footprint's input and output pads are
-  5.1 mm apart, and the layout keeps at least 4.9 mm between all logic and field copper,
+  4.89 mm apart, and the layout keeps at least that between all logic and field copper,
   including the ground pours on both layers of the logic side.
 - Mounting: the board is 46 × 24 mm with a 2.2 mm hole for an M2 screw in each corner, on
   a 41.5 × 19.5 mm pattern. The two holes on the furnace side have no copper within 2.2 mm of their center
@@ -273,9 +273,10 @@ not brought onto the board.
 | J2     | 1×3 lever terminal | WAGO 2601-1103     | 3.5 mm THT  | Furnace connection, 26–14 AWG                 |
 
 About $16 in parts, of which the two PhotoMOS relays are $8.28. KiCad has no stock
-footprint for the TLP3109A's package, so `Components/TLP3109A/footprints.pretty` holds one drawn from
-Toshiba's 2.54SOP6 land pattern (2.54 mm pitch), with the pads lengthened outward from 1.2 to
-1.8 mm for hand soldering. The resistors, LEDs and TVS use KiCad's hand-solder footprints.
+footprint for the TLP3109A's 2.54SOP6 package, so `Components/TLP3109A/` holds Toshiba's
+footprints and STEP model from the product page's CAD download. The board uses the
+maximum-material variant (`2p54SOP6_TOS-M`), whose longer pads are easier to hand solder.
+The resistors, LEDs and TVS use KiCad's hand-solder footprints.
 The schematic reuses KiCad's TLP3546 symbol, which has the same pin functions.
 
 ## 7. Connections
