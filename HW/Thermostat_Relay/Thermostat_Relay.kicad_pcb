@@ -3970,15 +3970,15 @@
 			(uuid "f193b0cf-583b-4ab7-883a-200f05bbe018")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/TerminalBlock_WAGO.3dshapes/TerminalBlock_WAGO_2601-1103_1x03_P3.50mm_Horizontal.step"
+		(model "${KIPRJMOD}/Components/WAGO_2601-1103/2601-1103.igs"
 			(offset
-				(xyz 0 0 0)
+				(xyz 8.06 0 0)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz -90 0 90)
 			)
 		)
 	)
