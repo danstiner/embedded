@@ -1,0 +1,9 @@
+tests:
+  hygrometer.sensor.stcc4:
+    platform_allow:
+      - native_sim
+      - qemu_cortex_m3
+    tags:
+      - stcc4
+      - sensor
+      - unit

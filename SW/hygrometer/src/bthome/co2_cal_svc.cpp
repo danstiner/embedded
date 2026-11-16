@@ -45,8 +45,7 @@ static ssize_t co2_cal_write_cb(struct bt_conn *conn, const struct bt_gatt_attr 
 
 	LOG_INF("CO2 recalibration requested: target=%u ppm", target);
 
-	/* No pressure compensation override; the sensor layer owns the work queue. */
-	sensor_recalibrate_stcc4_async(target, 0, nullptr);
+	sensor_request_stcc4_recal(target);
 
 	return len;
 }

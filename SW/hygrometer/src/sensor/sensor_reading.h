@@ -61,7 +61,6 @@ struct sensor_state {
 	struct sht4x_reading sht4x;
 	struct bme688_reading bme688;
 	struct stcc4_reading stcc4;
-	uint8_t stcc4_discards_remaining;
 	struct battery_reading battery;
 	struct leak_reading leak;
 };
@@ -101,33 +100,21 @@ enum co2_state {
 	CO2_STATE_FACTORY_RESET = 2,
 };
 
-/** Lock-free snapshot of the current CO2 maintenance state. Safe from any thread
- *  (incl. the Matter thread while a recalibration holds the sensor mutex). */
+/** Current CO2 maintenance state, counting a request the loop has not picked up yet.
+ *  Call from the measurement-loop thread. */
 enum co2_state sensor_co2_state(void);
 
-/** Recalibrate the STCC4 CO2 sensor via forced recalibration (datasheet §3.4.15,
- *  blocking). Non-destructive: a new FRC replaces the previous correction
- *  offset; no factory reset / history wipe. Wakes the sensor,
- *  conditions it, takes 30 single-shot measurements spaced at the steady-state CO2
- *  interval (held in idle with fresh RH/T compensation each shot, as the datasheet
- *  requires before FRC), runs forced recalibration to target_ppm, then sleeps.
- *  Must be called from a thread that can block for the full sequence (NOT the system
- *  work queue). Returns 0 on success, negative errno on failure. */
-int sensor_recalibrate_stcc4(uint16_t target_ppm, uint32_t pressure_pa);
+/** Request a forced recalibration of the STCC4 to target_ppm (datasheet §3.4.15).
+ *  Non-destructive: a new FRC replaces the previous correction offset. Safe from any
+ *  thread and returns immediately; the measurement loop picks the request up on its
+ *  next CO2 cycle, conditions the sensor, then takes 30 readings at the CO2 interval
+ *  (held in idle, CO2 reported unavailable) and applies the FRC after the last one.
+ *  Dropped if another request is pending or an operation is already running. */
+void sensor_request_stcc4_recal(uint16_t target_ppm);
 
-/** Asynchronous wrapper for sensor_recalibrate_stcc4(): runs the sequence on a
- *  dedicated work queue so the caller (BLE/Matter thread) never blocks. If
- *  `done` is non-NULL it is invoked with the result from the work-queue thread.
- *  Calls made while a recalibration is already pending are ignored. */
-void sensor_recalibrate_stcc4_async(uint16_t target_ppm, uint32_t pressure_pa,
-				    void (*done)(int result));
-
-/** Factory-reset the STCC4 (datasheet §3.4.11): wipes FRC + ASC history and re-enables the
- *  bypass phase, then conditions the sensor. Destructive recovery for a unit stuck at the
- *  placeholder/floor; the sensor needs a long warm-up before readings are accurate again.
- *  Blocking (~25 s); must NOT run on the system work queue. Returns 0 on success. */
-int sensor_factory_reset_stcc4(void);
-
-/** Asynchronous wrapper for sensor_factory_reset_stcc4(): runs on the same dedicated work
- *  queue as recalibration (one op at a time). `done` (if non-NULL) gets the result. */
-void sensor_factory_reset_stcc4_async(void (*done)(int result));
+/** Request an STCC4 factory reset (datasheet §3.4.11): wipes FRC + ASC history and
+ *  re-enables the bypass phase. Destructive recovery for a unit stuck at the
+ *  placeholder/floor; followed by conditioning and the CONFIG_APP_CO2_WARMUP_MIN
+ *  continuous-mode warm-up, all driven by the measurement loop. Same hand-off and
+ *  drop rules as sensor_request_stcc4_recal(). */
+void sensor_request_stcc4_factory_reset(void);

@@ -64,18 +64,19 @@
  *   perform_factory_reset wipes FRC + ASC history and re-enables the bypass phase. Destructive —
  *   use only to recover a sensor stuck at the floor; a full warm-up is then required.
  *
- * ── This firmware's state machine (sensor_reading.cpp) ──────────────────────────────────
+ * ── This firmware's state machine (stcc4_model.h, driven by sensor_read_stcc4) ──────────
+ *   One step per CO2 cycle, all on the measurement loop; nothing blocks past one measurement.
  *   boot:        probe → self_test (logged) → disable_testing_mode → start conditioning (22 s
  *                window) → periodic single-shot (first 2 discarded; readings with a non-zero
  *                status word are discarded).
  *   measure:     every cycle — wake → push RH/T(+P) compensation → single-shot → sleep.
- *   recalibrate: condition → 30 single-shots (fresh RH/T+P comp each) spaced at the steady-state
- *                CO2 interval, held in idle → FRC on the last reading (idle, not sleep, §3.4.15)
- *                → sleep.
+ *   recalibrate: wake → conditioning → the next 30 cycles each take a single-shot with that
+ *                cycle's RH/T+P comp, held in idle (CO2 reported invalid) → FRC right after
+ *                the last reading (idle, not sleep, §3.4.15) → sleep.
  *   factory rst: wake → perform_factory_reset → conditioning → start continuous warm-up
- *                (CONFIG_APP_CO2_WARMUP_MIN, §1.1.4) and return immediately; the measurement
- *                loop reads the sensor in continuous mode (CO2 reported invalid) until the
- *                warm-up window ends, then stops continuous and resumes single-shot.
+ *                (CONFIG_APP_CO2_WARMUP_MIN, §1.1.4); each cycle then reads the sensor in
+ *                continuous mode (CO2 reported invalid) until the warm-up window ends, then
+ *                stops continuous and resumes single-shot.
  */
 
 #ifndef STCC4_H_
@@ -121,7 +122,7 @@ int stcc4_self_test(const struct device *i2c, uint16_t *result);
 int stcc4_perform_factory_reset(const struct device *i2c);
 
 /* Set RH/T compensation using raw STCC4 tick values (datasheet Table 11 input
- * conversions; see temp_to_raw_ticks/hum_to_raw_ticks in sensor_reading.cpp). */
+ * conversions; see stcc4_temp_ticks/stcc4_hum_ticks in stcc4_model.h). */
 int stcc4_set_rht_compensation(const struct device *i2c, uint16_t raw_temp, uint16_t raw_humidity);
 
 /* Set ambient pressure for CO2 compensation (command 0xE016).

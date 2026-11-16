@@ -24,8 +24,6 @@
 Correctness
 - [ ] `src/sensor/sensor_reading.cpp` `sensor_read_battery()` (PMIC path): `battery.valid` is
       only set when the fuel gauge initialised, so a gauge init failure also hides the voltage.
-- [ ] `sensor_reading.cpp` `stcc4_push_compensation()`: the recal thread and the main loop
-      both fetch the SHT4x with no shared lock; the Zephyr sht4x driver has none of its own.
 - [ ] `src/bthome/co2_cal_svc.cpp`: the recalibration characteristic is unauthenticated, so
       anyone in BLE range can trigger a recal.
 - [ ] `src/sensor/stcc4.cpp` `stcc4_force_recalibration()`: the ±3000 ppm check returns `-EIO`
@@ -37,12 +35,7 @@ Correctness
       and the header agree.
 - [ ] `Kconfig` `APP_MATTER_BATTERY_PERCENT`: defaults on only for nPM2100, so the nPM1304
       devkit builds the v3 data model but never sets `BatPercentRemaining`.
-- [ ] `sensor_reading.cpp` `stcc4_submit_op()`: lazy work-queue init and the busy check are
-      unlocked. Latent: only one trigger thread exists per binary (Matter or BTHome).
 
 Efficiency
-- [ ] `sensor_reading.cpp`: every CO2 read fetches the SHT4x a second time in
-      `stcc4_push_compensation()`; `sensor_read_cycle()` fetched it moments earlier.
-- [ ] `sensor_reading.cpp`: the 12 h post-factory-reset warm-up re-fetches the SHT4x and
-      rewrites compensation every cycle for a reading it discards.
-- [ ] `sensor_reading.cpp`: a 2 KB stack is permanently reserved for the recal work queue.
+- [ ] `sensor_reading.cpp`: the 12 h post-factory-reset warm-up rewrites compensation every
+      cycle for a reading it discards.
