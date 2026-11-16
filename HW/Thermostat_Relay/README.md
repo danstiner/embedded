@@ -249,7 +249,7 @@ not brought onto the board.
   circuit, so the relay package is the limit. The TLP3109A datasheet does not state its
   creepage; Toshiba's 2014 photocoupler catalog lists 4.0 mm minimum creepage and
   clearance for the 2.54SOP4/6/8 package family. The footprint's input and output pads are
-  4.89 mm apart, and the layout keeps at least that between all logic and field copper,
+  4.89 mm apart, and the layout keeps about 4.8 mm between all logic and field copper,
   including the ground pours on both layers of the logic side.
 - Mounting: the board is 47 × 24 mm with a 2.2 mm hole for an M2 screw in each corner, on
   a 42.5 × 19.5 mm pattern. The two holes on the furnace side have no copper within 2.2 mm of their center
@@ -260,7 +260,7 @@ not brought onto the board.
 
 | Ref    | Value              | Part               | Footprint   | Description                                   |
 | ------ | ------------------ | ------------------ | ----------- | --------------------------------------------- |
-| U1, U2 | TLP3109A           | Toshiba            | 2.54SOP6    | PhotoMOS relay, 100 V, 1 A at 50 °C (5.1)     |
+| U1, U2 | TLP3109A           | Toshiba            | 2.54SOP6    | PhotoMOS relay, ≥ 100 V, ≥ 1 A at 50 °C (5.1) |
 | R1, R3 | 220 Ω, 1 %         | any                | 0603        | RES - Input current limit (5.2)               |
 | R2, R4 | 10 kΩ              | any                | 0603        | Input pull-down, optional (5.3)               |
 | D1, D2 | 48 V               | SMBJ48CA           | SMB         | Bidirectional TVS, 48 V standoff (5.5)        |
@@ -274,7 +274,7 @@ About $16 in parts, of which the two PhotoMOS relays are $8.28. KiCad has no sto
 footprint for the TLP3109A's 2.54SOP6 package, so `Components/TLP3109A/` holds Toshiba's
 footprints and STEP model from the product page's CAD download. The board uses the
 maximum-material variant (`2p54SOP6_TOS-M`), whose longer pads are easier to hand solder.
-The resistors, LEDs and TVS use KiCad's hand-solder footprints.
+The resistors, LEDs, TVS and fuses use KiCad's hand-solder footprints.
 The schematic reuses KiCad's TLP3546 symbol, which has the same pin functions.
 
 ## 7. Connections

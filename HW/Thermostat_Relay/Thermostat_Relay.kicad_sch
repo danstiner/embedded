@@ -6,7 +6,7 @@
 	(paper "A4")
 	(title_block
 		(title "${TITLE}")
-		(date "2026-11-12")
+		(date "2026-11-15")
 		(rev "${REVISION}")
 		(company "${AUTHOR}")
 		(comment 1 "2-channel 24 VAC PhotoMOS switches for an ESP32 thermostat")
@@ -2003,7 +2003,7 @@
 		)
 		(uuid "8da94a51-cf5b-593b-a2e8-56dbe710bb45")
 	)
-	(text "Notes\n1. Logic high closes a channel\n2. Rated 1 A RMS per channel\n3. F1/F2 (2 A each) open on a shorted W or G circuit.\n4. D1/D2 clamp inductive turn-off to about 62 V at 1.4 A peak\n5. Logic and field sides are isolated, logic GND not connected to furnace\n6. R2/R4 are optional pull-downs to counteract GPIO pull-up glitches at boot\n7. R5/D3 and R6/D4 are optional indicators of the commanded state\n\nSee README.md for further details."
+	(text "Notes\n1. Logic high closes a channel\n2. Rated 1 A RMS per channel\n3. F1/F2 (2 A each) open on a shorted W or G circuit.\n4. D1/D2 clamp inductive turn-off to 77 V max\n5. Logic and field sides are isolated, logic GND not connected to furnace\n6. R2/R4 are optional pull-downs to counteract GPIO pull-up glitches at boot\n7. R5/D3 and R6/D4 are optional indicators of the commanded state\n\nSee README.md for further details."
 		(exclude_from_sim no)
 		(at 40.64 165.1 0)
 		(effects
