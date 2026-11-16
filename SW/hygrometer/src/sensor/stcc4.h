@@ -158,7 +158,8 @@ int stcc4_start_conditioning(const struct device *i2c);
  * measurements at ~10 s spacing (~5 min) with stable readings.
  * `correction` returns the RAW read-back word; decode per Table 11 as a signed
  * ppm value: C_FRC = correction - 32768 (0xFFFF = command failure -> -EIO).
- * Returns 0 on success, -EIO if the sensor reports failure. */
+ * Returns 0 on success, -EIO if the sensor reports failure or applied a correction
+ * beyond +/-3000 ppm (already applied; recover with another FRC or a factory reset). */
 int stcc4_force_recalibration(const struct device *i2c, uint16_t target_co2_ppm,
 			      uint16_t &correction);
 
