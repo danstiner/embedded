@@ -1405,7 +1405,7 @@
 			(at -5.05 -4.52 0)
 			(unlocked yes)
 			(layer "F.SilkS")
-			(uuid "c3987a24-ca6d-4a52-b02c-e0ec77120950")
+			(uuid "f4907cf1-81ed-45f9-ac9a-484bf4fb5d69")
 			(effects
 				(font
 					(size 0.75 0.75)
@@ -1417,7 +1417,7 @@
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "cc6d0b13-eef1-4862-aae0-086d4b8b6a01")
+			(uuid "246b0651-9e6a-46b1-8379-e5df345ba479")
 			(effects
 				(font
 					(size 1 1)
@@ -1429,7 +1429,7 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "1a75c9d3-bd43-46b3-acb7-cef1c4dbcb54")
+			(uuid "702520c4-84c7-4e3a-91cf-c8b080edda6b")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1440,7 +1440,7 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "6408075c-3e24-4f72-9c59-02b59f093813")
+			(uuid "d2f32855-880d-4049-948e-7ee26b82723c")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1471,9 +1471,16 @@
 				)
 			)
 		)
+		(property ki_fp_filters "DIP*W7.62mm*")
 		(path "/bbd621e7-1307-5218-88ec-e294708159ee")
 		(sheetname "/")
 		(sheetfile "Thermostat_Relay.kicad_sch")
+		(units
+			(unit
+				(name "A")
+				(pins "1" "2" "3" "6" "5" "4")
+			)
+		)
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -1986,6 +1993,7 @@
 			(size 1.616 0.4508)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "Net-(R3-Pad2)")
+			(pintype "passive")
 			(uuid "2b188e3a-d9d0-42dc-8b2f-b193b4f9f465")
 		)
 		(pad "2" smd rect
@@ -1993,6 +2001,7 @@
 			(size 1.616 0.4508)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "GND")
+			(pintype "passive")
 			(uuid "6830091c-5bdd-4a38-8620-f99825cf8c90")
 		)
 		(pad "3" smd rect
@@ -2000,6 +2009,7 @@
 			(size 1.616 0.4508)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "unconnected-(U2-Pad3)")
+			(pintype "no_connect")
 			(uuid "f9717a0a-93b2-4be5-910d-0acaba4b41e5")
 		)
 		(pad "4" smd rect
@@ -2007,6 +2017,7 @@
 			(size 1.616 0.4508)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "/G")
+			(pintype "passive")
 			(uuid "d1e701d0-6e88-4e9f-8803-c0e5056230b5")
 		)
 		(pad "5" smd rect
@@ -2014,6 +2025,7 @@
 			(size 1.616 0.4508)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "unconnected-(U2-Pad5)")
+			(pintype "passive+no_connect")
 			(uuid "a65de7ef-8ac4-4c9b-b0d9-8ee394a12d50")
 		)
 		(pad "6" smd rect
@@ -2021,6 +2033,7 @@
 			(size 1.616 0.4508)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "Net-(D2-A2)")
+			(pintype "passive")
 			(uuid "4513d0df-0e35-4207-94ef-ce73b7463ac1")
 		)
 		(embedded_fonts no)
@@ -3650,7 +3663,7 @@
 			(at -5.05 -4.52 0)
 			(unlocked yes)
 			(layer "F.SilkS")
-			(uuid "deb02c3f-2dfa-4c15-b855-b2eb05cdb3e9")
+			(uuid "b88705f5-f405-4afb-82b9-060547cfc8e4")
 			(effects
 				(font
 					(size 0.75 0.75)
@@ -3662,7 +3675,7 @@
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
-			(uuid "75dc99b1-7383-45e2-8d6c-c131eb614693")
+			(uuid "ab9c414a-1b64-4951-9fec-a6cf620f9446")
 			(effects
 				(font
 					(size 1 1)
@@ -3674,7 +3687,7 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "87a8ea1c-1ff8-4bdf-a6ba-51d7ecf0ac43")
+			(uuid "97fa69e9-8c32-49a7-8ed7-6447e9375bdc")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3685,7 +3698,7 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "fd0dce47-3b54-4846-a91e-6eb51ade5267")
+			(uuid "c3e1bd82-2479-4781-b030-286602cc120d")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3716,9 +3729,16 @@
 				)
 			)
 		)
+		(property ki_fp_filters "DIP*W7.62mm*")
 		(path "/e6a58f04-4ab5-5743-9704-0f78d662eae8")
 		(sheetname "/")
 		(sheetfile "Thermostat_Relay.kicad_sch")
+		(units
+			(unit
+				(name "A")
+				(pins "1" "2" "3" "6" "5" "4")
+			)
+		)
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -4231,6 +4251,7 @@
 			(size 1.616 0.4508)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "Net-(R1-Pad2)")
+			(pintype "passive")
 			(uuid "f3f3191a-f1b2-49b8-87d0-a0ff698706a4")
 		)
 		(pad "2" smd rect
@@ -4238,6 +4259,7 @@
 			(size 1.616 0.4508)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "GND")
+			(pintype "passive")
 			(uuid "7ea2703d-0a20-460d-8344-108d573785f2")
 		)
 		(pad "3" smd rect
@@ -4245,6 +4267,7 @@
 			(size 1.616 0.4508)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "unconnected-(U1-Pad3)")
+			(pintype "no_connect")
 			(uuid "7407f09b-eb63-4128-9841-437047e268de")
 		)
 		(pad "4" smd rect
@@ -4252,6 +4275,7 @@
 			(size 1.616 0.4508)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "Net-(D1-A1)")
+			(pintype "passive")
 			(uuid "b56a375e-3168-4ac5-8903-f1995d8e15b7")
 		)
 		(pad "5" smd rect
@@ -4259,6 +4283,7 @@
 			(size 1.616 0.4508)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "unconnected-(U1-Pad5)")
+			(pintype "passive+no_connect")
 			(uuid "ebba03d1-dc12-4cad-a21b-344d044b09c7")
 		)
 		(pad "6" smd rect
@@ -4266,6 +4291,7 @@
 			(size 1.616 0.4508)
 			(layers "F.Cu" "F.Mask" "F.Paste")
 			(net "/W")
+			(pintype "passive")
 			(uuid "82b16e48-cbaf-457e-b73d-1fbc5e51016b")
 		)
 		(embedded_fonts no)
