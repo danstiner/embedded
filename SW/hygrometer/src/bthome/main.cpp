@@ -314,7 +314,7 @@ int main()
 
 	sensor_state sensors;
 	sensor_init(sensors);
-	sensor_fuel_gauge_init();
+	sensor_fuel_gauge_init(sensors);
 #if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
 	leak_init(sensors, &leak_wake_sem);
 #endif
@@ -348,8 +348,8 @@ int main()
 #endif
 
 		opt_u8 battery_low = opt_u8_none();
-		if (sensors.battery.soc_valid) {
-			battery_low = opt_u8_some(sensors.battery.health != BATTERY_OK ? 1 : 0);
+		if (sensors.battery_soc.valid) {
+			battery_low = opt_u8_some(sensors.battery_soc.health != BATTERY_OK ? 1 : 0);
 		}
 
 		update_advertisement(++cycle, {sensors.sht4x.temperature_cC, sensors.sht4x.valid},
@@ -357,7 +357,7 @@ int main()
 				     {sensors.bme688.pressure_Pa, sensors.bme688.valid},
 				     {sensors.stcc4.co2_ppm, sensors.stcc4.valid}, battery_low,
 				     moisture);
-		sensor_fuel_gauge_idle_set();
+		sensor_fuel_gauge_idle_set(sensors);
 
 #if IS_ENABLED(CONFIG_APP_LEAK_SENSOR)
 		/* Wake early if the leak ISR fires, otherwise sleep the full interval. */

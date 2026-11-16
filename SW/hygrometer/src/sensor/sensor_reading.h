@@ -37,13 +37,18 @@ enum battery_health {
 	BATTERY_CRITICAL = 2,
 };
 
-struct battery_reading {
+struct battery_voltage_reading {
 	int64_t timestamp;
 	uint16_t millivolts; /* measured terminal voltage (mV) */
+	bool valid;
+};
+
+/* Charge estimate. ADC boards (CR2) derive it from the voltage; PMIC boards need the
+ * fuel gauge, so a board can have battery_voltage without battery_soc. */
+struct battery_soc_reading {
 	enum battery_health health;
-	uint8_t percent; /* coarse charge estimate, 0-100 */
-	bool valid;      /* millivolts is good */
-	bool soc_valid;  /* health and percent are good; implies valid */
+	uint8_t percent; /* 0-100 */
+	bool valid;
 };
 
 struct leak_reading {
@@ -56,14 +61,16 @@ struct sensor_state {
 	bool have_sht4x;
 	bool have_bme688;
 	bool have_stcc4;
-	bool have_battery;
+	bool have_battery_voltage;
+	bool have_battery_soc;
 	bool have_leak;
 
 	struct sht4x_reading sht4x;
 	struct bme688_reading bme688;
 	struct stcc4_reading stcc4;
 	uint8_t stcc4_discards_remaining;
-	struct battery_reading battery;
+	struct battery_voltage_reading battery_voltage;
+	struct battery_soc_reading battery_soc;
 	struct leak_reading leak;
 };
 
@@ -83,14 +90,14 @@ int sensor_read_battery(sensor_state &state);
  *  cadence stays identical. */
 void sensor_read_cycle(sensor_state &state, uint32_t cycle);
 
-/** Initialize fuel gauge. Call once after sensor_init. */
-void sensor_fuel_gauge_init(void);
+/** Initialize fuel gauge; sets state.have_battery_soc on success. Call once after sensor_init. */
+void sensor_fuel_gauge_init(sensor_state &state);
 
 /** Inform fuel gauge of upcoming idle/sleep period.
  *  Call before entering low-power sleep so the library can account for
  *  discharge accurately during sleep when fuel-guage processing is
  * not being run by sensor_read_battery(). */
-void sensor_fuel_gauge_idle_set(void);
+void sensor_fuel_gauge_idle_set(const sensor_state &state);
 
 /** Current STCC4 maintenance state. Values are 1:1 with the Matter Mode Select modes
  *  (Co2Cal::kModeNormal/kModeRecalibrate/kModeFactoryReset) so the Matter layer can
