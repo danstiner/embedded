@@ -96,7 +96,7 @@ mode* select (Mode Select, endpoint 1) mirrors the live operation — it holds t
 until the operation (warm-up included) finishes, then returns to *Measure*, and rejects a
 concurrent request. Recalibration is also triggerable over BTHome by writing the
 CO2-calibration GATT characteristic (`a1b2c3d4-…-781`; empty for the default target, or a
-2-byte little-endian ppm override):
+2-byte little-endian ppm override, 350-600):
 
 - **Recalibrate (outdoor air)** — leave the device in stable outdoor shade (>~10 °C) for an
   hour, then select this. Non-destructive; forces the reading to

@@ -22,22 +22,15 @@
 ## Code review findings (verified against source 2026-11-11)
 
 Correctness
-- [ ] `src/sensor/leak.cpp` `leak_read()`: an ADC failure returns without `leak_park()`, so
-      while wet the drive stays high (current through the water) until the next read.
 - [ ] `src/sensor/sensor_reading.cpp` `sensor_read_battery()` (PMIC path): `battery.valid` is
       only set when the fuel gauge initialised, so a gauge init failure also hides the voltage.
-- [ ] `sensor_reading.cpp` `sensor_read_stcc4()`: the `-EBUSY` return while a recal holds the
-      mutex leaves `stcc4.valid` set, so the pre-recal CO2 value is republished for the whole
-      recalibration.
 - [ ] `sensor_reading.cpp` `stcc4_push_compensation()`: the recal thread and the main loop
       both fetch the SHT4x with no shared lock; the Zephyr sht4x driver has none of its own.
-- [ ] `src/bthome/co2_cal_svc.cpp`: the write accepts any 16-bit FRC target on an
-      unauthenticated characteristic; Kconfig limits the target to 350-600 ppm.
+- [ ] `src/bthome/co2_cal_svc.cpp`: the recalibration characteristic is unauthenticated, so
+      anyone in BLE range can trigger a recal.
 - [ ] `src/sensor/stcc4.cpp` `stcc4_force_recalibration()`: the ±3000 ppm check returns `-EIO`
       after the sensor has already applied the correction, and the offset is then never
       recorded. Datasheet "railed" is a magnitude near 32767.
-- [ ] `sensor_reading.cpp` `sensor_read_stcc4()`: warm-up "ms remaining" operands are reversed
-      (`uptime_ms - stcc4_warmup_until`), so the log is always negative.
 - [ ] STCC4 non-zero status word: unclear what read status 0x0004 or 0x0104 means. The code
       now logs a warning and accepts the value (invalidation commented out), but `stcc4.h`
       still says such readings are discarded. Understand the status bits, then make the code
