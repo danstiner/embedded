@@ -244,7 +244,8 @@ not brought onto the board.
 - Field spacing: the working voltage is at most 42.4 V peak (R-4), but the clamp lets a
   turn-off transient reach 77 V (5.5), so the 51–100 V row applies. It asks for 0.64 mm
   between bare conductors, 0.5 mm between uncoated component leads and 0.3 mm under solder
-  mask. Using 0.64 mm everywhere covers all three.
+  mask. Using 0.64 mm everywhere covers all three. `Thermostat_Relay.kicad_dru` enforces
+  it for everything inside the board's `field` rule area.
 - Logic to field: no standard sets a distance for functional isolation of a Class 2
   circuit, so the relay package is the limit. The TLP3109A datasheet does not state its
   creepage; Toshiba's 2014 photocoupler catalog lists 4.0 mm minimum creepage and

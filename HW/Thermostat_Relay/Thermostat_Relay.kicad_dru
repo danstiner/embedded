@@ -1,0 +1,7 @@
+(version 1)
+
+# Spacing between different nets on the 24 VAC side, which is everything inside the
+# rule area named "field": IPC-2221C Table 6-1, 51-100 V, bare external (README 5.9).
+(rule "field spacing"
+	(constraint clearance (min 0.64mm))
+	(condition "A.intersectsArea('field') && B.intersectsArea('field')"))

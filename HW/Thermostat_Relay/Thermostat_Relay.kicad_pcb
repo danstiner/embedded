@@ -6127,6 +6127,37 @@
 	)
 	(zone
 		(layers "F.Cu" "B.Cu")
+		(uuid "ececa01e-910f-43cc-8be2-df9db708f317")
+		(name "field")
+		(hatch edge 0.5)
+		(connect_pads
+			(clearance 0)
+		)
+		(min_thickness 0.25)
+		(keepout
+			(tracks allowed)
+			(vias allowed)
+			(pads allowed)
+			(copperpour allowed)
+			(footprints allowed)
+		)
+		(placement
+			(enabled no)
+			(sheetname "")
+		)
+		(fill
+			(thermal_gap 0.5)
+			(thermal_bridge_width 0.5)
+			(island_removal_mode 0)
+		)
+		(polygon
+			(pts
+				(xy 122 100) (xy 147 100) (xy 147 124) (xy 122 124)
+			)
+		)
+	)
+	(zone
+		(layers "F.Cu" "B.Cu")
 		(uuid "ef23fbfc-6211-4302-b0d1-4c2f4e12e02b")
 		(hatch edge 0.5)
 		(connect_pads
