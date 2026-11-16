@@ -31,8 +31,8 @@ ModeOptionStructType BuildOption(const char *label, uint8_t mode)
  * the program lifetime — required because HA reads SupportedModes lazily. */
 const ModeOptionStructType kOptions[] = {
 	BuildOption("Measure", Co2Cal::kModeNormal),
-	BuildOption("Recalibrate (requires ~30 min outdoor air)", Co2Cal::kModeRecalibrate),
-	BuildOption("Factory Reset (requires 12hr outdoor air)", Co2Cal::kModeFactoryReset),
+	BuildOption("Recalibrate (requires ~1 hr outdoor air)", Co2Cal::kModeRecalibrate),
+	BuildOption("Factory Reset (requires ~12 hr outdoor air)", Co2Cal::kModeFactoryReset),
 };
 
 class Co2CalModesManager : public SupportedModesManager
