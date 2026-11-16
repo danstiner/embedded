@@ -8,9 +8,9 @@
 	)
 	(paper "A4")
 	(title_block
-		(title "${TITLE}")
-		(rev "${REVISION}")
-		(company "${AUTHOR}")
+		(title "Thermostat Relay Board")
+		(rev "2026v1")
+		(company "Daniel Stiner")
 	)
 	(layers
 		(0 "F.Cu" signal)
@@ -5287,7 +5287,7 @@
 			(justify top mirror)
 		)
 	)
-	(gr_text "${AUTHOR}\n${REVISION}"
+	(gr_text "${COMPANY}\n${REVISION}"
 		(at 123.5 121.92 0)
 		(layer "B.SilkS")
 		(uuid "e76e55a0-8a5a-4cdd-8398-eb6ea82d45e5")
