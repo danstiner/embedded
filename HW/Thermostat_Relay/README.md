@@ -63,9 +63,8 @@ back-to-back MOSFETs and overcurrent protection into a single package with 30 m�
 
 ### 4.2 Furnace terminal block
 
-Thermostat wire is 18 AWG solid, which pushes into a spring terminal without tools. The three
-WAGO candidates are Push-in CAGE CLAMP blocks; the Phoenix MKDS is a conventional screw
-terminal. All are 3-pole with the wire parallel to the board.
+Thermostat wire is nominally 18 AWG solid, connected to either screw terminals or screwless
+spring terminals.
 
 |                    | **2601-1103**        | 805-303             | 2060-453             | MKDS 1,5/3-5,08     |
 | ------------------ | -------------------- | ------------------- | -------------------- | ------------------- |
@@ -76,12 +75,11 @@ terminal. All are 3-pole with the wire parallel to the board.
 | Height above board | about 16 mm          | 10.5 mm             | 4.5 mm               | 13.8 mm             |
 | Mounting           | THT, 2 pins per pole | THT, 1 pin per pole | SMD, 2 pads per pole | THT, 1 pin per pole |
 
-**Chosen: 2601-1103.** The lever opens by hand and the wire range leaves margin above
-18 AWG. The 805-303 is the closest alternative, smaller and lower, if it can be bought in
-single quantities. The 2060-453 is the lowest and cheapest, but 18 AWG is the top of its
-range. Either would shrink the board to roughly 44 × 22 mm. The screw terminal is the
-shallowest, but its 5.08 mm pitch makes it the widest, and it needs a screwdriver for
-every connection.
+**Chosen: 2601-1103.** For prototyping we choose screwless spring terminals. Solid wire can be
+pushed in by hand, and released by hand with a small lever. The 805-303 is a close alternative.
+The 2060-453 has a lower profile, but release is a small button that may require a tool, and
+18 AWG is the top of its range. Screw terminals have a wider pitch and require a screwdriver,
+but they are typically cheaper if that becomes a driving concern.
 
 ## 5. Circuit
 
@@ -164,23 +162,23 @@ to prevent damage to the switch.
 An RC snubber is ruled out by R-6: a typical 100 nF passes about 1.1 mA at 60 Hz with the
 switch open, which could trigger a phantom call for heat on a modern furnace control board.
 
-### 5.6 Fuses: 2 A very fast-acting, one per channel (F1, F2)
+### 5.6 Fuses: 2 A very fast-acting, one per channel (F1)
 
-Each fuse opens if its W or G circuit is shorted while that channel is closed (R-9): a
+Each fuse opens if its circuit is shorted while that channel is closed (R-9): a
 shorted relay coil, or the wire touching the transformer's return or grounded metal. That
 protects the cable, the transformer and, for moderate fault currents, the switch. One fuse
 per channel means a fault on the fan wire cannot take out the heat, and each fuse is sized
 for one load, not the sum.
 
-| Littelfuse 0466002.NR | Datasheet                            | Requirement                                                         |
-| --------------------- | ------------------------------------ | ------------------------------------------------------------------- |
-| Voltage rating        | 63 VAC                               | 30 V RMS (R-4)                                                      |
-| Interrupting rating   | 50 A at 63 VAC                       | transformer short-circuit current: unmeasured, estimated 10 to 20 A |
-| Continuous current    | 1.5 A at 25 °C, about 1.3 A at 50 °C | 1 A (R-3)                                                           |
-| Opens at 200 % (4 A)  | within 5 s                           | –                                                                   |
-| Opens at 300 % (6 A)  | within 0.2 s                         | –                                                                   |
-| Melting I²t           | 0.23 A²s                             | below the switch's 8 A²s                                            |
-| Cold resistance       | 30 mΩ                                | –                                                                   |
+| Littelfuse 0466002.NR | Datasheet                            | Requirement                       |
+| --------------------- | ------------------------------------ | --------------------------------- |
+| Voltage rating        | 63 VAC                               | 30 V RMS (R-4)                    |
+| Interrupting rating   | 50 A at 63 VAC                       | transformer short-circuit current |
+| Continuous current    | 1.5 A at 25 °C, about 1.3 A at 50 °C | 1 A (R-3)                         |
+| Opens at 200 % (4 A)  | within 5 s                           | –                                 |
+| Opens at 300 % (6 A)  | within 0.2 s                         | –                                 |
+| Melting I²t           | 0.23 A²s                             | below the switch's 8 A²s          |
+| Cold resistance       | 30 mΩ                                | –                                 |
 
 - Sizing: Littelfuse's guidance is to run a fuse at no more than 75 % of its rating at
   25 °C, which gives 1.5 A. The datasheet rerates a further 20 % at 70 °C; interpolating,
@@ -266,7 +264,7 @@ not brought onto the board.
 | R1, R3 | 220 Ω, 1 %         | any                | 0603        | RES - Input current limit (5.2)               |
 | R2, R4 | 10 kΩ              | any                | 0603        | Input pull-down, optional (5.3)               |
 | D1, D2 | 48 V               | SMBJ48CA           | SMB         | Bidirectional TVS, 48 V standoff (5.5)        |
-| F1, F2 | 2 A very fast      | Littelfuse 0466002 | 1206        | Fuse, ≥ 30 VAC, ≥ 20 A interrupting (5.6)     |
+| F1, F2 | 2 A very fast      | Littelfuse 0466002 | 1206        | Fuse, ≥ 30 VAC (5.6)                          |
 | R5, R6 | 4.7 kΩ             | any                | 0603        | RES - Indicator current limit, optional (5.4) |
 | D3, D4 | Red LED            | any                | 0603        | LED, Red, SMD - Indicator, optional (5.4)     |
 | J1     | 1×3 pin header     | any                | 2.54 mm THT | MCU Connection                                |
