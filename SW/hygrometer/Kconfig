@@ -191,15 +191,6 @@ config APP_MATTER_LEAK
 	  immediately via the leak-sensor interrupt. APP_LEAK_SENSOR (set only by the
 	  @2026v4 board) selects the leak variant.
 
-config APP_MATTER_BATTERY_PERCENT
-	bool "Expose battery percentage over Matter (Power Source BatPercentRemaining)"
-	default y if !APP_LEAK_SENSOR
-	help
-	  Follows the data model: the CO2 (v3) model has the attribute, so every
-	  board built with it must drive it (null when no fuel gauge supplies a
-	  percentage). The leak (v4) model omits it; a flat CR2 curve only supports
-	  the coarse BatChargeLevel.
-
 choice OPENTHREAD_NORDIC_LIBRARY_CONFIGURATION
 	default OPENTHREAD_NORDIC_LIBRARY_MTD
 endchoice

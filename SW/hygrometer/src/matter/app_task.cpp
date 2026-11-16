@@ -229,17 +229,13 @@ void AppTask::UpdateSensorAttributes()
 		Clusters::PowerSource::Attributes::BatChargeLevel::Set(
 			0, static_cast<Clusters::PowerSource::BatChargeLevelEnum>(
 				   sensors.battery_soc.health));
-#if defined(CONFIG_APP_MATTER_BATTERY_PERCENT)
 		/* BatPercentRemaining is in half-percent units (0-200). */
 		uint8_t pct = sensors.battery_soc.percent > 100 ? 100 : sensors.battery_soc.percent;
 		Clusters::PowerSource::Attributes::BatPercentRemaining::Set(
 			0, DataModel::MakeNullable(static_cast<uint8_t>(pct * 2)));
-#endif
 	} else {
 		/* BatChargeLevel is non-nullable per spec, so it keeps its last value. */
-#if defined(CONFIG_APP_MATTER_BATTERY_PERCENT)
 		Clusters::PowerSource::Attributes::BatPercentRemaining::SetNull(0);
-#endif
 	}
 
 #if defined(CONFIG_APP_MATTER_LEAK)
