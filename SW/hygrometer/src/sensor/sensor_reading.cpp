@@ -660,6 +660,7 @@ int sensor_read_battery(sensor_state &state)
 	if (ret) {
 		LOG_WRN("Battery ADC read failed: %d", ret);
 		state.battery.valid = false;
+		state.battery.soc_valid = false;
 		return ret;
 	}
 
@@ -674,6 +675,7 @@ int sensor_read_battery(sensor_state &state)
 	state.battery.percent = cr2_percent(mv);
 	state.battery.timestamp = k_uptime_get();
 	state.battery.valid = true;
+	state.battery.soc_valid = true;
 	LOG_INF("BAT_V: %d.%03dV (%s)", mv / 1000, mv % 1000,
 		state.battery.health == BATTERY_OK    ? "ok"
 		: state.battery.health == BATTERY_LOW ? "LOW"
@@ -688,6 +690,7 @@ int sensor_read_battery(sensor_state &state)
 	if (ret) {
 		LOG_WRN("Battery voltage fetch failed: %d", ret);
 		state.battery.valid = false;
+		state.battery.soc_valid = false;
 		return ret;
 	}
 
@@ -696,17 +699,17 @@ int sensor_read_battery(sensor_state &state)
 	if (ret) {
 		LOG_WRN("Battery voltage get failed: %d", ret);
 		state.battery.valid = false;
+		state.battery.soc_valid = false;
 		return ret;
 	}
 
 	LOG_INF("BAT_V: %d.%03dV", voltage.val1, voltage.val2 / 1000);
 	state.battery.millivolts = (uint16_t)(voltage.val1 * 1000 + voltage.val2 / 1000);
 
-	/* Valid on voltage alone. Without the fuel gauge the charge is unknown (0xFF) and
-	 * health, having no unknown state, stays at its zero-init OK. */
-	state.battery.percent = 0xFF;
+	/* Valid on voltage alone; the charge estimate needs the fuel gauge. */
 	state.battery.timestamp = k_uptime_get();
 	state.battery.valid = true;
+	state.battery.soc_valid = false;
 
 #if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
 	if (fg_initialized) {
@@ -746,6 +749,7 @@ int sensor_read_battery(sensor_state &state)
 		uint8_t soc = CLAMP((int)fg_last_soc, 0, 100);
 		state.battery.health = soc_health(soc);
 		state.battery.percent = soc;
+		state.battery.soc_valid = true;
 		LOG_INF("BAT_%%: %u%%", soc);
 	}
 #endif /* CONFIG_NRF_FUEL_GAUGE */

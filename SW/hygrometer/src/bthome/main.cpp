@@ -348,7 +348,7 @@ int main()
 #endif
 
 		opt_u8 battery_low = opt_u8_none();
-		if (sensors.battery.valid && sensors.battery.percent != 0xFF) {
+		if (sensors.battery.soc_valid) {
 			battery_low = opt_u8_some(sensors.battery.health != BATTERY_OK ? 1 : 0);
 		}
 

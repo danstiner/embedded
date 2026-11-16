@@ -41,8 +41,9 @@ struct battery_reading {
 	int64_t timestamp;
 	uint16_t millivolts; /* measured terminal voltage (mV) */
 	enum battery_health health;
-	uint8_t percent; /* coarse charge estimate, 0-100; 0xFF = unknown */
-	bool valid;
+	uint8_t percent; /* coarse charge estimate, 0-100 */
+	bool valid;      /* millivolts is good */
+	bool soc_valid;  /* health and percent are good; implies valid */
 };
 
 struct leak_reading {
