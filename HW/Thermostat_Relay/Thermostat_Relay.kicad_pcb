@@ -5151,36 +5151,36 @@
 		(uuid "fefc3bfa-a2ed-4412-ab72-aef730df071f")
 	)
 	(gr_text "GND"
-		(at 103.9 109.459999 0)
+		(at 103.5 109.459999 0)
 		(layer "F.SilkS")
 		(uuid "f22e3633-ae13-4eac-90b9-79709b5bfc88")
 		(effects
 			(font
-				(size 1 0.8)
+				(size 1 0.7)
 				(thickness 0.15)
 			)
 			(justify right)
 		)
 	)
 	(gr_text "G_EN"
-		(at 103.9 111.999999 0)
+		(at 103.5 111.999999 0)
 		(layer "F.SilkS")
 		(uuid "63b55916-a1b6-4ea2-a805-ac5ce80cb09d")
 		(effects
 			(font
-				(size 1 0.8)
+				(size 1 0.7)
 				(thickness 0.15)
 			)
 			(justify right)
 		)
 	)
 	(gr_text "W_EN"
-		(at 103.9 114.539999 0)
+		(at 103.5 114.539999 0)
 		(layer "F.SilkS")
 		(uuid "fd74528a-0c27-4050-9678-88b47b36df10")
 		(effects
 			(font
-				(size 1 0.8)
+				(size 1 0.7)
 				(thickness 0.15)
 			)
 			(justify right)
@@ -5263,7 +5263,7 @@
 			)
 		)
 	)
-	(gr_text "PhotoMOS switches\nField side 24 VAC up to 1 A\nLogic side 3.3 V @ ~7mA\nOptional LED logic indicator\nOptional logic pull-down"
+	(gr_text "PhotoMOS switches\nField side 24 VAC up to 1 A\nLogic side 3.3 V @ ~7 mA\nOptional LED logic indicator\nOptional logic pull-down"
 		(at 132.334 107.442 0)
 		(layer "B.SilkS")
 		(uuid "f8e81316-9bea-4979-b1bd-bffcef8f8c57")
