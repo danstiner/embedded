@@ -172,7 +172,6 @@ int leak_read(sensor_state &state)
 	}
 
 	state.leak.wet = d.wet;
-	state.leak.timestamp = k_uptime_get();
 	state.leak.valid = true;
 
 	/* Estimate the water resistance for bench calibration, using the measured

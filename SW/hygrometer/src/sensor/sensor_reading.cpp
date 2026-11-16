@@ -469,7 +469,6 @@ int sensor_read_sht4x(sensor_state &state)
 	state.sht4x.humidity_cPct = value.val1 * 100 + value.val2 / 10000;
 	LOG_INF("SHT4x: RH=%d.%02d%%", value.val1, value.val2 / 10000);
 
-	state.sht4x.timestamp = k_uptime_get();
 	state.sht4x.valid = true;
 	return 0;
 #else
@@ -499,7 +498,6 @@ int sensor_read_bme688(sensor_state &state)
 	state.bme688.pressure_hPa = (int16_t)(state.bme688.pressure_Pa / 100);
 	LOG_INF("BME688: P=%d.%03d kPa", value.val1, value.val2 / 1000);
 
-	state.bme688.timestamp = k_uptime_get();
 	state.bme688.valid = true;
 	return 0;
 #else
@@ -533,7 +531,6 @@ int sensor_read_stcc4(sensor_state &state)
 			int frc_co2 = (int)atomic_get(&stcc4_frc_co2);
 			if (frc_co2 >= 0) {
 				state.stcc4.co2_ppm = (uint16_t)frc_co2;
-				state.stcc4.timestamp = uptime_ms;
 				state.stcc4.valid = true;
 				LOG_INF("STCC4: reporting FRC warm-up reading %d ppm (debug)",
 					frc_co2);
@@ -568,7 +565,6 @@ int sensor_read_stcc4(sensor_state &state)
 			/* Debug: surface the continuous warm-up readings instead of hiding them. */
 			if (wret == 0 && wco2 >= 0) {
 				state.stcc4.co2_ppm = (uint16_t)wco2;
-				state.stcc4.timestamp = uptime_ms;
 				state.stcc4.valid = true;
 				return 0;
 			}
@@ -632,7 +628,6 @@ int sensor_read_stcc4(sensor_state &state)
 	}
 
 	state.stcc4.co2_ppm = co2;
-	state.stcc4.timestamp = uptime_ms;
 	state.stcc4.valid = true;
 
 	return 0;
@@ -673,7 +668,6 @@ int sensor_read_battery(sensor_state &state)
 	state.battery_voltage.millivolts = (uint16_t)mv;
 	state.battery_soc.health = cr2_health(mv);
 	state.battery_soc.percent = cr2_percent(mv);
-	state.battery_voltage.timestamp = k_uptime_get();
 	state.battery_voltage.valid = true;
 	state.battery_soc.valid = true;
 	LOG_INF("BAT_V: %d.%03dV (%s)", mv / 1000, mv % 1000,
@@ -707,7 +701,6 @@ int sensor_read_battery(sensor_state &state)
 	state.battery_voltage.millivolts = (uint16_t)(voltage.val1 * 1000 + voltage.val2 / 1000);
 
 	/* Valid on voltage alone; the charge estimate needs the fuel gauge. */
-	state.battery_voltage.timestamp = k_uptime_get();
 	state.battery_voltage.valid = true;
 	state.battery_soc.valid = false;
 

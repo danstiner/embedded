@@ -10,21 +10,18 @@
  * field from the advertisement. */
 
 struct sht4x_reading {
-	int64_t timestamp;
 	int16_t temperature_cC; /* 0.01 deg C units */
 	uint16_t humidity_cPct; /* 0.01 % units */
 	bool valid;
 };
 
 struct bme688_reading {
-	int64_t timestamp;
 	int16_t pressure_hPa; /* hPa = 0.1 kPa, the Matter PressureMeasurement encoding */
 	uint32_t pressure_Pa; /* Pa  (for BTHome, STCC4 compensation) */
 	bool valid;
 };
 
 struct stcc4_reading {
-	int64_t timestamp;
 	uint16_t co2_ppm;
 	bool valid;
 };
@@ -38,7 +35,6 @@ enum battery_health {
 };
 
 struct battery_voltage_reading {
-	int64_t timestamp;
 	uint16_t millivolts; /* measured terminal voltage (mV) */
 	bool valid;
 };
@@ -52,7 +48,6 @@ struct battery_soc_reading {
 };
 
 struct leak_reading {
-	int64_t timestamp;
 	bool wet; /* true when water bridges the leak electrodes */
 	bool valid;
 };
@@ -77,7 +72,7 @@ struct sensor_state {
 /** Probe all sensors, populate have_* flags. Call once at boot. */
 void sensor_init(sensor_state &state);
 
-/** Individual sensor read functions. Each updates its sub-struct + timestamp
+/** Individual sensor read functions. Each updates its sub-struct
  *  and sets `valid` to whether this attempt produced a usable value. */
 int sensor_read_sht4x(sensor_state &state);
 int sensor_read_bme688(sensor_state &state);
