@@ -12,9 +12,9 @@ using namespace ::chip::app::Clusters;
 using chip::Protocols::InteractionModel::Status;
 
 /* Global weak hook invoked before an ember attribute write; a non-Success return aborts the
- * write (and the originating ChangeToMode command). Reject a Recalibrate/Factory Reset request
- * while a maintenance op is already running, so CurrentMode never moves and the controller sees
- * the failure — instead of the request silently doing nothing while the UI shows it "ran". */
+ * write. Reject a Recalibrate/Factory Reset request while a maintenance op is already running,
+ * so CurrentMode never moves. The SDK's ChangeToMode handler ignores the failed write and still
+ * answers Success, so the controller only sees that CurrentMode did not change. */
 chip::Protocols::InteractionModel::Status
 MatterPreAttributeChangeCallback(const chip::app::ConcreteAttributePath &attributePath,
 				 uint8_t type, uint16_t size, uint8_t *value)
