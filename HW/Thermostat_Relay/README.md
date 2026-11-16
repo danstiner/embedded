@@ -252,8 +252,8 @@ not brought onto the board.
   4.89 mm apart, and the layout keeps about 4.8 mm between all logic and field copper,
   including the ground pours on both layers of the logic side.
 - Mounting: the board is 47 × 24 mm with a 2.2 mm hole for an M2 screw in each corner, on
-  a 42.5 × 19.5 mm pattern. The two holes on the furnace side have no copper within 2.2 mm of their center
-  on either layer, so a screw head or standoff does not sit on 24 VAC copper. The two on
+  a 42.5 × 19.5 mm pattern. The two holes on the furnace side have no copper within 3 mm of
+  their center on either layer, so a screw head or standoff does not sit on 24 VAC copper. The two on
   the logic side sit in the ground pour.
 
 ## 6. Bill of materials
