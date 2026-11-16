@@ -219,26 +219,24 @@ void AppTask::UpdateSensorAttributes()
 	/* Battery (Power Source on endpoint 0) — present on every board revision.
 	 * battery_health (OK/LOW/CRITICAL = 0/1/2) maps 1:1 onto BatChargeLevelEnum;
 	 * the coarse health is the right fit for the flat CR2 curve. */
-	if (sensors.battery.valid) {
+	if (sensors.battery_voltage.valid) {
+		Clusters::PowerSource::Attributes::BatVoltage::Set(
+			0, static_cast<uint32_t>(sensors.battery_voltage.millivolts));
+	} else {
+		Clusters::PowerSource::Attributes::BatVoltage::SetNull(0);
+	}
+	if (sensors.battery_soc.valid) {
 		Clusters::PowerSource::Attributes::BatChargeLevel::Set(
 			0, static_cast<Clusters::PowerSource::BatChargeLevelEnum>(
-				   sensors.battery.health));
-		Clusters::PowerSource::Attributes::BatVoltage::Set(
-			0, static_cast<uint32_t>(sensors.battery.millivolts));
+				   sensors.battery_soc.health));
 #if defined(CONFIG_APP_MATTER_BATTERY_PERCENT)
-		/* BatPercentRemaining is in half-percent units (0-200); 0xFF = unknown. */
-		if (sensors.battery.percent == 0xFF) {
-			Clusters::PowerSource::Attributes::BatPercentRemaining::Set(
-				0, DataModel::NullNullable);
-		} else {
-			uint8_t pct = sensors.battery.percent > 100 ? 100 : sensors.battery.percent;
-			Clusters::PowerSource::Attributes::BatPercentRemaining::Set(
-				0, DataModel::MakeNullable(static_cast<uint8_t>(pct * 2)));
-		}
+		/* BatPercentRemaining is in half-percent units (0-200). */
+		uint8_t pct = sensors.battery_soc.percent > 100 ? 100 : sensors.battery_soc.percent;
+		Clusters::PowerSource::Attributes::BatPercentRemaining::Set(
+			0, DataModel::MakeNullable(static_cast<uint8_t>(pct * 2)));
 #endif
 	} else {
-		/* BatChargeLevel is non-nullable per spec, so it can't show "unknown". */
-		Clusters::PowerSource::Attributes::BatVoltage::SetNull(0);
+		/* BatChargeLevel is non-nullable per spec, so it keeps its last value. */
 #if defined(CONFIG_APP_MATTER_BATTERY_PERCENT)
 		Clusters::PowerSource::Attributes::BatPercentRemaining::SetNull(0);
 #endif
@@ -287,7 +285,7 @@ CHIP_ERROR AppTask::Init()
 
 	/* Initialize sensors */
 	sensor_init(sensors);
-	sensor_fuel_gauge_init();
+	sensor_fuel_gauge_init(sensors);
 
 #if defined(CONFIG_APP_MATTER_LEAK)
 	/* Arm the leak sensor: its ISR gives leak_wake_sem, waking the reporter thread

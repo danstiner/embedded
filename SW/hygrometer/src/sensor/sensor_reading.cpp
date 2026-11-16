@@ -125,7 +125,6 @@ static const struct battery_model_primary battery_model_primary = {
 #endif
 
 static int64_t fg_ref_time;
-static bool fg_initialized;
 static float fg_last_soc;
 static float fg_last_v = 3.0f;
 static float fg_last_t = 25.0f;
@@ -364,12 +363,13 @@ void sensor_init(sensor_state &state)
 
 #if HAVE_BATT_PMIC
 	if (device_is_ready(vbat_dev)) {
-		state.have_battery = true;
+		state.have_battery_voltage = true;
 		LOG_INF("Battery sensor ready");
 	}
 #elif HAVE_BATT_ADC
 	if (adc_is_ready_dt(&vbatt_adc) && adc_channel_setup_dt(&vbatt_adc) == 0) {
-		state.have_battery = true;
+		state.have_battery_voltage = true;
+		state.have_battery_soc = true;
 		LOG_INF("Battery ADC ready");
 	} else {
 		LOG_WRN("Battery ADC not ready");
@@ -378,7 +378,7 @@ void sensor_init(sensor_state &state)
 }
 
 /* ---- Fuel gauge init ---- */
-void sensor_fuel_gauge_init(void)
+void sensor_fuel_gauge_init(sensor_state &state)
 {
 #if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE) && HAVE_BATT_PMIC
 	if (!device_is_ready(vbat_dev)) {
@@ -438,7 +438,7 @@ void sensor_fuel_gauge_init(void)
 	nrf_fuel_gauge_ext_state_update(NRF_FUEL_GAUGE_EXT_STATE_INFO_TERM_CURRENT, &fg_info);
 #endif
 
-	fg_initialized = true;
+	state.have_battery_soc = true;
 	LOG_INF("Fuel gauge initialized (%s)", nrf_fuel_gauge_version);
 	fg_ref_time = k_uptime_get();
 #endif /* CONFIG_NRF_FUEL_GAUGE && HAVE_BATT */
@@ -645,7 +645,7 @@ int sensor_read_stcc4(sensor_state &state)
 int sensor_read_battery(sensor_state &state)
 {
 #if HAVE_BATT_ADC
-	if (!state.have_battery) {
+	if (!state.have_battery_voltage) {
 		return -ENODEV;
 	}
 
@@ -659,7 +659,8 @@ int sensor_read_battery(sensor_state &state)
 	int ret = adc_read_dt(&vbatt_adc, &seq);
 	if (ret) {
 		LOG_WRN("Battery ADC read failed: %d", ret);
-		state.battery.valid = false;
+		state.battery_voltage.valid = false;
+		state.battery_soc.valid = false;
 		return ret;
 	}
 
@@ -669,25 +670,27 @@ int sensor_read_battery(sensor_state &state)
 		mv = 0;
 	}
 
-	state.battery.millivolts = (uint16_t)mv;
-	state.battery.health = cr2_health(mv);
-	state.battery.percent = cr2_percent(mv);
-	state.battery.timestamp = k_uptime_get();
-	state.battery.valid = true;
+	state.battery_voltage.millivolts = (uint16_t)mv;
+	state.battery_soc.health = cr2_health(mv);
+	state.battery_soc.percent = cr2_percent(mv);
+	state.battery_voltage.timestamp = k_uptime_get();
+	state.battery_voltage.valid = true;
+	state.battery_soc.valid = true;
 	LOG_INF("BAT_V: %d.%03dV (%s)", mv / 1000, mv % 1000,
-		state.battery.health == BATTERY_OK    ? "ok"
-		: state.battery.health == BATTERY_LOW ? "LOW"
-						      : "CRITICAL");
+		state.battery_soc.health == BATTERY_OK    ? "ok"
+		: state.battery_soc.health == BATTERY_LOW ? "LOW"
+							  : "CRITICAL");
 	return 0;
 #elif HAVE_BATT_PMIC
-	if (!state.have_battery || !device_is_ready(vbat_dev)) {
+	if (!state.have_battery_voltage || !device_is_ready(vbat_dev)) {
 		return -ENODEV;
 	}
 
 	int ret = sensor_sample_fetch(vbat_dev);
 	if (ret) {
 		LOG_WRN("Battery voltage fetch failed: %d", ret);
-		state.battery.valid = false;
+		state.battery_voltage.valid = false;
+		state.battery_soc.valid = false;
 		return ret;
 	}
 
@@ -695,20 +698,21 @@ int sensor_read_battery(sensor_state &state)
 	ret = sensor_channel_get(vbat_dev, SENSOR_CHAN_GAUGE_VOLTAGE, &voltage);
 	if (ret) {
 		LOG_WRN("Battery voltage get failed: %d", ret);
-		state.battery.valid = false;
+		state.battery_voltage.valid = false;
+		state.battery_soc.valid = false;
 		return ret;
 	}
 
 	LOG_INF("BAT_V: %d.%03dV", voltage.val1, voltage.val2 / 1000);
-	state.battery.millivolts = (uint16_t)(voltage.val1 * 1000 + voltage.val2 / 1000);
+	state.battery_voltage.millivolts = (uint16_t)(voltage.val1 * 1000 + voltage.val2 / 1000);
 
-	/* Default to unknown rather than the memset-zero OK/0% defaults */
-	state.battery.percent = 0xFF;
-	state.battery.timestamp = k_uptime_get();
-	state.battery.valid = false;
+	/* Valid on voltage alone; the charge estimate needs the fuel gauge. */
+	state.battery_voltage.timestamp = k_uptime_get();
+	state.battery_voltage.valid = true;
+	state.battery_soc.valid = false;
 
 #if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE)
-	if (fg_initialized) {
+	if (state.have_battery_soc) {
 		struct sensor_value sv_temp;
 		float v = (float)voltage.val1 + (float)voltage.val2 / 1000000.f;
 		float t, i;
@@ -743,9 +747,9 @@ int sensor_read_battery(sensor_state &state)
 		fg_last_t = t;
 
 		uint8_t soc = CLAMP((int)fg_last_soc, 0, 100);
-		state.battery.health = soc_health(soc);
-		state.battery.percent = soc;
-		state.battery.valid = true;
+		state.battery_soc.health = soc_health(soc);
+		state.battery_soc.percent = soc;
+		state.battery_soc.valid = true;
 		LOG_INF("BAT_%%: %u%%", soc);
 	}
 #endif /* CONFIG_NRF_FUEL_GAUGE */
@@ -775,10 +779,10 @@ void sensor_read_cycle(sensor_state &state, uint32_t cycle)
 	sensor_read_battery(state);
 }
 
-void sensor_fuel_gauge_idle_set(void)
+void sensor_fuel_gauge_idle_set(const sensor_state &state)
 {
 #if IS_ENABLED(CONFIG_NRF_FUEL_GAUGE) && HAVE_BATT_PMIC
-	if (fg_initialized) {
+	if (state.have_battery_soc) {
 		nrf_fuel_gauge_idle_set(fg_last_v, fg_last_t, 10e-6f);
 	}
 #endif

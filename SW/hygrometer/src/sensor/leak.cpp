@@ -179,8 +179,8 @@ int leak_read(sensor_state &state)
 	 * battery voltage as the drive level when available (the drive GPIO swings
 	 * to VDD ≈ the CR2 supply). The estimate is only meaningful in the wet
 	 * range; a dry/open gap is reported as such rather than a noisy huge value. */
-	int32_t vdrive = (state.battery.valid && state.battery.millivolts > 0)
-				 ? (int32_t)state.battery.millivolts
+	int32_t vdrive = (state.battery_voltage.valid && state.battery_voltage.millivolts > 0)
+				 ? (int32_t)state.battery_voltage.millivolts
 				 : LEAK_VDRIVE_NOMINAL_MV;
 	int32_t r_ohm = leak_water_ohm(mv, vdrive);
 	if (r_ohm >= LEAK_R_OPEN_OHM) {
