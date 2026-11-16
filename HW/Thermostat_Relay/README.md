@@ -3,8 +3,8 @@
 ## 1. Scope
 
 Control board for two 24 VAC HVAC relays that can be driven by ESP32 GPIO pins. Compatible with
-any single-stage gas furnace. Heat pumps are out of scope, they require additional relay channels.
-Powering the ESP32 is also out of scope.
+any typical single-stage gas furnace. Heat pumps are out of scope, they require additional
+relay channels. Powering the ESP32 is also out of scope.
 
 ## 2. Background
 
@@ -239,8 +239,8 @@ not brought onto the board.
   KiCad's calculator uses, ΔT = 215.3 · I² · W^−1.15 · Th^−1 (W and Th in mils), for a 10
   °C rise at 2 A in 35 µm copper. The older IPC-2221 formula gives 0.78 mm for the same
   conditions. The board uses copper pours at least 1.4 mm wide for the switched nets on
-  the front, a pour on the back for R, and 1.0 mm traces with two vias from each fuse to
-  that pour. A short does not matter here: the fuse melts in milliseconds.
+  the front, a pour on the back for R, and a 1.75 mm wide pour with two vias from each fuse
+  to that back pour. A short does not matter here: the fuse melts in milliseconds.
 - Field spacing: the working voltage is at most 42.4 V peak (R-4), but the clamp lets a
   turn-off transient reach 77 V (5.5), so the 51–100 V row applies. It asks for 0.64 mm
   between bare conductors, 0.5 mm between uncoated component leads and 0.3 mm under solder
