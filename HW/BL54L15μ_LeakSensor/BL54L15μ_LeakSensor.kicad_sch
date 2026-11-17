@@ -3990,9 +3990,9 @@
 		)
 		(uuid "0ddf31b4-eeb3-4ff0-8607-3026471e1f8f")
 	)
-	(text "CR123 Non-rechargable Battery"
+	(text "CR2 Non-rechargable Battery"
 		(exclude_from_sim no)
-		(at 46.482 16.764 0)
+		(at 42.418 16.002 0)
 		(effects
 			(font
 				(size 2.54 2.54)
@@ -5733,7 +5733,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_Pad"
+		(property "Footprint" "MountingHoleCompact:MountingHole_M1.2_1.3mm_Plated"
 			(at 266.7 154.94 0)
 			(hide yes)
 			(show_name no)
@@ -7191,7 +7191,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_Pad"
+		(property "Footprint" "MountingHoleCompact:MountingHole_M1.2_1.3mm_Plated"
 			(at 247.65 154.94 0)
 			(hide yes)
 			(show_name no)
