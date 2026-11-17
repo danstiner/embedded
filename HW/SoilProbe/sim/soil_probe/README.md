@@ -11,6 +11,8 @@ scripts/
   tank_modes.py       resonant modes of tank + strip line; why R3 is in series with C4
   system_sim.py       soil -> probe -> oscillator -> firmware arithmetic; error budget, Monte Carlo
   expected_liquids.py predicted readings in air, solvents, water, salt water
+  design_comparison.py nine electrode x readout designs under one calibration and Monte Carlo (paper/)
+  organic_soil_spectra.py substrate relaxation from published organic-soil spectra (downloads ~60 MB, needs xlrd)
   run_sweeps.py       earlier survey of outer-layer patterns and nails (background to DESIGN section 4)
   test_models.py      pytest: solver vs closed forms, line limits, end-to-end round trip
 spice/
@@ -18,6 +20,8 @@ spice/
   osc.py              ngspice harness: cross-coupled oscillator (and the earlier Clapp)
   characterize.py     oscillator table over the probe's load plane; loss pulling
   verify_line.py      oscillator with a distributed line in every medium vs the table model
+paper/
+  manuscript.md       journal-style write-up of the design comparison; figures/ are generated
 results/              generated, not tracked
 ```
 
@@ -34,6 +38,8 @@ cd ../scripts
 python tank_modes.py
 python system_sim.py 800         # budget + Monte Carlo, ~6 min
 python expected_liquids.py
+python organic_soil_spectra.py   # measured dispersion ratios, Fig. 7
+python design_comparison.py      # tables + paper/figures, ~15 min first time; fills the tables in paper/manuscript.md
 (cd ../spice && python verify_line.py)
 pytest -q
 ```

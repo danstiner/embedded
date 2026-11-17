@@ -19,12 +19,12 @@ Nothing has been built yet. Every number here is from simulation (`sim/soil_prob
 | Item | Value | Source |
 |---|---|---|
 | Range | air to water; soil theta 0-0.6 | `system_sim.py` |
-| Error, 2-point calibrated unit, generic medium curve | 1.2 % VWC sd (potting mix), 0.9 % (mineral soil), contact-limited | Monte Carlo, `system_sim.py` |
+| Error, 2-point calibrated unit, generic medium curve | 1.4 % VWC sd (potting mix), 0.9 % (mineral soil), contact-limited | Monte Carlo, `system_sim.py` |
 | Same unit without its own air/water calibration | 2.7 % VWC sd | Monte Carlo |
 | Pore-water EC 0.5 to 3 dS/m, frequency only | +0.7 % VWC at theta 0.25, +3 % at 0.55 | error budget |
 | Same, using the detector | under 0.1 % | error budget |
 | Air gap 0.1 mm on one face | -1.9 % VWC at theta 0.25, -4.4 % at 0.40 | error budget |
-| Bulk EC estimate | about +/-10 % (model; the detector is uncalibrated hardware) | Monte Carlo |
+| Bulk EC estimate | about +/-12 % (model; the detector is uncalibrated hardware) | Monte Carlo |
 | Stops oscillating above | 16 mS probe loss: pore-water EC over about 4 dS/m in saturated potting mix (6 dS/m still runs at theta 0.45) | `characterize.py` |
 | Supply | 3.0-3.6 V, about 26 mA for 4 ms per reading (about 100 uC) | datasheet sums |
 

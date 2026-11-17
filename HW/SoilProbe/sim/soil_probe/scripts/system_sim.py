@@ -60,7 +60,7 @@ class Oscillator:
         """(f [Hz], det [V]) for probe load C [F], G [S].  dL fractional, dC0 [F], dtau [s].
         Loads beyond the table are clamped; stalled() says whether the oscillator would stop."""
         pt = [np.clip((C + dC0) * 1e12, 0, self.C[-1] * 1e12), np.clip(G * 1e3, 0, self.Gmax * 1e3)]
-        y = (self._y(pt)[0] * 1e-18 + self.L * dtau * G) * (1 + dL)
+        y = (self._y(pt)[0] * 1e-18 + self.L * dtau * pt[1] * 1e-3) * (1 + dL)
         f = 1 / (2 * np.pi * np.sqrt(y)) * (1 + TC_ELECTRONICS * dT)
         return f, self._det(pt)[0] * 1e-3 * amp_scale + det_off
 
@@ -85,7 +85,7 @@ def _settle(Yfun, unit=None, dT=0.0):
         Y = Yfun(f)
         return Y.imag / (2 * np.pi * f), Y.real
     h = lambda f: OSC.read(*load(f), dT=dT, **u)[0] - f
-    f = brentq(h, 40e6, 160e6, xtol=50.0)
+    f = brentq(h, 40e6, 150e6, xtol=50.0)       # stays below the strips' quarter-wave resonance
     C, G = load(f)
     return (f, OSC.read(C, G, dT=dT, **u)[1], C, G)
 
@@ -158,6 +158,20 @@ UNIT_SIGMA = dict(dL=0.02 / 2, dC0=1.0e-12, dtau=25e-12, amp_scale=0.03, det_off
 MIX_SIGMA = {'prepreg+10': 0.5, 'dk+5': 0.5, 'mask+33': 0.5, 'etch-50um': 0.5}             # in units of the variant
 
 
+GAP_NODES = (0.0, 0.005, 0.01, 0.02, 0.05, 0.10)       # mm, air layers solved directly (probe.VARIANTS)
+
+
+def gap_mix(g):
+    """Variant weights for an air layer of g mm on one face: piecewise linear between directly
+    solved tables (a single 0.10 mm table understates a 0.02 mm layer by up to 40 %)."""
+    k = min(max(int(np.searchsorted(GAP_NODES, g, side='right')) - 1, 0), len(GAP_NODES) - 2)
+    t = (g - GAP_NODES[k]) / (GAP_NODES[k + 1] - GAP_NODES[k])
+    name = lambda x: f'gap{int(round(x * 1000))}'
+    out = {name(GAP_NODES[k + 1]): t}
+    if k > 0: out[name(GAP_NODES[k])] = 1 - t
+    return out
+
+
 def random_unit(rng):
     unit = {k: rng.normal(0, v) for k, v in UNIT_SIGMA.items()}
     unit['amp_scale'] += 1.0
@@ -224,7 +238,7 @@ def monte_carlo(out, n=600, medium='potting mix', seed=7):
         sw = np.exp(rng.uniform(np.log(0.02), np.log(0.40)))
         T = rng.uniform(5, 40)
         gap = min(rng.exponential(0.02), 0.10)                       # mm, one face, residual after firming
-        mx = dict(mix); mx['gap100'] = gap / 0.10
+        mx = dict(mix, **gap_mix(gap))
         mat = soil(th, sw, T, medium)
         f, det = measure(mat, unit, exposed_mm=abs(rng.normal(0, 1.5)), mix=mx, dT=T - 25.0 + rng.normal(0, 3))
         if not np.isfinite(f): continue

@@ -35,7 +35,10 @@ VARIANTS = {
     'dk+5':       dict(stack=_stack(dk=1.05)),
     'mask+33':    dict(stack=_stack(mask=1.33)),
     'etch-50um':  dict(etch=0.05),                       # each strip edge pulled back 25 um
-    'gap50':      dict(gap_top=0.05),                    # air gap, one face
+    'gap5':       dict(gap_top=0.005),                   # air gap, one face
+    'gap10':      dict(gap_top=0.01),
+    'gap20':      dict(gap_top=0.02),
+    'gap50':      dict(gap_top=0.05),
     'gap100':     dict(gap_top=0.10),
     'gap100x2':   dict(gap_top=0.10, gap_bot=0.10),
     'film100':    dict(gap_top=0.10, gap_mat=s.WATER),   # free-water film, one face

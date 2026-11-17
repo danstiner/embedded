@@ -184,9 +184,9 @@ noise):
 
 | Calibration | Bias | sd | 95 % within |
 |---|---|---|---|
-| none, frequency only | -0.4 | 2.7 | 5.4 |
-| 2-point per unit, frequency only | -0.3 | 1.2 | 2.6 |
-| 2-point per unit, frequency + detector | -1.0 | 1.2 | 3.3 |
+| none, frequency only | -0.6 | 2.7 | 5.5 |
+| 2-point per unit, frequency only | -0.4 | 1.4 | 3.2 |
+| 2-point per unit, frequency + detector | -1.1 | 1.3 | 4.0 |
 
 Mineral soil: sd 0.9 with the 2-point calibration. The negative bias is the air gap and
 insertion terms, which only ever lower the reading; a calibration made in real soil absorbs
@@ -194,7 +194,12 @@ it. Frequency-only looks less biased because its positive salinity error happens
 them. Contact dominates either way, and the per-unit air/water calibration is the single most
 valuable step.
 
-Bulk EC from the detector: within 10 % (68 % of draws) in the model.
+Bulk EC from the detector: within 12 % (68 % of draws) in the model.
+
+The air layer is interpolated between directly solved thicknesses (0.005 to 0.10 mm); a
+single 0.10 mm table understates thin layers. `paper/manuscript.md` compares this design with
+eight others under one calibration and has the fuller treatment, including a dispersive
+substrate.
 
 ## 9. What the model does not cover
 
