@@ -49,7 +49,7 @@ def topp_er(theta):
     return 3.03 + 9.3 * theta + 146.0 * theta**2 - 76.7 * theta**3
 
 
-def crim_er(theta, porosity=0.70, er_solid=4.0, er_water=80.0):
+def crim_er(theta, porosity=0.70, er_solid=4.0, er_water=78.3):
     """CRIM / refractive-index mixing model (Birchak 1974, Roth 1990, alpha = 0.5).
     Defaults are a peat/perlite potting mix: porosity ~0.7, solid er ~4.
     sqrt(er) = theta*sqrt(er_w) + (1-porosity)*sqrt(er_s) + (porosity-theta)*1"""
@@ -65,10 +65,18 @@ def soil_sigma(theta, sigma_w=0.05, sigma_s=0.02):
     return sigma_w * theta**2 + sigma_s * theta
 
 
-def soil_material(theta, sigma_w=0.05, model=crim_er):
-    """Bulk soil (er, sigma, tan_d) at volumetric water content theta.
-    Swap model=topp_er for a mineral soil."""
-    return (model(theta), soil_sigma(theta, sigma_w), 0.0)
+def water_er(T=25.0):
+    """Static permittivity of water, Malmberg & Maryott 1956 (0-100 C).  The Debye relaxation
+    (~17 GHz at 25 C) is far above the probe frequency, so the static value applies."""
+    return 87.740 - 0.40008 * T + 9.398e-4 * T**2 - 1.410e-6 * T**3
+
+
+def soil_material(theta, sigma_w=0.05, model=crim_er, T=25.0):
+    """Bulk soil (er, sigma, tan_d) at volumetric water content theta and temperature T [C].
+    sigma_w is the pore-water EC at 25 C; conductivity rises ~2 %/C.  model=topp_er (mineral
+    soil) is an empirical fit with no temperature term."""
+    er = model(theta, er_water=water_er(T)) if model is crim_er else model(theta)
+    return (er, soil_sigma(theta, sigma_w) * (1 + 0.02 * (T - 25.0)), 0.0)
 
 
 def eps_complex(mat, f):
@@ -220,6 +228,88 @@ def nail_scene(soil, r=1.75, spacing=20.0, coat=0.0, coat_mat=COAT, gap=0.0,
         if gap > 0:  sc.disc(x, 0, r + coat + gap, gap_mat, 'gap')
         if coat > 0: sc.disc(x, 0, r + coat, coat_mat, 'coat')
         sc.disc(x, 0, r, elec=e)
+    return sc
+
+
+# ----------------------------------------------------------------------------
+# General stackup builder: buried (inner-layer) electrodes, forks
+# ----------------------------------------------------------------------------
+FR408HR = (3.7, 0.0, 0.009)     # Isola FR408HR, Dk 3.61-3.68 at 1-2 GHz, slightly higher at 70 MHz
+
+# dielectrics bottom -> top as (thickness mm, material); cu[i] = copper thickness at interface i
+# (0 = bottom face, len(dielectrics) = top face).  Outer copper sits proud of the laminate under
+# the mask; inner copper is embedded in the neighbouring prepreg.
+OSHPARK_2L = dict(dielectrics=[(1.524, FR4)], cu=[0.0356, 0.0356], t_mask=0.0152)
+OSHPARK_4L = dict(dielectrics=[(0.1999, FR408HR), (0.9906, FR408HR), (0.1999, FR408HR)],
+                  cu=[0.0432, 0.0175, 0.0175, 0.0432], t_mask=0.0152)
+
+
+def stack_scene(stack, strips, soil, W=12.0, slots=(), gap_top=0.0, gap_bot=0.0, gap_mat=AIR,
+                coat=None, medium=None, half_space=None, Lx=40.0, Ly=40.0, dmin=0.005, dmax=2.0,
+                growth=1.3):
+    """
+    strips : {interface index: [('S'|'G', x0, x1), ...]}
+    slots  : [(x0, x1), ...] board material removed and replaced by soil (fork prongs)
+    half_space : (d_mm, material) soil only within d of the board faces, material beyond
+                 (sampling-depth experiment: lower the probe toward a second medium)
+    """
+    diel, cu, tm = stack['dielectrics'], stack['cu'], stack['t_mask']
+    n = len(diel)
+    H = sum(t for t, _ in diel)
+    zi = np.concatenate([[0.0], np.cumsum([t for t, _ in diel])]) - H / 2     # interface heights
+    tc = coat[0] if coat else 0.0
+    top_cu = cu[n] if strips.get(n) else 0.0
+    bot_cu = cu[0] if strips.get(0) else 0.0
+    face_t = H / 2 + top_cu + tm + tc
+    face_b = -(H / 2 + bot_cu + tm + tc)
+    ypts = [-Ly, face_b - gap_bot, face_b, -H / 2 - bot_cu - tm, -H / 2 - bot_cu,
+            H / 2 + top_cu, H / 2 + top_cu + tm, face_t, face_t + gap_top, Ly]
+    ydm = [dmax, 0.01, 0.01, dmin, dmin, dmin, dmin, 0.01, 0.01, dmax]
+    for i, z in enumerate(zi):
+        ypts.append(z); ydm.append(dmin if strips.get(i) else 0.02)
+        if strips.get(i) and 0 < i < n:
+            sgn = 1 if z < 0 else -1                      # inner copper grows toward the core
+            ypts.append(z + sgn * cu[i]); ydm.append(dmin)
+    if half_space:
+        ypts += [face_t + half_space[0], face_b - half_space[0]]; ydm += [0.02, 0.02]
+    xpts = [-Lx, -W / 2, W / 2, Lx]; xdm = [dmax, 0.02, 0.02, dmax]
+    for lst in strips.values():
+        for _, x0, x1 in lst:
+            xpts += [x0, x1]; xdm += [0.01, 0.01]
+    for x0, x1 in slots:
+        xpts += [x0, x1]; xdm += [0.02, 0.02]
+    if half_space:
+        xpts += [-W / 2 - half_space[0], W / 2 + half_space[0]]; xdm += [0.05, 0.05]
+    sc = Scene(graded_axis(*_dedupe(xpts, xdm), dmax, growth), graded_axis(*_dedupe(ypts, ydm), dmax, growth))
+    bulk = medium if medium is not None else soil
+    sc.fill(bulk, 'soil' if medium is None else 'air')
+    if half_space:
+        d, mat = half_space
+        m = (sc.Y > face_t + d) | (sc.Y < face_b - d) | (np.abs(sc.X) > W / 2 + d)
+        sc.paint(m, mat, 'air')
+    inboard = np.abs(sc.X) < W / 2
+    for x0, x1 in slots:
+        inboard &= ~((sc.X >= x0) & (sc.X < x1))
+    def band(y0, y1, mat, region):
+        sc.paint(inboard & (sc.Y >= y0) & (sc.Y < y1), mat, region)
+    if gap_top > 0: band(H / 2, face_t + gap_top, gap_mat, 'gap')
+    if gap_bot > 0: band(face_b - gap_bot, -H / 2, gap_mat, 'gap')
+    if coat:
+        band(H / 2, face_t, coat[1], 'coat'); band(face_b, -H / 2, coat[1], 'coat')
+    band(H / 2, H / 2 + tm, MASK, 'mask'); band(-H / 2 - tm, -H / 2, MASK, 'mask')
+    for k, (t, mat) in enumerate(diel):
+        band(zi[k], zi[k + 1], mat, 'fr4')
+    for i, lst in strips.items():
+        z = zi[i]
+        if i == 0:   y0, y1 = z - cu[0], z
+        elif i == n: y0, y1 = z, z + cu[n]
+        elif z < 0:  y0, y1 = z, z + cu[i]
+        else:        y0, y1 = z - cu[i], z
+        for kind, x0, x1 in lst:
+            if i in (0, n):                               # mask follows the copper profile
+                ym = (y1, y1 + tm) if i == n else (y0 - tm, y0)
+                sc.rect(x0, x1, ym[0], ym[1], MASK, 'mask')
+            sc.rect(x0, x1, y0, y1, elec=1 if kind == 'S' else 2)
     return sc
 
 

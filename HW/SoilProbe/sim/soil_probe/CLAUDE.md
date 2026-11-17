@@ -1,48 +1,37 @@
-# CLAUDE.md — working notes for this folder
+# CLAUDE.md: working notes for this folder
 
-## What this is
-Design package for an ultra-low-power capacitive soil-moisture probe (potting mix, nRF54L15 node,
-BTHome/BLE, energy-harvested). Two front ends: FDC2212 at 10 MHz (low risk) and a discrete
-Clapp oscillator at 71–85 MHz counted by the nRF (best cheap). Read DESIGN.md first; it has the
-numbers and the reasoning. Nothing has been built yet.
+Simulation behind `HW/SoilProbe` (capacitive soil-moisture probe: buried strips on a 4-layer
+blade, 80-130 MHz cross-coupled LC oscillator, frequency + loss-detector outputs for an
+nRF54L15 host). Read DESIGN.md first. Nothing has been built or measured.
 
 ## Ground truth vs estimate
-- Verified numerically: everything in `results/` (field solver validated against the two-wire
-  closed form; ngspice runs for the Clapp).
-- Verified from primary sources: OSH Park stack (docs.oshpark.com/services/two-layer),
-  FDC2212 IDRIVE/amplitude mechanism (TI datasheet).
-- Estimates to verify: all BOM prices (`verify_on_digikey` column), 74LVC161 f_max at 3.0 V,
-  nRF54L15 GPIOTE max input rate, FDC2212 f_REF/f_SENSOR constraint, inductor Q/SRF for LQW18ANR47G00D,
-  Taiyo PSR-4000BN Dk (3.9 assumed), the "±1 % VWC after (f, Vpk) correction" figure.
-
-## Test plan
-TEST_PLAN.md is phased (bench → liquids → dispersion → soil matrix → contact → temperature → drying
-curve) with pass criteria and predicted values; data goes in data/measurements.csv.
+- Computed here: everything in `results/` (regenerate; it is not tracked).
+- From primary sources: OSH Park stackups, BFR181/BFR92P SPICE parameters (Siemens data
+  sheets), TLV3601 pinout and input range, SN74LVC1G80 and SN74LV4040A f_max, TPS7A05 start-up.
+- Estimates: tank-node stray capacitance (2.5 pF each), inductor Q (35 at 110 MHz), potting
+  permittivity (3.5), soil models (CRIM with assumed porosity), air-gap statistics.
 
 ## Conventions
-- Geometry in mm, materials SI; solver returns per-metre C and G. Cross-section is x (width) × y (thickness);
-  probe length is multiplied in afterwards (`lumped_values.py`).
-- Config names A–F and N are defined in `scripts/run_sweeps.py`; "config C" = two 5 mm strips, 1 mm gap, both faces.
-- θ = volumetric water content (fraction). "EC lo/hi" = pore-water σ_w 0.05 / 0.30 S/m.
-- Apparent-θ error = read the perturbed C through the unperturbed low-EC calibration curve.
-- SPICE probe model: Cp ∥ (1/Gp) at the oscillation frequency, values from `results/lumped_values.txt`.
+- Geometry in mm, materials SI. The field solver returns per-meter values; `probe.py` turns
+  them into the admittance at the feed with the line model.
+- theta = volumetric water content (fraction). sigma_w = pore-water EC in S/m at 25 C
+  (0.05 = 0.5 dS/m).
+- Apparent-theta error = perturbed reading through the nominal calibration.
+- A change to the cross-section (`probe.GEOM`, stack) invalidates `results/probe_table_*.npz`
+  automatically; a change to the oscillator (`spice/osc.py` XCP) needs `characterize.py` rerun.
+- The board's strip geometry, C4, R3, R6, L1/L2 and the values in `probe.GEOM`, `osc.XCP` and
+  `tank_modes.AS_BUILT` must stay equal.
 
-## Prioritised next tasks
-1. Coat-thickness trade for the Clapp: run config C with coat 0 / 0.1 / 0.2 / 0.3 mm at 70–85 MHz
-   (`lumped_values.py` + `error_budget.py` style), then `run_clapp.py` for each; minimise
-   total EC×6 error (probe MW term + oscillator pulling) subject to Vpp ≥ 1 V in the sat hi-EC case.
-2. Re-tune L for the 4 mm / 3 mm strip variant (probe_geometry.md); target 60–90 MHz, keep ÷16 output ≤ 6 MHz.
-3. Coated 50 mm FDC2212 case at 10 MHz: EC×2/×6, gap, T errors (currently only bare numbers).
-4. 2-parameter calibration: build f(θ, σ) and Vpk(θ, σ) tables from SPICE + FEM, write the inversion,
-   quantify residual with ±5 % Vpk error and ±0.1 mm gap.
-5. Verify the "estimates" list above against datasheets/DigiKey and update the BOMs.
-6. KiCad: probe footprint per `hardware/probe_geometry.md`; Clapp head per `hardware/schematic_clapp.md`.
-7. Firmware sketch (schematic_clapp.md §nRF54L15) → Zephyr/nRF Connect implementation.
-8. When measurements arrive: run scripts/analyze_calibration.py, refit C_par and coat thickness from
-   Phase 1 (expected_liquids.py), refit S_SIGMA from Phase 3, and update DESIGN.md §5 with measured numbers.
+## Do not
+- Put a resistor in parallel with the tank in place of R3-in-series, or drop R3: the oscillator
+  then hops to the strip line's second resonance in water (`tank_modes.py`).
+- Reduce the base stoppers below 10 R or swap the BFR181 for a slower, higher-Ccb transistor.
+- Add copper (pour, vias, traces) on any layer in the sensing area, or a ground pour near the
+  strips' top ends.
+- Lengthen the strips without rerunning `tank_modes.py`; longer strips lower the second mode.
+- Treat `results/` as measurements.
 
-## Don't
-- Don't lower the excitation frequency to make the FDC easier; DESIGN.md §1 explains why (S_σ).
-- Don't add a ground ring or back pour under the strips (halves soil energy, doubles gap sensitivity).
-- Don't remove the coat for sensitivity without re-checking Rp / D (uncoated: Rp 140 Ω, D 0.66 in hi-EC wet soil).
-- Don't treat `results/*.csv` as measurements; they are model outputs.
+## Next
+1. Build and run TEST_PLAN.md phases 0-1; refit stray capacitance and the common table.
+2. Zephyr driver: EN, TIMER capture of 64 FOUT periods, SAADC for REF - AMP and NTC.
+3. If salinity matters: low-frequency bare-electrode EC channel on a later spin.

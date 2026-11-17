@@ -1,0 +1,36 @@
+* NPN RF transistors in SOT-23.  Gummel-Poon chip models and the package equivalent circuit are
+* transcribed from the Siemens data sheets (BFR 92P Dec-12-1996, BFR 181 Dec-11-1996), section
+* "SPICE Parameters (Gummel-Poon Model, Berkeley-SPICE 2G.6 Syntax)", extracted by IMST.
+* The package model is the same for both and is stated valid to 6 GHz.
+.model QBFR92P NPN(IS=0.1213f BF=94.733 NF=1.0947 VAF=30 IKF=0.46227 ISE=129.55f NE=1.9052
++ BR=10.729 NR=0.8983 VAR=14.599 IKR=0.01 ISC=0.75557f NC=1.371 RB=14.998 IRB=0.01652m
++ RBM=7.8145 RE=0.29088 RC=0.13793 CJE=10.416f VJE=0.70618 MJE=0.34686 TF=26.796p XTF=0.3817
++ VTF=0.32861 ITF=4.4601m PTF=0 CJC=946.47f VJC=0.84079 MJC=0.4085 XCJC=0.13464 TR=1.2744n
++ CJS=0 VJS=0.75 MJS=0 XTB=0 EG=1.11 XTI=3 FC=0.99545 TNOM=27)
+.model QBFR181 NPN(IS=0.0010519f BF=96.461 NF=0.90617 VAF=22.403 IKF=0.12146 ISE=12.603f NE=1.7631
++ BR=16.504 NR=0.87757 VAR=5.1127 IKR=0.24951 ISC=0.01195f NC=1.6528 RB=9.9037 IRB=0.69278m
++ RBM=6.6315 RE=2.1372 RC=2.2171 CJE=1.8168f VJE=0.73155 MJE=0.43619 TF=17.028p XTF=0.33814
++ VTF=0.12571 ITF=1.0549m PTF=0 CJC=319.69f VJC=1.1633 MJC=0.30013 XCJC=0.082903 TR=2.7449n
++ CJS=0 VJS=0.75 MJS=0 XTB=0 EG=1.11 XTI=3 FC=0.99768 TNOM=27)
+.subckt BFR92P c b e
+LBO b  b1 0.51n
+LBI b1 bi 0.85n
+LEO e  e1 0.61n
+LEI e1 ei 0.69n
+LCO c  ci 0.49n
+CBE b1 e1 73f
+CCB b1 ci 84f
+CCE ci e1 165f
+Q1 ci bi ei QBFR92P
+.ends
+.subckt BFR181 c b e
+LBO b  b1 0.51n
+LBI b1 bi 0.85n
+LEO e  e1 0.61n
+LEI e1 ei 0.69n
+LCO c  ci 0.49n
+CBE b1 e1 73f
+CCB b1 ci 84f
+CCE ci e1 165f
+Q1 ci bi ei QBFR181
+.ends

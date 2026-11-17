@@ -1,127 +1,233 @@
-# Capacitive soil-moisture probe — design summary
+# Capacitive soil-moisture probe: design notes
 
-Status: 2026-09-04. Field solver and oscillator SPICE are verified; no hardware built yet.
-Everything numerical here is reproducible from `scripts/` and `spice/` (see README.md).
+Status 2026-11-16: simulated, not built. Everything numerical is reproducible from `scripts/`
+and `spice/` (README.md); the outputs land in `results/`, which is not tracked.
 
-## 1. What the physics says (drives every decision below)
+## 1. Goal and assumptions
 
-1. **Moist potting mix is a conductor below ~10 MHz.** σ/(ωε₀) at θ = 0.25, low-EC water:
-   73 @ 2 MHz, 7 @ 20 MHz, 2.1 @ 70 MHz. Below ~10 MHz a "capacitive" probe measures the
-   Maxwell-Wagner relaxation of (coating capacitance) × (soil resistance), i.e. conductivity.
-   Sensitivity split S_ε / S_σ (∂lnC/∂lnε′, ∂lnC/∂lnσ) at θ = 0.25: 0.44/0.67 @ 2 MHz,
-   0.77/0.10 @ 8 MHz, 0.83/0.00 @ 70 MHz. → Run the FDC2212 at its 10 MHz ceiling, or
-   use a 50–100 MHz oscillator. Commercial FDR probes sit at 70–100 MHz for this reason.
-2. **Best cross-section: two wide coplanar strips, mirrored on both faces, no ground ring,
-   no back pour.** Field-energy fraction in soil 62 % (vs 9 % for pad + ground back, 25 % with
-   a ground ring, 41 % interdigitated). Interdigitated fingers and ground rings put the field
-   in the first millimetre and are 3–4× more sensitive to air gaps / water films.
-3. **Contact is the accuracy floor.** Best layout at 70 MHz: −4 % VWC per 0.1 mm air gap on one
-   face, +7 % for a 0.1 mm water film. Widening strip spacing to 3 mm: −3.1 % / +4.0 %.
-   Potting-mix grains are ≫ the 15 µm mask, so treat ±3 % as the expected scatter.
-4. **A 0.2–0.3 mm coat is required for either front end** in fertilised wet soil: uncoated
-   Rp at 10 MHz falls to 140 Ω (FDC can't drive it); at 70 MHz the uncoated D = G/ωC reaches 0.66
-   (oscillator pulls 10–25 %). Coat costs sensitivity (ratio 4.5 → 2.5) and adds a small
-   Maxwell-Wagner EC term (+2.9 % VWC at EC×6, see §5).
-5. **Steel nails** don't beat the gap floor (−4/−9 % VWC for a 0.1/0.3 mm loose hole), bare nails are
-   an EC probe not a moisture probe, and coating integrity is the failure mode. Not pursued.
-6. **Bulk-EC correction works and is well-conditioned above ~8 MHz** (10 % σ error → 0.3 % VWC);
-   at 2 MHz the same σ error costs 3–7 % VWC. Correction form: ln C_corr = ln C − S_σ(θ)·ln(σ_b/σ_ref).
+Accurate, robust moisture reading for potting mix and garden soil from a cheap PCB probe on an
+nRF54L15 node, with soil temperature and a salinity estimate.
 
-## 2. Probe geometry (OSH Park 2-layer)
+Assumptions I made where nothing was specified:
 
-Stack (docs.oshpark.com/services/two-layer): 1.524 mm KB6167F core Dk 4.5, 35.6 µm Cu, 15.2 µm
-Taiyo PSR-4000BN mask (±0.2 mil; ±33 % mask → ±0.2 % VWC at ≥8 MHz, harmless).
+- Media: soilless potting mix (porosity about 0.7, theta up to 0.6) and mineral soil.
+- Pore-water EC up to 3 dS/m (fertigated containers) must read correctly; up to 6 dS/m must at
+  least oscillate at field moisture.
+- 5-40 C soil temperature.
+- Fab is OSH Park (direct KiCad upload); hand assembly; one board spin should have a good
+  chance of working.
+- The probe is a peripheral with a 7-wire interface, not a complete node. No bare EC electrodes
+  on this board.
 
-| Item | Baseline (simulated) | Better variant (simulated, not re-tuned) |
-|---|---|---|
-| Board width | 12 mm | 12 mm |
-| Strips (top and bottom, mirrored, via-stitched every ~10 mm) | 2 × 5.0 mm wide, 1.0 mm gap | 2 × 4.0 mm, 3.0 mm gap |
-| Sensing length | 80 mm (Clapp) / 50 mm (FDC2212) | same |
-| Coat over sensing region | 0.3 mm epoxy/acrylic dip, εr ≈ 3, low loss | 0.1–0.2 mm to be evaluated (task) |
-| Head | electronics on the same board, ground pour only under the electronics, ≥5 mm keep-out to the strips, oscillator ≤10 mm from the sense strip | |
-| Sensitivity ratio C(θ=0.40)/C(0.05), 70 MHz | 2.5 (coated) / 4.5 (bare) | 5.1 bare |
-| Gap error 0.1 mm / water film 0.1 mm (70 MHz) | −4.1 % / +6.8 % bare, −3.0 % / +2.2 % coated | −3.1 % / +4.0 % bare |
+## 2. What the literature says, and what this design takes from it
 
-Lumped values for the 80 mm coated probe at 60 MHz (+6 pF head parasitic), from `results/lumped_values.txt`:
-dry 14.2 pF / 0.19 mS, moist lo-EC 21.7 pF / 0.71 mS, moist hi-EC 22.5 pF / 1.90 mS,
-saturated lo-EC 28.6 pF / 0.93 mS, saturated hi-EC 31.1 pF / 2.71 mS (D ≤ 0.23, Rp ≥ 370 Ω).
-50 mm coated at 10 MHz: 11–30 pF, Rp 1.9–10 kΩ.
+- Capacitance probes read water because water's permittivity (78 at 25 C) dwarfs that of
+  solids (3-5) and air [Topp 1980]. Below roughly 50 MHz wet soil is more conductor than
+  dielectric and a "capacitive" probe reads salinity and contact; texture and salinity effects
+  shrink as frequency rises, and a 70 MHz capacitance sensor held about 2 % VWC up to high
+  solution EC with one calibration for mineral soils [Kizito 2008*; Bogena 2007; Kelleners
+  2005; Chen and Or 2006]. Low-cost probes built on a 555 run two orders of magnitude lower
+  and are salinity- and temperature-sensitive [Gonzalez-Teruel 2019*; Placidi 2020].
+  **Taken: oscillator at 80-130 MHz, as high as the divider logic allows.**
+- Electrodes embedded inside the circuit board, not on its surface, are what published
+  low-cost research sensors use for isolation from the soil [Bogena 2017*; Gonzalez-Teruel
+  2019*]. **Taken: strips on the inner layers of a 4-layer board.**
+- Sensor-to-sensor spread is a first-order error and is removed by calibrating every sensor in
+  reference media of known permittivity, then using one permittivity-to-water-content model
+  for all [Bogena 2017*; Jones 2005; Sakaki 2008]. **Taken: per-unit air and water points plus
+  a common table.**
+- With that calibration the remaining temperature effect is the permittivity of water itself,
+  removable with a temperature reading [Bogena 2017*; Rosenbaum 2011]. **Taken: NTC at the
+  soil line, correction with the water permittivity [Malmberg and Maryott 1956].**
+- The sampling volume is weighted to the electrode surface, so air gaps are the practical
+  accuracy limit of any blade probe [Sakaki 2008]. **Taken: widest practical electrode
+  spacing; the rest is installation.**
+- Pore-water EC follows from bulk permittivity and bulk EC [Hilhorst 2000]. **Taken in part:
+  the detector gives bulk EC at the oscillation frequency, through the insulation. A
+  low-frequency measurement on bare electrodes would be the standard method and is not on this
+  board.**
 
-## 3. Front end A — FDC2212 at 10 MHz (low-risk)
+## 3. Approaches considered
 
-- Tank: 12 µH + 10 pF C0G fixed + probe (50 mm coated) → 7.3–10 MHz over the moisture range.
-  Verify the datasheet's f_REF/f_SENSOR ratio constraint with the 40 MHz external reference.
-- External 40 MHz oscillator (gated), IDRIVE set by the Rp search; Rp stays ≥1.9 kΩ with the coat.
-- Read frequency; C = 1/(L(2πf)²) − C_fixed − C_par. Correct with bulk EC from the 4-electrode probe.
-- Schematic: `hardware/schematic_fdc2212.md`, BOM: `hardware/bom_fdc2212.csv`.
-
-## 4. Front end B — discrete Clapp oscillator + nRF54L15 counter (best cheap sensor)
-
-Common-collector Clapp, MMBT3904, L = 470 nH in series with the probe, C1 = C2 = 22 pF,
-Re = 390 Ω (Ie ≈ 2.5 mA), 22 k/22 k bias, 10 nF DC block in the resonator. Verified in ngspice
-(`spice/run_clapp.py`, results in `results/clapp_spice_results.txt`):
-
-| soil case | Cp | Gp | f_osc | Vpp(e) | start |
-|---|---|---|---|---|---|
-| dry | 14.2 pF | 0.19 mS | 84.6 MHz | 2.6 V | 60 ns |
-| moist lo-EC | 21.7 | 0.71 | 76.6 | 2.6 | 70 ns |
-| moist hi-EC | 22.5 | 1.90 | 75.8 | 1.7 | 70 ns |
-| sat lo-EC | 28.6 | 0.93 | 72.4 | 2.7 | 70 ns |
-| sat hi-EC | 31.1 | 2.71 | 71.5 | 2.2 | 90 ns |
-
-Frequency vs supply: 0.03 % over 2.7–3.3 V. Transistor tempco: −0.36 % f over 0–50 °C (≈0.2 % VWC).
-Output squared by a self-biased 74LVC1G04, ÷16 by a 74LVC161 → 4.5–5.3 MHz into GPIOTE → PPI →
-TIMER (count mode), gated 2 ms by a second timer from the 32 MHz crystal: ~10⁴ counts, 10⁻⁴ resolution.
-Whole chain power-gated (P-FET or GPIO); ~15 mA for 3 ms ≈ 45 µC per reading (LVC161 dynamic
-current dominates; a 74LVC1G74 ÷2 in front of a slower counter halves it).
-Peak detector (BAT54 + 100 pF ∥ 100 kΩ → SAADC) reads Vpk, which falls 2.6 → 1.7 V lo→hi EC: a
-salinity signal *at the sensing frequency* for a 2-parameter (f, Vpk) → (θ, σ) calibration.
-
-Design notes that came out of the SPICE: divider capacitance is the lever on loss pulling
-(68 pF: −2.6 % f at D = 0.26; 47 pF: −1.5 %; 22 pF: −0.4 %); 100 pF fails to start (negative
-resistance −gm/(ω²C1C2) too small); Ie < 2 mA fails at D ≈ 0.26. Transistor Cje/Cjc add a constant
-≈10 % offset from the ideal LC formula — calibrates out.
-Schematic: `hardware/schematic_clapp.md`, BOM: `hardware/bom_clapp.csv`.
-
-## 5. Error budget (apparent-θ error, % VWC, true θ = 0.25 unless noted)
-
-| term | FDC2212 @ 2 MHz (typical DIY tank) | FDC2212 @ 10 MHz, coated 50 mm | Clapp @ ~76 MHz, coated 80 mm |
+| | Electrodes | Front end | Why not / why |
 |---|---|---|---|
-| readout resolution / noise | <0.1 | <0.1 | 0.05 |
-| reference / inductor tempco (20 °C) | <0.1 | <0.1 | <0.1 |
-| supply | — | — | 0.03 |
-| transistor / IC tempco | — | small | 0.2 |
-| mask thickness ±33 % (board-to-board) | ±1.5 | ±0.2 | ±0.2 |
-| soil T +10 °C | +2.1 | −0.2 | ≈0 (ε_w term −0.6 at 70 MHz) |
-| pore-water EC ×2 (fertilising) | +4.4 | +0.7 (bare) ¹ | ≈+1.3 (est. from ×6) |
-| pore-water EC ×6 | +21 | +4.9 (bare) ¹ | +3.8 (1.1 pulling + 2.9 coat MW) |
-| … after σ correction (EC probe ±10 %) | ±3–7 | ±0.3 | est. ±1 with (f, Vpk) fit |
-| 0.1 mm air gap, one face | −0.8 (misleading; conductive regime) | −2.4 (bare) / ≈−3 (coated) | −3 |
-| 0.1 mm water film | +2.8 | ≈+2 (coated) | +2 |
-| soil model, generic vs per-mix calibration | ±5–8 / ±3 | ±5–8 / ±3 | ±5–8 / ±3 |
-| oscillation failure (Rp / Q) | wet soil, uncoated | none with coat | none with coat |
-| **realistic total, per-mix calibration, EC-corrected** | **±8–15** | **±3–4** | **±3–4 (contact-limited)** |
+| First iteration in this PR | outer-layer strips, 12 mm board, hand-dipped 0.3 mm coat | single-transistor series Clapp at 70-85 MHz, or FDC2212 at 10 MHz | The coat sets the calibration and varies by +/-50 % by hand (2-3 % VWC, `geometry_study.py`). The series-resonant Clapp reads the series-equivalent capacitance, which moves 5-34 % with probe loss and not monotonically (`characterize.py --pulling`). 10 MHz is conduction-dominated in wet soil. Its /16 output at 5 MHz is above what a GPIOTE-to-TIMER event path counts reliably |
+| Fork (slot between the strips) | buried | any | 0.6 % VWC better on water film, nothing on air gap, and two prongs that can splay (`geometry_study.py`) |
+| Fixed-frequency drive with gain/phase detection | buried | vector detector | Measures the complex admittance directly, but needs an RF detector IC or a mixer and its own calibration. More parts and more risk than a frequency count plus one DC voltage |
+| **Chosen** | **buried strips, 20 mm board** | **cross-coupled pair on a parallel tank, comparator, /1024, amplitude detector** | below |
 
-¹ 10 MHz EC numbers were run on the bare geometry; the coated 10 MHz case is an open task
-(expect a few % from the coat MW term, like the Clapp).
+## 4. Electrodes
 
-Both good options end up contact-limited at ±3–4 % VWC. The Clapp wins on cost (<$1 vs a few $
-plus a reference oscillator), energy, and on having the σ signal at the right frequency;
-the FDC2212 wins on zero RF design risk.
+`geometry_study.py`, 70 MHz, potting mix, errors in % VWC at theta 0.25:
 
-## 6. Recommendation
+| Cross-section | C wet/dry | 0.1 mm air gap | 0.1 mm water film | EC x6 | Loss D, wet saline | Fab tolerance |
+|---|---|---|---|---|---|---|
+| 2-layer, mask only, 12 mm board, 1 mm gap | 5.2 | -4.1 | +6.8 | +0.1 | 0.66 | 0.1 |
+| 2-layer + 0.2 mm dipped coat, 20 mm, 7 mm gap | 5.0 | -1.7 | +1.2 | +0.8 | 0.47 | 1.4 |
+| 4-layer buried, 12 mm, 1 mm gap | 3.5 | -3.5 | +2.8 | +1.3 | 0.35 | 0.5 |
+| **4-layer buried, 20 mm, 7 mm gap** | 5.4 | -1.9 | +1.4 | +0.8 | 0.49 | 0.2 |
+| 4-layer buried, 25 mm, 9 mm gap | 5.8 | -1.6 | +1.1 | +0.6 | 0.53 | 0.2 |
 
-- Data this month: FDC2212 at 10 MHz, 50 mm coated probe, EC correction from the 4-electrode probe.
-- Best cheap probe: build the Clapp head on the same 12 mm board; one spin is likely enough
-  given the SPICE margins. Keep the FDC footprint option on the first spin if you want both.
-- Either way: 2-sided coplanar strips, 0.3 mm coat, 4-electrode EC + NTC on the same board,
-  per-mix 3-point gravimetric calibration at two salinities.
+- Spreading the strips is what reduces contact error: the field reaches further (90 % of the
+  response within 14 mm of the faces, against 7 mm) so the first 0.1 mm matters less. Past
+  20 mm the return is small for the extra board.
+- Burying the strips under the factory prepreg gives the dipped coat's halved water-film error
+  with a seventh of its tolerance, and no metal near the soil.
+- The price of any insulation is a Maxwell-Wagner term: salinity raises the apparent
+  capacitance. It falls as 1/f^2; section 8 has the numbers at the real frequency.
 
-## 7. Open items (see CLAUDE.md for the task list)
+As built: strips 5.5 mm wide, 7 mm apart, 1 mm from the board edge, on In1 and In2, 86 mm long
+of which 80 mm is below the soil line. No vias and no outer copper in the sensing area.
+Driven differentially, so neither strip is circuit ground and the reading does not depend on
+how the node is wired or grounded.
 
-- Coat thickness trade (0 / 0.1 / 0.2 / 0.3 mm) at 70–85 MHz: S_σ and D vs coat, then SPICE pulling.
-- Re-tune L for the 4 mm / 3 mm strip variant (lower C → shift L up).
-- Coated 10 MHz FDC EC numbers; FDC f_REF ratio and IDRIVE table check.
-- Confirm 74LVC161 f_max at 3.0 V (or use 74LVC1G74 stages); confirm nRF54L15 GPIOTE input rate.
-- 2-parameter (f, Vpk) calibration model and inversion code.
-- Soil model: replace CRIM/Archie defaults with measured potting-mix data once the probe exists.
+## 5. The strips are a transmission line
+
+`probe.py`. Per-unit-length admittance comes from the 2-D solver, inductance (766 nH/m) from
+the same cross-section in vacuum. In wet soil the 80 mm strips are a tenth of a wavelength at
+100 MHz and the feed sees 10-35 % more capacitance than length times C' (30 % in water at
+its 82 MHz).
+That is harmless for the wanted mode and is in every number below, but it has two consequences:
+
+- Loss partly cancels the line enhancement, which reduces the salinity error of the frequency
+  reading relative to a lumped estimate.
+- The line is a quarter wave long at 160-600 MHz depending on the medium, which gives the
+  tank a second resonance. Section 6.
+
+## 6. Oscillator
+
+`spice/osc.py`, `characterize.py`, `scripts/tank_modes.py`, `spice/verify_line.py`. Transistor
+models are the manufacturer's Gummel-Poon chip parameters plus the SOT-23 package network.
+
+**Topology.** A cross-coupled pair is a two-terminal negative conductance, so the circuit runs
+at the tank's parallel resonance: it reads the probe's parallel capacitance, which is the
+quantity that salinity moves least. Loss still pulls the frequency through the delay of the
+pair, as an apparent capacitance tau x G with tau = 170 ps: 11 pF of probe reads 1.7 % high
+per mS of loss, linearly. The series Clapp on the same transistor swings between -8 % and
++34 %.
+
+**Parasitic mode 1: GHz emitter-follower oscillation.** With bases wired straight to the
+opposite collectors the pair oscillates at 3.4 GHz through the SOT-23 lead inductance and the
+wanted mode dies. 22 R base stoppers cure it (4.7 R does not, 10 R does). The stoppers times
+the Miller-doubled collector-base capacitance are most of tau, which is why the transistor is
+a BFR181 (Ccb 0.32 pF, tau 100-170 ps) and not a BFR92 (0.95 pF, 215 ps) or a general-purpose
+part.
+
+**Parasitic mode 2: the strip line's second resonance.** With a capacitor and a parallel
+damping resistor across the tank, the second resonance (230 MHz in water, 250-320 MHz in wet
+soil) is as lightly damped as the wanted one, and the transient simulation with a distributed
+line hops to it in water and in saturated low-salinity soil. Moving the damping resistor in
+series with the tank capacitor (R3 15 R + C4 33 pF) makes its loss rise as f^2:
+
+| Medium | Wanted mode | Least-damped other mode |
+|---|---|---|
+| air | 132 MHz, 10.3 mS | 819 MHz, 58 mS |
+| mix theta 0.45, low EC | 101 MHz, 8.4 mS | 304 MHz, 33 mS |
+| mix theta 0.60, high EC | 93 MHz, 16.1 mS | 274 MHz, 33 mS |
+| deionized water | 82 MHz, 5.9 mS | 244 MHz, 25 mS |
+
+The other modes are at least 2.1 times lossier everywhere (1.9 with the strips 5 % long), and
+the distributed-line transient stays on the wanted mode in all eleven media tried, at tail
+currents from 2.6 to 3.7 mA. The pair offers 30 mS, so in water the second mode could still
+start if the wanted one were absent; it relies on mode competition there. This is the item I
+would watch first on the bench.
+
+**Operating point.** 3.1 mA tail (R6), collectors fed through R2 so the comparator sees a
+common mode 0.5 V below its supply. Amplitude 0.10-0.35 V peak differential, always below
+base-collector conduction. Runs up to 16 mS of probe loss.
+
+| | air | theta 0.25 | theta 0.45, 3 dS/m | water |
+|---|---|---|---|---|
+| f_osc, MHz | 129.0 | 112.8 | 99.5 | 81.6 |
+| REF - AMP, mV | 40 | 45 | 23 | 78 |
+
+Sensitivities (`osc.py` variants on the first tank; the pair is unchanged): temperature
+-20 ppm/C from the transistors, about -45 ppm/C with the inductors; supply -190 ppm per
++1.5 %; 1 pF of stray on each node -0.7 %. All but temperature are constants of a unit and
+drop out in the two-point calibration; temperature is corrected with the NTC.
+
+**Detector.** The common-emitter node of a switching pair rides up with amplitude. Q3 is the
+same transistor at half the tail current with no RF, so REF - AMP cancels supply and Vbe
+temperature drift to first order. No RF part touches the tank for this.
+
+## 7. Readout
+
+Comparator (TLV3601: inputs valid to 0.2 V beyond the rails, 325 MHz toggle), two
+flip-flops (/4, 160 MHz guaranteed against 129 MHz in air), ripple counter (/256, 75 MHz
+guaranteed against 33 MHz). The host times 64 periods of the 80-126 kHz output: 1e-4
+resolution in 0.6 ms, which is 0.03 % VWC. The LDO (3.0 V) is also the power switch.
+
+## 8. Error budget
+
+`system_sim.py`: soil state to permittivity to line admittance to oscillator table to the
+firmware arithmetic. Apparent-theta error in % VWC, potting mix:
+
+| Perturbation | theta 0.10 | 0.25 | 0.40 | 0.55 |
+|---|---|---|---|---|
+| pore-water EC 0.5 to 3 dS/m, frequency only | +0.2 | +0.7 | +1.4 | +3.0 |
+| same, frequency + detector | 0.0 | 0.0 | 0.0 | -0.1 |
+| soil +10 C, corrected, NTC 2 C low | 0.0 | -0.1 | -0.2 | -0.3 |
+| air gap 0.05 mm, one face | -0.3 | -1.1 | -2.6 | -4.9 |
+| air gap 0.10 mm, one face | -0.5 | -1.9 | -4.4 | -7.9 |
+| water film 0.10 mm, one face | +2.2 | +1.5 | +1.1 | +0.8 |
+| 3 mm of strip left above the soil | -0.4 | -0.7 | -1.0 | -1.3 |
+| inductor +2 % and stray +2 pF, uncalibrated unit | +7.1 | +5.4 | +4.8 | +4.8 |
+| same, 2-point calibrated | 0.0 | 0.0 | 0.0 | 0.0 |
+| prepreg +10 %, 2-point calibrated | +0.5 | +0.8 | +0.9 | +0.9 |
+| laminate Dk +5 %, 2-point calibrated | -0.2 | -0.4 | -0.4 | -0.5 |
+| detector gain +5 % or offset 2 mV after calibration | 0.2 | 0.1 | 0.1 | 0.1 |
+| electronics 10 C away from the NTC | +0.1 | +0.1 | +0.1 | +0.1 |
+
+Monte Carlo over all of it (800 draws: theta 0.03-0.6, pore-water EC 0.2-4 dS/m, 5-40 C, air
+gap exponential with 0.02 mm mean, insertion error, fab and component tolerances, readout
+noise):
+
+| Calibration | Bias | sd | 95 % within |
+|---|---|---|---|
+| none, frequency only | -0.4 | 2.7 | 5.4 |
+| 2-point per unit, frequency only | -0.3 | 1.2 | 2.6 |
+| 2-point per unit, frequency + detector | -1.0 | 1.2 | 3.3 |
+
+Mineral soil: sd 0.9 with the 2-point calibration. The negative bias is the air gap and
+insertion terms, which only ever lower the reading; a calibration made in real soil absorbs
+it. Frequency-only looks less biased because its positive salinity error happens to offset
+them. Contact dominates either way, and the per-unit air/water calibration is the single most
+valuable step.
+
+Bulk EC from the detector: within 10 % (68 % of draws) in the model.
+
+## 9. What the model does not cover
+
+- Soil permittivity is taken as frequency-independent with a DC conductivity. Clay and
+  organic media disperse below a few hundred MHz [Kelleners 2005; Chen and Or 2006]; expect a
+  medium-specific curve to be needed there.
+- The field model is 2-D. End effects at the tip, the feed region and the head's ground plane
+  are not modeled; the two-point calibration absorbs a scale error but not a shape error.
+- The oscillator table is for a lumped load. Against the distributed-line transient it is
+  within 0.8 % in frequency and 4 mV on the detector (`verify_line.py`); the difference is
+  harmonic current in the line. It is smooth in moisture, so an empirical table absorbs it.
+- Stray capacitance on the tank nodes is a guess (2.5 pF per node).
+- No comparator kickback, no startup-from-noise, no layout extraction.
+- The air-gap statistics in the Monte Carlo are an assumption, not data.
+
+## References
+
+Entries marked * were read in full text during this work. The others are cited from the
+literature as I know it; check them before relying on a specific number.
+
+- Bogena et al. 2007, J. Hydrol. 344:32-42. Evaluation of a low-cost soil water content sensor for wireless network applications.
+- Bogena et al. 2017*, Sensors 17(1):208. Effective calibration of low-cost soil water content sensors.
+- Chen and Or 2006, Water Resour. Res. 42:W06424. Effects of Maxwell-Wagner polarization on soil complex dielectric permittivity under variable temperature and electrical conductivity.
+- Gonzalez-Teruel et al. 2019*, Sensors 19(3):491. Design and calibration of a low-cost SDI-12 soil moisture sensor.
+- Hilhorst 2000, Soil Sci. Soc. Am. J. 64:1922-1925. A pore water conductivity sensor.
+- Jones et al. 2005, Vadose Zone J. 4:1048-1058. Standardizing characterization of electromagnetic water content sensors: Part 1. Methodology.
+- Kelleners et al. 2005, Soil Sci. Soc. Am. J. 69:67-76. Frequency dependence of the complex permittivity and its impact on dielectric sensor calibration in soils.
+- Kizito et al. 2008* (abstract), J. Hydrol. 352:367-378. Frequency, electrical conductivity and temperature analysis of a low-cost capacitance soil moisture sensor.
+- Malmberg and Maryott 1956, J. Res. Natl. Bur. Stand. 56:1-8. Dielectric constant of water from 0 to 100 C.
+- Placidi et al. 2020, Sensors 20(12):3585. Characterization of low-cost capacitive soil moisture sensors for IoT networks.
+- Rosenbaum et al. 2011, Vadose Zone J. 10:582-593.
+- Roth et al. 1990, Water Resour. Res. 26:2267-2273. Calibration of time domain reflectometry for water content measurement using a composite dielectric approach.
+- Sakaki et al. 2008, Water Resour. Res. 44:W00D08.
+- Topp, Davis and Annan 1980, Water Resour. Res. 16:574-582. Electromagnetic determination of soil water content.
+- Datasheets: Siemens BFR 181 and BFR 92P (1996, SPICE parameters); TI TLV3601 (SNOSDB1), SN74LVC1G80 (SCES221), SN74LV4040A, TPS7A05 (SBVS254); Murata LQW18A.
+- OSH Park 4-layer and 2-layer service specifications, docs.oshpark.com/services.
