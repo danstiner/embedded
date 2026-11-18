@@ -8048,6 +8048,17 @@
 				)
 			)
 		)
+		(property "Part Number" "RC0603FR-071RL"
+			(at 22.86 139.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "ff933c55-10a9-5f46-9cdf-bd7d6d8c660c")
 		)
@@ -8166,7 +8177,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2.2μF"
+		(property "Value" "4.7μF"
 			(at 48.895 146.05 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8177,7 +8188,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 49.2252 147.32 0)
 			(hide yes)
 			(show_name no)
@@ -8200,6 +8211,17 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 48.26 143.51 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part Number" "CL10A475KP8NNNC"
 			(at 48.26 143.51 0)
 			(hide yes)
 			(show_name no)

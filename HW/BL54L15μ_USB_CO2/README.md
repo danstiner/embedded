@@ -163,21 +163,25 @@ from VBUS would put the source's noise on it and raise its I2C input threshold t
 | VBUS, normal         | 5.5 V max                               | USB Type-C                           |
 
 Plugging a live cable into a ceramic input capacitor makes a series RLC circuit that can
-ring to nearly twice the source voltage. With roughly 1 µH of cable inductance and the
-2.2 µF of C1 the characteristic impedance is √(L/C) ≈ 0.7 Ω. A cable's own 0.2 Ω gives a
-damping ratio near 0.15 and an overshoot of about 60 %, or 8 V. That is above the
-regulator's absolute maximum.
+ring to nearly twice the source voltage. C1 is 4.7 µF nominal, but a 0603 10 V X5R part
+keeps perhaps 2 µF with 5 V across it (a typical figure, not checked against this part's
+curve). With roughly 1 µH of cable inductance the characteristic impedance is
+√(L/C) ≈ 0.7 Ω. A cable's own 0.2 Ω gives a damping ratio near 0.15 and an overshoot of
+about 60 %, or 8 V. That is above the regulator's absolute maximum.
 
-- **R1, 1 Ω** in series raises the damping ratio to about 0.9, where the overshoot is a
-  fraction of a percent. At the 240 mA worst-case peak it drops 0.24 V, which leaves the
-  LDO more than 0.6 V of headroom at the 4.4 V minimum input (R-4). It dissipates about
-  2 mW on average.
-- **C1 is 2.2 µF**, not the regulator's 1 µF minimum, because the damping depends on it:
-  with 1 µF the same resistor would leave about 10 % overshoot.
+- **R1, 1 Ω** in series raises the damping ratio to about 0.85, where the overshoot is
+  under 1 %. At the 240 mA worst-case peak it drops 0.24 V, which leaves the LDO more
+  than 0.6 V of headroom at the 4.4 V minimum input (R-4). It dissipates about 2 mW on
+  average. Anything from about 0.7 to 2.2 Ω does the job. The first boards are built
+  with R1 bridged (section 9).
+- **C1 is 4.7 µF in 0603**, not the regulator's 1 µF minimum, because the damping depends
+  on the capacitance that is left under bias. If C1 kept only 30 % of its value the
+  overshoot with R1 would still be under 5 %, about 5.5 V from a 5.25 V source. A
+  2.2 µF 0402 part, at perhaps 0.9 µF under bias, would leave about 10 %.
 - **D1, USBLC6-2SC6**, clamps ESD on VIN after R1. Only its supply clamp is used; its two
   data channels are left open, because the debug lines run on the bottom layer here and
   bringing two of them up to the part would cost more vias than the protection is worth.
-- Total capacitance on VBUS is 2.2 µF, under the 10 µF a USB device may present.
+- Total capacitance on VBUS is 4.7 µF, under the 10 µF a USB device may present.
 
 ### 5.3 Regulator: AP2112K-3.3 (U1)
 
@@ -190,7 +194,7 @@ regulator's absolute maximum.
 | Output noise           | 50 µV RMS, 10 Hz to 100 kHz       | –                              |
 | Thermal resistance     | 184 °C/W junction to ambient      | see below                      |
 | Enable                 | high above 1.5 V, 3 MΩ pull-down  | tied to VIN                    |
-| Capacitors             | 1 µF ceramic, X5R or X7R, in and out | C1 2.2 µF, C2 1 µF          |
+| Capacitors             | 1 µF ceramic, X5R or X7R, in and out | C1 4.7 µF, C2 1 µF          |
 
 - Heat: 1.95 V of drop at the 5.25 V a source may hold, times an average of 48 mA (18 mA
   maximum for the SCD43 plus an assumed 30 mA for everything else), is 94 mW and a 17 °C
@@ -423,10 +427,10 @@ boards the difference is about $2 an order.
 | D2      | LED                | any                      | 0603            | Status (5.8)                             |
 | X1      | 32.768 kHz, 9 pF   | CM7V-T1A-LOW-ESR         | 3.2 × 1.5 mm    | Low-frequency crystal (5.7)              |
 | SW1     | Tactile switch     | Alps SKRK                | SMD             | Pairing and factory reset (5.8)          |
-| R1      | 1 Ω, ≥ 0.1 W       | any                      | 0603            | VBUS damping (5.2)                       |
+| R1      | 1 Ω, 1 %, 0.1 W    | RC0603FR-071RL           | 0603            | VBUS damping (5.2); bridged on the first build (9) |
 | R2, R3  | 5.1 kΩ, 1 %        | RC0603FR-075K1L          | 0603            | CC pull-downs (5.1)                      |
 | R4      | 680 Ω              | any                      | 0603            | LED current limit (5.8)                  |
-| C1      | 2.2 µF, ≥ 10 V, X5R | any                     | 0402            | LDO input (5.2)                          |
+| C1      | 4.7 µF, 10 V, X5R  | CL10A475KP8NNNC          | 0603            | LDO input (5.2)                          |
 | C2      | 1 µF, X5R          | any                      | 0402            | LDO output (5.3)                         |
 | C3, C4  | 10 µF, X5R         | CL10A106KP8NNNC          | 0603            | Module supply; SCD43 reservoir           |
 | C5–C7   | 100 nF             | GRM155R61A104KA01J       | 0402            | Decoupling: SCD43, SHT4x, BME68x         |
@@ -487,6 +491,12 @@ Not yet run. Nothing has been built.
   receptacle; SWD still works without it. Not yet observed on a bench.
 - The same host receivers load SWDIO and SWDCLK in the other orientation. That is
   harmless: nothing drives them hard when no probe is attached.
+- **R1 is bridged on the first build**, because no 1 Ω resistor was in stock. Without it
+  the hot-plug ring in section 5.2 is undamped: an estimated 8 V peak against the
+  regulator's 6.5 V absolute maximum whenever a cable that is already live is plugged
+  in. A USB-C source on a USB-C cable applies VBUS only after it detects the board, so
+  it does not produce that step; a USB-A to USB-C cable does. Fit R1 before relying on
+  such cables, and run the hot-plug test in section 8 both ways.
 - SBU1 carries VDD to the receptacle. A short there is limited by U1's 50 mA foldback.
 - The debug lines have no ESD protection, like the DevKit's.
 - **SCD43 land pattern.** The datasheet asks for a keep-free area around the sensor's
