@@ -127,7 +127,7 @@
 		)
 	)
 	(property "REVISION" "2026v4")
-	(property "TITLE" "nrf54 Hygrometer")
+	(property "TITLE" "nrf54 Leak Sensor")
 	(footprint "MountingHoleCompact:MountingHole_M1.2_1.3mm_Plated"
 		(layer "F.Cu")
 		(uuid "006fdd80-4612-48bc-92d0-655e26d35b48")
@@ -262,7 +262,7 @@
 		(property ki_fp_filters "MountingHole*Pad*")
 		(path "/780ee6da-1196-4b68-a36b-e5d6730f5844")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -529,7 +529,7 @@
 		(property ki_fp_filters "R_*")
 		(path "/3ad56e6e-c9cd-4022-8a95-b3844512d721")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -888,7 +888,7 @@
 		)
 		(path "/af062857-4cc4-4fd2-8e3a-7d2a836faf41")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -1702,7 +1702,7 @@
 		(property ki_fp_filters "C_*")
 		(path "/07ba5800-7852-407b-9dd4-626c18c940fe")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -2048,7 +2048,7 @@
 		(property ki_fp_filters "C_*")
 		(path "/80e0d707-b4f9-4e49-91d0-3567b32d8587")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -2390,7 +2390,7 @@
 		)
 		(path "/fb7fab60-07ce-4d35-b62f-7a08d2d498dc")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -2916,7 +2916,7 @@
 		(property ki_fp_filters "R_*")
 		(path "/d0c74920-91e1-4fdc-96f8-6e304bb9b457")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -3222,7 +3222,7 @@
 		(property ki_fp_filters "*Buzzer*")
 		(path "/78d5558f-7e12-4c29-9e6f-e6abb6b925cf")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -3702,7 +3702,7 @@
 		(property ki_fp_filters "TO-???* *_Diode_* *SingleDiode* D_*")
 		(path "/fb455ba8-7ca9-4ff0-a2ff-8741a5f2a5b3")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -4019,7 +4019,7 @@
 		(property ki_fp_filters "R_*")
 		(path "/9021e426-6673-4cda-8a66-157c57433174")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -4366,7 +4366,7 @@
 		(property ki_fp_filters "Sensirion?DFN*1.5x1.5mm*P0.8mm*SHT4x*")
 		(path "/ca3ccb4c-bc86-462e-8dac-706c33a3f8d2")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -4856,7 +4856,7 @@
 		(property ki_fp_filters "PinHeader?2x05?P1.27mm*")
 		(path "/82e6625e-bd70-41bd-88d5-87509eb59628")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -5419,7 +5419,7 @@
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz -180 -0 -0)
+				(xyz -180 0 0)
 			)
 		)
 	)
@@ -5583,7 +5583,7 @@
 		(property ki_fp_filters "C_*")
 		(path "/af5e60e2-de72-410a-8332-0252455337f6")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -5909,7 +5909,7 @@
 		)
 		(path "/ca9a7584-fd5d-4594-820f-b1bb3abbd54e")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -6148,7 +6148,7 @@
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz -90 -0 -0)
+				(xyz -90 0 0)
 			)
 		)
 	)
@@ -6400,7 +6400,7 @@
 		(property ki_fp_filters "Crystal*")
 		(path "/6527965e-1aa9-4704-9585-bcc1a2f6a30d")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -6538,7 +6538,7 @@
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz -90 -0 -0)
+				(xyz -90 0 0)
 			)
 		)
 	)
@@ -6769,7 +6769,7 @@
 		(property ki_fp_filters "TO-???* *_Diode_* *SingleDiode* D_*")
 		(path "/a75300e4-ab1a-4e66-8d8e-75054412fa26")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -7136,7 +7136,7 @@
 		(property ki_fp_filters "MountingHole*Pad*")
 		(path "/23581c7e-eb27-4e54-9536-573fe04d7564")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -7403,7 +7403,7 @@
 		(property ki_fp_filters "R_*")
 		(path "/1479605b-7aab-45d7-bc2f-581377b54b90")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -7707,7 +7707,7 @@
 		(property ki_fp_filters "TO-???* *_Diode_* *SingleDiode* D_*")
 		(path "/a9ff6238-3fea-44ee-b164-d38f725b1535")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -8003,7 +8003,7 @@
 		(property ki_fp_filters "Pin* Test*")
 		(path "/37d20f2b-af83-4e00-8ed7-85bb71d745fa")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -8245,7 +8245,7 @@
 		(property ki_fp_filters "Pin* Test*")
 		(path "/c4040d4a-39a5-4ca0-a50a-61a1550e15d2")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -8487,7 +8487,7 @@
 		(property ki_fp_filters "Pin* Test*")
 		(path "/b46f7bc7-bbf9-484b-877d-c12050e4ec5f")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -8756,7 +8756,7 @@
 		)
 		(path "/9c73c3fe-fa4f-42c5-9b8d-92220bf435b7")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -9086,7 +9086,7 @@
 		(property ki_fp_filters "Pin* Test*")
 		(path "/7d60487e-c96c-44f7-be85-96f1e159131a")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -9354,7 +9354,7 @@
 		)
 		(path "/162fd085-f785-4fa8-951d-4cf6de1fc9dc")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -9684,7 +9684,7 @@
 		(property ki_fp_filters "Pin* Test*")
 		(path "/770170f4-5910-4670-87e1-2800641552dc")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -9926,7 +9926,7 @@
 		(property ki_fp_filters "Pin* Test*")
 		(path "/7d8c2fca-eb9e-45eb-8298-21f0fecaeb8f")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -10168,7 +10168,7 @@
 		(property ki_fp_filters "Pin* Test*")
 		(path "/d36ede12-158c-4044-8924-68030145b94c")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")
@@ -10468,7 +10468,7 @@
 		(property ki_fp_filters "Pin* Test*")
 		(path "/858a6789-dbf8-4d57-8f59-d995967c9a76")
 		(sheetname "/")
-		(sheetfile "BL54L15μ_Hygrometer.kicad_sch")
+		(sheetfile "BL54L15μ_LeakSensor.kicad_sch")
 		(units
 			(unit
 				(name "A")

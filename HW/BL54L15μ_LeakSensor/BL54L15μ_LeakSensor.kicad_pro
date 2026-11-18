@@ -50,7 +50,23 @@
         "silk_text_thickness": 0.127,
         "silk_text_upright": false,
         "zones": {
-          "min_clearance": 0.1524
+          "border_display_style": 2,
+          "border_hatch_pitch": 0.5,
+          "corner_radius": 0.0,
+          "corner_smoothing": 0,
+          "fill_mode": 0,
+          "hatch_gap": 1.5,
+          "hatch_orientation": 0.0,
+          "hatch_smoothing_level": 0,
+          "hatch_smoothing_value": 0.1,
+          "hatch_thickness": 1.0,
+          "min_clearance": 0.1524,
+          "min_island_area": 10.0,
+          "min_thickness": 0.25,
+          "pad_connection": 1,
+          "remove_islands": 0,
+          "thermal_relief_gap": 0.5,
+          "thermal_relief_spoke_width": 0.5
         }
       },
       "diff_pair_dimensions": [
@@ -502,7 +518,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "BL54L15μ_Hygrometer.kicad_pro",
+    "filename": "BL54L15μ_LeakSensor.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -809,8 +825,8 @@
     "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "BL54L15μ_Hygrometer.kicad_sch",
-        "name": "BL54L15μ_Hygrometer",
+        "filename": "BL54L15μ_LeakSensor.kicad_sch",
+        "name": "BL54L15μ_LeakSensor",
         "uuid": "07e487b9-2d90-4597-98c9-db7d4604c3e4"
       }
     ],
@@ -820,12 +836,12 @@
   "sheets": [
     [
       "07e487b9-2d90-4597-98c9-db7d4604c3e4",
-      "BL54L15μ_Hygrometer"
+      "BL54L15μ_LeakSensor"
     ]
   ],
   "text_variables": {
     "REVISION": "2026v4",
-    "TITLE": "nrf54 Hygrometer"
+    "TITLE": "nrf54 Leak Sensor"
   },
   "tuning_profiles": {
     "meta": {
