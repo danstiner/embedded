@@ -497,6 +497,11 @@ Not yet run. Nothing has been built.
   in. A USB-C source on a USB-C cable applies VBUS only after it detects the board, so
   it does not produce that step; a USB-A to USB-C cable does. Fit R1 before relying on
   such cables, and run the hot-plug test in section 8 both ways.
+- **Regulator input rating.** The AP2112's 6.5 V absolute maximum leaves little room
+  above VBUS, which is why R1 and the larger C1 exist (5.2). For a later revision,
+  consider a regulator rated for at least 10 V at its input, twice VBUS: the hot-plug
+  ring then needs no damping, and R1 and its 0.24 V drop can go. It must still supply
+  the SCD43's 205 mA peaks and meet R-7. None has been selected.
 - SBU1 carries VDD to the receptacle. A short there is limited by U1's 50 mA foldback.
 - The debug lines have no ESD protection, like the DevKit's.
 - **SCD43 land pattern.** The datasheet asks for a keep-free area around the sensor's
