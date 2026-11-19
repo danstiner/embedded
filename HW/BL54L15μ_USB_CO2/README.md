@@ -109,14 +109,15 @@ from VBUS would put the source's noise on it and raise its I2C input threshold t
 
 ```
  J1 USB-C
-  VBUS o--[R1 1Ω]--+------+---- VIN ----[U1 AP2112K-3.3]---- VDD --+-- IC1 module
-                   |      |                                       +-- U2 SCD43
-               [D1 clamp] [C1]                                    +-- U3 SHT4x
-                   |      |                                       +-- U4 BME68x
-  GND  o-----------+------+---- GND                               +-- SBU1 (VTref)
+  VBUS o--+--[R1 1Ω]------+---- VIN ----[U1 AP2112K-3.3]---- VDD --+-- IC1 module
+          |               |                                       +-- U2 SCD43
+      [D1 clamp]         [C1]                                     +-- U3 SHT4x
+          |               |                                       +-- U4 BME68x
+  GND  o--+---------------+---- GND                               +-- SBU1 (VTref)
   CC1  o--[R2 5.1k]-- GND
   CC2  o--[R3 5.1k]-- GND                    IC1 P1.14, P1.04 ---- I2C ---- U2, U3, U4
-  TX1+/- o---- SWDIO, SWDCLK ---- IC1        IC1 P2.04 --[R4]--[D2 LED]
+  TX1+/- o--+-- SWDIO, SWDCLK ---- IC1       IC1 P2.04 --[R4]--[D2 LED]
+            +-- D1 (both lines)
   TX2+/- o---- nRESET (JP1), SWO -- IC1      IC1 P0.01 ---- SW1 ---- GND
   RX1-/+ o---- UART TXD, RXD ---- IC1
 ```
@@ -125,12 +126,12 @@ from VBUS would put the source's noise on it and raise its I2C input threshold t
 
 | Contact          | USB-C name | Signal    | Goes to                          |
 | ---------------- | ---------- | --------- | -------------------------------- |
-| A4, A9, B4, B9   | VBUS       | VBUS      | R1                               |
+| A4, A9, B4, B9   | VBUS       | VBUS      | D1 and R1                        |
 | A1, A12, B1, B12 | GND        | GND       | ground, with the shell           |
 | A5               | CC1        | CC1       | R2, 5.1 kΩ to ground             |
 | B5               | CC2        | CC2       | R3, 5.1 kΩ to ground             |
-| A2               | TX1+       | SWDIO     | module pin 27                    |
-| A3               | TX1−       | SWDCLK    | module pin 25                    |
+| A2               | TX1+       | SWDIO     | D1, then module pin 27           |
+| A3               | TX1−       | SWDCLK    | D1, then module pin 25           |
 | B2               | TX2+       | nRESET    | JP1, then module pin 32          |
 | B3               | TX2−       | SWO       | module pin 42 (P2.07)            |
 | B10              | RX1−       | UART_TXD  | module pin 21 (P1.10), MCU out   |
@@ -178,11 +179,19 @@ about 60 %, or 8 V. That is above the regulator's absolute maximum.
   on the capacitance that is left under bias. If C1 kept only 30 % of its value the
   overshoot with R1 would still be under 5 %, about 5.5 V from a 5.25 V source. A
   2.2 µF 0402 part, at perhaps 0.9 µF under bias, would leave about 10 %.
-- **D1, USBLC6-2SC6**, clamps ESD on VIN after R1. It sits at the regulator's input
-  capacitor, about 20 mm of trace after R1, because the button took the space
-  behind the receptacle. Only its supply clamp is used; its two data channels are left
-  open, because the debug lines run on the bottom layer and bringing two of them up to
-  the part would cost more vias than the protection is worth.
+- **D1, USBLC6-2SC6**, clamps ESD on VBUS and on the two SWD lines. It sits 2 mm behind
+  the receptacle, because its datasheet asks for the tracks to its I/O, supply and
+  ground pins to be "as short as possible" and for the part to be "as close as possible
+  to the disturbance source (generally the connector)": it reckons 6 nH for 10 mm of
+  track, which adds about 144 V to the clamping voltage on an 8 kV contact discharge.
+  - Its supply pin is on VBUS itself, before R1, 5 mm of trace from the receptacle pin.
+  - Its ground pin goes straight to the receptacle's own ground pins, 6 mm away, with a
+    via into the bottom ground halfway.
+  - SWDCLK reaches its pad 1 mm past the line's via; SWDIO passes under the part with a
+    0.5 mm spur to its pad. The datasheet shows two pins for each line; one of each is
+    used.
+  - It adds at most 3.5 pF to each SWD line and leaks at most 150 nA at 5 V. Its
+    breakdown is 6 V minimum, so it does not conduct at the 5.5 V VBUS maximum.
 - Total capacitance on VBUS is 4.7 µF, under the 10 µF a USB device may present.
 
 ### 5.3 Regulator: AP2112K-3.3 (U1)
@@ -316,11 +325,11 @@ pressure or altitude only.
  +-------------------------------------+
  | o  SHT4x ¦ [   USB-C   ]R3 button o |
  |  .......¦  [           ]D2+-------+ |
- |              R1 R2        | SCD43 | |
- |        debug              +-------+ |
+ |              R2 D1        | SCD43 | |
+ |        debug    R1        +-------+ |
  |        bundle              C5       |
  |       (bottom)            LDO C2 C4 |
- |         /       X1 C3     C1 D1 TP1 |
+ |         /       X1 C3     C1    TP1 |
  |  +-----/------+--------+  R4 C7 TP2 |
  | o     /       | module |  BME68x  o |
  +---------------+--ant.--+------------+
@@ -339,7 +348,7 @@ pressure or altitude only.
 | Copper to board edge         | 0.4 mm                                  | 15 mil fab recommendation                |
 | Annular ring                 | ≥ 0.1 mm                                | the receptacle's 0.6/0.4 mm pins         |
 | Ground pour                  | both layers, 0.1524 mm clearance, 0.16 mm minimum width | above the 0.1524 mm minimum connection width |
-| Ground stitching             | every pour piece tied to the other layer, then a 5 mm grid: 47 ground vias | 5 mm is about a twelfth of a wavelength at 2.4 GHz in FR-4 |
+| Ground stitching             | every pour piece tied to the other layer, then a 5 mm grid: 48 ground vias | 5 mm is about a twelfth of a wavelength at 2.4 GHz in FR-4 |
 
 **Floor plan.** The module's signal pads all leave on its west side and the receptacle
 is at the rear, so the six debug signals have to run from the front left to the rear
@@ -355,28 +364,30 @@ wall in the case can separate the two halves:
   LED and the CC2 resistor.
 - **Left half:** only the SHT4x, on its island in the rear corner. Its SDA, SCL and VDD
   are the only traces that cross the whole bundle, in one place beside the module.
-- **Right behind the receptacle:** R1 and R2, between its power pins.
+- **Right behind the receptacle:** D1, with R1 and R2 beside it. The top-layer traces
+  leave the receptacle's pin row in pin order and reach these parts without crossing.
 
 **Ground.** The aim is unbroken ground under, or over, every signal.
 
 - The bottom layer carries the debug bundle, the 11.5 mm VDD link under the SCD43 and
-  about 65 mm of jumpers, the longest of them 13 mm of SDA, 11 mm of SCL and 10 mm of
-  the button's trace. The rest is ground: 761 mm² in one piece and a 77 mm² strip
-  between the lanes that is tied to the top pour by vias, of the board's 1204 mm².
+  about 67 mm of jumpers, the longest of them 17 mm of SDA, 10 mm of the button's trace
+  and 9 mm each of SCL and the LED's. The rest is ground: 757 mm² in one piece and an
+  80 mm² strip between the lanes that is tied to the top pour by vias, of the board's
+  1204 mm².
 - The four lines that leave the receptacle on its east side (SWD and the UART) turn west
   under R1 and then run forward and left toward the module. That path is fixed in pin
   order, not left to the router. It keeps every debug line west of the center line, so
   nothing on the right side has to cross one.
 - Nothing else is routed on the top layer over the bundle, so each debug line has ground
-  directly above it. The two exceptions are fixed windows: beside the module, where the
-  SHT4x's three traces cross, and under R1, where VIN and the probe's VDD reference
-  cross the four east lines at right angles.
+  directly above it. The two exceptions are fixed: beside the module, where the SHT4x's
+  three traces cross, and behind the receptacle, where the probe's VDD reference and
+  VBUS cross the four east lines at right angles and R1 sits over them.
 - **SWO** leaves the module on the bottom layer south of the SWD pads instead of north
   of them as on the leak sensor board. It is crossed four times in 40 mm: by SWDIO once
   at the module pad, which the pad order forces, and by the SHT4x's SDA, SCL and VDD.
-- Trace crossings in total: 48. Of those, 31 are over debug lines: 25 where the SHT4x's
-  three traces, VIN and the VDD reference cross at the two windows, and 6 between debug
-  lines at their own pads. The other 17 are among the supply, I2C, button and LED
+- Trace crossings in total: 49. Of those, 33 are over debug lines: 25 where the SHT4x's
+  three traces, VBUS and the VDD reference cross at those two places, and 8 between
+  debug lines at their own pads and at D1. The other 16 are among the supply, I2C, button and LED
   traces on the right side, where the button and LED signals run the length of the
   board from the module to the rear pocket.
 - **SCD43 supply and return.** The regulator's output, C2, C5 and the SCD43's VDD pad
@@ -445,7 +456,7 @@ order at a prototype price of $5 per square inch for three boards.
 | U3      | SHT4x              | SHT45-AD1F-R2            | DFN-4 1.5 mm    | Temperature and humidity (5.5)           |
 | U4      | BME680 or BME688   | Bosch                    | LGA-8 3 mm      | Pressure and gas (5.6)                   |
 | J1      | USB-C receptacle   | GCT USB4056-03-A         | 24-contact      | Power and debug (5.1)                    |
-| D1      | USBLC6-2SC6        | STMicroelectronics       | SOT-23-6        | VIN clamp (5.2)                          |
+| D1      | USBLC6-2SC6        | STMicroelectronics       | SOT-23-6        | ESD clamp: VBUS, SWDCLK, SWDIO (5.2)     |
 | D2      | LED                | any                      | 0603            | Status (5.8)                             |
 | X1      | 32.768 kHz, 9 pF   | CM7V-T1A-LOW-ESR         | 3.2 × 1.5 mm    | Low-frequency crystal (5.7)              |
 | SW1     | Tactile switch     | Alps SKRK                | SMD             | Pairing and factory reset (5.8)          |
@@ -518,14 +529,17 @@ Not yet run. Nothing has been built.
   regulator's 6.5 V absolute maximum whenever a cable that is already live is plugged
   in. A USB-C source on a USB-C cable applies VBUS only after it detects the board, so
   it does not produce that step; a USB-A to USB-C cable does. Fit R1 before relying on
-  such cables, and run the hot-plug test in section 8 both ways.
+  such cables, and run the hot-plug test in section 8 both ways. D1 starts to conduct at
+  6 V and will clip some of the ring, but at the amps involved its clamping voltage is
+  above the regulator's limit.
 - **Regulator input rating.** The AP2112's 6.5 V absolute maximum leaves little room
   above VBUS, which is why R1 and the larger C1 exist (5.2). For a later revision,
   consider a regulator rated for at least 10 V at its input, twice VBUS: the hot-plug
   ring then needs no damping, and R1 and its 0.24 V drop can go. It must still supply
   the SCD43's 205 mA peaks and meet R-7. None has been selected.
 - SBU1 carries VDD to the receptacle. A short there is limited by U1's 50 mA foldback.
-- The debug lines have no ESD protection, like the DevKit's.
+- SWDCLK and SWDIO are clamped by D1. nRESET, SWO and the two UART lines have no ESD
+  protection, like the DevKit's.
 - **SCD43 land pattern.** The datasheet asks for a keep-free area around the sensor's
   thermal relief hole (section 4.2, figure 4). The board uses KiCad's stock SCD4x
   footprint and keeps traces out from under the sensor, but the ground pour does reach
@@ -563,8 +577,7 @@ Not yet run. Nothing has been built.
   board. They pass the design rules, and nRESET's edge is 0.22 mm outside the antenna
   keep-out, but this part of the fan-out is new.
 - A short VDD jumper runs on the bottom layer under the crystal. It carries DC only.
-- To confirm against the manufacturers' datasheets: USBLC6-2SC6 breakdown and clamping
-  voltages, BME688 pin compatibility with the BME680, the nRF54L15's pull-up value and
+- To confirm against the manufacturers' datasheets: BME688 pin compatibility with the BME680, the nRF54L15's pull-up value and
   its GPIO limits on port 2, and the module's antenna keep-out dimensions.
 - The I2C lines each run more than 11 mm on the bottom layer, and the button's trace
   10 mm, because the right side is crowded and those traces have to hop under the
@@ -578,8 +591,11 @@ Not yet run. Nothing has been built.
 - With the SCD43 turned (5.4), its pulsed supply pad is fed through the 14 mΩ link under
   the part, not straight from the reservoir capacitor. The numbers say that is fine;
   the dip at VDDH during a pulse has not been measured.
-- D1 is about 20 mm of trace after R1 (5.2), so a discharge at the plug sees R1 and that
-  trace before the clamp.
+- D1 clamps to its own 6 V breakdown plus a diode drop, not to 3.3 V: the datasheet
+  gives 12 V at 1 A and 17 V at 5 A. That takes most of a discharge away from the SWD
+  pins but still exceeds their rating briefly; the module's own protection has to
+  absorb the rest. D1's two pins per line are taken to be joined inside the part, as
+  the datasheet's pin diagram labels them; that is not stated in its text.
 - The enclosure does not exist yet. Vent position, the light pipe for D2 and access to SW1
   depend on it.
 
@@ -597,6 +613,7 @@ Not yet run. Nothing has been built.
   the debug pinout in section 5.1.
 - GCT USB4056 product specification for the receptacle; its footprint and model are in
   `HW/BL54L15μ_DevKit/Components/USB4056_03_A`.
-- STMicroelectronics USBLC6-2 datasheet for D1.
+- STMicroelectronics USBLC6-2 datasheet, Rev 3, March 2008: table 2 and sections 2.2 and
+  2.3, the source for D1 in section 5.2.
 - Bosch Sensortec BME680 and BME688 datasheets for section 5.6.
 - Ezurio BL54L15μ (453-00223R) datasheet and hardware integration guide for section 5.7.

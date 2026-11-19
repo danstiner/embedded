@@ -5181,7 +5181,7 @@
 		)
 		(uuid "37a60b1d-125f-5972-9c15-b6f92000d60f")
 	)
-	(text "R1 damps the ringing when a live cable is plugged in.\nD1 clamps VIN; its two data channels are unused.\nAP2112K: 6.0 V max input, 600 mA, EN tied to VIN.\nThe SCD43 draws 205 mA pulses from the 3.3 V rail."
+	(text "R1 damps the ringing when a live cable is plugged in.\nD1 clamps VBUS and the two SWD lines, right behind the receptacle.\nAP2112K: 6.0 V max input, 600 mA, EN tied to VIN.\nThe SCD43 draws 205 mA pulses from the 3.3 V rail."
 		(exclude_from_sim no)
 		(at 35.56 193.04 0)
 		(effects
@@ -5321,7 +5321,7 @@
 		(uuid "3e03676f-726a-53e0-babb-91174cdec76b")
 	)
 	(junction
-		(at 38.1 139.7)
+		(at 17.78 139.7)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "4b7e380d-21a6-574a-ad81-f2830fdf529b")
@@ -5440,9 +5440,25 @@
 		(at 270.51 49.53)
 		(uuid "8e68fe7f-78a9-5587-be64-13b89f0ef01d")
 	)
-	(no_connect
-		(at 33.02 152.4)
-		(uuid "998b7433-0e93-5284-bd20-c9dd8df8379f")
+	(wire
+		(pts
+			(xy 33.02 152.4) (xy 27.94 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cd1c910d-175e-40b5-a8a4-8ed3b9a12230")
+	)
+	(label "SWDIO"
+		(at 27.94 152.4 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "abd472ee-6b6e-41f0-9d34-29ad4a178ea6")
 	)
 	(no_connect
 		(at 270.51 80.01)
@@ -5478,7 +5494,7 @@
 	)
 	(no_connect
 		(at 33.02 154.94)
-		(uuid "b8cedf34-be6f-54e7-93bb-984ad65a0d38")
+		(uuid "541bce5b-9191-4e6d-846a-22c7ee615b63")
 	)
 	(no_connect
 		(at 187.96 87.63)
@@ -5496,9 +5512,25 @@
 		(at 187.96 57.15)
 		(uuid "e7a44438-28ca-5957-9a37-6a8f89fc695b")
 	)
-	(no_connect
-		(at 43.18 154.94)
-		(uuid "efa7b594-2635-50b5-ad13-6e3ecff3d8d1")
+	(wire
+		(pts
+			(xy 43.18 154.94) (xy 45.72 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8b45e957-277d-4a52-9888-92916f3be120")
+	)
+	(label "SWDCLK"
+		(at 45.72 154.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "316d11e1-0bf8-4261-9a2c-af8e198282d0")
 	)
 	(no_connect
 		(at 220.98 106.68)
@@ -6164,13 +6196,33 @@
 	)
 	(wire
 		(pts
-			(xy 38.1 139.7) (xy 38.1 147.32)
+			(xy 38.1 147.32) (xy 38.1 144.78)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d3f73fb0-b3d2-5b56-ba66-fa09704a8c1e")
+		(uuid "c929e0ff-8bff-44db-a8d7-944254365747")
+	)
+	(wire
+		(pts
+			(xy 38.1 144.78) (xy 17.78 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1e949846-3617-4e8f-b053-5f0f84ea3aa8")
+	)
+	(wire
+		(pts
+			(xy 17.78 144.78) (xy 17.78 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4934f163-3ffd-4003-9c70-03f42e393651")
 	)
 	(wire
 		(pts
