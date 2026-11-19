@@ -5150,7 +5150,7 @@
 	)
 	(text "SBU1 carries VDD (probe reference).\nJP1 is bridged in copper. Cut it if\na USB 3 host holds the board in reset."
 		(exclude_from_sim no)
-		(at 58.42 109.22 0)
+		(at 55.88 109.22 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5159,7 +5159,7 @@
 		)
 		(uuid "2d35ccbb-f353-5bba-b699-f200fc12f2ed")
 	)
-	(text "Power, SWD and UART. Same pinout as the DevKit (J2)."
+	(text "Power, SWD and UART. Same pinout as the DevKit."
 		(exclude_from_sim no)
 		(at 12.7 20.32 0)
 		(effects
@@ -5170,9 +5170,9 @@
 		)
 		(uuid "32a72328-2d6e-51c3-980e-9dd1751de958")
 	)
-	(text "I²C: 100 kHz on the MCU pull-ups\n(about 13 kΩ), no external resistors.\nX1: internal 9 pF load capacitors.\nDC/DC inductor is inside the module."
+	(text "I²C: 100 kHz, uses 13 kΩ MCU pull-ups\nX1: internal 9 pF load capacitors.\nDC/DC inductor is inside the module."
 		(exclude_from_sim no)
-		(at 243.84 33.02 0)
+		(at 243.84 132.842 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5181,7 +5181,7 @@
 		)
 		(uuid "37a60b1d-125f-5972-9c15-b6f92000d60f")
 	)
-	(text "R1 damps the ringing when a live cable is plugged in.\nD1 clamps VIN; its two data channels are unused.\nAP2112K: 6.0 V max input, 600 mA, EN tied to VIN.\nThe SCD43 draws 205 mA pulses from this rail."
+	(text "R1 damps the ringing when a live cable is plugged in.\nD1 clamps VIN; its two data channels are unused.\nAP2112K: 6.0 V max input, 600 mA, EN tied to VIN.\nThe SCD43 draws 205 mA pulses from the 3.3 V rail."
 		(exclude_from_sim no)
 		(at 35.56 193.04 0)
 		(effects
@@ -5213,17 +5213,6 @@
 			(justify left bottom)
 		)
 		(uuid "55ebc763-96ba-5286-a1bc-29c59cdb622e")
-	)
-	(text "Optional. Leave U4 and C7 off to build without it."
-		(exclude_from_sim no)
-		(at 99.06 116.84 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "62a83bed-2254-584b-895f-d69fa4c0adf9")
 	)
 	(text "Test Points"
 		(exclude_from_sim no)
@@ -6015,7 +6004,7 @@
 	)
 	(wire
 		(pts
-			(xy 137.16 48.26) (xy 137.16 50.8)
+			(xy 137.16 48.26) (xy 137.16 49.53)
 		)
 		(stroke
 			(width 0)
@@ -8664,7 +8653,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 137.16 50.8 0)
+		(at 137.16 49.53 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8674,7 +8663,7 @@
 		(dnp no)
 		(uuid "6289af57-6fae-576f-b7bb-504e660f5527")
 		(property "Reference" "#PWR20"
-			(at 137.16 57.15 0)
+			(at 137.16 55.88 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8685,7 +8674,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 137.16 54.61 0)
+			(at 137.16 53.34 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8695,7 +8684,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 137.16 50.8 0)
+			(at 137.16 49.53 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8706,7 +8695,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 137.16 50.8 0)
+			(at 137.16 49.53 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8717,7 +8706,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 137.16 50.8 0)
+			(at 137.16 49.53 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12128,4 +12117,5 @@
 			(page "1")
 		)
 	)
+	(embedded_fonts no)
 )

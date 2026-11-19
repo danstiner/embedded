@@ -3,8 +3,8 @@
 ## 1. Scope
 
 A USB-powered indoor air sensor built on the Ezurio BL54L15μ (nRF54L15) module. It measures
-CO2 with a Sensirion SCD43, temperature and humidity with an SHT4x, and optionally pressure
-and gas resistance with a BME68x. It joins a Thread network as an always-on router.
+CO2 with a Sensirion SCD43, temperature and humidity with an SHT4x, and pressure and gas
+resistance with a BME68x. It joins a Thread network as an always-on router.
 
 ## 2. Background
 
@@ -112,7 +112,7 @@ from VBUS would put the source's noise on it and raise its I2C input threshold t
   VBUS o--[R1 1Ω]--+------+---- VIN ----[U1 AP2112K-3.3]---- VDD --+-- IC1 module
                    |      |                                       +-- U2 SCD43
                [D1 clamp] [C1]                                    +-- U3 SHT4x
-                   |      |                                       +-- U4 BME68x (opt.)
+                   |      |                                       +-- U4 BME68x
   GND  o-----------+------+---- GND                               +-- SBU1 (VTref)
   CC1  o--[R2 5.1k]-- GND
   CC2  o--[R3 5.1k]-- GND                    IC1 P1.14, P1.04 ---- I2C ---- U2, U3, U4
@@ -250,13 +250,18 @@ it on both layers, and only thin traces cross the neck of bare board that is lef
 H1 (5.9). It is 23 mm from the SCD43, 21 mm from the BME68x and 24 mm from the regulator.
 Address 0x44, with a 100 nF capacitor (C6).
 
-### 5.6 Pressure and gas: BME680 or BME688 (U4, optional)
+### 5.6 Pressure and gas: BME680 or BME688 (U4)
 
 Both parts share the 3 × 3 mm LGA-8 package. Wired for I2C: CSB to VDDIO, SDO to ground
 for address 0x76, the address the hygrometer firmware uses. It sits at the front left,
 west of the debug lines, away from the SCD43 and the regulator. It heats itself when it
-measures gas, so it is at the other end of that side from the SHT4x, 21 mm away. Leave U4
-and C7 off to build without it (R-3).
+measures gas, so it is at the other end of that side from the SHT4x, 21 mm away.
+
+It is normally fitted. Its pressure reading feeds the SCD43's pressure compensation: the
+SCD4x datasheet recommends sending the ambient pressure (`set_ambient_pressure`, section
+3.7.5), which can be done while the sensor is measuring. Nothing else depends on the part,
+so a board without U4 and C7 still works, with the CO2 reading compensated for a fixed
+pressure or altitude only.
 
 ### 5.7 MCU module: Ezurio 453-00223R (IC1)
 
@@ -436,7 +441,7 @@ order at a prototype price of $5 per square inch for three boards.
 | U1      | 3.3 V LDO          | AP2112K-3.3TRG1          | SOT-25          | 600 mA LDO with enable (5.3)             |
 | U2      | SCD43              | Sensirion SCD43-D-R2     | 10.1 mm LGA     | CO2 sensor (5.4)                         |
 | U3      | SHT4x              | SHT45-AD1F-R2            | DFN-4 1.5 mm    | Temperature and humidity (5.5)           |
-| U4      | BME680 or BME688   | Bosch                    | LGA-8 3 mm      | Pressure and gas, optional (5.6)         |
+| U4      | BME680 or BME688   | Bosch                    | LGA-8 3 mm      | Pressure and gas (5.6)                   |
 | J1      | USB-C receptacle   | GCT USB4056-03-A         | 24-contact      | Power and debug (5.1)                    |
 | D1      | USBLC6-2SC6        | STMicroelectronics       | SOT-23-6        | VIN clamp (5.2)                          |
 | D2      | LED                | any                      | 0603            | Status (5.8)                             |
@@ -477,13 +482,13 @@ Not yet run. Nothing has been built.
 | Resistance CC1 and CC2 to ground, unpowered                          | R-4       | 5.1 kΩ ±1 % each                             |
 | Power from a USB-C charger with a USB-C cable, both orientations     | R-4       | VDD at 3.25–3.35 V                           |
 | Power from a USB-A port                                              | R-4       | same                                         |
-| Scope VIN at TP1 while hot-plugging a live 2 m cable, 10 times       | R-8       | peak ≤ 6.0 V                                 |
+| Scope VIN at TP1 while hot-plugging a live 2 m cable, 10 times       | 5.2       | peak ≤ 6.0 V                                 |
 | Scope VDD at TP2, AC coupled, sensor measuring                       | R-7       | ≤ 30 mV outside the sensor's own pulses; note the dip during them |
 | Scope VDD with the SCD43 idle, radio transmitting, BME68x heating    | R-7       | no change above 30 mV                        |
 | Supply current at 5 V, averaged over 1 min and peak                  | R-4       | under 60 mA average, under 300 mA peak       |
 | Flash and attach a debugger through the adapter                      | R-6       | works; reset line resets                     |
 | Console through the adapter at 115200 baud                           | R-6       | both directions                              |
-| Read all sensors for 10 min at 100 kHz; scope SCL rise time          | R-1 – R-3 | CO2 every 5 s; no I2C errors; rise < 1 µs    |
+| Read all sensors for 10 min at 100 kHz; scope SCL rise time          | R-1, R-2  | CO2 every 5 s; no I2C errors; rise < 1 µs    |
 | SHT4x against a reference thermometer after 1 h in the enclosure     | R-2       | within 0.5 °C                                |
 | CO2 against a calibrated reference, or outdoors, after 5 days        | R-1       | within specification                         |
 | Thread: join as a router and carry a child's traffic for 24 h        | R-5       | no resets, child stays attached              |
