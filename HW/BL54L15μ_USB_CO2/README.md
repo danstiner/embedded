@@ -475,7 +475,10 @@ The part numbers are the ones already used on the other boards in this repositor
 one exists. The SCD4x, AP2112K, BME680, SHT4x and USBLC6-2SC6 symbols and footprints are
 KiCad's stock ones; the SCD43 uses the SCD41 symbol, which has the same pins. The
 receptacle's symbol is KiCad's stock one with the shield pin renumbered to match the GCT
-footprint; it lives in `Components/USB4056_03_A`.
+footprint; it lives in `Components/USB4056_03_A`. KiCad ships no 3D models for the two
+Sensirion footprints, so the board points them at the vendor models in
+`Components/SCD43_D_R2` and `Components/SHT45_AD1F_R2`; the latter folder keeps the
+download's license file.
 
 ## 7. Connections
 
@@ -543,8 +546,7 @@ Not yet run. Nothing has been built.
 - **SCD43 land pattern.** The datasheet asks for a keep-free area around the sensor's
   thermal relief hole (section 4.2, figure 4). The board uses KiCad's stock SCD4x
   footprint and keeps traces out from under the sensor, but the ground pour does reach
-  the center pad. Check the footprint and the pour against the figure. The footprint has
-  no 3D model.
+  the center pad. Check the footprint and the pour against the figure.
 - The SCD43's automatic self-calibration needs weekly exposure to fresh air. In a room
   that never drops to 400 ppm the reading drifts; firmware should allow a forced
   recalibration.
