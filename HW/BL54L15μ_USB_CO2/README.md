@@ -178,9 +178,11 @@ about 60 %, or 8 V. That is above the regulator's absolute maximum.
   on the capacitance that is left under bias. If C1 kept only 30 % of its value the
   overshoot with R1 would still be under 5 %, about 5.5 V from a 5.25 V source. A
   2.2 µF 0402 part, at perhaps 0.9 µF under bias, would leave about 10 %.
-- **D1, USBLC6-2SC6**, clamps ESD on VIN after R1. Only its supply clamp is used; its two
-  data channels are left open, because the debug lines run on the bottom layer here and
-  bringing two of them up to the part would cost more vias than the protection is worth.
+- **D1, USBLC6-2SC6**, clamps ESD on VIN after R1. It sits at the regulator's input
+  capacitor, about 20 mm of trace after R1, because the button took the space
+  behind the receptacle. Only its supply clamp is used; its two data channels are left
+  open, because the debug lines run on the bottom layer and bringing two of them up to
+  the part would cost more vias than the protection is worth.
 - Total capacitance on VBUS is 4.7 µF, under the 10 µF a USB device may present.
 
 ### 5.3 Regulator: AP2112K-3.3 (U1)
@@ -230,7 +232,8 @@ about 60 %, or 8 V. That is above the regulator's absolute maximum.
 - The DNC pads are soldered to pads that connect to nothing, as the datasheet requires.
 - It sits at the rear right, behind mounting hole H2 and beside the receptacle, a few
   millimeters from the vents. At about 50 mW in its 5 s mode it is the largest steady
-  heat source on the board, which is why it is on the opposite side from the SHT4x.
+  heat source on the board. It and the regulator are on the right side; the SHT4x and
+  the BME68x are on the left.
 - Automatic self-calibration assumes the sensor sees fresh air (400 ppm) at least once a
   week. That is a firmware and placement matter, noted in section 9.
 - The sensor may be reflowed once, must not be washed, and reads slightly off for up to
@@ -244,15 +247,16 @@ temperature offset. The SHT4x is the reference for R-2. It sits on the rear edge
 between mounting hole H1 and the receptacle, behind the vents, on its own island of
 board: an L-shaped slot cuts it off on the east and south, the ground pour stops short of
 it on both layers, and only thin traces cross the neck of bare board that is left beside
-H1 (5.9). It is 24 mm from the SCD43, 20 mm from the BME68x and 25 mm from the regulator.
+H1 (5.9). It is 23 mm from the SCD43, 21 mm from the BME68x and 24 mm from the regulator.
 Address 0x44, with a 100 nF capacitor (C6).
 
 ### 5.6 Pressure and gas: BME680 or BME688 (U4, optional)
 
 Both parts share the 3 × 3 mm LGA-8 package. Wired for I2C: CSB to VDDIO, SDO to ground
-for address 0x76, the address the hygrometer firmware uses. It heats itself when it
-measures gas, so it sits on the SCD43's side of the board, in the pocket between
-the receptacle and mounting hole H2, away from the SHT4x. Leave U4 and C7 off to build without it (R-3).
+for address 0x76, the address the hygrometer firmware uses. It sits at the front left,
+west of the debug lines, away from the SCD43 and the regulator. It heats itself when it
+measures gas, so it is at the other end of that side from the SHT4x, 21 mm away. Leave U4
+and C7 off to build without it (R-3).
 
 ### 5.7 MCU module: Ezurio 453-00223R (IC1)
 
@@ -289,33 +293,33 @@ the receptacle and mounting hole H2, away from the SHT4x. Leave U4 and C7 off to
 ### 5.8 LED, button and test points
 
 - D2 with R4 (680 Ω) on P2.04: about 2 mA. It is the Matter status and pairing indicator.
-- SW1 on P0.01: factory reset and pairing, as on the hygrometer.
+- SW1 on P0.01: factory reset and pairing, as on the hygrometer. It is in the center of
+  the board, with D2 3.8 mm in front of it, so a case can put both in the middle of its lid.
 - There is no reset button; reset comes over the USB-C adapter or a power cycle.
 - TP1–TP3 bring out VIN, VDD and GND for the supply measurements in section 8.
 
 ### 5.9 PCB layout
 
 ```
-               rear: vents and USB
- +----------------------------------------+
- | o   SHT4x ¦ [   USB-C   ] R3 BME68x  o |
- |  ........¦  [           ]    +-------+ |
- |               R2 R1          | SCD43 | |
- |  SDA             D1          +-------+ |
- |  SCL       debug                  C4   |
- |  VDD      bundle            LDO   TP1  |
- |   |     (bottom)                  TP2  |
- |   |      /               X1 C3    TP3  |
- |   +-----/-----------+--------+ button  |
- | o      /            | module |  LED  o |
- +---------------------+--ant.--+---------+
-               front               o = M2 hole
+             rear: vents and USB
+ +-------------------------------------+
+ | o  SHT4x ¦ [   USB-C   ] R3       o |
+ |  .......¦  [           ]  +-------+ |
+ |              R1 R2        | SCD43 | |
+ |           debug           +-------+ |
+ |           bundle  [button]  LDO C4  |
+ | C7       (bottom)   LED R4      TP1 |
+ | BME68x    /         X1 C3  D1   TP2 |
+ |   +------/---------+--------+   TP3 |
+ | o       /          | module |     o |
+ +--------------------+--ant.--+-------+
+               front             o = M2 hole
 ```
 
 | Rule                         | Value                                   | Basis                                    |
 | ---------------------------- | --------------------------------------- | ---------------------------------------- |
-| Outline                      | 38 × 38 mm, 5 mm corner radius          | R-9; see "Size" below                    |
-| Mounting                     | four 2.2 mm unplated holes, 3 mm in from both edges: a 32 mm square | M2 screws |
+| Outline                      | 35 × 35 mm, 5 mm corner radius          | R-9; see "Size" below                    |
+| Mounting                     | four 2.2 mm unplated holes, 3 mm in from both edges: a 29 mm square | M2 screws |
 | Screw head keep-out          | no tracks or vias within 2.2 mm of a hole center | 4 mm M2 head                    |
 | Layers                       | 2, 1.6 mm, 1 oz                         | lowest-cost prototype stack              |
 | Trace and space              | ≥ 0.1524 mm; signals 0.2 mm             | 6 mil prototype fab limit                |
@@ -324,41 +328,50 @@ the receptacle and mounting hole H2, away from the SHT4x. Leave U4 and C7 off to
 | Copper to board edge         | 0.4 mm                                  | 15 mil fab recommendation                |
 | Annular ring                 | ≥ 0.1 mm                                | the receptacle's 0.6/0.4 mm pins         |
 | Ground pour                  | both layers, 0.1524 mm clearance, 0.16 mm minimum width | above the 0.1524 mm minimum connection width |
-| Ground stitching             | every pour piece tied to the other layer, then a 2.5 mm grid: 113 ground vias | see "Ground" below |
+| Ground stitching             | every pour piece tied to the other layer, then a 2.5 mm grid: 83 ground vias | see "Ground" below |
 
 **Floor plan.** The module's signal pads all leave on its west side and the receptacle
 is at the rear, so the six debug signals have to run from the front left to the rear
-center. That bundle divides the board. Everything else is placed so it does not have to
-cross it:
+center. That bundle divides the board. The parts are placed around it:
 
 - **Module** in the center of the front edge, antenna end 0.5 mm from the edge, which is
   where the module's datasheet asks for it (section 5.3.1: on an edge, "preferably in the
-  edge center"). Its I2C pads and its VDD pad are at the corner and side that face east.
-- **East of the bundle:** the SCD43, the BME68x, the regulator, the test points, the LED
-  and the button. The I2C bus and the supply reach all of them without crossing a debug
-  line.
-- **Between the two halves of the bundle,** right behind the receptacle: R1, R2 and D1.
-  The receptacle's power pins come out there, between its SWO and UART pins.
-- **West of the bundle:** only the SHT4x, on its island in the rear left corner, as far
-  from the heat as the board allows. Its SDA, SCL and VDD are the only traces that cross
-  the whole bundle, in one place beside the module.
+  edge center").
+- **Button** in the center of the board and the LED 3.8 mm in front of it. The bundle
+  passes under the west half of the button; the button's signal pad is the east one.
+- **Right of the center line:** the SCD43 at the rear, the regulator in front of it, D1
+  and the test points. These are the warm parts and the ones with pulsed current. The
+  supply and the I2C bus reach them without crossing a debug line south of the
+  receptacle.
+- **Left of the bundle:** the SHT4x on its island in the rear corner and the BME68x at
+  the front. Their SDA, SCL and VDD are the only traces that cross the whole bundle, in
+  one place beside the module.
+- **Right behind the receptacle:** R1 and R2, between its power pins.
 
 **Ground.** The aim is unbroken ground under, or over, every signal.
 
-- The bottom layer carries the debug bundle, the 11.5 mm VDD link under the SCD43 and
-  about 35 mm of short jumpers and stubs. The rest is one piece of ground, 1047 mm² of
-  the board's 1420 mm².
+- The bottom layer carries the debug bundle, the 11.5 mm VDD link under the SCD43, one
+  14 mm run of SDA beside the bundle and about 34 mm of short jumpers. The rest is
+  ground: 803 mm² in one piece and an 81 mm² strip between the lanes that is tied to
+  the top pour by vias, of the board's 1204 mm².
+- The four lines that leave the receptacle on its east side (SWD and the UART) turn west
+  under R1 and run forward under the west half of the button. That bend is fixed in
+  pin order, not left to the router. It keeps every debug line west of the center
+  line, so nothing on the right side has to cross one.
 - Nothing else is routed on the top layer over the bundle, so each debug line has ground
-  directly above it for its whole length. The two exceptions are fixed windows: beside
-  the module, where the SHT4x's three traces cross, and beside D1, where VIN and the
-  probe's VDD reference cross the UART and SWD lines.
+  directly above it. The two exceptions are fixed windows: beside the module, where the
+  two left-side sensors' three traces cross, and under R1, where VIN and the probe's VDD
+  reference cross the four east lines at right angles.
 - **SWO** leaves the module on the bottom layer south of the SWD pads instead of north
-  of them as on the leak sensor board, which puts the lanes in the receptacle's pin
-  order without the SWD lines looping over it. It is crossed four times in 42 mm: by
-  SWDIO once at the module pad, which the pad order forces, and by the SHT4x's SDA, SCL
-  and VDD. The previous 34 mm layout crossed it ten times.
-- Trace crossings in total: 40, down from 74. Of those, 26 are the SHT4x's three traces
-  and the two supply traces crossing the bundle at the windows.
+  of them as on the leak sensor board. It is crossed four times in 39 mm: by SWDIO once
+  at the module pad, which the pad order forces, and by the left-side sensors' SDA, SCL
+  and VDD.
+- Trace crossings in total: 42. Of those, 30 are over debug lines: 24 where the sensors'
+  three traces, VIN and the VDD reference cross at the two windows, and 6 between debug
+  lines at their own pads.
+- The button and LED signals take short bottom-layer hops on their way from the module's
+  east side to the center; the button's passes under the supply and the I2C pair. Both
+  are static signals.
 - **SCD43 supply and return.** The regulator's output, C2, C4 and the SCD43's VDDH pad
   are within 6 mm of each other. The ground pad next to VDDH, C4 and C2 each have a via
   beside them, and from there to the regulator's ground the bottom layer is unbroken. The
@@ -374,7 +387,8 @@ cross it:
   south arm ends 3.5 mm from mounting hole H1 and its east arm 1.6 mm from the rear
   edge; those two strips of bare board hold the island. A rule area keeps the ground
   pour off the island and the neck beside H1 on both layers, so the only copper onto the
-  island is the SDA, SCL, VDD and ground traces, 0.2 to 0.25 mm wide, through that neck.
+  island is the SDA, SCL and VDD traces on top and one ground trace on the bottom, 0.2
+  to 0.4 mm wide, through that neck.
   Nothing is routed along the rear edge behind the receptacle, which would be a second
   way onto the island.
 - **Module fan-out.** Crystal, button pin and ground vias are copied from the fabricated
@@ -382,7 +396,7 @@ cross it:
   antenna keep-out. Pad 4, the one ground pad boxed in by signal pads, has its own trace
   and via instead of relying on a 0.17 mm neck of pour.
 - **Debug lane order,** west to east on the bottom layer: nRESET, SWO, SWDCLK, SWDIO,
-  TXD, RXD. SWDIO crosses SWDCLK once at the module and the UART pair once at the
+  TXD, RXD. SWDIO crosses SWO and SWDCLK once each at the module and TXD once at the
   receptacle; nothing else in the bundle crosses.
 - **SHT4x footprint.** It forbids tracks under the sensor, so each pad is entered from
   its outer edge.
@@ -390,20 +404,21 @@ cross it:
   near the front left hole. The title, revision and name are on the bottom silkscreen.
 - The tallest part is the SCD43 at 6.5 mm.
 
-**Size.** The parts fit in 34 mm, and an earlier version of this layout was that size.
-38 mm buys a quarter more area to lose heat from, room to keep the left third of the
-board free of everything but the SHT4x, and the gaps beside the receptacle that the I2C
-bus and the CC2 resistor use. At a prototype price of $5 per square inch for three
-boards the difference is about $2 an order.
+**Size.** 35 mm is close to the smallest square that takes these parts with a hole in
+each corner and the receptacle in the middle of the rear edge: the receptacle, the
+SCD43 beside it and the SHT4x island on the other side fill the rear edge, and the
+receptacle, button, LED, crystal and module fill the center line. An earlier layout was
+38 mm; the difference is about a fifth of the area to lose heat from, and about $2 an
+order at a prototype price of $5 per square inch for three boards.
 
 **Heat.** These are estimates from textbook numbers, not measurements.
 - The two ground pours spread heat sideways. For 2 × 35 µm of copper losing heat to still
   air from both faces at about 10 W/m²K each, the spreading length √(k·t/h) is about
   37 mm, the size of the board. So the poured part of the board sits at nearly one
   temperature, and moving a part a few millimeters across the pour changes little.
-- That temperature depends on power over area. The board has about 28 cm² of surface,
-  roughly 35 K/W to free air: about 3.3 °C above ambient at 95 mW (SCD43 in its 5 s mode)
-  and 1.3 °C at 37 mW (30 s low power mode). At 34 mm it would be 4.2 °C and 1.6 °C.
+- That temperature depends on power over area. The board has about 24 cm² of surface,
+  roughly 41 K/W to free air: about 3.9 °C above ambient at 95 mW (SCD43 in its 5 s mode)
+  and 1.5 °C at 37 mW (30 s low power mode). At 38 mm it would be 3.3 °C and 1.3 °C.
   An enclosure adds to both.
 - What protects the SHT4x is the island. Its traces and the two strips of FR-4 add up to
   roughly 300 K/W between the island and the board, against something like 300 to
@@ -533,9 +548,9 @@ Not yet run. Nothing has been built.
   the SHT4x to read a couple of degrees above the room until that is calibrated out or
   the enclosure gets a second opening for through-flow.
 - The antenna's performance in this placement is not measured. The module's datasheet
-  says metal closer than 20 mm starts to degrade it (section 5.3.2). The two front
-  screws are 16 mm from the antenna, the SCD43's can 20 mm and the receptacle 27 mm.
-  Nylon screws at the front would remove the nearest metal.
+  says metal closer than 20 mm starts to degrade it (section 5.3.2). The button is
+  about 14 mm from the antenna, the two front screws 14 mm, the SCD43's can 17 mm and the
+  receptacle 24 mm. Nylon screws at the front would remove two of those.
 - SWO and nRESET leave the module by paths that differ from the fabricated leak sensor
   board. They pass the design rules, and nRESET's edge is 0.22 mm outside the antenna
   keep-out, but this part of the fan-out is new.
@@ -543,8 +558,12 @@ Not yet run. Nothing has been built.
 - To confirm against the manufacturers' datasheets: USBLC6-2SC6 breakdown and clamping
   voltages, BME688 pin compatibility with the BME680, the nRF54L15's pull-up value and
   its GPIO limits on port 2, and the module's antenna keep-out dimensions.
-- The left third of the board is nearly empty by design (5.9). It could hold more
-  circuitry, as long as that does not put traces across the debug bundle.
+- The second I2C line to be routed (SDA) runs 14 mm on the bottom layer beside the debug
+  bundle, because the first one fences it in at the module's corner pads. It works, but
+  it is the longest cut in the bottom ground that is not a debug line; hand routing the
+  T at that corner would shorten it.
+- D1 is about 20 mm of trace after R1 (5.2), so a discharge at the plug sees R1 and that
+  trace before the clamp.
 - The enclosure does not exist yet. Vent position, the light pipe for D2 and access to SW1
   depend on it.
 
