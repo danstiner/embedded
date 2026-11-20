@@ -157,17 +157,33 @@ about 60 %, or 8 V. That is above the regulator's absolute maximum.
   on the capacitance that is left under bias. If C1 kept only 30 % of its value the
   overshoot with R1 would still be under 5 %, about 5.5 V from a 5.25 V source. A
   2.2 µF 0402 part, at perhaps 0.9 µF under bias, would leave about 10 %.
-- **D1, USBLC6-2SC6**, clamps ESD on VBUS and on the two SWD lines. It sits 2 mm behind
-  the receptacle, because its datasheet asks for the tracks to its I/O, supply and
-  ground pins to be "as short as possible" and for the part to be "as close as possible
-  to the disturbance source (generally the connector)": it reckons 6 nH for 10 mm of
-  track, which adds about 144 V to the clamping voltage on an 8 kV contact discharge.
-  - Its supply pin is on VBUS itself, before R1, 5 mm of trace from the receptacle pin.
-  - Its ground pin goes straight to the receptacle's own ground pins, 6 mm away, with a
-    via into the bottom ground halfway.
-  - SWDCLK reaches its pad 1 mm past the line's via; SWDIO passes under the part with a
-    0.5 mm spur to its pad. The datasheet shows two pins for each line; one of each is
-    used.
+- **D1, USBLC6-2SC6**, clamps ESD on VBUS and on the two SWD lines. It sits right behind
+  the receptacle, its near pads 2 mm from the pin row, because its datasheet asks for the
+  tracks to its I/O, supply and ground pins to be "as short as possible" and for the part
+  to be "as close as possible to the disturbance source (generally the connector)"
+  (section 2.3): it reckons 6 nH for 10 mm of track, which adds about 144 V to the
+  clamping voltage on an 8 kV contact discharge.
+  - **The part is in series with the lines.** It has two pins for each line (1 and 6, 3
+    and 4), joined inside the package. SWDIO and SWDCLK each come in from the receptacle
+    at one pin and leave for the module from the other, and no copper on the board joins
+    the two pins. A discharge on the line has to pass the clamp's own node to get any
+    further; a trace that bridged the pins would be a second path around the clamp, and
+    the voltage across its inductance would add to what the module sees. The datasheet's
+    figure 6 shows the same thing for a single pin: the line crosses the pin, it does not
+    pass by with a spur.
+  - The schematic enforces this with separate nets: SWDIO_USB and SWDCLK_USB between the
+    receptacle and pins 1 and 3, SWDIO and SWDCLK from pins 6 and 4 on. The design rule
+    check then reports any copper that joins a pair.
+  - The consequence: SWD only works with D1 fitted. On a board built without it, bridge
+    pads 1 to 6 and 3 to 4.
+  - VBUS comes from the receptacle's two through-hole VBUS pins on the bottom layer to a
+    via under the body, passes through pin 5 and goes on to R1: 7 mm from the nearer
+    receptacle pin to the pad, and nothing reaches R1 without passing the pad.
+  - Its ground pin faces the receptacle and has a via 1 mm from the pad. That via lands
+    in a piece of bottom pour that the VBUS trace and the UART pair cut off from the
+    receptacle's ground pins, so a second via 1.9 mm away ties that piece to the top pour
+    at the receptacle's ground pin A1/B12: about 5 mm from pad to pin, through two vias.
+    This is the weakest of the three connections (section 9).
   - It adds at most 3.5 pF to each SWD line and leaks at most 150 nA at 5 V. Its
     breakdown is 6 V minimum, so it does not conduct at the 5.5 V VBUS maximum.
 - Total capacitance on VBUS is 4.7 µF, under the 10 µF a USB device may present.
@@ -210,18 +226,19 @@ about 60 %, or 8 V. That is above the regulator's absolute maximum.
 | Operating range           | −10 to 60 °C, 0–95 %RH               | indoor         |
 
 - VDD and VDDH sit on opposite sides of the package, and the datasheet says they "must be
-  connected to each other close to the sensor". A 0.4 mm trace on the bottom layer joins
-  them straight across under the part, with a via just outside each pad.
+  connected to each other close to the sensor". A 0.5 mm trace on the bottom layer joins
+  them straight across under the part, from a via beside C4 at the rear to a via on the
+  VDD trace in front of the sensor.
 - The sensor is turned so that VDD and the I2C pads face the regulator and the module.
-  C5 (100 nF) is at the VDD pad, between the sensor and the regulator; C4 (10 µF) is
-  5 mm away beside the regulator's output. VDDH, the supply of the infrared source and
-  so the pad that draws the pulses, is at the rear and is fed through the link: 11.5 mm
-  of 0.4 mm trace, about 14 mΩ, or 3 mV at 205 mA.
-- Turning it this way keeps the I2C lines out of the 1.5 mm gap between the receptacle
-  and the sensor, which the button and LED traces need (5.9).
+- **Each supply pad has the capacitor that suits what the pad does.** VDDH supplies the
+  infrared source and draws the 205 mA pulses: C4 (10 µF) is beside it, 2 mm of trace
+  away, so the pulse current comes from the capacitor and not through the link. VDD
+  supplies the logic and the I2C interface and is the noise-sensitive pad: C5 (100 nF)
+  is at it, and the trace from the regulator passes C5's pad on the way in. The link
+  under the sensor is 13.3 mm of 0.5 mm trace, about 13 mΩ.
 - The DNC pads are soldered to pads that connect to nothing, as the datasheet requires.
-- It sits at the rear right, behind mounting hole H2 and beside the receptacle, a few
-  millimeters from the vents. At about 50 mW in its 5 s mode it is the largest steady
+- It sits in the rear right corner beside the receptacle, its center 9.3 mm from the
+  rear edge. At about 50 mW in its 5 s mode it is the largest steady
   heat source on the board. It, the regulator and the BME68x are on the right side; the
   SHT4x has the left side to itself.
 - Automatic self-calibration assumes the sensor sees fresh air (400 ppm) at least once a
@@ -233,11 +250,11 @@ about 60 %, or 8 V. That is above the regulator's absolute maximum.
 
 The SCD43 reports temperature and humidity too, but only to ±0.8 °C and ±6 %RH typical,
 and it heats itself: the datasheet says those readings depend on the design-in and need a
-temperature offset. The SHT4x is the reference for R-2. It sits on the rear edge
-between mounting hole H1 and the receptacle, behind the vents, on its own island of
-board: an L-shaped slot cuts it off on the east and south, the ground pour stops short of
-it on both layers, and only thin traces cross the neck of bare board that is left beside
-H1 (5.9). It is 23 mm from the SCD43, 34 mm from the BME68x and 25 mm from the regulator.
+temperature offset. The SHT4x is the reference for R-2. It sits in the rear left
+corner, behind the vents, on its own island of board: an L-shaped slot cuts it off on the
+east and south, the ground pour stops short of it on both layers, and only thin traces
+cross the two necks of board that are left (5.9). It is 27 mm from the SCD43, 37 mm from
+the BME68x and 24 mm from the regulator.
 Address 0x44, with a 100 nF capacitor (C6).
 
 ### 5.6 Pressure and gas: BME680 or BME688 (U4)
@@ -289,119 +306,135 @@ pressure or altitude only.
 ### 5.8 LED, button and test points
 
 - D2 with R4 (680 Ω) on P2.04: about 2 mA. It is the Matter status and pairing indicator.
-- SW1 on P0.01: factory reset and pairing, as on the hygrometer. It is at the rear right,
-  between the receptacle and mounting hole H2, with D2 beside it. Both are inside the
-  case: the button is reached with the shell off, and the LED shows through the rear
+- SW1 on P0.01: factory reset and pairing, as on the hygrometer. It is at the rear edge,
+  left of the receptacle; D2 and R4 are at the rear edge on the right. Both are inside
+  the case: the button is reached with the shell off, and the LED shows through the rear
   vent slots. A side-actuated switch at the rear edge is the plan for a later revision.
 - There is no reset button; reset comes over the USB-C adapter or a power cycle.
-- TP1–TP3 bring out VIN, VDD and GND for the supply measurements in section 8.
+- TP1–TP3 bring out VIN, VDD and GND for the supply measurements in section 8. TP4 and
+  TP5 bring out SCL and SDA, on the bus's run to the SCD43, for a logic analyzer.
+- R5 (SDA) and R6 (SCL) are 0603 footprints for I2C pull-ups to VDD, not fitted. The bus
+  runs on the MCU's internal pull-ups as on the hygrometer (R-11); 4.7 kΩ here would be
+  for 400 kHz or if the edges turn out slow. They sit at the SCD43's I2C pads: R6
+  between the VDD trace and SCL, R5 at the board edge beside SDA. Their names are not on
+  the silkscreen.
 
 ### 5.9 PCB layout
 
 ```
              rear: vents and USB
  +-------------------------------------+
- | o  SHT4x ¦ [   USB-C   ]R3 button o |
- |  .......¦  [           ]D2+-------+ |
- |              R2 D1        | SCD43 | |
- |        debug    R1        +-------+ |
- |        bundle              C5       |
- |       (bottom)            LDO C2 C4 |
- |         /       X1 C3     C1    TP1 |
- |  +-----/------+--------+  R4 C7 TP2 |
- | o     /       | module |  BME68x  o |
- +---------------+--ant.--+------------+
+ | SHT4x¦ button [  USB-C  ]  D2 R4 C4 |
+ | .....¦ R3     [         ] +-------+ |
+ |        R2       D1        | SCD43 | |
+ |  debug    o     R1 C1     +-------+ |
+ |  lanes   debug  LDO C2     C5  TP4  |
+ | (bottom) lanes    \             TP5 |
+ |    |       \    X1 C3           TP1 |
+ |    |      +--------+      C7    TP2 |
+ | o  |      | module |    BME68x  o   |
+ +-----------+--ant.--+----------------+
                front             o = M2 hole
 ```
 
 | Rule                         | Value                                   | Basis                                    |
 | ---------------------------- | --------------------------------------- | ---------------------------------------- |
 | Outline                      | 35 × 35 mm, 5 mm corner radius          | R-9; see "Size" below                    |
-| Mounting                     | four 2.2 mm unplated holes, 3 mm in from both edges: a 29 mm square | M2 screws |
-| Screw head keep-out          | no tracks or vias within 2.2 mm of a hole center | 4 mm M2 head                    |
+| Mounting                     | three 2.2 mm unplated holes: one 12 mm behind the rear edge beside the ESD clamp, two in the front corners 3 mm in from both edges | pegs on the case tray, or M2 screws |
+| Screw head keep-out          | no top-layer tracks or vias within 2.2 mm of a hole center | 4 mm M2 head; the bottom rests on the tray's plastic pad, and SWDIO passes 0.4 mm from the rear hole there |
 | Layers                       | 2, 1.6 mm, 1 oz                         | lowest-cost prototype stack              |
 | Trace and space              | ≥ 0.1524 mm; signals 0.2 mm             | 6 mil prototype fab limit                |
-| Power traces                 | VIN and VDD 0.4 mm                      | 6 mV drop per 25 mm at 205 mA            |
+| Power traces                 | VIN 0.5 mm, VBUS and VDD 0.4 mm; 0.25 to 0.3 mm at the receptacle pins and into the module | 6 mV drop per 25 mm of 0.4 mm at 205 mA |
 | Vias                         | 0.6/0.3 mm; 0.508/0.254 mm at the module and for ground | fab minimum is 0.254 mm drill  |
 | Copper to board edge         | 0.4 mm                                  | 15 mil fab recommendation                |
 | Annular ring                 | ≥ 0.1 mm                                | the receptacle's 0.6/0.4 mm pins         |
 | Ground pour                  | both layers, 0.1524 mm clearance, 0.16 mm minimum width | above the 0.1524 mm minimum connection width |
-| Ground stitching             | every pour piece tied to the other layer, then a 5 mm grid: 48 ground vias | 5 mm is about a twelfth of a wavelength at 2.4 GHz in FR-4 |
+| Ground stitching             | every pour piece tied to the other layer, then a 2.5 mm grid: 81 ground vias | well under a twelfth of a wavelength at 2.4 GHz in FR-4 (about 5 mm) |
 
-**Floor plan.** The module's signal pads all leave on its west side and the receptacle
-is at the rear, so the six debug signals have to run from the front left to the rear
-center. That bundle divides the board. The parts are placed around it, and so that a
-wall in the case can separate the two halves:
+**Floor plan.** The parts were placed by hand; the scripted layouts before it are in
+the repository's history. The idea is one straight power path down the center line:
 
+- **Center line, rear to front:** receptacle, ESD clamp D1, R1 with C1 beside it, the
+  regulator with C2, then C3 and the module. Each part's input faces the part before it,
+  so VBUS, VIN and VDD are a few millimeters each.
 - **Module** on the front edge, 2 mm left of center, antenna end 0.5 mm from the edge.
   The module's datasheet asks for an edge, "preferably in the edge center" (section
-  5.3.1); the 2 mm gives the right side room.
-- **Right half:** the SCD43 at the rear, the regulator and its parts in front of it, and
-  the BME68x at the front. These are the warm parts and the ones with pulsed current.
-- **Rear right pocket,** between the receptacle and mounting hole H2: the button, the
-  LED and the CC2 resistor.
-- **Left half:** only the SHT4x, on its island in the rear corner. Its SDA, SCL and VDD
-  are the only traces that cross the whole bundle, in one place beside the module.
-- **Right behind the receptacle:** D1, with R1 and R2 beside it. The top-layer traces
-  leave the receptacle's pin row in pin order and reach these parts without crossing.
+  5.3.1).
+- **Right side:** the SCD43 in the rear corner with the LED behind it, the BME68x at the
+  front, the test points along the edge. These are the warm parts and the ones with
+  pulsed current.
+- **Left side:** the SHT4x on its island in the rear corner and the button beside the
+  receptacle. The rest of the left side carries only traces.
+- **Three holes,** not four: one behind the receptacle, where it also takes the force of
+  plugging in, and two in the front corners. That frees both rear corners for the
+  sensors.
 
-**Ground.** The aim is unbroken ground under, or over, every signal.
+**Routing by what each pin does.** Width and directness follow the current and the
+purpose of the pin, not the net name:
 
-- The bottom layer carries the debug bundle, the 11.5 mm VDD link under the SCD43 and
-  about 67 mm of jumpers, the longest of them 17 mm of SDA, 10 mm of the button's trace
-  and 9 mm each of SCL and the LED's. The rest is ground: 757 mm² in one piece and an
-  80 mm² strip between the lanes that is tied to the top pour by vias, of the board's
-  1204 mm².
-- The four lines that leave the receptacle on its east side (SWD and the UART) turn west
-  under R1 and then run forward and left toward the module. That path is fixed in pin
-  order, not left to the router. It keeps every debug line west of the center line, so
-  nothing on the right side has to cross one.
-- Nothing else is routed on the top layer over the bundle, so each debug line has ground
-  directly above it. The two exceptions are fixed: beside the module, where the SHT4x's
-  three traces cross, and behind the receptacle, where the probe's VDD reference and
-  VBUS cross the four east lines at right angles and R1 sits over them.
-- **SWO** leaves the module on the bottom layer south of the SWD pads instead of north
-  of them as on the leak sensor board. It is crossed four times in 40 mm: by SWDIO once
-  at the module pad, which the pad order forces, and by the SHT4x's SDA, SCL and VDD.
-- Trace crossings in total: 49. Of those, 33 are over debug lines: 25 where the SHT4x's
-  three traces, VBUS and the VDD reference cross at those two places, and 8 between
-  debug lines at their own pads and at D1. The other 16 are among the supply, I2C, button and LED
-  traces on the right side, where the button and LED signals run the length of the
-  board from the module to the rear pocket.
-- **SCD43 supply and return.** The regulator's output, C2, C5 and the SCD43's VDD pad
-  are within 5 mm of each other. The pulses reach VDDH through the link under the
-  sensor; the ground pads next to both supply pads have vias into the bottom ground,
-  which is unbroken from there to the regulator apart from that link.
-- No via touches a surface-mount pad; routed vias keep their copper off pad edges.
-- The top pour is cut into pieces by the top traces. A script ties every piece to the
-  bottom ground with at least one via and then adds vias on a 5 mm grid wherever both
-  layers have ground and no part is in the way. It places none over the bundle.
+- **ESD clamp:** it is in series with the lines it protects, with no path around it, and
+  its VBUS and ground connections are the shortest on the board (5.2).
+- **Regulator:** R1, C1 and the input pin are joined by 0.5 mm trace, 2 mm each. The
+  enable pin is on the same net but carries no current: it has a 0.2 mm trace of its
+  own from R1. The ground pin has a via under the body into the main bottom pour. The
+  output goes to C2 and on to the loads at 0.4 mm.
+- **SCD43:** bulk capacitor at the pad that draws the pulses, filter capacitor at the pad
+  that does the I/O (5.4).
+- **Test points and the VDD reference for the debug probe** carry no current: 0.2 mm,
+  and they are the traces that change layer when something has to.
+
+**Ground.** The aim is ground under, or over, every signal.
+
+- The bottom layer carries the debug lines, the button's line, the VDD link under the
+  SCD43, VBUS from the receptacle's through-hole pins and short hops: 317 mm of trace
+  in all. The rest is ground: 778 mm² in one piece and a 97 mm² strip between the two
+  groups of lanes, of the board's 1204 mm².
+- **Two groups of lanes.** nRESET, SWO and the button's line run down the left side.
+  SWDIO, SWDCLK, TXD and RXD leave the clamp and the receptacle's east pins, turn west
+  between D1 and R1, and run forward to the module in that order, which is the order of
+  the module's pads, so they do not cross each other on the way.
+- The button's line is the longest trace on the board, 44 mm. It leaves the module
+  between SWO and nRESET, crosses those two once on the top layer and then follows them
+  to the rear. The direct route up the right side was 7 mm shorter and cut the bottom
+  ground in two along the regulator.
+- SCL crosses from the module's west side to the east side on the bottom layer just
+  north of the crystal, and SDA under the module. Neither runs under the crystal.
+- Trace crossings in total: 53. The top traces that cross the lanes do so at right
+  angles or at 45°: the I2C pair and the SHT4x's supply on the left, VBUS at D1.
+- **SCD43 supply and return.** The pulses are drawn at VDDH from C4. The ground pads
+  next to both supply pads are in the pour, which has vias into the main bottom ground
+  around the sensor.
+- One via sits in a surface-mount pad: SWDIO's, in D1's pad 6. No other via touches a
+  pad.
+- The top pour is cut into seven pieces by the top traces and the bottom pour into two.
+  A script ties every piece to the other layer and then adds vias on a 2.5 mm grid
+  wherever both layers have ground and no part is in the way.
 
 **Other points.**
 
 - **SHT4x island.** One 1 mm slot, an L along the island's east and south sides. Its
-  south arm ends 3.5 mm from mounting hole H1 and its east arm 1.6 mm from the rear
-  edge; those two strips of bare board hold the island. A rule area keeps the ground
-  pour off the island and the neck beside H1 on both layers, so the only copper onto the
-  island is the SDA, SCL and VDD traces on top and one ground trace on the bottom, 0.2
-  to 0.4 mm wide, through that neck.
-  Nothing is routed along the rear edge behind the receptacle, which would be a second
-  way onto the island.
+  east arm ends 1.5 mm from the rear edge and its south arm 1.3 mm from the left edge;
+  those two strips of bare board hold the island. A rule area keeps the ground pour off
+  the island on both layers. The copper onto it is four thin traces: SDA and SCL
+  (0.15 mm) on top through the left neck with the ground trace (0.25 mm) under them,
+  and VDD (0.15 mm) through the rear neck. That VDD trace runs on to the receptacle's
+  VDD reference pin, passing under the button's body on the way.
 - **Module fan-out.** Crystal, button pin and ground vias are copied from the fabricated
   leak sensor board. SWO and nRESET take new paths under the module, both outside the
   antenna keep-out. Pad 4, the one ground pad boxed in by signal pads, has its own trace
   and via instead of relying on a 0.17 mm neck of pour.
-- **Debug lane order,** west to east on the bottom layer: nRESET, SWO, SWDCLK, SWDIO,
-  TXD, RXD. SWDIO crosses SWO and SWDCLK once each at the module and TXD once at the
-  receptacle; nothing else in the bundle crosses.
+- **Debug lane order,** west to east on the bottom layer: nRESET, SWO and the button's
+  line on the left; SWDIO, SWDCLK, TXD and RXD in the center.
+- **CC2** runs under the receptacle on the bottom layer, not on the top layer under its
+  metal shell.
 - **SHT4x footprint.** It forbids tracks under the sensor, so each pad is entered from
   its outer edge.
 - Everything is on the top side (R-10) except JP1, which is only copper, on the bottom
   at the front, left of the module. The title, revision and name are on the bottom silkscreen.
 - The tallest part is the SCD43 at 6.5 mm.
 
-**Size.** 35 mm is close to the smallest square that takes these parts with a hole in
-each corner and the receptacle in the middle of the rear edge: the receptacle, the
+**Size.** 35 mm is close to the smallest square that takes these parts with the
+receptacle in the middle of the rear edge: the receptacle, the
 SCD43 beside it and the SHT4x island on the other side fill the rear edge, and the
 receptacle, button, LED, crystal and module fill the center line. An earlier layout was
 38 mm; the difference is about a fifth of the area to lose heat from, and about $2 an
@@ -446,8 +479,9 @@ order at a prototype price of $5 per square inch for three boards.
 | C3, C4  | 10 µF, X5R         | CL10A106KP8NNNC          | 0603            | Module supply; SCD43 reservoir           |
 | C5–C7   | 100 nF             | GRM155R61A104KA01J       | 0402            | Decoupling: SCD43, SHT4x, BME68x         |
 | JP1     | Solder jumper      | –                        | bridged, bottom | nRESET to J1 (9)                         |
-| TP1–TP3 | Test point         | –                        | 1.0 mm pad      | VIN, VDD, GND                            |
-| H1–H4   | Mounting hole      | –                        | 2.2 mm, M2      | Unplated                                 |
+| R5, R6  | 4.7 kΩ 1 %         | any                      | 0603            | I2C pull-ups, not fitted (5.8)           |
+| TP1–TP5 | Test point         | –                        | 1.0 mm pad      | VIN, VDD, GND, SCL, SDA                  |
+| H1, H3, H4 | Mounting hole   | –                        | 2.2 mm, M2      | Unplated; three holes, H2 is not used    |
 
 The part numbers are the ones already used on the other boards in this repository, where
 one exists. The SCD4x, AP2112K, BME680, SHT4x and USBLC6-2SC6 symbols and footprints are
@@ -530,7 +564,7 @@ Not yet run. Nothing has been built.
   recalibration.
 - Whether Zephyr's SCD4x driver accepts the SCD43 has not been checked. The command set is
   shared with the SCD41.
-- I2C at 400 kHz would need external pull-ups; the board has no pads for them.
+- I2C at 400 kHz would need external pull-ups: fit R5 and R6 (5.8).
 - The MCU's average current as a Thread router is assumed, not measured (5.3).
 - One regulator feeds everything, so the SCD43's 205 mA pulses dip the rail the MCU and
   the other sensors share. Nothing here should mind, but it has not been measured.
@@ -538,8 +572,19 @@ Not yet run. Nothing has been built.
   characterized.
 - The slot is 1 mm wide with square inside corners. Confirm the fab's minimum slot
   width; its router will round the corners.
-- The SHT4x island is held by a 3.5 mm neck of board beside mounting hole H1 and a
-  1.6 mm strip at the rear edge. Handle the bare board with care.
+- The SHT4x island is held by a 1.3 mm strip at the left edge and a 1.5 mm strip at the
+  rear edge. Handle the bare board with care.
+- Three holes hold the board in a flat triangle, 29 mm wide and 20 mm deep. The rear
+  corners rest on the case's ledges only. The case model in `Case/` still has four
+  posts and has to be updated before it is printed.
+- D1's ground pad reaches the receptacle's ground pin through two vias and 5 mm of
+  pour, not directly, because the UART pair runs between them on the bottom layer.
+  Taking the UART pair north around the receptacle would give the pad a direct path at
+  the cost of about 14 mm more trace on each line.
+- SWDIO's via is in D1's pad 6 and is not tented: expect some solder to wick into it.
+- The SWD lines pass through D1's package. The datasheet gives the capacitance this adds
+  (3.5 pF) but no resistance for the path between the two pins of a pair; it is a bond
+  or lead-frame connection and is assumed negligible for SWD.
 - The heat figures in 5.9 are estimates. Measure the SHT4x against a reference in the
   enclosure, in both SCD43 modes, before trusting or correcting its reading.
 - Whether to run the SCD43 in its 5 s mode (15 mA) or its 30 s low power mode (3.2 mA) is
@@ -551,7 +596,7 @@ Not yet run. Nothing has been built.
 - The antenna's performance in this placement is not measured. The module's datasheet
   says metal closer than 20 mm starts to degrade it (section 5.3.2). The BME68x and the
   front left screw are about 12 mm from the antenna, the front right screw 17 mm, the
-  SCD43's can 18 mm and the receptacle 24 mm. Nylon screws at the front would remove two
+  SCD43's can 20 mm and the receptacle 24 mm. Nylon screws at the front would remove two
   of those. The module is also 2 mm off the center of its edge.
 - SWO and nRESET leave the module by paths that differ from the fabricated leak sensor
   board. They pass the design rules, and nRESET's edge is 0.22 mm outside the antenna

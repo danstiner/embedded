@@ -5309,7 +5309,7 @@
 		(uuid "0eadfbc0-aa0e-5a71-82aa-3aee04748103")
 	)
 	(junction
-		(at 25.4 139.7)
+		(at 30.48 139.7)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "13ea7d4f-a5cc-4e7a-ae1a-2ca59af738d8")
@@ -5712,13 +5712,23 @@
 	)
 	(wire
 		(pts
-			(xy 25.4 139.7) (xy 31.75 139.7)
+			(xy 25.4 139.7) (xy 30.48 139.7)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "540b90d6-1a65-4556-b7be-85f0b5a61952")
+	)
+	(wire
+		(pts
+			(xy 30.48 139.7) (xy 31.75 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "647e6826-4762-56ba-8c59-86847746050f")
 	)
 	(wire
 		(pts
@@ -6072,7 +6082,7 @@
 	)
 	(wire
 		(pts
-			(xy 25.4 139.7) (xy 25.4 146.05)
+			(xy 30.48 139.7) (xy 30.48 146.05)
 		)
 		(stroke
 			(width 0)
@@ -6311,7 +6321,7 @@
 		(uuid "01e8c508-55f5-5686-9b77-b30c620ead92")
 	)
 	(label "SWDCLK"
-		(at 30.48 153.67 0)
+		(at 35.56 153.67 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6330,8 +6340,8 @@
 		)
 		(uuid "0ce049b8-7d0f-5849-9e20-f48c968107ac")
 	)
-	(label "SWDCLK"
-		(at 20.32 153.67 180)
+	(label "SWDCLK_USB"
+		(at 25.4 153.67 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6451,7 +6461,7 @@
 		(uuid "9de125e9-1d8f-53e0-ac64-ee0dc82df16d")
 	)
 	(label "SWDIO"
-		(at 30.48 151.13 0)
+		(at 35.56 151.13 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6460,8 +6470,8 @@
 		)
 		(uuid "a0a7fe0f-3170-4822-bf42-c7403a5bf1fc")
 	)
-	(label "SWDIO"
-		(at 20.32 151.13 180)
+	(label "SWDIO_USB"
+		(at 25.4 151.13 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6560,7 +6570,7 @@
 		)
 		(uuid "db166cde-8c08-5f57-b32c-e3602bf992ca")
 	)
-	(label "SWDCLK"
+	(label "SWDCLK_USB"
 		(at 50.8 71.12 0)
 		(effects
 			(font
@@ -6570,7 +6580,7 @@
 		)
 		(uuid "dd4cf3d4-b890-547c-87b6-e9f12faf233d")
 	)
-	(label "SWDIO"
+	(label "SWDIO_USB"
 		(at 50.8 73.66 0)
 		(effects
 			(font
@@ -8307,39 +8317,40 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 25.4 158.75 0)
+		(lib_id "Device:R")
+		(at 160.02 33.02 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
-		(uuid "53de10a3-d7f2-5ae3-a0eb-d69f754ceecc")
-		(property "Reference" "#PWR10"
-			(at 25.4 165.1 0)
-			(hide yes)
+		(dnp yes)
+		(uuid "80821e84-7fdc-5d49-b316-72b13a41ca7e")
+		(property "Reference" "R5"
+			(at 158.02 32.02 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
-		(property "Value" "GND"
-			(at 25.4 162.56 0)
+		(property "Value" "4.7kΩ"
+			(at 158.02 34.32 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
-		(property "Footprint" ""
-			(at 25.4 158.75 0)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 158.24 33.02 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8350,7 +8361,342 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 25.4 158.75 0)
+			(at 160.02 33.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 160.02 33.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "bcb01c47-3704-5452-baec-373f4d6ed50c")
+		)
+		(pin "2"
+			(uuid "e1e0c71e-ca71-5820-93f7-fbff218d957a")
+		)
+		(instances
+			(project "BL54L15μ_USB_CO2"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "R5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:VDD")
+		(at 160.02 29.21 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "ddbbe06e-f569-5783-ae35-70d7bed993c3")
+		(property "Reference" "#PWR35"
+			(at 160.02 33.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "VDD"
+			(at 160.02 25.65 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 160.02 29.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 160.02 29.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
+			(at 160.02 29.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "5e9d4afc-2ce0-50a2-85c8-15577b7deaa5")
+		)
+		(instances
+			(project "BL54L15μ_USB_CO2"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "#PWR35")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "SDA"
+		(at 160.02 36.83 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "052f3429-86d9-5cf8-a21f-9ee8ccf9fda0")
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 165.1 33.02 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp yes)
+		(uuid "e826dfbe-43fd-5311-b450-ee2757e232ba")
+		(property "Reference" "R6"
+			(at 167.1 32.02 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "4.7kΩ"
+			(at 167.1 34.32 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 163.32 33.02 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 165.1 33.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 165.1 33.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "37761b16-7612-542f-a2d1-0869f519e500")
+		)
+		(pin "2"
+			(uuid "cbde2b65-64a4-5157-a080-d33210956987")
+		)
+		(instances
+			(project "BL54L15μ_USB_CO2"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "R6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:VDD")
+		(at 165.1 29.21 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "7fce2c1e-28d2-509e-ab4f-47274eea1183")
+		(property "Reference" "#PWR36"
+			(at 165.1 33.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "VDD"
+			(at 165.1 25.65 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 165.1 29.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 165.1 29.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
+			(at 165.1 29.21 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "22a821ae-1c9f-5284-8884-38b7063647c6")
+		)
+		(instances
+			(project "BL54L15μ_USB_CO2"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "#PWR36")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(label "SCL"
+		(at 165.1 36.83 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "8ad2cd65-05ec-58df-b2c5-38bbfccf3228")
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 30.48 158.75 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "53de10a3-d7f2-5ae3-a0eb-d69f754ceecc")
+		(property "Reference" "#PWR10"
+			(at 30.48 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 30.48 162.56 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 30.48 158.75 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 30.48 158.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8361,7 +8707,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 25.4 158.75 0)
+			(at 30.48 158.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8785,6 +9131,202 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 195.58 154.94 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "5623066d-5004-59ed-bb2f-ebe8f2a0035c")
+		(property "Reference" "TP4"
+			(at 199.98 153.94 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "SCL"
+			(at 199.98 156.14 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 195.58 160.02 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 195.58 160.02 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 195.58 154.94 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "90c35bdd-720b-58cf-8794-4246c188dd86")
+		)
+		(instances
+			(project "BL54L15μ_USB_CO2"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "TP4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 190.5 154.94) (xy 195.58 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "600fbadc-b6f1-583c-8447-5d89429d1615")
+	)
+	(label "SCL"
+		(at 190.5 154.94 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "63545d23-eb88-5256-b16c-c715c044820d")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 195.58 160.02 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "7aa2a2ce-fa9a-5d08-85b3-e4863a31c953")
+		(property "Reference" "TP5"
+			(at 199.98 159.02 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "SDA"
+			(at 199.98 161.22 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 195.58 165.1 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 195.58 165.1 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 195.58 160.02 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "95a6fafd-0ce7-584a-938a-2e1991f2d1d2")
+		)
+		(instances
+			(project "BL54L15μ_USB_CO2"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "TP5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 190.5 160.02) (xy 195.58 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1387b2b5-3e40-5a55-9de8-598ef590e812")
+	)
+	(label "SDA"
+		(at 190.5 160.02 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b84932ac-80dd-57ab-abd1-450214f80566")
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 60.96 49.53 0)
 		(unit 1)
@@ -9129,7 +9671,7 @@
 	)
 	(symbol
 		(lib_id "Power_Protection:USBLC6-2SC6")
-		(at 25.4 151.13 0)
+		(at 30.48 151.13 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -9139,7 +9681,7 @@
 		(dnp no)
 		(uuid "7cf0eb69-8702-58da-a4b7-3b2ae3e077ca")
 		(property "Reference" "D1"
-			(at 22.606 147.066 0)
+			(at 27.69 147.066 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9150,7 +9692,7 @@
 			)
 		)
 		(property "Value" "USBLC6-2SC6"
-			(at 39.37 147.066 0)
+			(at 44.45 147.066 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9161,7 +9703,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-6"
-			(at 26.67 157.48 0)
+			(at 31.75 157.48 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9173,7 +9715,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.st.com/resource/en/datasheet/usblc6-2.pdf"
-			(at 26.67 159.385 0)
+			(at 31.75 159.385 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9185,7 +9727,7 @@
 			)
 		)
 		(property "Description" "Very low capacitance ESD protection diode, 2 data-line, SOT-23-6"
-			(at 25.4 151.13 0)
+			(at 30.48 151.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9196,7 +9738,7 @@
 			)
 		)
 		(property "Part Number" "USBLC6-2SC6"
-			(at 25.4 151.13 0)
+			(at 30.48 151.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11475,79 +12017,6 @@
 			(project "BL54L15μ_USB_CO2"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
 					(reference "#PWR23")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Mechanical:MountingHole")
-		(at 259.08 153.67 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "e1cf2849-2303-5d7e-a042-2c1d4a3eea9f")
-		(property "Reference" "H2"
-			(at 259.08 148.59 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "M2"
-			(at 259.08 150.495 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2"
-			(at 259.08 153.67 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 259.08 153.67 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Mounting Hole without connection"
-			(at 259.08 153.67 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(instances
-			(project "BL54L15μ_USB_CO2"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "H2")
 					(unit 1)
 				)
 			)
