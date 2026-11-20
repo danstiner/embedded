@@ -8,43 +8,24 @@ resistance with a BME68x. It joins a Thread network as an always-on router.
 
 ## 2. Background
 
-The earlier CO2 boards in this repository are battery powered and use the STCC4, a
-thermal-conductivity sensor. It is small and draws little, but its accuracy is ±(100 ppm +
-10 %), it needs a long warm-up after power is applied, and it depends on recalibration.
-To make a coin cell last, those boards also report only every few minutes and sleep
-between reports, so they cannot route Thread traffic for their neighbors.
-
-This board trades the battery for a USB cable and gets three things in return:
-
-- A photoacoustic CO2 sensor with ±(30 ppm + 3 %) accuracy that keeps itself calibrated.
-- Readings every 5 seconds from the sensor, so reports every 30 seconds or faster cost
-  nothing.
-- A radio that is always on, so the device is a Thread router rather than a sleepy end
-  device.
+This board aims to be an accurate, set and forget CO2 sensor. No battery that needs replacement.
 
 Programming and the serial console use the same USB-C receptacle that powers the board,
 with the pinout of `HW/BL54L15μ_DevKit`, so `HW/SWD_USBC_InlineAdapter` works unchanged.
 
 ## 3. Requirements
 
-| ID   | Requirement                                                                              |
-| ---- | ---------------------------------------------------------------------------------------- |
-| R-1  | Report CO2 every 30 s, accuracy at least ±(50 ppm + 3) over 400 to 5000 ppm              |
-| R-2  | Measure ambient temperature and humidity every 30 s |
-| R-4  | Run from any 5 V USB-C source, 4.4 V to 5.5 V at the receptacle, drawing under 500 mA peak |
-| R-5  | Keep the radio powered continuously (Thread router); no battery                           |
-| R-6  | SWD, reset, SWO and a UART on the USB-C receptacle, pin-compatible with the DevKit        |
-| R-7  | CO2 sensor supply: holds 205 mA peaks, moves less than 30 mV because of other loads       |
-| R-9  | Fit a small square enclosure with rounded corners; USB and vents on the rear face         |
-| R-10 | Single-sided surface-mount assembly, one reflow pass on a hot plate, no board wash        |
-| R-11 | Keep the sensor bus the hygrometer firmware already uses: same pins, MCU pull-ups        |
-
-Notes
-- R-1 is the SCD43's specified accuracy and range. The 30 s interval is the reporting
-  goal; the sensor itself updates every 5 s.
-- R-4: 4.4 V is 4.75 V at a USB source less the voltage drop a cable may have at 500 mA;
-  5.5 V is the USB Type-C maximum for VBUS at 5 V.
-- R-7 and the single reflow pass in R-10 come from the SCD4x datasheet (sections 2.3 and 4.5).
+| ID   | Requirement                                                                         |
+| ---- | ----------------------------------------------------------------------------------- |
+| R-1  | Report CO2 every 30 s, accuracy at least ±(50 ppm + 3 %) over 400 to 5000 ppm       |
+| R-2  | Report temperature and humidity every 30 s, accuracy at least ±0.2 °C and 2 %RH     |
+| R-4  | Run from any 5 V USB-C source, drawing under 500 mA peak                            |
+| R-5  | Keep the radio powered continuously (Thread router); no battery                     |
+| R-6  | SWD, reset, SWO and a UART on the USB-C receptacle, pin-compatible with the DevKit  |
+| R-7  | CO2 sensor supply: holds 205 mA peaks, moves less than 30 mV because of other loads |
+| R-9  | Fit a small square enclosure with rounded corners; USB and vents on the rear face   |
+| R-10 | Single-sided surface-mount assembly, one reflow pass on a hot plate, no board wash  |
+| R-11 | Keep the sensor bus the hygrometer firmware already uses: same pins, MCU pull-ups   |
 
 ## 4. Design trades
 
@@ -64,11 +45,8 @@ Notes
 
 **Chosen: SCD43.** It is the most accurate of the family over the whole range, and with
 USB power its 15 mA average and 205 mA peaks are free. The SCD40, SCD41 and SCD43 share one
-package, land pattern and command set, so the footprint also takes an SCD41. The STCC4
-column is from the battery boards' notes, not its datasheet, and is here for comparison
-only. Whether a
-future SCD5x part fits the same land pattern is not known; nothing in this design depends
-on it.
+package, land pattern and command set, so the footprint also takes an SCD41. The unreleased SCD5x
+part may be a better choice once released, but its specs are currently not known.
 
 ### 4.2 USB receptacle
 
@@ -100,8 +78,8 @@ advice is aimed at boards where a radio or motor shares the rail. Here the other
 are an nRF54L15 and two small sensors, with steps of 10 to 30 mA; at the regulator's
 worst-case 1 %/A load regulation that is under 1 mV. The SCD43's own 205 mA pulses do dip
 the shared rail, but the MCU and the other sensors run anywhere from 1.7 to 3.6 V. A
-second regulator would cost three parts and buy nothing measurable. A buck saves heat
-that does not matter on USB power and adds ripple that does. Feeding the sensor straight
+second regulator would cost three parts and buy nothing measurable. A buck would reduce
+losses and heat, but those are not significant at this power. Feeding the sensor straight
 from VBUS would put the source's noise on it and raise its I2C input threshold to
 0.65 × 5 V = 3.25 V, which a 3.3 V bus only just meets.
 
@@ -172,8 +150,8 @@ about 60 %, or 8 V. That is above the regulator's absolute maximum.
 
 - **R1, 1 Ω** in series raises the damping ratio to about 0.85, where the overshoot is
   under 1 %. At the 240 mA worst-case peak it drops 0.24 V, which leaves the LDO more
-  than 0.6 V of headroom at the 4.4 V minimum input (R-4). It dissipates about 2 mW on
-  average. Anything from about 0.7 to 2.2 Ω does the job. The first boards are built
+  than 0.6 V of headroom at a 4.4 V input: 4.75 V at a USB source less the cable drop
+  allowed at 500 mA (R-4). It dissipates about 2 mW on average. Anything from about 0.7 to 2.2 Ω does the job. The first boards are built
   with R1 bridged (section 9).
 - **C1 is 4.7 µF in 0603**, not the regulator's 1 µF minimum, because the damping depends
   on the capacitance that is left under bias. If C1 kept only 30 % of its value the
