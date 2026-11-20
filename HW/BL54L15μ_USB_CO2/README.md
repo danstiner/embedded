@@ -31,17 +31,20 @@ with the pinout of `HW/BL54L15μ_DevKit`, so `HW/SWD_USBC_InlineAdapter` works u
 
 ### 4.1 CO2 sensor
 
-|                          | STCC4                | SCD41                  | **SCD43**            |
-| ------------------------ | -------------------- | ---------------------- | -------------------- |
-| Principle                | thermal conductivity | photoacoustic          | photoacoustic        |
-| Accuracy                 | ±(100 ppm + 10 %)    | ±(50 ppm + 2.5 %) ¹    | ±(30 ppm + 3 %)      |
-| Specified range          | –                    | 400–5000 ppm           | 400–5000 ppm         |
-| Average current at 3.3 V | low, battery-suited  | 15 mA                  | 15 mA                |
-| Peak current at 3.3 V    | –                    | 205 mA max             | 205 mA max           |
-| Size                     | much smaller         | 10.1 × 10.1 × 6.5 mm   | 10.1 × 10.1 × 6.5 mm |
-| Field calibration        | needed               | automatic              | automatic            |
+|                          | STCC4                          | SCD41                        | **SCD43**            |
+| ------------------------ | ------------------------------ | ---------------------------- | -------------------- |
+| Principle                | thermal conductivity           | photoacoustic                | photoacoustic        |
+| Accuracy, 400–5000 ppm   | ±(100 ppm + 10 %)              | ±(50 ppm + 2.5 %) ¹          | ±(30 ppm + 3 %)      |
+| Average current at 3.3 V | 0.95 mA continuous, 0.1 mA single shot every 10 s | 15 mA periodic, 3.2 mA low power periodic | same as SCD41 |
+| Peak current at 3.3 V    | 4.2 mA max                     | 205 mA max                   | 205 mA max           |
+| Size                     | 4 × 3 × 1.2 mm                 | 10.1 × 10.1 × 6.5 mm         | 10.1 × 10.1 × 6.5 mm |
+| Self-calibration         | automatic, expects fresh air once a week | automatic, same expectation | same as SCD41 |
+| Warm-up                  | up to 1 h after 3 h unpowered, 12 h on first use | none specified | none specified |
 
 ¹ In its 400–1000 ppm band; ±(50 ppm + 3 %) from 1001 to 2000 ppm and ±(40 ppm + 5 %) above.
+
+Sources (section 10): STCC4 datasheet, tables 1 and 3, sections 1.1.2 to 1.1.4 and figure
+3; SCD4x datasheet, tables 1 and 4 and section 3.8.
 
 **Chosen: SCD43.** It is the most accurate of the family over the whole range, and with
 USB power its 15 mA average and 205 mA peaks are free. The SCD40, SCD41 and SCD43 share one
@@ -56,6 +59,11 @@ part may be a better choice once released, but its specs are currently not known
 | SuperSpeed pins       | no                 | no                 | yes                          |
 | Mounting              | SMT, top mount     | through-hole       | SMT front row, THT back row  |
 | DevKit debug pinout   | not possible       | not possible       | same part as the DevKit      |
+
+Source (section 10): the GCT product specification and drawing of each part. Their titles
+give the type: USB4105 "for USB2.0, SMT Type, PCB Top Mount" (16 pads on the drawing),
+USB4085 "Through-hole, PCB Top Mount" (16 pins) and USB4056 "USB3.2 Gen 2 ..., Hybrid
+type, PCB Top Mount" (12 surface-mount and 12 through-hole contacts).
 
 **Chosen: USB4056-03-A.** The DevKit puts SWD on the TX pairs and the UART on an RX pair
 (section 5.1). A 16-contact receptacle has no contacts in those positions, so only the
@@ -72,16 +80,22 @@ repository.
 | Heat at 48 mA average         | 94 mW       | 94 mW               | about 25 mW       | 60 mW               |
 | I2C levels                    | fine        | fine                | fine              | VIH 3.25 V at 5 V   |
 
-**Chosen: one AP2112K-3.3 for the whole board.** The SCD4x datasheet asks that the supply
-not move by more than 30 mV because of other loads, and recommends a separate LDO. That
-advice is aimed at boards where a radio or motor shares the rail. Here the other loads
-are an nRF54L15 and two small sensors, with steps of 10 to 30 mA; at the regulator's
-worst-case 1 %/A load regulation that is under 1 mV. The SCD43's own 205 mA pulses do dip
-the shared rail, but the MCU and the other sensors run anywhere from 1.7 to 3.6 V. A
-second regulator would cost three parts and buy nothing measurable. A buck would reduce
-losses and heat, but those are not significant at this power. Feeding the sensor straight
-from VBUS would put the source's noise on it and raise its I2C input threshold to
-0.65 × 5 V = 3.25 V, which a 3.3 V bus only just meets.
+The part counts and heat figures are calculated: an LDO from 5.25 V to 3.3 V at 48 mA
+dissipates 94 mW. The rest comes from the datasheets cited below (section 10).
+
+**Chosen: one AP2112K-3.3 for the whole board.** The SCD4x datasheet (section 2.3) asks
+that the supply "must not vary by more than 30 mV" because of other loads, and says a
+separate LDO "is recommended". That advice is aimed at boards where a radio or motor
+shares the rail. Here the other loads are an nRF54L15 and two small sensors, with steps of
+10 to 30 mA; at the AP2112's worst-case load regulation of 1 %/A (0.2 %/A typical, from
+its electrical characteristics table) that is 1 mV at most. The SCD43's own 205 mA pulses
+(SCD4x table 4) do dip the shared rail, but the parts that share it have wide supply
+ranges: the module 1.7 to 3.5 V (Ezurio datasheet), the SHT4x 1.08 to 3.6 V and the
+BME680 1.71 to 3.6 V (their datasheets). A second regulator would cost three parts and buy
+nothing measurable. A buck would reduce losses and heat, but those are not significant at
+this power. Feeding the sensor straight from VBUS would put the source's noise on it and
+raise its I2C input threshold to 0.65 × VDD (SCD4x table 4), 3.25 V at 5 V, which a 3.3 V
+bus only just meets.
 
 ## 5. Circuit
 
@@ -626,19 +640,46 @@ Not yet run. Nothing has been built.
 
 ## 10. References
 
+Datasheets, with the revision that was read. The links are the manufacturers' own and
+were checked on 2026-11-19.
+
 - [Sensirion SCD4x datasheet](https://sensirion.com/resource/datasheet/scd4x), version
-  1.7, April 2025: tables 1, 4 and 5 and sections 2.3, 4.2 and 4.5, the source for
-  sections 4.1 and 5.4 and for R-7 and R-10.
+  1.7, April 2025: tables 1, 4 and 5 and sections 2.3, 3.8, 4.2 and 4.5. Source for
+  sections 4.1, 4.3 and 5.4 and for R-1, R-7 and R-10.
+- [Sensirion STCC4 datasheet](https://sensirion.com/resource/datasheet/STCC4), version 1,
+  June 2025: tables 1 and 3, sections 1.1.2 to 1.1.4 and figure 3. Source for the STCC4
+  column in section 4.1.
+- [Sensirion SHT4x datasheet](https://sensirion.com/resource/datasheet/sht4x), version
+  7.3, June 2026: tables 1 and 2 (SHT40: ±1.8 %RH and ±0.2 °C typical) and the supply
+  range. Source for R-2 and sections 4.3 and 5.5.
 - [Diodes Incorporated AP2112 datasheet](https://www.diodes.com/assets/Datasheets/AP2112.pdf),
-  DS39724 Rev. 2-2, the source for sections 5.2 and 5.3.
-- USB Type-C Cable and Connector Specification, release 2.x: sink Rd termination and the
-  5.5 V VBUS maximum (sections 5.1 and 5.2).
-- Universal Serial Bus 3.2 Specification: receiver termination (section 9).
+  DS39724 Rev. 2-2: the electrical characteristics tables. Source for sections 4.3, 5.2
+  and 5.3.
+- GCT USB4056, the receptacle used:
+  [product specification](https://gct.co/files/specs/usb4056-spec.pdf), revision A2, and
+  [drawing](https://gct.co/files/drawings/usb4056.pdf). Its footprint and model are in
+  `HW/BL54L15μ_DevKit/Components/USB4056_03_A`. Source for sections 4.2 and 5.1.
+- GCT USB4105 [product specification](https://gct.co/files/specs/usb4105-spec.pdf),
+  revision A3, and [drawing](https://gct.co/files/drawings/usb4105.pdf); GCT USB4085
+  [product specification](https://gct.co/files/specs/usb4085-spec.pdf), revision B, and
+  [drawing](https://gct.co/files/drawings/usb4085.pdf). The alternatives in section 4.2.
+- [STMicroelectronics USBLC6-2 datasheet](https://www.st.com/resource/en/datasheet/usblc6-2.pdf),
+  DS4260 Rev 7, December 2021: table 2, sections 2.2 and 2.3 and figure 6. Source for D1
+  in section 5.2.
+- Bosch Sensortec
+  [BME680 datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme680-ds001.pdf),
+  BST-BME680-DS001-09, revision 1.9, and
+  [BME688 datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf),
+  BST-BME688-DS000-03, revision 1.3. Source for sections 4.3 and 5.6.
+- [Ezurio BL54L15µ datasheet](https://www.ezurio.com/documentation/datasheet-bl54l15u),
+  version 1.1, August 2025: the supply range and the hardware integration sections.
+  Source for sections 4.3 and 5.7.
+
+Standards and other sources:
+
+- [USB Type-C Cable and Connector Specification](https://www.usb.org/document-library/usb-type-cr-cable-and-connector-specification-release-24),
+  release 2.x: sink Rd termination and the 5.5 V VBUS maximum (sections 5.1 and 5.2).
+- [Universal Serial Bus 3.2 Specification](https://www.usb.org/document-library/usb-32-revision-11-june-2022),
+  revision 1.1: receiver termination (section 9).
 - `HW/BL54L15μ_DevKit` and `HW/SWD_USBC_InlineAdapter` in this repository, the source for
   the debug pinout in section 5.1.
-- GCT USB4056 product specification for the receptacle; its footprint and model are in
-  `HW/BL54L15μ_DevKit/Components/USB4056_03_A`.
-- STMicroelectronics USBLC6-2 datasheet, Rev 3, March 2008: table 2 and sections 2.2 and
-  2.3, the source for D1 in section 5.2.
-- Bosch Sensortec BME680 and BME688 datasheets for section 5.6.
-- Ezurio BL54L15μ (453-00223R) datasheet and hardware integration guide for section 5.7.
