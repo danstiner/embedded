@@ -372,7 +372,7 @@ pressure or altitude only.
 | Trace and space              | ≥ 0.1524 mm; signals 0.2 mm, 0.1524 mm at fine-pitch pads and onto the SHT4x island | the fab's 6 mil minimum; net class Default |
 | Power traces                 | VBUS, VIN and VDD 0.4 mm; 0.3 mm at the receptacle's VBUS pads and into the module; 0.15 to 0.2 mm for VDD branches that carry no current | net class Power; 6 mV drop per 25 mm of 0.4 mm at 205 mA |
 | Vias                         | 0.508/0.254 mm; 0.6/0.3 mm on VBUS and at the front of the VDD link under the SCD43 | the fab's 0.254 mm minimum drill; the net class presets |
-| Copper to board edge         | 0.4 mm as laid out; DRC rule 0.3 mm     | the fab's 15 mil (0.381 mm) board edge keep-out |
+| Copper to board edge         | 0.381 mm to the outline (custom rule in `BL54L15μ_USB_CO2.kicad_dru`), 0.3 mm to the slots; 0.40 mm as laid out | the fab's 15 mil (0.381 mm) keep-out is for the milled edge; the slots are drilled |
 | Annular ring                 | ≥ 0.1 mm                                | the receptacle's 0.6/0.4 mm pins, under the fab's 0.127 mm minimum (section 9) |
 | Ground pour                  | one zone on both layers, 0.1524 mm clearance and minimum width; thermal reliefs 0.2 mm spoke and gap | the fab's 6 mil minimum; spokes the width of a signal trace |
 | Ground stitching             | 58 ground vias; every piece of pour over 1 mm² has at least one | aim: no more than about 5 mm between vias, a twelfth of a wavelength at 2.4 GHz in FR-4; not yet checked on this layout |
@@ -609,9 +609,12 @@ Not yet run. Nothing has been built.
   posts and has to be updated before it is printed.
 - D1's ground pad reaches the receptacle's ground pins through one via and the bottom
   pour, which has to go around the VBUS and SWD traces on the bottom layer between them.
-- The receptacle's through-hole pins have a 0.10 mm annular ring (0.603 mm pad on a
-  0.4 mm drill, from GCT's footprint), under OSH Park's 0.127 mm minimum. Ask the fab or
-  check the first boards.
+- The receptacle's through-hole pins have a 0.10 mm annular ring, under OSH Park's
+  0.127 mm minimum, and GCT recommends a board 1.00 to 1.20 mm thick: on 1.6 mm its pin
+  tails (1.05 mm) and shell stakes (1.15 mm) stop short of the bottom. Both come from
+  GCT's recommended layout (drawing sheet 2); the ring cannot grow without breaking the
+  6 mil spacing on the 0.8 mm pin pitch. The DevKit uses the same receptacle and
+  footprint on a 1.6 mm board, and its receptacle came out fine.
 - CC2 runs on the top layer under the receptacle's metal shell, insulated from it only
   by solder mask.
 - The SWD lines pass through D1's package. The datasheet gives the capacitance this adds

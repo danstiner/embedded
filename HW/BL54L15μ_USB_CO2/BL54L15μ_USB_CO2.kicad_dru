@@ -1,0 +1,4 @@
+(version 1)
+(rule "Fab board edge keep-out"
+	(constraint edge_clearance (min 0.381mm))
+	(condition "B.Layer == 'Edge.Cuts'"))
