@@ -5521,16 +5521,6 @@
 	)
 	(wire
 		(pts
-			(xy 190.5 160.02) (xy 195.58 160.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1387b2b5-3e40-5a55-9de8-598ef590e812")
-	)
-	(wire
-		(pts
 			(xy 270.51 83.82) (xy 273.05 83.82)
 		)
 		(stroke
@@ -5671,6 +5661,16 @@
 	)
 	(wire
 		(pts
+			(xy 218.44 149.86) (xy 218.44 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4d361c82-60d2-44ce-bd1e-3ea1906acbb7")
+	)
+	(wire
+		(pts
 			(xy 121.92 123.19) (xy 121.92 127)
 		)
 		(stroke
@@ -5719,16 +5719,6 @@
 		)
 		(uuid "554748f4-a8ae-5c9e-ae3a-d7a727890d99")
 	)
-	(wire
-		(pts
-			(xy 190.5 149.86) (xy 195.58 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "57abf589-4194-5eee-96d9-06d69eec7250")
-	)
 	(polyline
 		(pts
 			(xy 240.03 134.62) (xy 240.03 167.64)
@@ -5758,16 +5748,6 @@
 			(type default)
 		)
 		(uuid "5ff250de-c4c0-51e5-8d9e-a376ecbab909")
-	)
-	(wire
-		(pts
-			(xy 190.5 154.94) (xy 195.58 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "600fbadc-b6f1-583c-8447-5d89429d1615")
 	)
 	(wire
 		(pts
@@ -5961,7 +5941,7 @@
 	)
 	(wire
 		(pts
-			(xy 218.44 149.86) (xy 223.52 149.86)
+			(xy 215.9 147.32) (xy 218.44 147.32)
 		)
 		(stroke
 			(width 0)
@@ -6101,7 +6081,7 @@
 	)
 	(wire
 		(pts
-			(xy 218.44 160.02) (xy 223.52 160.02)
+			(xy 215.9 149.86) (xy 218.44 149.86)
 		)
 		(stroke
 			(width 0)
@@ -6319,6 +6299,16 @@
 		)
 		(uuid "34747055-8e15-5d91-9ffc-cf19291864fe")
 	)
+	(label "SWDIO"
+		(at 218.44 158.75 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "357f5dbc-bcbb-4833-a7fd-cdfc657841f6")
+	)
 	(label "SWDCLK_USB"
 		(at 45.72 86.36 0)
 		(effects
@@ -6350,7 +6340,7 @@
 		(uuid "5f4bf825-18be-56b5-9e69-df97aaa70d92")
 	)
 	(label "SCL"
-		(at 190.5 154.94 180)
+		(at 190.5 152.4 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6469,8 +6459,18 @@
 		)
 		(uuid "b19d138d-60af-5768-b6c7-d01cb98b0e3c")
 	)
+	(label "SWDCLK"
+		(at 190.5 162.56 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b5c5c350-332c-4135-b814-6b2a985a0659")
+	)
 	(label "SDA"
-		(at 190.5 160.02 180)
+		(at 190.5 157.48 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6862,7 +6862,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 223.52 149.86 270)
+		(at 218.44 147.32 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6872,7 +6872,7 @@
 		(dnp no)
 		(uuid "16f7b5cf-c0d9-5b43-850e-5c2240dd6121")
 		(property "Reference" "TP2"
-			(at 227.92 148.86 90)
+			(at 222.84 146.32 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6883,7 +6883,7 @@
 			)
 		)
 		(property "Value" "VDD"
-			(at 227.92 151.06 90)
+			(at 222.84 148.52 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6894,7 +6894,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 223.52 154.94 90)
+			(at 218.44 152.4 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6905,7 +6905,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 223.52 154.94 90)
+			(at 218.44 152.4 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6916,7 +6916,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 223.52 149.86 90)
+			(at 218.44 147.32 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7110,6 +7110,84 @@
 			(project "BL54L15μ_USB_CO2"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
 					(reference "#PWR28")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 218.44 158.75 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "21d1194c-a0a2-473c-8833-2ee04142c600")
+		(property "Reference" "TP6"
+			(at 222.84 157.75 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "SWDIO"
+			(at 222.84 159.95 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 218.44 163.83 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 218.44 163.83 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 218.44 158.75 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a4022ad1-fcc8-4e5a-8e39-f80369a804d6")
+		)
+		(instances
+			(project "BL54L15μ_USB_CO2"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "TP6")
 					(unit 1)
 				)
 			)
@@ -7765,7 +7843,7 @@
 	)
 	(symbol
 		(lib_id "power:VBUS")
-		(at 190.5 149.86 0)
+		(at 190.5 147.32 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7775,7 +7853,7 @@
 		(dnp no)
 		(uuid "3bf99d84-6d46-4883-9f05-ec8b41ec6df9")
 		(property "Reference" "#PWR02"
-			(at 190.5 153.67 0)
+			(at 190.5 151.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7786,7 +7864,7 @@
 			)
 		)
 		(property "Value" "VBUS"
-			(at 190.5 146.304 0)
+			(at 190.5 143.764 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7796,7 +7874,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 190.5 149.86 0)
+			(at 190.5 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7807,7 +7885,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 190.5 149.86 0)
+			(at 190.5 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7818,7 +7896,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"VBUS\""
-			(at 190.5 149.86 0)
+			(at 190.5 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8533,7 +8611,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 195.58 154.94 270)
+		(at 190.5 152.4 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8543,7 +8621,7 @@
 		(dnp no)
 		(uuid "5623066d-5004-59ed-bb2f-ebe8f2a0035c")
 		(property "Reference" "TP4"
-			(at 199.98 153.94 90)
+			(at 194.9 151.4 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8554,7 +8632,7 @@
 			)
 		)
 		(property "Value" "SCL"
-			(at 199.98 156.14 90)
+			(at 194.9 153.6 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8565,7 +8643,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 195.58 160.02 90)
+			(at 190.5 157.48 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8576,7 +8654,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 195.58 160.02 90)
+			(at 190.5 157.48 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8587,7 +8665,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 195.58 154.94 90)
+			(at 190.5 152.4 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8842,7 +8920,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 195.58 149.86 270)
+		(at 190.5 147.32 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8852,7 +8930,7 @@
 		(dnp no)
 		(uuid "6c348ff7-1a9f-5f48-9ff1-6761bfcbeddc")
 		(property "Reference" "TP1"
-			(at 199.98 148.86 90)
+			(at 194.9 146.32 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8863,7 +8941,7 @@
 			)
 		)
 		(property "Value" "VBUS"
-			(at 199.98 151.06 90)
+			(at 194.9 148.52 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8874,7 +8952,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 195.58 154.94 90)
+			(at 190.5 152.4 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8885,7 +8963,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 195.58 154.94 90)
+			(at 190.5 152.4 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8896,7 +8974,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 195.58 149.86 90)
+			(at 190.5 147.32 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9186,7 +9264,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 195.58 160.02 270)
+		(at 190.5 157.48 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -9196,7 +9274,7 @@
 		(dnp no)
 		(uuid "7aa2a2ce-fa9a-5d08-85b3-e4863a31c953")
 		(property "Reference" "TP5"
-			(at 199.98 159.02 90)
+			(at 194.9 156.48 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9207,7 +9285,7 @@
 			)
 		)
 		(property "Value" "SDA"
-			(at 199.98 161.22 90)
+			(at 194.9 158.68 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9218,7 +9296,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 195.58 165.1 90)
+			(at 190.5 162.56 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9229,7 +9307,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 195.58 165.1 90)
+			(at 190.5 162.56 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9240,7 +9318,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 195.58 160.02 90)
+			(at 190.5 157.48 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9993,7 +10071,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 218.44 160.02 0)
+		(at 215.9 149.86 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -10003,7 +10081,7 @@
 		(dnp no)
 		(uuid "9ccc555a-8034-51c9-a025-66de9ecb7bd8")
 		(property "Reference" "#PWR34"
-			(at 218.44 166.37 0)
+			(at 215.9 156.21 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10014,7 +10092,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 218.44 163.83 0)
+			(at 215.9 153.67 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10024,7 +10102,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 218.44 160.02 0)
+			(at 215.9 149.86 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10035,7 +10113,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 218.44 160.02 0)
+			(at 215.9 149.86 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10046,7 +10124,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 218.44 160.02 0)
+			(at 215.9 149.86 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10578,7 +10656,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 223.52 160.02 270)
+		(at 218.44 152.4 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -10588,7 +10666,7 @@
 		(dnp no)
 		(uuid "acb315da-810b-5638-84a5-9aced4a858f0")
 		(property "Reference" "TP3"
-			(at 227.92 159.02 90)
+			(at 222.84 151.4 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10599,7 +10677,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 227.92 161.22 90)
+			(at 222.84 153.6 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10610,7 +10688,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 223.52 165.1 90)
+			(at 218.44 157.48 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10621,7 +10699,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 223.52 165.1 90)
+			(at 218.44 157.48 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10632,7 +10710,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 223.52 160.02 90)
+			(at 218.44 152.4 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10656,7 +10734,7 @@
 	)
 	(symbol
 		(lib_id "power:VDD")
-		(at 218.44 149.86 0)
+		(at 215.9 147.32 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -10666,7 +10744,7 @@
 		(dnp no)
 		(uuid "acf21430-da6e-55ea-ac68-3e1c4e70a0ac")
 		(property "Reference" "#PWR33"
-			(at 218.44 153.67 0)
+			(at 215.9 151.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10677,7 +10755,7 @@
 			)
 		)
 		(property "Value" "VDD"
-			(at 218.44 146.304 0)
+			(at 215.9 143.764 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10687,7 +10765,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 218.44 149.86 0)
+			(at 215.9 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10698,7 +10776,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 218.44 149.86 0)
+			(at 215.9 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10709,7 +10787,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"VDD\""
-			(at 218.44 149.86 0)
+			(at 215.9 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12157,6 +12235,84 @@
 			(project "BL54L15μ_USB_CO2"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
 					(reference "R6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 190.5 162.56 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "f4d1ca63-c4cc-4023-a7a1-6a82a553fc5e")
+		(property "Reference" "TP7"
+			(at 194.9 161.56 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "SWDCLK"
+			(at 194.9 163.76 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 190.5 167.64 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 190.5 167.64 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 190.5 162.56 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "dad4f15f-18a1-4f8a-8433-0bef2bea678a")
+		)
+		(instances
+			(project "BL54L15μ_USB_CO2"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "TP7")
 					(unit 1)
 				)
 			)
