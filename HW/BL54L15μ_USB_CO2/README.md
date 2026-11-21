@@ -6,6 +6,10 @@ A USB-powered indoor air sensor built on the Ezurio BL54L15μ (nRF54L15) module.
 CO2 with a Sensirion SCD43, temperature and humidity with an SHT4x, and pressure and gas
 resistance with a BME68x. It joins a Thread network as an always-on router.
 
+Revision 2026v2 is in progress: the SHT4x moves from 2026v1's slotted island onto a zigzag
+finger cut from the board's left edge (5.5, 5.9), and its traces are not routed yet.
+2026v1 was ordered on 2026-11-21 and is tagged `fab/BL54L15μ-usb-co2/2026v1`.
+
 ## 2. Background
 
 This board aims to be an accurate, set and forget CO2 sensor. No battery that needs replacement.
@@ -241,18 +245,18 @@ near 0.15 and about 60 % overshoot, 8 V, above the regulator's absolute maximum.
 ### 5.5 Temperature and humidity: SHT4x (U3)
 
 The SCD43 also reports temperature and humidity, but only to ±0.8 °C and ±6 %RH typical,
-and it heats itself. The SHT4x is the reference for R-2. It sits in the rear left corner,
-behind the vents, on its own island: two slots cut it off on the east and south, the
-ground pour stops short of it on both layers, and only thin traces cross the two necks
-left (5.9). It is 26 mm from the SCD43, 31 mm from the BME68x and 24 mm from the
-regulator. Address 0x44, with C6 (100 nF).
+and it heats itself. The SHT4x is the reference for R-2. It sits at the rear tip of a
+finger cut from the board's left edge, behind the vents: the finger joins the board only at
+its front end, its path folds into a zigzag, no pour reaches it, and only the sensor's own
+traces run along it (5.9). It is 27 mm from the SCD43, 31 mm from the BME68x and 24 mm from
+the regulator. Address 0x44, with C6 (100 nF) beside it on the finger.
 
 ### 5.6 Pressure and gas: BME680 or BME688 (U4)
 
 Both parts share the 3 × 3 mm LGA-8 package and pinout, numbered clockwise in top view.
 Wired for I2C: CSB to VDDIO, SDO to ground for address 0x76, the address the hygrometer
 firmware uses. It heats itself when it measures gas, so it sits on the warm right side,
-in front of the SCD43, 31 mm from the SHT4x and outside its pocket in the case.
+in front of the SCD43, 31 mm from the SHT4x and outside the SHT4x's chamber in the case.
 
 C7 (100 nF) sits at VDD (pin 8) and its neighboring ground; VDDIO (pin 6) joins VDD under
 the package, and CSB (pin 2), walled in by SDA and SCL, reaches that link through two vias.
@@ -310,35 +314,36 @@ compensated for a fixed pressure or altitude only.
 ### 5.9 PCB layout
 
 ```
-             rear: vents and USB
- +-------------------------------------+
- | SHT4x¦ button [  USB-C  ]  D2   C4  |
- | -----'        [         ] +-------+ |
- |  |            [         ] | SCD43 | |
- |  |        \ o   D1 R2 R3  +-------+ |
- |  |      \  TP1 R1 C1 LDO C2 BME68x  |
- |  |     |               R5 R6   TP5  |
- |  |     |              JP1      TP4  |
- |  |     |    X1 C3              TP2  |
- |  '-----|  +--------+ R4        TP3  |
- | o      '--| module |              o |
+              rear: vents and USB
+ +-----+  +----------------------------+
+ | U3  |  |button [  USB-C  ] D2   C4  |
+ | C6  |  |       [         ]+-------+ |
+ |   ===  |       [         ]| SCD43 | |
+ ===   |  |    o  D1 R2 R3   +-------+ |
+ |   ===  |  TP1 R1 C1 LDO C2  BME68x  |
+ ===   |  |             R5 R6   TP5    |
+ |   ===  |            JP1      TP4    |
+ ===   |  |     X1 C3           TP2    |
+ |   ===  |  +--------+ R4      TP3    |
+ |     '--'  | module |                |
+ | o         |        |             o  |
  +-----------+--ant.--+----------------+
-               front     o = M2 hole, ¦ and - = slots
+               front     o = M2 hole; === = notches
 ```
 
 | Rule                         | Value                                   | Basis                                    |
 | ---------------------------- | --------------------------------------- | ---------------------------------------- |
-| Outline                      | 35 × 35 mm, 5 mm corner radius          | R-9; close to the smallest square that takes these parts with the receptacle centered on the rear edge |
+| Outline                      | 35 × 35 mm, 5 mm corner radius, less the SHT4x finger's cut and notches; the uncut outline is on User.1 | R-9; close to the smallest square that takes these parts with the receptacle centered on the rear edge |
 | Mounting                     | three 2.2 mm unplated holes: one 12 mm in from the rear edge beside D1, two in the front corners 3 mm in from both edges | pegs on the case tray; no screws, so no metal near the antenna |
 | Hole keep-out                | no tracks or vias within 2.2 mm of a hole center; nearest is a ground via at 2.77 mm | room for an M2 head if screws are ever used |
 | Layers                       | 2, 1.6 mm, 1 oz                         | lowest-cost prototype stack              |
-| Trace and space              | ≥ 0.1524 mm; signals 0.2 mm, 0.1524 mm at fine-pitch pads and onto the SHT4x island | the fab's 6 mil minimum; net class Default |
+| Trace and space              | ≥ 0.1524 mm; signals 0.2 mm, 0.1524 mm at fine-pitch pads and on the SHT4x finger | the fab's 6 mil minimum; net class Default |
 | Power traces                 | VBUS, VIN and VDD 0.4 mm; 0.3 mm at the receptacle's VBUS pads and into the module; 0.15 to 0.2 mm for VDD branches that carry no current | net class Power; 6 mV drop per 25 mm at 205 mA |
 | Vias                         | 0.508/0.254 mm; 0.6/0.3 mm on VBUS and at the front of the VDD link under the SCD43 | the fab's 0.254 mm minimum drill |
-| Copper to board edge         | 0.381 mm to the outline (custom rule in `BL54L15μ_USB_CO2.kicad_dru`), 0.3 mm to the slots; 0.40 mm as laid out | the fab's 15 mil keep-out is for the milled edge; the slots are drilled |
+| Copper to board edge         | 0.381 mm to the outline, the finger's cut and notches included (custom rule in `BL54L15μ_USB_CO2.kicad_dru`) | the fab's 15 mil keep-out for milled edges |
 | Annular ring                 | ≥ 0.1 mm                                | the receptacle's 0.6/0.4 mm pins (section 8) |
 | Ground pour                  | one zone on both layers, 0.1524 mm clearance and minimum width; surface-mount pads solid, through-hole pads with 0.2 mm spokes and gap | the fab's 6 mil minimum; hot-plate reflow needs no reliefs on surface-mount pads |
-| Ground stitching             | 81 ground vias; no point of pour more than 4.9 mm from one (the worst under the SCD43's center pad) | λ/8 at 2.4 GHz in FR-4 is 7.5 mm between vias, every point within 5.3 mm of one on a square grid; well under λ/2, so the two pours cannot resonate as a plate pair |
+| Ground stitching             | 72 ground vias, to recheck after routing; 2026v1 had 81, with no point of pour more than 4.9 mm from one (the worst under the SCD43's center pad) | λ/8 at 2.4 GHz in FR-4 is 7.5 mm between vias, every point within 5.3 mm of one on a square grid; well under λ/2, so the two pours cannot resonate as a plate pair |
 
 **Floor plan.** Placement and routing are by hand; the scripted layouts before them are in
 the repository's history. Width and directness follow what each pin does, not the net
@@ -358,8 +363,8 @@ and I/O pads (5.4), the LDO input short and wide, its enable pin thin.
 - **Right side:** the SCD43 in the rear corner with D2 and C4 behind it, the BME68x and C7
   at the east end of the regulator row, TP2 to TP5 down the edge: the warm parts and the
   pulsed current.
-- **Left side:** the SHT4x island in the rear corner, the button beside the receptacle,
-  and the debug lanes and the SHT4x's I2C.
+- **Left side:** the SHT4x finger along the edge, then the button beside the receptacle,
+  the debug lanes and the SHT4x's I2C.
 - **Three holes,** not four: one beside D1, which also takes the force of plugging in, and
   two in the front corners, freeing both rear corners for the sensors.
 
@@ -372,14 +377,17 @@ and I/O pads (5.4), the LDO input short and wide, its enable pin thin.
 
 **Other points.**
 
-- **SHT4x island.** Two drilled 0.508 mm slots, SL1 and SL2, along its east and south
-  sides: oval non-plated holes in board-only footprints (`Components/Slot.pretty`), so
-  they reach the fab in the drill file. OSH Park drills slots from 0.508 mm but mills
-  Edge.Cuts cutouts with a 1.73 mm bit, and slots may not cut through each other, so they
-  stop 0.5 mm apart. A 1.37 mm strip at the rear edge, a 1.50 mm strip at the left edge
-  and that web hold the island. A rule area keeps the pour off it on both layers; four
-  0.15 mm top traces cross: SDA and SCL through the left neck, VDD and ground through the
-  rear neck. The SHT4x footprint forbids tracks under the sensor.
+- **SHT4x finger.** A 2.0 mm cut milled in from the rear edge frees the left 4.25 mm of
+  the board, which joins the rest only at its front end, 2 mm behind H3. Seven 1.8 mm
+  notches, alternately from the board edge and from the cut, leave 1.5 mm strips: room for
+  two 6 mil traces per layer inside the 0.381 mm edge keep-out, along a path of about
+  45 mm from the root to the sensor against 26 mm straight. The square tip, with 1 mm
+  corners, stops 1.7 mm short of the rear edge to clear the case's rounded rear corner.
+  OSH Park mills the cut and notches with its 1.73 mm bit; drilled slots may not touch the
+  board edge, and short ones with webs at both ends would not lengthen the path. A rule
+  area keeps the pour off the finger; U3 and C6 sit on the tip. The SHT4x footprint
+  forbids tracks under the sensor. 2026v1 instead had an island cut off by two drilled
+  slots, SL1 and SL2.
 - **Module fan-out.** The crystal, button, SWO and nRESET leave inner pads through tented
   vias under the module. Pad 4, the ground pad boxed in by signal pads, has its own trace
   and via.
@@ -397,18 +405,24 @@ and I/O pads (5.4), the LDO input short and wide, its enable pin thin.
 - About 24 cm² of surface gives roughly 41 K/W to free air: 3.9 °C above ambient at 95 mW
   (SCD43 in its 5 s mode) and 1.5 °C at 37 mW (30 s mode). At 38 mm it would be 3.3 °C
   and 1.3 °C. An enclosure adds to both.
-- The island protects the SHT4x: its traces, the two strips and the web make roughly
-  250 K/W to the board against 300 to 1000 K/W to the air, so the sensor should see half
-  to four fifths of the board's rise. With pour on the island it would follow the board.
-- A 3D conduction model of the board in its case agrees. Its inputs: copper and vias from
-  the layout, conduction-only air inside (Rayleigh number about 10³, below the onset of
-  convection), and 10 W/m²K outside. It puts the SHT4x 3.1 °C above ambient with the SCD43
-  in its 5 s mode and 1.2 °C in its 30 s mode, or 2.4 and 0.9 °C counting radiation across
-  the cavity; the regulator causes about 1 °C of the 3.1. The sensor sits at the island's
-  temperature, 70 % of the poured board's rise, while the air in its pocket rises 1.5 °C.
-  The heat arrives through the necks and traces, so walls in the case change the reading
-  by under 0.05 °C.
-- The rise is steady because the board is always on, so firmware can subtract it.
+- A 3D conduction model of the board in its case gives the SHT4x's rise. Its inputs:
+  copper and vias from the layout, two 6 mil traces per layer along the finger,
+  conduction-only air inside (Rayleigh number about 10³, below the onset of convection),
+  and 10 W/m²K outside. On the finger the SHT4x sits 0.65 °C above ambient with the SCD43
+  in its 30 s mode and 1.7 °C in its 5 s mode, against 1.16 and 3.1 °C on 2026v1's island;
+  counting radiation across the cavity, 0.61 against 0.88 °C in the 30 s mode. The
+  regulator causes about a third of each.
+- 2026v1's island held the sensor at 70 % of the poured board's rise through its strips
+  and traces. The finger brings it close to the air in its chamber, about 0.5 °C, so more
+  isolation gains little. The zigzag gains 0.07 °C over a plain finger of the same size,
+  and the chamber walls (8) cost 0.04 °C, since plastic conducts better than still air.
+- Vents cannot carry the heat away. Buoyancy across the 6 mm between rows of rear vents
+  moves 0.4 to 5 mW of the 95 mW, and a floor vent about 0.01 mW, as the board seals the
+  floor off. Even with the air above the board held at room temperature, 2026v1's SHT4x
+  would read 1.8 °C high in the 5 s mode.
+- The rise is steady because the board is always on, but it scales with how well the room
+  cools the box: for 2026v1 in the 5 s mode it is 2.1, 3.1 and 5.0 °C at 20, 10 and
+  5 W/m²K outside. A fixed firmware correction holds only where it was calibrated (8).
 
 ## 6. Bill of materials
 
@@ -435,7 +449,6 @@ and I/O pads (5.4), the LDO input short and wide, its enable pin thin.
 | R5, R6  | 4.7 kΩ 1 %         | any                      | 0603            | I2C pull-ups, not fitted (5.8)           |
 | TP1–TP7 | Test point         | –                        | 1.0 mm pad      | VBUS, VDD, GND, SCL, SDA, SWDIO, SWDCLK  |
 | H1, H3, H4 | Mounting hole   | –                        | 2.2 mm, M2      | Unplated; three holes, H2 is not used    |
-| SL1, SL2 | Slot              | –                        | drilled, 0.508 mm | SHT4x island (5.9); board only, not in the schematic |
 
 Part numbers follow the other boards in this repository where one exists. The SCD4x,
 AP2112K, BME680, SHT4x and USBLC6-2SC6 symbols and footprints are KiCad's stock ones; the
@@ -443,14 +456,16 @@ SCD43 uses the SCD41 symbol, which has the same pins. The receptacle's symbol, i
 `Components/USB4056_03_A`, is KiCad's stock one with the shield pin renumbered for the GCT
 footprint. The vendor 3D models for the two Sensirion parts are in
 `Components/SCD43_D_R2` and `Components/SHT45_AD1F_R2` (with the download's license file),
-and the slot footprints in `Components/Slot.pretty`.
+and 2026v1's slot footprints in `Components/Slot.pretty`.
 
 ## 7. Verification
 
-Not yet run. Boards were ordered on 2026-11-21, from commit `d46e373`. There KiCad reports
-no DRC violations, unconnected items or parity issues; three warnings for J1's silkscreen
-at the board edge are excluded, since the fab trims silkscreen there. ERC's three warnings
-are expected: SBU2 tied to VDD, SBU1 and the BME68x's SDO tied to ground.
+Not yet run. 2026v1 boards were ordered on 2026-11-21, from commit `d46e373`. There KiCad
+reports no DRC violations, unconnected items or parity issues; three warnings for J1's
+silkscreen at the board edge are excluded, since the fab trims silkscreen there. ERC's
+three warnings are expected: SBU2 tied to VDD, SBU1 and the BME68x's SDO tied to ground.
+In 2026v2 so far, DRC reports only the unrouted SHT4x: seven unconnected pads and four
+dangling ends of its old route.
 
 | Test                                                                 | Checks    | Pass                                         |
 | -------------------------------------------------------------------- | --------- | -------------------------------------------- |
@@ -510,10 +525,9 @@ are expected: SBU2 tied to VDD, SBU1 and the BME68x's SDO tied to ground.
 
 **Board and fab**
 
-- The island's slots are at OSH Park's 0.508 mm minimum for drilled slots; the leak sensor
-  board's joined 0.508 mm Edge.Cuts slots came back fine, which the fab does not promise.
-  The island hangs on 1.37 and 1.50 mm strips and a 0.5 mm web: handle the bare board
-  with care.
+- The SHT4x finger's 1.5 mm strips make a springy 27 mm finger: handle the bare board by
+  its body. OSH Park gives no minimum width between milled cutouts; the notches (1.8 mm)
+  and cut (2.0 mm) are wider than its 1.73 mm bit.
 - The receptacle's through-hole pins have a 0.10 mm annular ring, under OSH Park's 0.127 mm
   minimum, and GCT recommends a 1.00 to 1.20 mm board: on 1.6 mm the pin tails (1.05 mm)
   and shell stakes (1.15 mm) stop short of the bottom. Both come from GCT's recommended
@@ -543,20 +557,31 @@ are expected: SBU2 tied to VDD, SBU1 and the BME68x's SDO tied to ground.
   drops to 400 ppm the reading drifts, so firmware should allow a forced recalibration.
 - Whether Zephyr's SCD4x driver accepts the SCD43 is unchecked; the command set is the
   SCD41's.
-- The SCD43's 5 s mode (15 mA) or 30 s low power mode (3.2 mA) is a firmware choice. The
-  datasheet states CO2 accuracy for the 5 s mode only; the 30 s mode more than halves the
-  board's self-heating.
-- The heat figures in 5.9 are estimates. With vents only at the rear, air reaches the
-  sensors by diffusion, enough for CO2 with about 1 cm² of vent but no help with heat:
-  expect the SHT4x to read a couple of degrees high until calibrated in the enclosure, in
-  both SCD43 modes, or the enclosure gets through-flow.
-- The enclosure in `Case/` (parametric FreeCAD) is unprinted. The tray has pegs through
-  the three holes and rests under both side edges, and the shell's ledges hold the board
-  down. Two ribs hang from the roof over the SHT4x island's slots, walling it into a pocket
-  with its own vents; they stop 0.5 mm above the board so the front left peg slides under.
-  A divider between the warm parts and the rest was modeled and left out (5.9). The
-  button can only be pressed with the shell off and the LED is seen only through the rear
-  vents, placeholders for a side-actuated switch and a rear-facing indicator.
+- The SCD43 runs in its 30 s low power mode (3.2 mA rather than 15 mA), which cuts the
+  SHT4x's offset to about a third (5.9). The datasheet states CO2 accuracy for the 5 s mode
+  only.
+- The heat figures in 5.9 are model estimates. Air reaches the sensors through the rear
+  vents by diffusion, enough for CO2 with about 1 cm² of vent. Expect the SHT4x to read
+  about 0.6 °C high until calibrated in the enclosure, and the offset to move with how the
+  room cools the box.
+- **Calibrating in place, an idea to try.** Switching the SCD43 from its 30 s to its 5 s
+  mode raises the SHT4x by a step that the model puts at a fixed multiple of the 30 s
+  offset, whatever the room's cooling: offset = 0.6 × step, the step about 1 °C on 2026v2.
+  Measuring the step could calibrate each box where it stands, and CO2 keeps reporting
+  meanwhile. The box takes about 20 minutes to settle, so each half-cycle needs an hour or
+  more, averaged over many cycles against room drift. The ratio depends on the SCD43's
+  actual current and needs checking against a reference thermometer. Compensating
+  self-heating from known power changes is close to thermostat patents: check freedom to
+  operate before using it.
+- The 2026v2 case, `Case/USB_CO2_2026v2.FCStd` (parametric FreeCAD), is unprinted. The
+  tray has pegs through the three holes and a rest under the right edge; the shell's
+  ledges hold the board down, and nothing touches the finger. A 0.8 mm tray wall stands in
+  the finger's cut, 0.6 mm clear of the board on each side, a shell wall comes down to
+  0.3 mm above it, and cross walls close the chamber at the finger's root. The model says
+  these walls cost 0.04 °C (5.9), so whether to keep them is open. `USB_CO2_2026v1.FCStd`
+  is 2026v1's case. The button can only be pressed with the shell off and the LED is seen
+  only through the rear vents, placeholders for a side-actuated switch and a rear-facing
+  indicator.
 
 ## 9. References
 
@@ -603,5 +628,11 @@ Standards and other sources:
 - OSH Park's [two-layer service rules](https://docs.oshpark.com/services/two-layer/),
   [slots](https://docs.oshpark.com/submitting-orders/slots/) and
   [board outline](https://docs.oshpark.com/submitting-orders/board-outline/) pages, read on
-  2026-11-20: trace, drill, annular ring and edge limits, drilled slots from 0.508 mm and
-  the 1.73 mm cutout bit (5.9, 8).
+  2026-11-20 and 21: trace, drill, annular ring and edge limits, drilled slots from
+  0.508 mm and only inside the board, notches drawn on the outline, and the 1.73 mm cutout
+  bit (5.9, 8).
+- Sensirion, SHTxx and STSxx design guide, version 1.1: milled slits, etched-away copper
+  and thin traces around the sensor, and a flex print as an alternative (5.5, 5.9).
+- [TI SNOAA01](https://www.ti.com/lit/pdf/snoaa01), *Layout Considerations for Accurately
+  Measuring Ambient Temperature*, July 2018: wider cutouts and small isolated islands
+  read closer to ambient (5.9).
