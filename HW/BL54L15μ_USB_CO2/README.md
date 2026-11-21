@@ -338,8 +338,9 @@ pressure or altitude only.
   plan for a later revision.
 - There is no reset button; reset comes over the USB-C adapter or a power cycle.
 - TP1–TP3 bring out VBUS, VDD and GND for the supply measurements in section 8, and TP4
-  and TP5 bring out SCL and SDA for a logic analyzer. TP1 is beside R1; the others are
-  in a column on the right edge.
+  and TP5 bring out SCL and SDA for a logic analyzer. TP1 is beside R1; TP2 to TP5 are
+  in a column on the right edge. TP6 (SWDIO) and TP7 (SWDCLK) sit on the debug lanes left
+  of center, for probing SWD.
 - R5 (SDA) and R6 (SCL) are 0603 footprints for I2C pull-ups to VDD, not fitted. The bus
   runs on the MCU's internal pull-ups as on the hygrometer (R-11); 4.7 kΩ here would be
   for 400 kHz or if the edges turn out slow. They sit on the VDD trunk south of the
@@ -376,7 +377,7 @@ pressure or altitude only.
 | Copper to board edge         | 0.381 mm to the outline (custom rule in `BL54L15μ_USB_CO2.kicad_dru`), 0.3 mm to the slots; 0.40 mm as laid out | the fab's 15 mil (0.381 mm) keep-out is for the milled edge; the slots are drilled |
 | Annular ring                 | ≥ 0.1 mm                                | the receptacle's 0.6/0.4 mm pins, under the fab's 0.127 mm minimum (section 9) |
 | Ground pour                  | one zone on both layers, 0.1524 mm clearance and minimum width; surface-mount pads solid, through-hole pads with 0.2 mm spokes and gap | the fab's 6 mil minimum; reflow on a hot plate needs no reliefs on surface-mount pads; spokes the width of a signal trace |
-| Ground stitching             | 60 ground vias; every piece of pour over 1 mm² has at least one | aim: no more than about 5 mm between vias, a twelfth of a wavelength at 2.4 GHz in FR-4; not yet checked on this layout |
+| Ground stitching             | 81 ground vias. No point of pour is more than 4.9 mm from one (the worst is under the SCD43's center pad), so no gap between vias exceeds λ/8; every piece of pour has at least one | λ/8 at 2.4 GHz in FR-4 (wavelength about 60 mm) is 7.5 mm between vias, which on a square grid leaves every point within 5.3 mm of a via. Spacing well under λ/2 keeps the two pours from resonating as a plate pair |
 
 **Floor plan.** Placement and routing are by hand; the scripted layouts before them are
 in the repository's history.
@@ -415,8 +416,8 @@ purpose of the pin, not the net name:
 **Ground.** The aim is ground under, or over, every signal.
 
 - 420 mm of trace on top and 161 mm on the bottom. The bottom pour is one 945 mm² piece
-  of the board's 1204 mm²; the top pour is one 711 mm² piece and two small ones, each
-  with at least two vias.
+  of the board's 1204 mm²; the top pour is one 707 mm² piece and three small ones, each
+  with at least one via.
 - The longest bottom-layer runs, and so the longest cuts in the bottom pour: nRESET and
   SWO side by side from the receptacle's east pins to the module, about 25 mm each
   (nRESET through JP1), the VDD link under the SCD43 (15 mm) and the LED line (15 mm).
@@ -498,7 +499,7 @@ order at a prototype price of $5 per square inch for three boards.
 | C5–C7   | 100 nF             | GRM155R61A104KA01J       | 0402            | Decoupling: SCD43, SHT4x, BME68x         |
 | JP1     | Solder jumper      | –                        | bridged, bottom | nRESET to J1 (9)                         |
 | R5, R6  | 4.7 kΩ 1 %         | any                      | 0603            | I2C pull-ups, not fitted (5.8)           |
-| TP1–TP5 | Test point         | –                        | 1.0 mm pad      | VBUS, VDD, GND, SCL, SDA                 |
+| TP1–TP7 | Test point         | –                        | 1.0 mm pad      | VBUS, VDD, GND, SCL, SDA, SWDIO, SWDCLK  |
 | H1, H3, H4 | Mounting hole   | –                        | 2.2 mm, M2      | Unplated; three holes, H2 is not used    |
 | SL1, SL2 | Slot              | –                        | drilled, 0.508 mm | SHT4x island (5.9); board only, not in the schematic |
 
