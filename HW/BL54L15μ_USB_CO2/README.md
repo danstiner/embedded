@@ -374,8 +374,8 @@ pressure or altitude only.
 | Vias                         | 0.508/0.254 mm; 0.6/0.3 mm on VBUS and at the front of the VDD link under the SCD43 | the fab's 0.254 mm minimum drill; the net class presets |
 | Copper to board edge         | 0.381 mm to the outline (custom rule in `BL54L15μ_USB_CO2.kicad_dru`), 0.3 mm to the slots; 0.40 mm as laid out | the fab's 15 mil (0.381 mm) keep-out is for the milled edge; the slots are drilled |
 | Annular ring                 | ≥ 0.1 mm                                | the receptacle's 0.6/0.4 mm pins, under the fab's 0.127 mm minimum (section 9) |
-| Ground pour                  | one zone on both layers, 0.1524 mm clearance and minimum width; thermal reliefs 0.2 mm spoke and gap | the fab's 6 mil minimum; spokes the width of a signal trace |
-| Ground stitching             | 61 ground vias; every piece of pour over 1 mm² has at least one | aim: no more than about 5 mm between vias, a twelfth of a wavelength at 2.4 GHz in FR-4; not yet checked on this layout |
+| Ground pour                  | one zone on both layers, 0.1524 mm clearance and minimum width; surface-mount pads solid, through-hole pads with 0.2 mm spokes and gap | the fab's 6 mil minimum; reflow on a hot plate needs no reliefs on surface-mount pads; spokes the width of a signal trace |
+| Ground stitching             | 60 ground vias; every piece of pour over 1 mm² has at least one | aim: no more than about 5 mm between vias, a twelfth of a wavelength at 2.4 GHz in FR-4; not yet checked on this layout |
 
 **Floor plan.** Placement and routing are by hand and still in progress (section 9); the
 scripted layouts before them are in the repository's history.
@@ -404,7 +404,7 @@ purpose of the pin, not the net name:
   its VBUS and ground connections are the shortest on the board (5.2).
 - **Regulator:** R1, C1 and the input pin are joined by 0.4 mm trace, about 2 mm each.
   The enable pin carries no current and is tied to the input pin under the body. The
-  ground pin has a via at its toe into the bottom pour. The output goes to C2 and on to
+  ground pin joins the top pour directly. The output goes to C2 and on to
   the loads at 0.4 mm.
 - **SCD43:** bulk capacitor at the pad that draws the pulses, filter capacitor at the pad
   that does the I/O (5.4).
@@ -413,9 +413,9 @@ purpose of the pin, not the net name:
 
 **Ground.** The aim is ground under, or over, every signal.
 
-- 412 mm of trace on top and 156 mm on the bottom. The bottom pour is one 948 mm² piece
-  of the board's 1204 mm²; the top pour is in four pieces larger than 1 mm², each with
-  at least two vias.
+- 418 mm of trace on top and 156 mm on the bottom. The bottom pour is one 948 mm² piece
+  of the board's 1204 mm²; the top pour is one 712 mm² piece and two small ones, each
+  with at least two vias.
 - The longest bottom-layer runs, and so the longest cuts in the bottom pour: nRESET and
   SWO side by side from the receptacle's east pins to the module, about 25 mm each
   (nRESET through JP1), the VDD link under the SCD43 (15 mm) and the LED line (15 mm).
@@ -545,13 +545,10 @@ Not yet run. Nothing has been built.
 
 - **The layout is in progress.** Placement and most routing are done by hand. Still open,
   from KiCad's checks and a review on 2026-11-20:
-  - SDA and SCL to TP5 and TP4, and the BME68x's CSB (pin 2) are not routed. CSB must
-    be tied to VDDIO (BME680 datasheet, section 7.2); SDA and SCL wall it in on the top
-    layer, so it needs a via to VDD on the bottom.
-  - The receptacle's ground pad A12 has a single thermal spoke.
-  - Ground vias touch U1's ground pad and U4's pad 1, so solder can wick into them.
+  - The BME68x's CSB (pin 2) is not routed. It must be tied to VDDIO (BME680 datasheet,
+    section 7.2); SDA and SCL wall it in on the top layer, so it needs a via to VDD on
+    the bottom.
   - One SWO segment on the bottom near D1 is doubled.
-  - U4's Datasheet field differs between the schematic and the board.
 - ERC reports three warnings, all expected: SBU2 tied to VDD, and SBU1 and the BME68x's
   SDO pin tied to ground. KiCad flags a bidirectional pin wired to a power rail.
 - **Reset held by a USB 3 host.** nRESET is on a SuperSpeed contact. A full-featured cable
