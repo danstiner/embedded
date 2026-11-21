@@ -285,7 +285,8 @@ measures gas, so it is on the warm side of the board with the SCD43 and the regu
 31 mm from the SHT4x and on the other side of the case's divider (5.9).
 
 C7 (100 nF) sits at VDD (pin 8) and the ground pin beside it; VDDIO (pin 6) joins VDD
-under the package. The datasheet's connection diagram has a 100 nF capacitor on each
+under the package. CSB (pin 2) is on the far side, behind SDA and SCL, and reaches that
+link through two vias and a short hop on the bottom layer. The datasheet's connection diagram has a 100 nF capacitor on each
 (section 7.2), for boards where the two are separate rails. Here they are one rail, the
 pins are 1.6 mm apart, and VDDIO only powers the interface, so one capacitor at the pin
 that carries the load does both jobs.
@@ -377,8 +378,8 @@ pressure or altitude only.
 | Ground pour                  | one zone on both layers, 0.1524 mm clearance and minimum width; surface-mount pads solid, through-hole pads with 0.2 mm spokes and gap | the fab's 6 mil minimum; reflow on a hot plate needs no reliefs on surface-mount pads; spokes the width of a signal trace |
 | Ground stitching             | 60 ground vias; every piece of pour over 1 mm² has at least one | aim: no more than about 5 mm between vias, a twelfth of a wavelength at 2.4 GHz in FR-4; not yet checked on this layout |
 
-**Floor plan.** Placement and routing are by hand and still in progress (section 9); the
-scripted layouts before them are in the repository's history.
+**Floor plan.** Placement and routing are by hand; the scripted layouts before them are
+in the repository's history.
 
 - **Power path:** the receptacle, ESD clamp D1 and R1 run down the center line. The
   regulator row turns east from R1: C1, U1 and C2, each part's input facing the one
@@ -413,8 +414,8 @@ purpose of the pin, not the net name:
 
 **Ground.** The aim is ground under, or over, every signal.
 
-- 418 mm of trace on top and 156 mm on the bottom. The bottom pour is one 948 mm² piece
-  of the board's 1204 mm²; the top pour is one 712 mm² piece and two small ones, each
+- 420 mm of trace on top and 161 mm on the bottom. The bottom pour is one 945 mm² piece
+  of the board's 1204 mm²; the top pour is one 711 mm² piece and two small ones, each
   with at least two vias.
 - The longest bottom-layer runs, and so the longest cuts in the bottom pour: nRESET and
   SWO side by side from the receptacle's east pins to the module, about 25 mm each
@@ -543,12 +544,8 @@ Not yet run. Nothing has been built.
 
 ## 9. Known limitations and open questions
 
-- **The layout is in progress.** Placement and most routing are done by hand. Still open,
-  from KiCad's checks and a review on 2026-11-20:
-  - The BME68x's CSB (pin 2) is not routed. It must be tied to VDDIO (BME680 datasheet,
-    section 7.2); SDA and SCL wall it in on the top layer, so it needs a via to VDD on
-    the bottom.
-  - One SWO segment on the bottom near D1 is doubled.
+- The layout was placed and routed by hand. KiCad's checks report no DRC violations, no
+  unconnected items and no schematic parity issues.
 - ERC reports three warnings, all expected: SBU2 tied to VDD, and SBU1 and the BME68x's
   SDO pin tied to ground. KiCad flags a bidirectional pin wired to a power rail.
 - **Reset held by a USB 3 host.** nRESET is on a SuperSpeed contact. A full-featured cable
