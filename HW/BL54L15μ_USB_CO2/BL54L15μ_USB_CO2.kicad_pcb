@@ -2420,7 +2420,7 @@
 		(descr "http://www.alps.com/prod/info/E/HTML/Tact/SurfaceMount/SKRK/SKRKAHE020.html")
 		(tags "SMD SMT button")
 		(property "Reference" "SW1"
-			(at 0 2.344999 0)
+			(at 0.127 -3.302 0)
 			(layer "F.SilkS")
 			(uuid "27845e61-7638-4cda-91f7-4ea301caa5cb")
 			(effects
@@ -8043,8 +8043,7 @@
 		(uuid "1565585c-42d7-4432-a615-1d75fe18586a")
 	)
 	(gr_text "Daniel Stiner"
-		(locked yes)
-		(at 116.992 134.01 0)
+		(at 116.992 133.375 0)
 		(layer "B.SilkS")
 		(uuid "810349d3-c0c4-4d9c-b4e6-489f62a562f1")
 		(effects
@@ -8068,8 +8067,7 @@
 		)
 	)
 	(gr_text "${TITLE} ${REVISION}"
-		(locked yes)
-		(at 117.5 132.486 0)
+		(at 117.5 131.724 0)
 		(layer "B.SilkS")
 		(uuid "4c449c89-dcc9-462c-b640-0b2917188573")
 		(effects
