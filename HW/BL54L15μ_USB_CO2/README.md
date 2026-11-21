@@ -89,7 +89,8 @@ smaller. That is an estimate, not a measurement (section 7). If it fails, the fi
 separate regulator for the SCD43, as Sensirion recommends, or a small resistor ahead of C3
 so the module sits behind its own filter.
 
-A buck would save heat that does not matter at this power. Feeding the sensor from VBUS
+A buck would save about 25 mW at typical load, about 0.8 °C of the SHT4x's steady offset
+(5.9), which firmware subtracts anyway. Feeding the sensor from VBUS
 would put the source's noise on it and raise its I2C threshold to 0.65 × VDD (SCD4x
 table 4), 3.25 V at 5 V, which a 3.3 V bus only just meets.
 
@@ -251,7 +252,7 @@ regulator. Address 0x44, with C6 (100 nF).
 Both parts share the 3 × 3 mm LGA-8 package and pinout, numbered clockwise in top view.
 Wired for I2C: CSB to VDDIO, SDO to ground for address 0x76, the address the hygrometer
 firmware uses. It heats itself when it measures gas, so it sits on the warm right side,
-in front of the SCD43, 31 mm from the SHT4x and on the other side of the case's divider.
+in front of the SCD43, 31 mm from the SHT4x and outside its pocket in the case.
 
 C7 (100 nF) sits at VDD (pin 8) and its neighboring ground; VDDIO (pin 6) joins VDD under
 the package, and CSB (pin 2), walled in by SDA and SCL, reaches that link through two vias.
@@ -399,6 +400,14 @@ and I/O pads (5.4), the LDO input short and wide, its enable pin thin.
 - The island protects the SHT4x: its traces, the two strips and the web make roughly
   250 K/W to the board against 300 to 1000 K/W to the air, so the sensor should see half
   to four fifths of the board's rise. With pour on the island it would follow the board.
+- A 3D conduction model of the board in its case agrees. Its inputs: copper and vias from
+  the layout, conduction-only air inside (Rayleigh number about 10³, below the onset of
+  convection), and 10 W/m²K outside. It puts the SHT4x 3.1 °C above ambient with the SCD43
+  in its 5 s mode and 1.2 °C in its 30 s mode, or 2.4 and 0.9 °C counting radiation across
+  the cavity; the regulator causes about 1 °C of the 3.1. The sensor sits at the island's
+  temperature, 70 % of the poured board's rise, while the air in its pocket rises 1.5 °C.
+  The heat arrives through the necks and traces, so walls in the case change the reading
+  by under 0.05 °C.
 - The rise is steady because the board is always on, so firmware can subtract it.
 
 ## 6. Bill of materials
@@ -541,8 +550,11 @@ are expected: SBU2 tied to VDD, SBU1 and the BME68x's SDO tied to ground.
   sensors by diffusion, enough for CO2 with about 1 cm² of vent but no help with heat:
   expect the SHT4x to read a couple of degrees high until calibrated in the enclosure, in
   both SCD43 modes, or the enclosure gets through-flow.
-- The enclosure does not exist yet. Three holes hold the board in a 29 × 20 mm triangle
-  and the rear corners rest on ledges; the model in `Case/` still has four posts. The
+- The enclosure in `Case/` (parametric FreeCAD) is unprinted. The tray has pegs through
+  the three holes and rests under both side edges, and the shell's ledges hold the board
+  down. Two ribs hang from the roof over the SHT4x island's slots, walling it into a pocket
+  with its own vents; they stop 0.5 mm above the board so the front left peg slides under.
+  A divider between the warm parts and the rest was modeled and left out (5.9). The
   button can only be pressed with the shell off and the LED is seen only through the rear
   vents, placeholders for a side-actuated switch and a rear-facing indicator.
 
