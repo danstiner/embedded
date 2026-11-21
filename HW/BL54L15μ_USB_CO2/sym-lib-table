@@ -1,0 +1,5 @@
+(sym_lib_table
+	(version 7)
+	(lib (name "453-00223R") (type "KiCad") (uri "${KIPRJMOD}/Components/453-00223R/KiCad/453-00223R.kicad_sym") (options "") (descr "Ezurio nRF54L15u chip "))
+	(lib (name "USB4056_03_A") (type "KiCad") (uri "${KIPRJMOD}/Components/USB4056_03_A/USB_C_Receptacle_USB4056.kicad_sym") (options "") (descr "USB-C receptacle symbol matching the GCT USB4056 footprint"))
+)
