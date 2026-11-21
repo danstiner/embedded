@@ -637,8 +637,9 @@ Not yet run. Nothing has been built.
   tuned on a 113 × 63.5 mm board and asks for a range test with the real board and
   enclosure (section 8). The module is also 2 mm off the center of its edge.
 - SWO and nRESET leave the module by paths that differ from the fabricated leak sensor
-  board. They pass the design rules, but nRESET's bottom trace is only 0.02 mm outside
-  the antenna keep-out.
+  board. They pass the design rules. nRESET's bottom trace runs 0.05 mm outside the
+  antenna keep-out, no closer than the ground pour, which on both layers runs right up to
+  the keep-out's edge.
 - To confirm against the manufacturers' datasheets: BME688 pin compatibility with the BME680, the nRF54L15's pull-up value and
   its GPIO limits on port 2, and the module's antenna keep-out dimensions.
 - The button can only be pressed with the case's shell off, and the LED is seen only
