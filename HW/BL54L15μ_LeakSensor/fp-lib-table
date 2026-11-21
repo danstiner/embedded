@@ -9,4 +9,5 @@
 	(lib (name "1011") (type "KiCad") (uri "${KIPRJMOD}/Components/1011") (options "") (descr ""))
 	(lib (name "AST0827MW-03BTRQ") (type "KiCad") (uri "${KIPRJMOD}/Components/AST0827MW_03BTRQ/footprints.pretty") (options "") (descr ""))
 	(lib (name "MountingHoleCompact") (type "KiCad") (uri "${KIPRJMOD}/Components/Mounting/MountingHoleCompact.pretty") (options "") (descr ""))
+	(lib (name "LeakSensor") (type "KiCad") (uri "${KIPRJMOD}/Components/LeakSensor.pretty") (options "") (descr "2026v5 footprints"))
 )

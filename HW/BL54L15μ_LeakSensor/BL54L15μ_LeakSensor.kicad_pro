@@ -840,7 +840,7 @@
     ]
   ],
   "text_variables": {
-    "REVISION": "2026v4",
+    "REVISION": "2026v5",
     "TITLE": "nrf54 Leak Sensor"
   },
   "tuning_profiles": {
