@@ -3,7 +3,7 @@
 	(generator "pcbnew")
 	(generator_version "10.0")
 	(layer "F.Cu")
-	(descr "Arm 10-pin SWD, 2x5 1.27 mm: land for an SMD header (3220-10-0300-00) or a pogo-pin clip. Pads run 0.3 to 3.15 mm off center so pogo rows 1.27 or 2.54 mm apart land on them. No paste: hand soldered.")
+	(descr "Arm 10-pin SWD, 2x5 1.27 mm: land for an SMD header (3220-10-0300-00) or a pogo-pin clip. Even pads run 0.3 to 3.15 mm off center, odd pads 0.3 to 2.6 mm, so pogo rows 1.27 or 2.54 mm apart land on them and, with the odd column along a board edge, a ground strip fits between those pads and the edge. No paste: hand soldered.")
 	(tags "SWD Cortex debug pogo")
 	(property "Reference" "REF**"
 		(at 0 -7.4 0)
@@ -97,8 +97,8 @@
 		)
 	)
 	(pad "1" smd roundrect
-		(at -1.725 -2.54)
-		(size 2.85 0.74)
+		(at -1.45 -2.54)
+		(size 2.3 0.74)
 		(layers "F.Cu" "F.Mask")
 		(roundrect_rratio 0.25)
 		(uuid "6350c441-d059-5258-b5b2-5ead480b9783")
@@ -111,8 +111,8 @@
 		(uuid "ac108be0-b96d-5f4e-94b9-cdbf18f91327")
 	)
 	(pad "3" smd roundrect
-		(at -1.725 -1.27)
-		(size 2.85 0.74)
+		(at -1.45 -1.27)
+		(size 2.3 0.74)
 		(layers "F.Cu" "F.Mask")
 		(roundrect_rratio 0.25)
 		(uuid "27fe5cf2-5116-5a7f-b745-60508c793d6c")
@@ -125,8 +125,8 @@
 		(uuid "ad33785a-cad9-57da-bf18-2534e3843cc9")
 	)
 	(pad "5" smd roundrect
-		(at -1.725 0.00)
-		(size 2.85 0.74)
+		(at -1.45 0.00)
+		(size 2.3 0.74)
 		(layers "F.Cu" "F.Mask")
 		(roundrect_rratio 0.25)
 		(uuid "c84fe358-ce3f-5aac-9324-edaf97c8fad8")
@@ -139,8 +139,8 @@
 		(uuid "42905cd3-cb62-53c9-8604-52b672805083")
 	)
 	(pad "7" smd roundrect
-		(at -1.725 1.27)
-		(size 2.85 0.74)
+		(at -1.45 1.27)
+		(size 2.3 0.74)
 		(layers "F.Cu" "F.Mask")
 		(roundrect_rratio 0.25)
 		(uuid "6019ddad-319f-5cc2-ae59-f33450eaf4dc")
@@ -153,8 +153,8 @@
 		(uuid "ef717fe3-afbb-5870-996f-8782cd3a4580")
 	)
 	(pad "9" smd roundrect
-		(at -1.725 2.54)
-		(size 2.85 0.74)
+		(at -1.45 2.54)
+		(size 2.3 0.74)
 		(layers "F.Cu" "F.Mask")
 		(roundrect_rratio 0.25)
 		(uuid "77dcff84-7ffa-5956-b2ad-89148be522f9")
