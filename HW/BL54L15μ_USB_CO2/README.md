@@ -27,6 +27,7 @@ unchanged, plugged in the other way up (5.1).
 | R-9  | Fit a small square enclosure with rounded corners; USB and vents on the rear face   |
 | R-10 | Single-sided surface-mount assembly, one reflow pass on a hot plate, no board wash  |
 | R-11 | Keep the sensor bus the hygrometer firmware already uses: same pins, MCU pull-ups   |
+| R-12 | Module supply: ripple and noise under 10 mV, the limit for an undisturbed radio     |
 
 ## 4. Design trades
 
@@ -92,9 +93,19 @@ shares the rail. Here the other loads are an nRF54L15 and two small sensors, wit
 its electrical characteristics table) that is 1 mV at most. The SCD43's own 205 mA pulses
 (SCD4x table 4) do dip the shared rail, but the parts that share it have wide supply
 ranges: the module 1.7 to 3.5 V (Ezurio datasheet), the SHT4x 1.08 to 3.6 V and the
-BME680 1.71 to 3.6 V (their datasheets). A second regulator would cost three parts and buy
-nothing measurable. A buck would reduce losses and heat, but those are not significant at
-this power. Feeding the sensor straight from VBUS would put the source's noise on it and
+BME680 1.71 to 3.6 V (their datasheets).
+
+The module is the one that could mind. Its datasheet (table 3) allows only 10 mV of
+ripple or noise on its supply, at any frequency, as the level that does not disturb the
+radio (R-12). In steady state the 205 mA step moves the regulator's output by 1.4 mV
+typical and 6.8 mV worst case. The AP2112's load-transient figure shows about 10 mV for a
+0 to 600 mA step with 1 µF on the output; here the step is a third of that and the rail
+carries 21 µF, so the dip should be smaller. That is an estimate, not a measurement
+(section 8). If it fails, the fixes are a separate regulator for the SCD43, as Sensirion
+recommends, or a small resistor ahead of C3 so the module sits behind its own filter.
+
+A second regulator would cost three parts for a problem that may not exist. A buck would
+reduce losses and heat, but those are not significant at this power. Feeding the sensor straight from VBUS would put the source's noise on it and
 raise its I2C input threshold to 0.65 × VDD (SCD4x table 4), 3.25 V at 5 V, which a 3.3 V
 bus only just meets.
 
@@ -143,9 +154,11 @@ bus only just meets.
   has none, so each gets the 5.1 kΩ pull-down (Rd) that the USB Type-C specification
   requires of a sink. Two separate resistors are needed; sharing one breaks detection
   with electronically marked cables.
-- The nRF54L15 has no USB interface, so D+ and D− are left open. The board draws well
-  under the 500 mA a default USB source provides and does not need to read the source's
-  current advertisement.
+- The nRF54L15 has no USB interface, so D+ and D− are left open and no host ever
+  configures the board. USB 2.0 (section 7.2.1) holds such a device to one unit load,
+  100 mA, as "an absolute maximum, not an average over time". The board averages well
+  under that, but the SCD43's pulses take it to about 240 mA. Chargers do not enforce
+  the limit; whether a computer's port does is untested (section 9).
 - Plugged in the wrong way up, the debug signals land on other contacts and do nothing,
   and the adapter's LED lights.
 - UART direction is named from the MCU. Both pins are ordinary port 1 GPIOs, so firmware
@@ -199,10 +212,9 @@ about 60 %, or 8 V. That is above the regulator's absolute maximum.
   - VBUS comes from the receptacle's two through-hole VBUS pins on the bottom layer to a
     via under the body, passes through pin 5 and goes on to R1: 7 mm from the nearer
     receptacle pin to the pad, and nothing reaches R1 without passing the pad.
-  - Its ground pin faces the receptacle and has a via 1.2 mm from the pad into the bottom
-    pour. The receptacle's through-hole ground pins B1 and B12 are about 4 mm away in
-    that pour, but the VBUS and SWD traces on the bottom layer between them make the
-    pour's path longer. This is the weakest of the three connections (section 9).
+  - Its ground pin faces the receptacle and runs 3.4 mm on a 0.3 mm trace to the
+    receptacle's A8 contact, which this board ties to ground as the probe's ground
+    reference. The pad also sits solidly in the top pour.
   - It adds at most 3.5 pF to each SWD line and leaks at most 150 nA at 5 V. Its
     breakdown is 6 V minimum, so it does not conduct at the 5.5 V VBUS maximum.
 - Total capacitance on VBUS is 4.7 µF, under the 10 µF a USB device may present.
@@ -256,6 +268,10 @@ about 60 %, or 8 V. That is above the regulator's absolute maximum.
   is at it, and the trace from the regulator passes C5's pad on the way in. The link
   under the sensor is 14.5 mm of 0.4 mm trace, about 18 mΩ.
 - The DNC pads are soldered to pads that connect to nothing, as the datasheet requires.
+- The datasheet asks for a 0.6 mm circle under the sensor's thermal relief hole to stay
+  "free from solder and flux" (section 4.2, figure 4). It sits just off a corner of the
+  center pad, and nothing is there on this board: no pad, paste, mask opening, via or
+  trace within 0.3 mm. The pour under it is covered by solder mask.
 - It sits in the rear right corner beside the receptacle, its center 7.4 mm from the
   rear edge. At about 50 mW in its 5 s mode it is the largest steady
   heat source on the board. It, the regulator and the BME68x are on the right side; the
@@ -278,7 +294,8 @@ Address 0x44, with a 100 nF capacitor (C6).
 
 ### 5.6 Pressure and gas: BME680 or BME688 (U4)
 
-Both parts share the 3 × 3 mm LGA-8 package. Wired for I2C: CSB to VDDIO, SDO to ground
+Both parts share the 3 × 3 mm LGA-8 package and the same pinout, numbered clockwise in top
+view (each datasheet's pin-out section). Wired for I2C: CSB to VDDIO, SDO to ground
 for address 0x76, the address the hygrometer firmware uses. It sits on the right edge,
 in front of the SCD43 at the east end of the regulator row. It heats itself when it
 measures gas, so it is on the warm side of the board with the SCD43 and the regulator,
@@ -315,7 +332,7 @@ pressure or altitude only.
 
 - **One I2C bus, no pull-up resistors.** All three sensors share the pins the hygrometer
   firmware already uses for the SHT4x (R-11). That firmware enables the nRF54L15's
-  internal pull-ups, about 13 kΩ, and runs the bus at 100 kHz. With 30 pF of bus
+  internal pull-ups, 13 kΩ typical (Ezurio datasheet), and runs the bus at 100 kHz. With 30 pF of bus
   capacitance the rise time is about 0.33 µs: well inside the 1 µs that 100 kHz allows,
   just outside the 0.3 µs that 400 kHz allows. The sensors update every few seconds, so
   100 kHz is plenty.
@@ -330,7 +347,9 @@ pressure or altitude only.
 
 ### 5.8 LED, button and test points
 
-- D2 with R4 (680 Ω) on P2.04: about 2 mA. It is the Matter status and pairing indicator.
+- D2 with R4 (680 Ω) on P2.04: about 2 mA with a red, amber or yellow LED, which drop
+  about 2 V. A blue, white or true-green LED drops about 2.9 V and would get about
+  0.6 mA. It is the Matter status and pairing indicator.
 - SW1 on P0.01: factory reset and pairing, as on the hygrometer. It is at the rear edge,
   left of the receptacle; D2 is at the rear edge on the right, with R4 beside the
   module. Both are inside the case: the button is reached with the shell off, and the
@@ -369,7 +388,7 @@ pressure or altitude only.
 | ---------------------------- | --------------------------------------- | ---------------------------------------- |
 | Outline                      | 35 × 35 mm, 5 mm corner radius          | R-9; see "Size" below                    |
 | Mounting                     | three 2.2 mm unplated holes: one 12 mm in from the rear edge beside the ESD clamp, two in the front corners 3 mm in from both edges | pegs on the case tray; no screws, which keeps metal away from the antenna (section 9) |
-| Hole keep-out                | no tracks or vias within 2.2 mm of a hole center | room for a 4 mm M2 head if screws are ever used; the bottom rests on the tray's plastic pad. The nearest copper is UART_TXD, 2.8 mm from the rear hole |
+| Hole keep-out                | no tracks or vias within 2.2 mm of a hole center | room for a 4 mm M2 head if screws are ever used; the bottom rests on the tray's plastic pad. The nearest copper is a ground via, 2.77 mm from the rear hole |
 | Layers                       | 2, 1.6 mm, 1 oz                         | lowest-cost prototype stack              |
 | Trace and space              | ≥ 0.1524 mm; signals 0.2 mm, 0.1524 mm at fine-pitch pads and onto the SHT4x island | the fab's 6 mil minimum; net class Default |
 | Power traces                 | VBUS, VIN and VDD 0.4 mm; 0.3 mm at the receptacle's VBUS pads and into the module; 0.15 to 0.2 mm for VDD branches that carry no current | net class Power; 6 mV drop per 25 mm of 0.4 mm at 205 mA |
@@ -389,7 +408,9 @@ in the repository's history.
   module.
 - **Module** on the front edge, 2 mm left of center, antenna end 0.5 mm from the edge.
   The module's datasheet asks for an edge, "preferably in the edge center" (section
-  5.3.1).
+  5.3.1), and its figure 12 draws the antenna end on the edge itself. The end ground pads
+  sit 0.2 mm inside the module, so the fab's 0.381 mm edge keep-out would have allowed
+  the module to come within about 0.18 mm. This build keeps 0.5 mm (section 9).
 - **Right side:** the SCD43 in the rear corner with D2 and C4 behind it, the BME68x and C7
   at the east end of the regulator row, and TP2 to TP5 down the edge. These are the warm
   parts and the ones with pulsed current.
@@ -415,8 +436,8 @@ purpose of the pin, not the net name:
 
 **Ground.** The aim is ground under, or over, every signal.
 
-- 420 mm of trace on top and 161 mm on the bottom. The bottom pour is one 945 mm² piece
-  of the board's 1204 mm²; the top pour is one 707 mm² piece and three small ones, each
+- 422 mm of trace on top and 162 mm on the bottom. The bottom pour is one 944 mm² piece
+  of the board's 1204 mm²; the top pour is one 706 mm² piece and three small ones, each
   with at least one via.
 - The longest bottom-layer runs, and so the longest cuts in the bottom pour: nRESET and
   SWO side by side from the receptacle's east pins to the module, about 25 mm each
@@ -450,6 +471,11 @@ purpose of the pin, not the net name:
 - Everything is on the top side (R-10) except JP1, which is only copper, on the bottom
   between the regulator and the module. The title, revision and name are on the bottom
   silkscreen.
+- **J1** sits where GCT's drawing, and the "PCB Edge" line on its footprint's fab layer,
+  put the board edge: the front shell stakes are 1.55 mm in from the rear edge, so the
+  receptacle's lip reaches the case wall. Its 16 through-hole pins and stakes have no
+  paste openings, so a stencil does not cover them: paste them by hand before the one
+  reflow pass (R-10), as on the DevKit.
 - The tallest part is the SCD43 at 6.5 mm.
 
 **Size.** 35 mm is close to the smallest square that takes these parts with the
@@ -487,7 +513,7 @@ order at a prototype price of $5 per square inch for three boards.
 | U4      | BME680 or BME688   | Bosch                    | LGA-8 3 mm      | Pressure and gas (5.6)                   |
 | J1      | USB-C receptacle   | GCT USB4056-03-A         | 24-contact      | Power and debug (5.1)                    |
 | D1      | USBLC6-2SC6        | STMicroelectronics       | SOT-23-6        | ESD clamp: VBUS, SWDCLK, SWDIO (5.2)     |
-| D2      | LED                | any                      | 0603            | Status (5.8)                             |
+| D2      | LED, red, amber or yellow (about 2 V) | any   | 0603            | Status (5.8)                             |
 | X1      | 32.768 kHz, 9 pF   | CM7V-T1A-LOW-ESR         | 3.2 × 1.5 mm    | Low-frequency crystal (5.7)              |
 | SW1     | Tactile switch     | Alps SKRK                | SMD             | Pairing and factory reset (5.8)          |
 | R1      | 1 Ω, 1 %, 0.1 W    | RC0603FR-071RL           | 0603            | VBUS damping (5.2); bridged on the first build (9) |
@@ -523,16 +549,18 @@ J1 is the only connector. Its contacts are listed in section 5.1.
 
 ## 8. Verification
 
-Not yet run. Nothing has been built.
+Not yet run. Boards were ordered on 2026-11-21, from commit `d46e373`.
 
 | Test                                                                 | Checks    | Pass                                         |
 | -------------------------------------------------------------------- | --------- | -------------------------------------------- |
 | Resistance CC1 and CC2 to ground, unpowered                          | R-4       | 5.1 kΩ ±1 % each                             |
 | Power from a USB-C charger with a USB-C cable, both orientations     | R-4       | VDD at 3.25–3.35 V                           |
 | Power from a USB-A port                                              | R-4       | same                                         |
+| Power from a computer's USB port, with the SCD43 measuring, 1 h      | 5.1       | the port does not shut off                   |
 | Scope VIN at C1 while hot-plugging a live 2 m cable, 10 times        | 5.2       | peak ≤ 6.0 V                                 |
 | Scope VDD at TP2, AC coupled, sensor measuring                       | R-7       | ≤ 30 mV outside the sensor's own pulses; note the dip during them |
 | Scope VDD with the SCD43 idle, radio transmitting, BME68x heating    | R-7       | no change above 30 mV                        |
+| Scope VDD at C3, AC coupled, SCD43 measuring and radio transmitting  | R-12      | ≤ 10 mV peak to peak                         |
 | Supply current at 5 V, averaged over 1 min and peak                  | R-4       | under 60 mA average, under 300 mA peak       |
 | Flash and attach a debugger through the adapter, plugged in flipped  | R-6       | works; reset line resets                     |
 | Console through the adapter at 115200 baud                           | R-6       | both directions                              |
@@ -546,7 +574,8 @@ Not yet run. Nothing has been built.
 ## 9. Known limitations and open questions
 
 - The layout was placed and routed by hand. KiCad's checks report no DRC violations, no
-  unconnected items and no schematic parity issues.
+  unconnected items and no schematic parity issues. Three warnings for J1's silkscreen
+  outline running to the board edge are excluded; the fab trims silkscreen there.
 - ERC reports three warnings, all expected: SBU2 tied to VDD, and SBU1 and the BME68x's
   SDO pin tied to ground. KiCad flags a bidirectional pin wired to a power rail.
 - **Reset held by a USB 3 host.** nRESET is on a SuperSpeed contact. A full-featured cable
@@ -572,13 +601,12 @@ Not yet run. Nothing has been built.
   consider a regulator rated for at least 10 V at its input, twice VBUS: the hot-plug
   ring then needs no damping, and R1 and its 0.24 V drop can go. It must still supply
   the SCD43's 205 mA peaks and meet R-7. None has been selected.
-- SBU1 carries VDD to the receptacle. A short there is limited by U1's 50 mA foldback.
+- SBU2 carries VDD to the receptacle. A short there is limited by U1's 50 mA foldback.
+- **USB current.** USB 2.0 holds a device that has not been configured to 100 mA (5.1),
+  and the SCD43's pulses take this board to about 240 mA. Chargers do not police it; a
+  computer's port that limits current could shut off. The test in section 8 checks one.
 - SWDCLK and SWDIO are clamped by D1. nRESET, SWO and the two UART lines have no ESD
   protection, like the DevKit's.
-- **SCD43 land pattern.** The datasheet asks for a keep-free area around the sensor's
-  thermal relief hole (section 4.2, figure 4). The board uses KiCad's stock SCD4x
-  footprint and keeps traces out from under the sensor, but the ground pour does reach
-  the center pad. Check the footprint and the pour against the figure.
 - The SCD43's automatic self-calibration needs weekly exposure to fresh air. In a room
   that never drops to 400 ppm the reading drifts; firmware should allow a forced
   recalibration.
@@ -586,8 +614,10 @@ Not yet run. Nothing has been built.
   shared with the SCD41.
 - I2C at 400 kHz would need external pull-ups: fit R5 and R6 (5.8).
 - The MCU's average current as a Thread router is assumed, not measured (5.3).
-- One regulator feeds everything, so the SCD43's 205 mA pulses dip the rail the MCU and
-  the other sensors share. Nothing here should mind, but it has not been measured.
+- **Radio supply.** One regulator feeds everything, so the SCD43's 205 mA pulses dip the
+  rail the module shares, and the module allows only 10 mV of ripple or noise (R-12).
+  The estimate in 4.3 says the dip stays under that; it has not been measured. If it
+  does not, the radio may lose packets while the sensor measures.
 - The BME68x heater current and its effect on the SCD43 and SHT4x readings are not
   characterized.
 - The island's slots are at OSH Park's 0.508 mm minimum for drilled slots. Its slots page
@@ -599,8 +629,6 @@ Not yet run. Nothing has been built.
 - Three holes hold the board in a flat triangle, 29 mm wide and 20 mm deep. The rear
   corners rest on the case's ledges only. The case model in `Case/` still has four
   posts and has to be updated before it is printed.
-- D1's ground pad reaches the receptacle's ground pins through one via and the bottom
-  pour, which has to go around the VBUS and SWD traces on the bottom layer between them.
 - The receptacle's through-hole pins have a 0.10 mm annular ring, under OSH Park's
   0.127 mm minimum, and GCT recommends a board 1.00 to 1.20 mm thick: on 1.6 mm its pin
   tails (1.05 mm) and shell stakes (1.15 mm) stop short of the bottom. Both come from
@@ -627,13 +655,19 @@ Not yet run. Nothing has been built.
   pegs, not screws, so the nearest metal is the SCD43's can and the BME68x, about 22 mm
   from the antenna, and the receptacle at 25 mm. The datasheet also says the antenna is
   tuned on a 113 × 63.5 mm board and asks for a range test with the real board and
-  enclosure (section 8). The module is also 2 mm off the center of its edge.
+  enclosure (section 8). Three more departures from its figure 12:
+  - The module is 2 mm off the center of its edge.
+  - The figure wants at least 15 mm of board edge on each side of the module. This board
+    has 12.35 mm on the left and 16.35 mm on the right; a 35 mm board cannot give more
+    than 14.35 mm on both sides.
+  - The antenna end is 0.5 mm in from the edge instead of on it (5.9). The fab's edge
+    keep-out would have allowed about 0.18 mm, as on the DevKit's 0.23 mm, but moving the
+    module and its fan-out was too much work at the end of this layout. Do it in the next
+    revision.
 - SWO and nRESET leave the module by paths that differ from the fabricated leak sensor
   board. They pass the design rules. nRESET's bottom trace runs 0.05 mm outside the
   antenna keep-out, no closer than the ground pour, which on both layers runs right up to
   the keep-out's edge.
-- To confirm against the manufacturers' datasheets: BME688 pin compatibility with the BME680, the nRF54L15's pull-up value and
-  its GPIO limits on port 2, and the module's antenna keep-out dimensions.
 - The button can only be pressed with the case's shell off, and the LED is seen only
   through the rear vent slots, next to the SCD43's air path. Both are placeholders for a
   side-actuated switch and a rear-facing indicator in a later revision.
@@ -663,8 +697,8 @@ were checked on 2026-11-19.
   7.3, June 2026: tables 1 and 2 (SHT40: ±1.8 %RH and ±0.2 °C typical) and the supply
   range. Source for R-2 and sections 4.3 and 5.5.
 - [Diodes Incorporated AP2112 datasheet](https://www.diodes.com/assets/Datasheets/AP2112.pdf),
-  DS39724 Rev. 2-2: the electrical characteristics tables. Source for sections 4.3, 5.2
-  and 5.3.
+  DS39724 Rev. 2-2: the electrical characteristics tables and the load-transient figure.
+  Source for sections 4.3, 5.2 and 5.3.
 - GCT USB4056, the receptacle used:
   [product specification](https://gct.co/files/specs/usb4056-spec.pdf), revision A2, and
   [drawing](https://gct.co/files/drawings/usb4056.pdf). Its footprint and model are in
@@ -680,15 +714,20 @@ were checked on 2026-11-19.
   [BME680 datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme680-ds001.pdf),
   BST-BME680-DS001-09, revision 1.9, and
   [BME688 datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme688-ds000.pdf),
-  BST-BME688-DS000-03, revision 1.3. Source for sections 4.3 and 5.6.
+  BST-BME688-DS000-03, revision 1.3: the pin-out sections (both numbered clockwise in top
+  view) and section 7.2. Source for sections 4.3 and 5.6.
 - [Ezurio BL54L15µ datasheet](https://www.ezurio.com/documentation/datasheet-bl54l15u),
-  version 1.1, August 2025: the supply range and the hardware integration sections.
-  Source for sections 4.3 and 5.7.
+  version 1.1, August 2025: the pin table, table 3 (supply range and the 10 mV ripple
+  limit), the I2C pull-up note, sections 5.2 to 5.3.2 and figure 12 (land pattern and
+  antenna keep-out). Source for R-12 and sections 4.3, 5.7, 5.9 and 9.
 
 Standards and other sources:
 
 - [USB Type-C Cable and Connector Specification](https://www.usb.org/document-library/usb-type-cr-cable-and-connector-specification-release-24),
   release 2.x: sink Rd termination and the 5.5 V VBUS maximum (sections 5.1 and 5.2).
+- [USB 2.0 Specification](https://www.usb.org/document-library/usb-20-specification),
+  the June 2025 bundle: section 7.2.1, the 100 mA unit load and the limit before a
+  device is configured (sections 5.1 and 9).
 - [Universal Serial Bus 3.2 Specification](https://www.usb.org/document-library/usb-32-revision-11-june-2022),
   revision 1.1: receiver termination (section 9).
 - `HW/BL54L15μ_DevKit` and `HW/SWD_USBC_InlineAdapter` in this repository, the source for
