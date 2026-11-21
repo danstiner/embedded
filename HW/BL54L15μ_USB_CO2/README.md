@@ -366,8 +366,8 @@ pressure or altitude only.
 | Rule                         | Value                                   | Basis                                    |
 | ---------------------------- | --------------------------------------- | ---------------------------------------- |
 | Outline                      | 35 × 35 mm, 5 mm corner radius          | R-9; see "Size" below                    |
-| Mounting                     | three 2.2 mm unplated holes: one 12 mm in from the rear edge beside the ESD clamp, two in the front corners 3 mm in from both edges | pegs on the case tray, or M2 screws |
-| Screw head keep-out          | no tracks or vias within 2.2 mm of a hole center | 4 mm M2 head; the bottom rests on the tray's plastic pad. The nearest copper is UART_TXD, 2.8 mm from the rear hole |
+| Mounting                     | three 2.2 mm unplated holes: one 12 mm in from the rear edge beside the ESD clamp, two in the front corners 3 mm in from both edges | pegs on the case tray; no screws, which keeps metal away from the antenna (section 9) |
+| Hole keep-out                | no tracks or vias within 2.2 mm of a hole center | room for a 4 mm M2 head if screws are ever used; the bottom rests on the tray's plastic pad. The nearest copper is UART_TXD, 2.8 mm from the rear hole |
 | Layers                       | 2, 1.6 mm, 1 oz                         | lowest-cost prototype stack              |
 | Trace and space              | ≥ 0.1524 mm; signals 0.2 mm, 0.1524 mm at fine-pitch pads and onto the SHT4x island | the fab's 6 mil minimum; net class Default |
 | Power traces                 | VBUS, VIN and VDD 0.4 mm; 0.3 mm at the receptacle's VBUS pads and into the module; 0.15 to 0.2 mm for VDD branches that carry no current | net class Power; 6 mV drop per 25 mm of 0.4 mm at 205 mA |
@@ -537,6 +537,7 @@ Not yet run. Nothing has been built.
 | SHT4x against a reference thermometer after 1 h in the enclosure     | R-2       | within 0.5 °C                                |
 | CO2 against a calibrated reference, or outdoors, after 5 days        | R-1       | within specification                         |
 | Thread: join as a router and carry a child's traffic for 24 h        | R-5       | no resets, child stays attached              |
+| Range: RSSI at a fixed distance, board in its enclosure, against a DevKit in the same place | 9 | record the difference from the DevKit |
 | Plug into a USB 3 host port with a full-featured cable, both ways up | 9         | record whether the board stays in reset      |
 
 ## 9. Known limitations and open questions
@@ -625,11 +626,13 @@ Not yet run. Nothing has been built.
   the SHT4x to read a couple of degrees above the room until that is calibrated out or
   the enclosure gets a second opening for through-flow.
 - The antenna's performance in this placement is not measured. The module's datasheet
-  gives 30 mm to the sides and 40 mm above or below as the minimum safe distance for
-  metal (section 5.3.2), which nothing on a 35 mm board can meet. The front left screw is
-  about 13 mm from the antenna, the front right screw 17 mm, the SCD43's can and the
-  BME68x about 22 mm and the receptacle 25 mm. Nylon screws at the front would remove two
-  of those. The module is also 2 mm off the center of its edge.
+  (section 5.3.2) gives 30 mm to the sides and 40 mm above or below as the safe distance
+  for metal, which nothing on a 35 mm board can meet, and says metal closer than 20 mm
+  "will begin to significantly degrade performance". The holes take the case's plastic
+  pegs, not screws, so the nearest metal is the SCD43's can and the BME68x, about 22 mm
+  from the antenna, and the receptacle at 25 mm. The datasheet also says the antenna is
+  tuned on a 113 × 63.5 mm board and asks for a range test with the real board and
+  enclosure (section 8). The module is also 2 mm off the center of its edge.
 - SWO and nRESET leave the module by paths that differ from the fabricated leak sensor
   board. They pass the design rules, but nRESET's bottom trace is only 0.02 mm outside
   the antenna keep-out.
