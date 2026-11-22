@@ -283,6 +283,12 @@ Board and cell are both 15.6 mm: the width adds 0.15 mm clearance and a 1.5 mm w
 side, the height a 1.0 mm floor, a 1.2 mm lid and the slot's 0.1 mm under the board and
 0.15 mm over it.
 
+The bottom follows the board: inside and out, its corners are arcs tangent to the sides and
+centered over the ends of the board's 3 mm flat. Outside, each arc gives way to a 45° line
+where it would overhang more than 45° when printed, so the body prints upright without
+supports on a 9.6 mm flat (`MaxOverhang`; 90 gives the full curve). The bottom's front and
+rear edges are rounded 2 mm.
+
 - **Board slot.** 0.4 mm lips front and back along the board's sides and bottom; the
   board drops in from the top and rests 0.1 mm above the floor. The side lips stop 0.5 mm
   below the board's top, under the module's end. The domes push the board back, so its
@@ -303,15 +309,15 @@ side, the height a 1.0 mm floor, a 1.2 mm lid and the slot's 0.1 mm under the bo
   The 209 is assumed compressed to 2.5 mm between the divider and the cell. Two saddles
   under the cell; the lid's underside, 0.15 mm over it, keeps it down.
 - **Wiring.** BT1's pads face the divider across a 2.0 mm gap, where the 209's tab is.
-  The 228's tab sits in a 2.0 mm pocket behind the rear panel; its wire runs forward along
-  the bay's lower left corner, beside the cell, through 1.2 mm notches in both panels and
-  the saddles.
+  The 228's tab sits in a 2.0 mm pocket behind the rear panel; its wire runs forward over
+  both panels in the bay's upper left corner, 1.0 mm clear of the cell and 0.4 mm under the
+  lid's rim. The curved bottom leaves no room for it below the cell.
 - **Vents.** Four 0.8 mm slots in the front wall in front of U1, and four in the lid over
   the gap in front of the board, so air passes U1 (5.3).
 - **Lid.** 1.2 mm, with a 0.8 mm rim inside the walls and four 0.5 mm nubs into dimples
   in the body; the rim stops short of the board.
-- **Checks.** No overlap between the body, lid, board and its parts, cell, contacts and
-  pins. The board drops in from 25 mm above without touching anything but the ribs.
+- **Checks.** No overlap between the body, lid, board and its parts, cell, contacts, pins
+  and a Ø1.2 mm + wire. The board drops in from 25 mm above without touching anything but the ribs.
   J1's header model is left out: a board with a header does not fit.
 
 ## 6. Bill of materials

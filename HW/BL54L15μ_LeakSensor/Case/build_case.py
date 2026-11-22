@@ -15,7 +15,9 @@ P = dict(
     # board (README 5.6): 15.6 x 15.6, centered on the cell's axis; top corners R0.3, a flat bottom with R6.3 corners
     BoardW2=7.8, BoardTop=7.8, BoardBot=-7.8, BoardRT=0.3, BoardRC=6.3, BoardT=1.6,
     # body
-    Wall=1.5, Floor=1.0, FloorGap=0.1, TopGap=0.15, LidT=1.2, CornerR=3.0, InR=1.5, Clear=0.15,
+    Wall=1.5, Floor=1.0, FloorGap=0.1, TopGap=0.15, LidT=1.2, CornerR=3.0, Clear=0.15,
+    EndR=2.0,            # the bottom's front and rear edges
+    MaxOverhang=45,      # the bottom's curve gives way to a straight line here (degrees from vertical; 90: the full curve)
     FrontGap=2.7,        # board front face to the front wall: the module stands 2.08 mm off the board, the pin bores need 2.7
     FrontT=1.5,
     BackGap=2.0,         # board back to the divider: the 209's solder ear and the BT1 wire joints
@@ -34,8 +36,8 @@ P = dict(
     PinCap=0.6,          # bore cap over the pin; at 0.8 the left boss would reach C2, which overhangs it
     PinProud=0.2,        # the pin's top end is then 0.9 mm below X1
     BossBack=0.7,        # boss face toward the board, clear of the domes' feet: the pin stands 0.5 mm proud of it, onto the dome
-    # cell cradle; the + wire runs along the bay's lower left corner (no room under the cell)
-    CradleT=1.2, CradleInset=5.0, WireW=1.2,
+    # cell cradle; the + wire runs over both panels in the bay's upper left corner (no room under or beside the cell)
+    CradleT=1.2, CradleInset=5.0, WireD=1.2,
     # vents (in front of and above U1)
     SlotW=0.8, SlotH=3.0, VentX=5.32, VentY=5.4,
     # lid
@@ -87,6 +89,40 @@ def rrect(x0, x1, z0, z1, rb, rt, y0, y1):
     return s.removeSplitter()
 
 
+def u_prism(w2, zb, zt, rt, y0, y1, ov=90):
+    """Section in XZ, extruded along Y: the board's shape grown to half-width w2 and bottom zb. The bottom corners are
+    arcs tangent to the sides, centered over the ends of the board's flat; past ov degrees of overhang a tangent line
+    takes over, down to a wider flat. Top corners rt."""
+    f = g('BoardW2') - g('BoardRC')
+    r = w2 - f
+    zc = zb + r
+    a = math.radians(90 - ov)                     # where the arc ends, from straight down
+    tx, tz = f + r * math.sin(a), zc - r * math.cos(a)
+    xf = tx - (tz - zb) / math.tan(a) if a else f
+    m, h = (a + math.pi / 2) / 2, math.sqrt(0.5)
+
+    def half(s):                                  # bottom center to top center; s = -1 mirrors it
+        p = lambda x, z: V(s * x, y0, z)
+        e = [Part.LineSegment(p(0, zb), p(xf, zb))]
+        if a:
+            e.append(Part.LineSegment(p(xf, zb), p(tx, tz)))
+        e += [Part.Arc(p(tx, tz), p(f + r * math.sin(m), zc - r * math.cos(m)), p(w2, zc)),
+              Part.LineSegment(p(w2, zc), p(w2, zt - rt))]
+        if rt:
+            e.append(Part.Arc(p(w2, zt - rt), p(w2 - rt + rt * h, zt - rt + rt * h), p(w2 - rt, zt)))
+        e.append(Part.LineSegment(p(w2 - rt, zt), p(0, zt)))
+        return [x.toShape() for x in e]
+    return Part.Face(Part.Wire(Part.__sortEdges__(half(1) + half(-1)))).extrude(V(0, y1 - y0, 0))
+
+
+def end_round(r, y0, y1):
+    """Side view: the bottom's front and rear edges rounded r."""
+    s = box(-20, 20, y0 + r, y1 - r, -1, 30).fuse(box(-20, 20, y0, y1, r, 30))
+    for y in (y0 + r, y1 - r):
+        s = s.fuse(Part.makeCylinder(r, 40, V(-20, y, r), V(1, 0, 0)))
+    return s
+
+
 def outline(d, n=8):
     """Board outline offset by d (sketch coordinates): top corners BoardRT, straight sides, BoardRC bottom corners, a
     flat bottom. Offsetting keeps every center: only the radii change."""
@@ -116,18 +152,20 @@ def outline_prism(d, y0, y1):
 
 
 # ============================ body ============================
-outer = rrect(-g('OW'), g('OW'), 0, g('Ztop'), g('CornerR'), g('CornerR'), g('Yfo'), g('Yw1'))
+outer = u_prism(g('OW'), 0, g('Ztop'), g('CornerR'), g('Yfo'), g('Yw1'), g('MaxOverhang')).common(
+    end_round(g('EndR'), g('Yfo'), g('Yw1')))
 body = outer.common(box(-20, 20, -20, 60, -1, g('Zb')))
-body = body.cut(rrect(-g('IW'), g('IW'), g('Floor'), g('Zb') + 5, g('InR'), 0, g('Yfi'), g('Yw0')))
+body = body.cut(u_prism(g('IW'), g('Floor'), g('Zb') + 5, 0, g('Yfi'), g('Yw0')))
 
+# inner parts stand on the curved floor: built from the bottom up, then trimmed to the outside
 adds = []
 for y0, y1 in ((g('Yd0'), g('Yd1')), (g('Yr0'), g('Yr1'))):                      # contact panels
-    adds.append(box(-g('IW'), g('IW'), y0, y1, g('Floor') - 0.01, AZ + g('PanelTop')))
+    adds.append(box(-g('IW'), g('IW'), y0, y1, 0, AZ + g('PanelTop')))
 for yc in (g('Yc0') + g('CradleInset'), g('Yc1') - g('CradleInset')):              # cell saddles
-    adds.append(box(-g('IW'), g('IW'), yc - g('CradleT') / 2, yc + g('CradleT') / 2, g('Floor') - 0.01, AZ).cut(
+    adds.append(box(-g('IW'), g('IW'), yc - g('CradleT') / 2, yc + g('CradleT') / 2, 0, AZ).cut(
         cylY(0, AZ, g('CellD') / 2 + 0.2, yc - 1, yc + 1)))
 # board slot: lips 0.4 mm over the board's sides and bottom curve, front and back; open above the straight sides
-frame = box(-g('IW'), g('IW'), -g('LipT'), g('BoardT') + g('LipT'), g('Floor') - 0.01, AZ + g('RailTop'))
+frame = box(-g('IW'), g('IW'), -g('LipT'), g('BoardT') + g('LipT'), 0, AZ + g('RailTop'))
 frame = frame.cut(outline_prism(-g('Lip'), -5, 5))
 frame = frame.cut(outline_prism(g('Tol'), 0, g('BoardT') + g('Tol')))
 frame = frame.cut(box(-g('BoardW2') - g('Tol'), g('BoardW2') + g('Tol'), 0, g('BoardT') + g('Tol'), AZ + g('BoardSideY'), AZ + 30))
@@ -138,15 +176,13 @@ adds.append(frame)
 for sx in (-1, 1):
     x = sx * g('PinX')
     adds.append(box(x - g('PinD') / 2 - g('BossWall'), x + g('PinD') / 2 + g('BossWall'), g('Yfi') - 0.01, -g('BossBack'),
-                    g('Floor') - 0.01, g('PinZ1') + g('PinCap')))
+                    0, g('PinZ1') + g('PinCap')))
 for a in adds:
-    body = body.fuse(a)
+    body = body.fuse(a.common(outer))
 
 subs = []
 for sx in (-1, 1):                                       # pin bores
     subs.append(cylZ(sx * g('PinX'), g('PinY'), g('PinD') / 2, -1, g('PinZ1')))
-x0 = -g('IW') + g('InR')        # just inside the bay's corner fillet
-subs.append(box(x0, x0 + g('WireW'), g('Yd0') - 0.01, g('Yw0'), g('Floor') - 0.01, g('Floor') + g('WireW')))   # + wire: notches in the panels and saddles
 for i in range(4):                                       # front vents in front of U1
     x = g('VentX') - 1.5 + 1.0 * i
     subs.append(box(x - g('SlotW') / 2, x + g('SlotW') / 2, g('Yfo') - 1, g('Yfi') + 0.01, AZ + g('VentY') - g('SlotH') / 2, AZ + g('VentY') + g('SlotH') / 2))
@@ -188,6 +224,7 @@ refs['board'] = Part.makeCompound([x.transformGeometry(m) for x in keep])
 refs['header'] = Part.makeCompound([x.transformGeometry(m) for x in s.Solids if x.BoundBox.ZMin <= -0.05])
 refs['cell'] = cylY(0, AZ, g('CellD') / 2, g('Yc0'), g('Yc1'))
 refs['pins'] = cylZ(-g('PinX'), g('PinY'), g('PinD') / 2, g('PinZ0'), g('PinZ1')).fuse(cylZ(g('PinX'), g('PinY'), g('PinD') / 2, g('PinZ0'), g('PinZ1')))
+refs['wire'] = cylY(-g('IW') + g('WireD') / 2 + 0.05, AZ + g('PanelTop') + g('WireD') / 2 + 0.05, g('WireD') / 2, g('Yd0'), g('Yr1'))
 pt = AZ + g('PanelTop')
 c209 = box(-3.95, 3.95, g('Yd0') - 0.3, g('Yd0'), pt - 9.0, pt + 0.3).fuse(box(-3.95, 3.95, g('Yd0') - 0.3, g('Yd1') + 0.3, pt, pt + 0.3)) \
     .fuse(box(-3.95, 3.95, g('Yd1'), g('Yc0'), pt + 0.3 - 12.1, pt + 0.3))
@@ -220,7 +257,9 @@ for k, r in refs.items():
                 if so.Volume > 1e-3:
                     b = so.BoundBox
                     print('  hit %s %.3f mm3 at x %.2f..%.2f y %.2f..%.2f z %.2f..%.2f (sketch y %.2f..%.2f)' % (name, so.Volume, b.XMin, b.XMax, b.YMin, b.YMax, b.ZMin, b.ZMax, b.ZMin - AZ, b.ZMax - AZ))
-print('CHECK pins/board %.3f, pins/cell %.3f, contacts/cell %.3f' % (vol(refs['pins'], refs['board']), vol(refs['pins'], refs['cell']), vol(refs['contacts'], refs['cell'])))
+print('CHECK pins/board %.3f, pins/cell %.3f, contacts/cell %.3f, wire/cell %.3f, wire/contacts %.3f' % (
+    vol(refs['pins'], refs['board']), vol(refs['pins'], refs['cell']), vol(refs['contacts'], refs['cell']),
+    vol(refs['wire'], refs['cell']), vol(refs['wire'], refs['contacts'])))
 dome_gap = -refs['pins'].BoundBox.YMax          # pin surface to the board's front face
 print('CHECK pin surface %.2f mm in front of the board face; dome apex at %.2f: %.2f mm press' % (dome_gap, g('DomeApex'), g('DomeApex') - dome_gap))
 hits = []
@@ -241,7 +280,8 @@ vs = doc.addObject('App::VarSet', 'Params')
 for k, v in P.items():
     vs.addProperty('App::PropertyFloat', k, 'Build', 'mm; rerun build_case.py to apply'); setattr(vs, k, float(v))
 for name, shp, show in (('Body', body, True), ('Lid', lid, True), ('Board', refs['board'], True), ('Cell', refs['cell'], True),
-                        ('Pins', refs['pins'], True), ('Contacts', refs['contacts'], True), ('J1_header', refs['header'], False)):
+                        ('Pins', refs['pins'], True), ('Contacts', refs['contacts'], True), ('Wire', refs['wire'], True),
+                        ('J1_header', refs['header'], False)):
     o = doc.addObject('Part::Feature', name); o.Shape = shp
     o.Visibility = show
 doc.recompute()
@@ -249,7 +289,7 @@ doc.saveAs(os.environ['OUT'])
 exp = os.environ.get('EXPORT')
 if exp:
     import Mesh, MeshPart
-    for name, shp in (('body', body), ('lid', lid), ('board', refs['board']), ('cell', refs['cell']), ('pins', refs['pins']), ('contacts', refs['contacts'])):
+    for name, shp in (('body', body), ('lid', lid), ('board', refs['board']), ('cell', refs['cell']), ('pins', refs['pins']), ('contacts', refs['contacts']), ('wire', refs['wire'])):
         MeshPart.meshFromShape(Shape=shp, LinearDeflection=0.03, AngularDeflection=0.3).write('%s/%s.stl' % (exp, name))
     body.exportStep('%s/body.step' % exp); lid.exportStep('%s/lid.step' % exp)
     # print plate: the body on its floor, the lid on its top beside it
