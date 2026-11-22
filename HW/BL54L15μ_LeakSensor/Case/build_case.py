@@ -255,11 +255,22 @@ if exp:
     # print plate: the body on its floor, the lid on its top beside it
     lp = lid.copy(); lp.rotate(V(0, 0, 0), V(0, 1, 0), 180)
     lp.translate(V(2 * g('OW') + 5, 0, -lp.BoundBox.ZMin))
-    plate = FreeCAD.newDocument('Plate')
-    objs = []
-    for name, shp in (('body', body), ('lid', lp)):
-        o = plate.addObject('Mesh::Feature', name)
-        o.Mesh = MeshPart.meshFromShape(Shape=shp, LinearDeflection=0.03, AngularDeflection=0.3)
-        objs.append(o)
-    Mesh.export(objs, '%s/case.3mf' % exp)
+    # written by hand: FreeCAD's 3MF export leaves the objects unnamed
+    import zipfile
+    objs, items = '', ''
+    for i, (name, shp) in enumerate((('body', body), ('lid', lp)), 1):
+        pts, tris = MeshPart.meshFromShape(Shape=shp, LinearDeflection=0.03, AngularDeflection=0.3).Topology
+        objs += '<object id="%d" name="%s" type="model"><mesh><vertices>%s</vertices><triangles>%s</triangles></mesh></object>' % (
+            i, name, ''.join('<vertex x="%.4f" y="%.4f" z="%.4f"/>' % (p.x, p.y, p.z) for p in pts),
+            ''.join('<triangle v1="%d" v2="%d" v3="%d"/>' % t for t in tris))
+        items += '<item objectid="%d"/>' % i
+    xml = '<?xml version="1.0" encoding="UTF-8"?>'
+    with zipfile.ZipFile('%s/case.3mf' % exp, 'w', zipfile.ZIP_DEFLATED) as z:
+        z.writestr('[Content_Types].xml', xml + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+                   '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+                   '<Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>')
+        z.writestr('_rels/.rels', xml + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+                   '<Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>')
+        z.writestr('3D/3dmodel.model', xml + '<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">'
+                   '<resources>%s</resources><build>%s</build></model>' % (objs, items))
 print('SAVED', os.environ['OUT'])
