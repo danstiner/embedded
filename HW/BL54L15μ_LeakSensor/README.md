@@ -17,7 +17,7 @@ board `bl54l15u_hygrometer@2026v4`).
 | Size          | 48 mm square                                    | 17.0 × 19.5 mm, stands on the end of the cell (5.6)      |
 | Battery       | CR2 in a Keystone 1011 holder                   | CR2 on wires, BAT+ and BAT− pads on the back             |
 | Leak contacts | 6 mm domes on the back, driven one way          | 4 mm domes on the front, either way (4.1)                |
-| Leak pins     | drive P0.01, sense P1.07, 1 MΩ to ground        | P1.07 and P1.05 each drive or sense; 1 MΩ to a GPIO      |
+| Leak pins     | drive P0.01, sense P1.07, 1 MΩ to ground        | P1.07 and P1.04 each drive or sense; 1 MΩ to a GPIO      |
 | I2C           | SDA P1.14, SCL P1.04                            | SDA P1.10, SCL P1.12 (5.2)                               |
 | Buzzer        | BZ1, Q1, D3, R7 (never driven by firmware)      | removed                                                  |
 | SWD           | 2×5 1.27 mm box header on the front             | 2×5 1.27 mm pads on the back: header or pogo clip (4.2)  |
@@ -57,7 +57,7 @@ Analog Dialogue 50-11).
 - **Not the internal pull-down.** At the nRF54L15's 13 kΩ typical (Ezurio datasheet, I2C
   note) the sense node could never reach the input-high level through 20 kΩ of series
   resistance.
-- **Both sense pins analog-capable** (AIN3, AIN1), since each side senses in one direction.
+- **Both sense pins analog-capable** (AIN3, AIN0), since each side senses in one direction.
 
 Reversing the drive is standard practice for conductivity cells. This particular wake and
 reversal scheme has not been checked against patents; do a freedom-to-operate check before
@@ -90,9 +90,9 @@ wires are soldered once.
 ### 5.1 Leak front end: P1, P2, D1, D2, R1–R4
 
 ```
-P1 ── ELEC_A ──┬── R1 10 kΩ ── LEAK_A (P1.07, AIN3) ── R3 1 MΩ ── LEAK_A_RET (P1.08)
+P1 ── ELEC_A ──┬── R1 10 kΩ ── LEAK_A (P1.07, AIN3) ── R3 1 MΩ ── LEAK_A_RET (P1.05)
                D1 TPD1E10B06 to GND
-P2 ── ELEC_B ──┬── R2 10 kΩ ── LEAK_B (P1.05, AIN1) ── R4 1 MΩ ── LEAK_B_RET (P1.04)
+P2 ── ELEC_B ──┬── R2 10 kΩ ── LEAK_B (P1.04, AIN0) ── R4 1 MΩ ── LEAK_B_RET (P1.14)
                D2 TPD1E10B06 to GND
 ```
 
@@ -120,9 +120,9 @@ P2 ── ELEC_B ──┬── R2 10 kΩ ── LEAK_B (P1.05, AIN1) ── R4
 | ------ | ------------- | ---------- | ------------------------------------------ |
 | 5      | VDD           | VDD        | C2 10 µF, the one capacitor Ezurio requires (5.1) |
 | 8      | P1.07 / AIN3  | LEAK_A     | Contact A: drive, edge wake, SAADC         |
-| 15     | P1.05 / AIN1  | LEAK_B     | Contact B                                  |
-| 3      | P1.08         | LEAK_A_RET | R3's return                                |
-| 17     | P1.04         | LEAK_B_RET | R4's return                                |
+| 17     | P1.04 / AIN0  | LEAK_B     | Contact B                                  |
+| 15     | P1.05         | LEAK_A_RET | R3's return                                |
+| 18     | P1.14         | LEAK_B_RET | R4's return                                |
 | 21, 19 | P1.10, P1.12  | SDA, SCL   | U1 (firmware `i2c21`), internal pull-ups   |
 | 12, 10 | P1.00, P1.01  | XL1, XL2   | X1, 32.768 kHz, internal load capacitors   |
 | 27, 25 | SWDIO, SWDCLK | –          | J1 2, 4                                    |
@@ -132,14 +132,14 @@ P2 ── ELEC_B ──┬── R2 10 kΩ ── LEAK_B (P1.05, AIN1) ── R4
 - The AIN numbers are from the Ezurio pin table; 2026v4 confirmed P1.07 = AIN3 on
   hardware. All four leak pins are on port 1, like 2026v4's sense pin; the 2026v4
   overlay's gpio0 (drive) and gpio2 (buzzer) nodes go.
-- Pins chosen for routing (5.6). X1 sits under the middle of the module's bottom row, so
-  each contact's two pins must leave on its own side of X1: contact A uses pad 3 and pad
-  8 (through 2026v4's fan-out via), contact B pads 15 and 17. Pad 17 was SCL, so SCL
-  moves to P1.12 (pad 19), also a clock pin. SDA moves to P1.10 (pad 21), just above
-  SCL, so the two reach U1's pads without crossing (U1's pin order is fixed: SDA must
-  arrive on the left-hand side). P1.06 and P1.14 are now unused. Firmware only sees this
-  in the new board revision's overlay (`i2c21` pinctrl, leak node pins and SAADC
-  channels).
+- Pins chosen for routing (5.6). Both contacts' 1 MΩ resistors stand in the middle of
+  the board under the module's bottom-right corner, so RET_A (pad 15), LEAK_B (pad 17)
+  and RET_B (pad 18) leave that corner in the order the parts need, and LEAK_A reaches
+  its node on the back through pad 8's fan-out via. Pad 17 was SCL, so SCL moves to
+  P1.12 (pad 19), also a clock pin. SDA moves to P1.10 (pad 21), just above SCL, so the
+  two reach U1's pads without crossing (U1's pin order is fixed: SDA must arrive on the
+  left-hand side). P1.06 and P1.08 are now unused. Firmware only sees this in the new
+  board revision's overlay (`i2c21` pinctrl, leak node pins and SAADC channels).
 - All other pins are open. The module's DC/DC inductor is inside.
 
 ### 5.3 Temperature and humidity: SHT45-AD1F (U1)
@@ -155,14 +155,14 @@ The Arm 10-pin Cortex debug pinout, as 2026v4: 1 VDD, 2 SWDIO, 3, 5 and 9 GND, 4
 ### 5.5 Battery and test pads
 
 - BT1: CR2 on wires, two 2 mm pads on the back, BAT+ (VDD) and BAT− (GND).
-- TP1 SDA and TP2 SCL on the front, on their traces; TP3 LEAK_A and TP4 LEAK_B on the back;
+- TP1 SDA and TP2 SCL on the front, on their traces, labeled with the signal names; TP3
+  LEAK_A and TP4 LEAK_B on the back, labeled TP3 and TP4 (the names don't fit there);
   1.0 mm pads. VDD and GND are at BT1 and J1.
 
 ### 5.6 PCB layout
 
 Coordinates in mm, origin on the cell's axis, +y up, seen from the front (KiCad X = 100 + x,
-Y = 100 − y; grid origin on the cell's axis). Placed and routed 2026-11-21; silkscreen not
-tidied yet.
+Y = 100 − y; grid origin on the cell's axis). Placed and routed 2026-11-21; silkscreen not tidied yet.
 
 - **Outline**: x ±8.5; flat top at y 11 with R1.5 corners; straight sides down to y 0;
   an R8.5 semicircle below, centered on the cell axis. Two layers, 1.6 mm. The cell
@@ -175,14 +175,14 @@ tidied yet.
 | IC1              | front | x −7.15..−0.85, y 2.92..10.82  | top left, antenna end up, 0.18 mm from the top edge |
 | Antenna keep-out | all   | x −6.5..−1.5, y 7.82..10.82    | 3 × 5 mm, the module footprint's own rule area  |
 | U1, C1           | front | (5.8, 8.6), (7.6, 8.6) upright | top right; U1's SDA and SCL pads face IC1       |
-| C2               | front | (−4.6, 2.3)                    | between IC1's bottom row and X1, under VDD (pad 5) |
-| X1               | front | (−3.675, 0.6)                  | centered under XL2 and XL1 (pads 10, 12)        |
-| D1, R1, R3       | front | (−5.5, −1.45), (−7.0, −1.45) and (−7.0, 0.6) upright | contact A: D1 over P1, R1 and R3 up the left side toward pad 3 |
+| X1               | front | (−3.675, 1.6)                  | just under IC1, centered on XL2 and XL1 (pads 10, 12) |
+| C2               | front | (−6.1, 1.6) upright            | just left of X1, pad 1 (VDD) at the top         |
+| D1, R1, R3       | front | (−3.85, −1.45), (−1.9, −1.45), (−0.9, 0.05) upright | contact A, the mirror of contact B about the center line |
 | D2, R2, R4       | front | (3.85, −1.45), (1.9, −1.45), (0.9, 0.05) upright | contact B: D2 over P2, R2 toward the center, R4 up toward pads 15 and 17 |
 | P1, P2           | front | (±3.85, −4.8), turned ∓36°     | 7.7 mm apart                                    |
 | TP1, TP2         | front | (3.45, 9.0), (1.5, 6.47)       | on the SDA and SCL traces                       |
 | J1               | back  | center (4.96, 3.5)             | right edge, odd column outboard, pin 1 at the top |
-| TP3, TP4         | back  | (−7.5, 2.6), (0.1, −1.05)      | on LEAK_A's back trace and LEAK_B's via         |
+| TP3, TP4         | back  | (−4.75, 3.2), (0.0, −1.05)     | on LEAK_A's back trace and LEAK_B's via         |
 | BT1              | back  | + (0.25, −3.6), − (−2.25, −3.6)| clear of the domes' through-hole feet           |
 
 - **Module at the top left**, mirrored from the sketch. The module's SDA, SCL, SWDIO and
@@ -201,9 +201,10 @@ tidied yet.
   The pogo pins land 0.64 or 1.27 mm either side of J1's center line. The front opposite
   carries no parts, only traces and TP2, so the clip's other jaw lands flat. A fitted box
   header spans y −2.85 to 9.85 and stays inside the outline.
-- **C2 between IC1 and X1.** Its pads clear the module's bottom row by 0.34 mm and X1's
-  pads by 0.33 mm, inside both courtyards (the module's reaches 1 mm past its body); a
-  custom rule allows exactly those two overlaps. VDD drops straight from pad 5 onto C2.
+- **X1 and C2 under the module.** X1's pads sit 0.62 mm below the module's bottom row and
+  C2 stands just left of X1, 0.2 mm off its pad; VDD runs diagonally from pad 5 onto C2's
+  top pad. Both lie inside the module's courtyard (which reaches 1 mm past its body) and
+  each other's; a custom rule allows exactly those overlaps.
 - **Domes.** The 4 mm dome footprint (`MetalDomeSwitch:TriangleDome_Diameter4mm`) has
   its two feet 2 mm either side of center. Unrotated at (±3.85, −4.8), the outer foot
   lands outside the board; turned 36° so the feet run along the edge, both foot pads stay
@@ -214,10 +215,12 @@ tidied yet.
   2026v4's, copied in the module's frame. Pad 8's via (LEAK_A) moved 0.4 mm into the
   module's open middle so that pad 4, a ground pad boxed in by signal pads, can reach a
   via of its own, as on the USB CO2 board.
-- **Routing.** Front: the leak front ends, I2C, VDD from pad 5 to C2 and from the right
+- **Routing.** Front: RET_A, LEAK_B and RET_B straight down from the module's
+  bottom-right corner to the two front ends, I2C, VDD from pad 5 to C2 and from the right
   edge to U1 and C1, the dome ties. Back: SWD to J1, XL1/XL2 from the module's vias to
-  vias under X1, LEAK_A from pad 8 down the left edge through TP3, and VDD from C2's via
-  to BT1 and across to the right edge. Tracks 0.15 mm, power 0.3 mm.
+  vias under X1's body, LEAK_A from pad 8 down through TP3 and under X1 to its node, and
+  VDD from C2's via down the left edge to BT1 and across to the right edge. Tracks
+  0.15 mm, power 0.3 mm.
 - **Ground.** Pours on both layers outside the keep-out, 0.1524 mm clearance as on
   2026v4, thermal reliefs on through-hole pads only. Stitching vias around the edge; none
   under a dome or J1.

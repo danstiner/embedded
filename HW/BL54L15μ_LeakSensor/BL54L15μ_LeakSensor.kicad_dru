@@ -2,8 +2,8 @@
 (rule "Fab board edge keep-out"
 	(constraint edge_clearance (min 0.381mm))
 	(condition "B.Layer == 'Edge.Cuts'"))
-# C2 sits between IC1's bottom row and X1 on purpose (README 5.6): its pads clear theirs by
-# about 0.33 mm, but it lies inside IC1's 1 mm courtyard and X1's courtyard.
-(rule "C2 between IC1 and X1"
-	(constraint courtyard_clearance (min -1mm))
-	(condition "A.Reference == 'C2' && (B.Reference == 'IC1' || B.Reference == 'X1')"))
+# X1 sits right under IC1's bottom row and C2 just left of it, on purpose (README 5.6): their pads
+# keep normal clearance, but each lies inside IC1's 1 mm courtyard and the two overlap each other.
+(rule "X1 and C2 tucked under IC1"
+	(constraint courtyard_clearance (min -1.5mm))
+	(condition "(A.Reference == 'X1' || A.Reference == 'C2') && (B.Reference == 'IC1' || B.Reference == 'X1' || B.Reference == 'C2')"))

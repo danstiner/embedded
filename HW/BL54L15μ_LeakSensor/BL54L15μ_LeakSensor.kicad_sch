@@ -4618,7 +4618,7 @@
 		)
 		(uuid "b87c5e30-4c0f-4543-9588-61bb3edaadfd")
 	)
-	(label "LEAK_B_RET"
+	(label "LEAK_B"
 		(at 261.62 115.57 0)
 		(effects
 			(font
@@ -9386,16 +9386,6 @@
 		(uuid "1dc5e318-5d15-5d04-a928-856b39e7048a")
 	)
 	(label "LEAK_A_RET"
-		(at 179.07 111.76 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "2501b5d9-518c-536a-857d-ee2a05b2372b")
-	)
-	(label "LEAK_B"
 		(at 261.62 111.76 0)
 		(effects
 			(font
@@ -9458,8 +9448,18 @@
 		(uuid "24bb64f9-fa3b-55e9-9ea9-e90a68d61584")
 	)
 	(no_connect
-		(at 261.62 107.95)
-		(uuid "0bd319d1-b30e-5711-9081-b0b03f937f30")
+		(at 179.07 111.76)
+		(uuid "34391a02-46db-5ece-a193-7d17fa64ec28")
+	)
+	(label "LEAK_B_RET"
+		(at 261.62 107.95 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7bfebe7e-da88-5c5e-beb3-e6602cbeb65b")
 	)
 	(sheet_instances
 		(path "/"
