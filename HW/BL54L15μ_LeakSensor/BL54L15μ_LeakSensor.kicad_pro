@@ -76,16 +76,7 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [
-        [
-          "invalid_outline|100946000|63933821|13f413d8-0c97-4491-87e1-c38bc00a08b2|13f413d8-0c97-4491-87e1-c38bc00a08b2",
-          ""
-        ],
-        [
-          "invalid_outline|99295001|67743821|8b97b3b5-5a15-476c-9edb-7c9220133a59|c484b650-9e0d-4613-9c15-b8775f3af93e",
-          ""
-        ]
-      ],
+      "drc_exclusions": [],
       "meta": {
         "version": 2
       },
@@ -566,7 +557,7 @@
     "netclass_patterns": [
       {
         "netclass": "Power",
-        "pattern": "/?V(BAT|DD|DDSW)"
+        "pattern": "VDD"
       }
     ]
   },
