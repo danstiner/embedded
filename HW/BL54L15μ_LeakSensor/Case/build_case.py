@@ -12,13 +12,13 @@ import FreeCAD, Part
 from FreeCAD import Vector as V
 
 P = dict(
-    # board (README 5.6): 15.6 x 15.6, centered on the cell's axis; top corners R0.3, a flat bottom with R6.3 corners
-    BoardW2=7.8, BoardTop=7.8, BoardBot=-7.8, BoardRT=0.3, BoardRC=6.3, BoardT=1.6,
+    # board (README 5.6): 20 x 18, centered on the cell's axis; square top corners, a fully round bottom (R10)
+    BoardW2=10.0, BoardTop=10.15, BoardBot=-7.85, BoardRT=0.0, BoardRC=10.0, BoardT=1.6,
     # body
     Wall=1.5, Floor=1.0, FloorGap=0.1, TopGap=0.15, LidT=1.2, CornerR=3.0, Clear=0.15,
     EndR=2.0,            # the bottom's front and rear edges
     MaxOverhang=45,      # the bottom's curve gives way to a straight line here (degrees from vertical; 90: the full curve)
-    FrontGap=2.7,        # board front face to the front wall: the module stands 2.08 mm off the board, the pin bores need 2.7
+    FrontGap=2.7,        # board front face to the front wall: the module stands 2.08 mm off the board, BZ1 2.0, the pin bores need 2.7
     FrontT=1.5,
     BackGap=2.0,         # board back to the divider: the 209's solder ear and the BT1 wire joints
     PanelT=1.6,          # Keystone snap-on contacts fit 1.52-1.78 mm panels
@@ -32,16 +32,18 @@ P = dict(
     # front lip, and the dome press then depends on two faces of one printed part, not on the board's thickness
     Lip=0.4, LipT=0.8, Tol=0.1, DomeRelief=2.4, RailTop=7.3, RibR=0.3, RibCrush=0.1,
     # leak pins
-    PinD=2.5, PinL=6.0, PinX=3.6, DomeY=-5.31, DomeApex=0.3, PinPress=0.1, BossWall=0.8,
-    PinCap=0.6,          # bore cap over the pin; at 0.8 the left boss would reach C2, which overhangs it
-    PinProud=0.2,        # the pin's top end is then 0.9 mm below X1
+    PinD=2.5, PinL=6.0, PinX=3.95, DomeY=-4.85, DomeApex=0.3, PinPress=0.1, BossWall=0.8,
+    PinCap=0.6,          # bore cap over the pin
+    PinProud=0.2,        # below the case's bottom, onto the wet floor
     BossBack=0.7,        # boss face toward the board, clear of the domes' feet: the pin stands 0.5 mm proud of it, onto the dome
-    # cell cradle; the + wire runs over both panels in the bay's upper left corner (no room under or beside the cell)
+    # cell cradle; the + wire runs over both panels in the bay's upper left corner
     CradleT=1.2, CradleInset=5.0, WireD=1.2,
     # vents (in front of and above U1)
-    SlotW=0.8, SlotH=3.0, VentX=5.32, VentY=5.4,
+    SlotW=0.8, SlotH=3.0, VentX=7.6, VentY=8.0,
+    PortD=2.0, PortX=6.85, PortY=4.1,   # BZ1's sound port in the front wall, over its 0.8 mm hole
     # lid
     RimT=0.8, RimH=1.0, NubR=0.5, NubProud=0.3,
+    HoldW=4.0, HoldGap=0.1,   # ribs under the lid over the cell saddles: the board, not the cell, sets the bay's height
 )
 P['AxisZ'] = -P['BoardBot'] + P['FloorGap'] + P['Floor']
 # where the board's straight sides start: the bottom corners' centers (sketch y)
@@ -103,7 +105,7 @@ def u_prism(w2, zb, zt, rt, y0, y1, ov=90):
 
     def half(s):                                  # bottom center to top center; s = -1 mirrors it
         p = lambda x, z: V(s * x, y0, z)
-        e = [Part.LineSegment(p(0, zb), p(xf, zb))]
+        e = [Part.LineSegment(p(0, zb), p(xf, zb))] if xf > 1e-6 else []     # a fully round board has no flat
         if a:
             e.append(Part.LineSegment(p(xf, zb), p(tx, tz)))
         e += [Part.Arc(p(tx, tz), p(f + r * math.sin(m), zc - r * math.cos(m)), p(w2, zc)),
@@ -146,7 +148,10 @@ def outline(d, n=8):
 
 
 def outline_prism(d, y0, y1):
-    pts = [V(x, y0, y + AZ) for x, y in outline(d)]
+    pts = []
+    for x, y in outline(d):                                  # square corners and a round bottom repeat points
+        if not pts or (V(x, y0, y + AZ) - pts[-1]).Length > 1e-6:
+            pts.append(V(x, y0, y + AZ))
     pts.append(pts[0])
     return Part.Face(Part.makePolygon(pts)).extrude(V(0, y1 - y0, 0))
 
@@ -186,6 +191,7 @@ for sx in (-1, 1):                                       # pin bores
 for i in range(4):                                       # front vents in front of U1
     x = g('VentX') - 1.5 + 1.0 * i
     subs.append(box(x - g('SlotW') / 2, x + g('SlotW') / 2, g('Yfo') - 1, g('Yfi') + 0.01, AZ + g('VentY') - g('SlotH') / 2, AZ + g('VentY') + g('SlotH') / 2))
+subs.append(cylY(g('PortX'), AZ + g('PortY'), g('PortD') / 2, g('Yfo') - 1, g('Yfi') + 0.01))
 for s in subs:
     body = body.cut(s)
 
@@ -199,6 +205,13 @@ for y in (g('Yc0') + 6, g('Yc1') - 6):
     for sx in (-1, 1):
         rim = rim.fuse(Part.makeSphere(g('NubR'), V(sx * (ri + g('NubProud') - g('NubR')), y, g('Zb') - g('RimH') / 2)))
 lid = lid.fuse(rim)
+hr, hw = g('CellD') / 2 + g('HoldGap'), g('HoldW')
+for yc in (g('Yc0') + g('CradleInset'), g('Yc1') - g('CradleInset')):              # cell hold-downs, drawn as a profile:
+    y = yc - g('CradleT') / 2                                                       # cutting a cylinder out left the lid unorientable
+    zs = AZ + math.sqrt(hr ** 2 - hw ** 2)
+    e = [Part.Arc(V(-hw, y, zs), V(0, y, AZ + hr), V(hw, y, zs)), Part.LineSegment(V(hw, y, zs), V(hw, y, g('Zb') + 0.01)),
+         Part.LineSegment(V(hw, y, g('Zb') + 0.01), V(-hw, y, g('Zb') + 0.01)), Part.LineSegment(V(-hw, y, g('Zb') + 0.01), V(-hw, y, zs))]
+    lid = lid.fuse(Part.Face(Part.Wire([x.toShape() for x in e])).extrude(V(0, g('CradleT'), 0)))
 for i in range(4):                                       # vents over U1, in front of the board
     x = g('VentX') - 1.5 + 1.0 * i
     lid = lid.cut(box(x - g('SlotW') / 2, x + g('SlotW') / 2, g('Yfi') + 0.4, -0.4, g('Zb') - 1, g('Ztop') + 1))
