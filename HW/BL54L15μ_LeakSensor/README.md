@@ -162,8 +162,9 @@ pull-ups. Idle current 0.08 µA typical (SHT4x datasheet, table 4).
 No thermal isolation: the board averages about 0.06 mW (R-4). The USB CO2 board's thermal
 model put its SHT4x about 1 °C above ambient at 37 mW, roughly 0.03 °C per mW; scaled, this
 board warms U1 by a few thousandths of a degree, and radio bursts of a few milliseconds
-average out in the board's heat capacity. What matters is how freely room air reaches U1:
-the case's vent goes at the top right corner, beside it.
+average out in the board's heat capacity. What matters is how freely room air reaches U1.
+The sensor watches for mold conditions, so approximate humidity is enough: the case has
+one small vent in its right wall, just below U1 (5.7), and U1 follows the room slowly.
 
 ### 5.4 SWD pads (J1)
 
@@ -312,17 +313,17 @@ then cut down to the cell's 15.6 mm by 2026-11-22. Laid out again the same day a
 `Case/build_case.py` builds the case in FreeCAD from the parameters at its top and saves
 `Case/LeakSensor_2026v5.FCStd`. The file also holds the board (KiCad's STEP export), the
 cell, the battery contacts and the leak pins as reference parts, and the script checks all
-of them against each other. The case is an open-top body with a snap-on lid,
-23.3 × 44.85 × 20.45 mm. The board stands across the front with the cell lying behind it.
-The board sets the width and height: its 20 mm plus 0.15 mm clearance and a 1.5 mm wall
-each side, its 18 mm plus a 1.0 mm floor, a 1.2 mm lid and the slot's 0.1 mm under the
-board and 0.15 mm over it.
+of them against each other. The case is an open-top body with a lid that slides on from
+the rear, 24.7 × 44.85 × 20.45 mm. The board stands across the front with the cell lying
+behind it. The board sets the width and height: its 20 mm plus 0.15 mm clearance and a
+2.2 mm wall each side, its 18 mm plus a 1.0 mm floor, a 1.2 mm lid and the slot's 0.1 mm
+under the board and 0.15 mm over it.
 
 The bottom follows the board's: inside and out, it is an arc tangent to the sides, R10.15
-inside (0.05 mm off the board's center) and R11.65 outside. Outside, the arc gives way to
-45° lines where it would overhang more than 45° when printed, so the body prints upright
-without supports on a 9.7 mm flat (`MaxOverhang`; 90 gives the full curve). The bottom's
-front and rear edges are rounded 2 mm.
+inside (0.05 mm off the board's center) and R12.35 outside. Outside, the arc gives way to
+straight lines where it would overhang more than 60° when printed, leaving a 6.6 mm flat
+for the body to print upright on (`MaxOverhang`; 90 gives the full curve, which needs
+supports). The bottom's front and rear edges are rounded 2 mm, the top's edges 1 mm.
 
 - **Board slot.** 0.4 mm lips front and back along the board's sides and bottom; the
   board drops in from the top and rests 0.1 mm above the floor. The side lips stop at
@@ -345,16 +346,25 @@ front and rear edges are rounded 2 mm.
   not the cell, sets the bay's height, which leaves 2.5 mm above the cell.
 - **Wiring.** BT1's pads face the divider across a 2.0 mm gap, where the 209's tab is.
   The 228's tab sits in a 2.0 mm pocket behind the rear panel; its wire runs forward over
-  both panels in the bay's upper left corner, 2.8 mm clear of the cell and of the lid's
-  rim.
-- **Vents and sound port.** Four 0.8 mm slots in the front wall in front of U1, and four
-  in the lid over the gap in front of the board, so air passes U1 (5.3). A Ø2 mm port in
-  the front wall faces BZ1's sound hole; BZ1's top is 0.7 mm behind the wall.
-- **Lid.** 1.2 mm, with a 0.8 mm rim inside the walls and four 0.5 mm nubs into dimples
-  in the body; the rim stops short of the board.
+  both panels in the bay's upper left corner, 2.8 mm clear of the cell and below the lid.
+- **Vent.** One 1.0 × 2.5 mm slot in the right wall, into the gap between the front wall
+  and the board, its top 0.8 mm below U1 (5.3). There is no other opening: BZ1 sounds
+  through the closed case.
+- **Lid.** A 1.2 mm plate that slides on from the rear, after the hygrometer 2026v3's
+  case. The top 2.2 mm of each side wall is a 0.8 mm rail with a 45° ridge, 0.5 mm deep,
+  facing out; the lid's skirts take the outer 1.4 mm of the wall and carry the matching
+  groove, 0.1 mm clear, so the lid cannot lift. It rests on the rails' tops and stops
+  against the front wall, which stands the full height. Near the rear end a bump of R0.4
+  in each skirt clicks 0.2 mm into a dimple in the rail; it rides the rail only for the
+  last 3 mm. Two ribs under the lid hold the cell down (above), so the middle of the rear
+  wall's top is a plug on the lid's rear end: the ribs slide out over the wall's lower
+  part.
 - **Checks.** No overlap between the body, lid, board and its parts, cell, contacts, pins
-  and a Ø1.2 mm + wire. The board drops in from 25 mm above without touching anything but the ribs.
-  J1's header model is left out: a board with a header does not fit.
+  and a Ø1.2 mm + wire. The board drops in from 25 mm above without touching anything but
+  the ribs, and the lid slides out to the rear touching only at the bumps. J1's header model
+  is left out: a board with a header does not fit. The script first checks that booleans
+  against each part work at all: refined with `removeSplitter()`, the lid looked valid but
+  every check against it came back empty.
 
 ## 6. Bill of materials
 
@@ -379,10 +389,8 @@ front and rear edges are rounded 2 mm.
 3D models: U1 uses Sensirion's (`Components/SHT45_AD1F_R2`, with the download's license, as
 on the USB CO2 board); KiCad ships none for its SHT4x footprint. D1 and D2 use KiCad's 0402
 resistor model as a stand-in: KiCad has no 0402 diode model, and TI's X1SON (DPY) body is
-the same 1.0 × 0.6 mm. Same Sky publishes no model for BZ1, so
-`Components/CMT-5023S-SMT/build_model.py` draws one in FreeCAD from the datasheet's
-mechanical drawing (STEP, and a colored VRML for KiCad's 3D view). KiCad ships no SOT-523
-model, so Q1 has none.
+the same 1.0 × 0.6 mm. BZ1 and Q1 have no model yet (KiCad ships none for SOT-523): to be
+downloaded from DigiKey.
 
 ## 7. Verification
 
@@ -423,15 +431,16 @@ Not started. Planned:
   and that BZ1 takes its other jaw.
 - **Buzzer.** BZ1's land pattern, Q1 and D3 come from datasheets, not parts in hand. BZ1
   draws up to 110 mA from the CR2: check that the cell's sag on a cold, partly used cell
-  keeps the module above 1.7 V, or limit the alarm's duty. Its 3D model is drawn, not the
-  maker's.
+  keeps the module above 1.7 V, or limit the alarm's duty.
 - **Firmware.** New board revision, a leak driver for four pins and both directions, and
   the buzzer moved to P1.11 as a 4 kHz PWM. Whether the board keeps the name
   `bl54l15u_hygrometer` is open; 2026v5 was also the name of the battery CO2 hygrometer in
   PR 23, closed and never built.
 - **Case.** Unprinted. The 209's compressed length and both contacts' tab positions come
   from Keystone's catalog drawing, not parts in hand. Boards with J1 fitted do not fit.
-  How loud BZ1 is through the 2 mm port is untested.
+  The lid's 0.1 mm slide clearance and its bumps need a test print; how loud BZ1 is
+  through the closed case is untested. The 60° overhang under the bottom is steeper than
+  the usual 45° rule for printing without supports.
 
 ## 9. References
 
@@ -457,3 +466,5 @@ Not started. Planned:
   clearance (5.6).
 - `HW/BL54L15μ_USB_CO2` and `HW/BL54L15μ_DevKit` in this repository: the edge rule, the
   stitching grid and the module's distance from the edge (5.6).
+- `HW/BL54L15μ_Hygrometer/Case/Hygrometer_2026v3.FCStd` in this repository: the slide-in lid
+  with ridged rails that this case follows (5.7).
