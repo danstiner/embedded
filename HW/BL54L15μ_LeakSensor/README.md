@@ -162,7 +162,7 @@ The Arm 10-pin Cortex debug pinout, as 2026v4: 1 VDD, 2 SWDIO, 3, 5 and 9 GND, 4
 ### 5.6 PCB layout
 
 Coordinates in mm, origin on the cell's axis, +y up, seen from the front (KiCad X = 100 + x,
-Y = 100 − y; grid origin on the cell's axis). Placed and routed 2026-11-21; silkscreen not tidied yet.
+Y = 100 − y; grid origin on the cell's axis). Placed, routed and silkscreened 2026-11-21.
 
 - **Outline**: x ±8.5; flat top at y 11 with R1.5 corners; straight sides down to y 0;
   an R8.5 semicircle below, centered on the cell axis. Two layers, 1.6 mm. The cell
@@ -221,6 +221,10 @@ Y = 100 − y; grid origin on the cell's axis). Placed and routed 2026-11-21; si
   vias under X1's body, LEAK_A from pad 8 down through TP3 and under X1 to its node, and
   VDD from C2's via down the left edge to BT1 and across to the right edge. Tracks
   0.15 mm, power 0.3 mm.
+- **Silkscreen.** References at 0.75 mm (the board minimum) beside their parts, the front
+  test pads by signal name, BT1's + and −, and on the back "Leak Sensor", `${REVISION}`
+  and `${COMPANY}` from the board's literal title block. The back title sits where a
+  fitted J1 box header goes, so it is hidden on the boards that get a header.
 - **Ground.** Pours on both layers outside the keep-out, 0.1524 mm clearance as on
   2026v4, thermal reliefs on through-hole pads only. Stitching vias around the edge; none
   under a dome or J1.
