@@ -12,10 +12,10 @@ import FreeCAD, Part
 from FreeCAD import Vector as V
 
 P = dict(
-    # board (README 5.6)
-    BoardW2=8.5, BoardTop=11.0, BoardR=8.5, BoardCR=1.5, BoardT=1.6,
+    # board (README 5.6): 17.0 x 16.0, centered on the cell's axis
+    BoardW2=8.5, BoardTop=8.0, BoardBot=-8.0, BoardRT=0.3, BoardRB=1.5, BoardT=1.6,
     # body
-    Wall=1.5, Floor=1.2, FloorGap=0.2, TopGap=0.15, LidT=1.5, CornerR=3.0, InR=1.5, Clear=0.15,
+    Wall=1.5, Floor=1.0, FloorGap=0.1, TopGap=0.15, LidT=1.2, CornerR=3.0, InR=1.5, Clear=0.15,
     FrontGap=2.7,        # board front face to the front wall: the module stands 2.08 mm off the board, the pin bores need 2.7
     FrontT=1.5,
     BackGap=2.0,         # board back to the divider: the 209's solder ear and the BT1 wire joints
@@ -28,18 +28,19 @@ P = dict(
     PanelTop=5.3,        # top edge of both contact panels above the cell axis (228: button 6.1 above its lower edge, 11.4 tall)
     # board slot. The domes push the board back, so the front face is the datum: crush ribs behind hold it on the
     # front lip, and the dome press then depends on two faces of one printed part, not on the board's thickness
-    Lip=0.4, LipT=0.8, Tol=0.1, DomeRelief=2.4, RailTop=9.5, RibR=0.3, RibCrush=0.1,
+    Lip=0.4, LipT=0.8, Tol=0.1, DomeRelief=2.4, RailTop=7.5, RibR=0.3, RibCrush=0.1,
     # leak pins
-    PinD=2.5, PinL=6.0, PinX=3.85, DomeY=-4.8, DomeApex=0.3, PinPress=0.1, PinProud=0.1, PinCap=0.8, BossWall=0.8,
-    BossBack=0.5,        # boss face toward the board: the pin stands 0.3 mm proud of it, onto the dome
-    # cell cradle, wire groove
-    CradleT=1.2, CradleInset=5.0, WireW=1.0, WireD=0.5,
+    PinD=2.5, PinL=6.0, PinX=3.85, DomeY=-5.8, DomeApex=0.3, PinPress=0.1, PinCap=0.8, BossWall=0.8,
+    PinProud=0.2,        # also keeps the pin's top end 0.25 mm below D1 and D2
+    BossBack=0.7,        # boss face toward the board, clear of D1 and D2: the pin stands 0.5 mm proud of it, onto the dome
+    # cell cradle; the + wire runs along the bay's lower left corner (no room under the cell)
+    CradleT=1.2, CradleInset=5.0, WireW=1.2,
     # vents (in front of and above U1)
-    SlotW=0.8, SlotH=3.0,
+    SlotW=0.8, SlotH=3.0, VentY=5.6,
     # lid
     RimT=0.8, RimH=1.0, NubR=0.5, NubProud=0.3,
 )
-P['AxisZ'] = P['BoardR'] + P['FloorGap'] + P['Floor']
+P['AxisZ'] = -P['BoardBot'] + P['FloorGap'] + P['Floor']
 P['IW'] = P['BoardW2'] + P['Clear']
 P['OW'] = P['IW'] + P['Wall']
 P['Ztop'] = P['AxisZ'] + P['BoardTop'] + P['TopGap'] + P['LidT']
@@ -83,22 +84,16 @@ def rrect(x0, x1, z0, z1, rb, rt, y0, y1):
     return s.removeSplitter()
 
 
-def outline(d, n=48):
-    """Board outline offset by d (sketch coordinates): straight sides, top corners R1.5, bottom semicircle R8.5."""
-    w, t, cr, br = g('BoardW2') + d, g('BoardTop') + d, g('BoardCR') + d, g('BoardR') + d
+def outline(d, n=8):
+    """Board outline offset by d (sketch coordinates): a rectangle, top corners BoardRT, bottom corners BoardRB."""
+    w, t, b = g('BoardW2') + d, g('BoardTop') + d, g('BoardBot') - d
     pts = []
-    for i in range(n + 1):                                   # bottom semicircle, right to left through the bottom
-        a = math.radians(-180 * i / n)
-        pts.append((br * math.cos(a), br * math.sin(a)))
-    pts.append((-w, t - cr))
-    for i in range(1, 9):                                    # top left corner
-        a = math.radians(180 - 90 * i / 8)
-        pts.append((-w + cr + cr * math.cos(a), t - cr + cr * math.sin(a)))
-    pts.append((w - cr, t))
-    for i in range(1, 9):                                    # top right corner
-        a = math.radians(90 - 90 * i / 8)
-        pts.append((w - cr + cr * math.cos(a), t - cr + cr * math.sin(a)))
-    pts.append((w, 0.0))
+    for (cx, cy, r, a0) in ((w, t, g('BoardRT') + d, 0), (-w, t, g('BoardRT') + d, 90), (-w, b, g('BoardRB') + d, 180), (w, b, g('BoardRB') + d, 270)):
+        r = max(r, 0.0)
+        ox, oy = cx - math.copysign(r, cx), cy - math.copysign(r, cy)   # corner arc center
+        for i in range(n + 1):
+            a = math.radians(a0 + 90 * i / n)
+            pts.append((ox + r * math.cos(a), oy + r * math.sin(a)))
     return pts
 
 
@@ -123,7 +118,7 @@ for yc in (g('Yc0') + g('CradleInset'), g('Yc1') - g('CradleInset')):           
 frame = box(-g('IW'), g('IW'), -g('LipT'), g('BoardT') + g('LipT'), g('Floor') - 0.01, AZ + g('RailTop'))
 frame = frame.cut(outline_prism(-g('Lip'), -5, 5))
 frame = frame.cut(outline_prism(g('Tol'), 0, g('BoardT') + g('Tol')))
-frame = frame.cut(box(-g('BoardW2') - g('Tol'), g('BoardW2') + g('Tol'), 0, g('BoardT') + g('Tol'), AZ, AZ + 20))
+frame = frame.cut(box(-g('BoardW2') - g('Tol'), g('BoardW2') + g('Tol'), 0, g('BoardT') + g('Tol'), AZ + g('BoardBot') + g('BoardRB'), AZ + 30))
 for sx in (-1, 1):                                       # front lip relief around each dome
     frame = frame.cut(cylY(sx * g('PinX'), AZ + g('DomeY'), g('DomeRelief'), -g('LipT') - 0.1, 0.0))
 adds.append(frame)
@@ -138,10 +133,11 @@ for a in adds:
 subs = []
 for sx in (-1, 1):                                       # pin bores
     subs.append(cylZ(sx * g('PinX'), g('PinY'), g('PinD') / 2, -1, g('PinZ1')))
-subs.append(box(-g('WireW') / 2, g('WireW') / 2, g('Yd0') - 0.01, g('Yw0'), g('Floor') - g('WireD'), g('Floor') + 0.6))   # wire groove and panel notches
-for i in range(4):                                       # front vents in front of U1 (x 5.8, y 8.6)
+x0 = -g('IW') + g('InR')        # just inside the bay's corner fillet
+subs.append(box(x0, x0 + g('WireW'), g('Yd0') - 0.01, g('Yw0'), g('Floor') - 0.01, g('Floor') + g('WireW')))   # + wire: notches in the panels and saddles
+for i in range(4):                                       # front vents in front of U1 (x 5.8)
     x = 4.3 + 1.0 * i
-    subs.append(box(x - g('SlotW') / 2, x + g('SlotW') / 2, g('Yfo') - 1, g('Yfi') + 0.01, AZ + 8.6 - g('SlotH') / 2, AZ + 8.6 + g('SlotH') / 2))
+    subs.append(box(x - g('SlotW') / 2, x + g('SlotW') / 2, g('Yfo') - 1, g('Yfi') + 0.01, AZ + g('VentY') - g('SlotH') / 2, AZ + g('VentY') + g('SlotH') / 2))
 for s in subs:
     body = body.cut(s)
 
@@ -167,7 +163,8 @@ for y in (g('Yc0') + 6, g('Yc1') - 6):                   # dimples for the nubs
 ribs = []
 for sx in (-1, 1):
     x, y = sx * (g('BoardW2') - g('RibR')), g('BoardT') - g('RibCrush') + g('RibR')   # clear of the slot's side wall: tangent faces break the fuse
-    ribs.append(cylZ(x, y, g('RibR'), AZ, AZ + g('RailTop') - g('RibR')).fuse(Part.makeSphere(g('RibR'), V(x, y, AZ + g('RailTop') - g('RibR')))))
+    z0 = AZ + g('BoardBot') + g('BoardRB')                # where the straight sides start
+    ribs.append(cylZ(x, y, g('RibR'), z0, AZ + g('RailTop') - g('RibR')).fuse(Part.makeSphere(g('RibR'), V(x, y, AZ + g('RailTop') - g('RibR')))))
 ribs = ribs[0].fuse(ribs[1])
 body, lid = body.removeSplitter(), lid.removeSplitter()
 

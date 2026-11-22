@@ -261,30 +261,34 @@ shortened from 19.5 to 16.0 mm the same day, so the case is no taller than the c
 `Case/LeakSensor_2026v5.FCStd`. The file also holds the board (KiCad's STEP export), the
 cell, the battery contacts and the leak pins as reference parts, and the script checks all
 of them against each other. The case is an open-top body with a snap-on lid,
-20.3 × 44.9 × 22.6 mm. The board stands across the front with the cell lying behind it.
+20.3 × 44.9 × 18.5 mm. The board stands across the front with the cell lying behind it;
+the height is the cell's 15.6 mm, a 1.0 mm floor and a 1.2 mm lid, with 0.3 mm under the
+cell and 0.35 mm over it.
 
-- **Board slot.** 0.4 mm lips front and back along the board's sides and bottom curve; the
-  board drops in from the top. The domes push the board back, so its front face is the
+- **Board slot.** 0.4 mm lips front and back along the board's sides and bottom; the
+  board drops in from the top and rests 0.1 mm above the floor. The domes push the board back, so its front face is the
   datum: two crush ribs behind the straight sides, 0.1 mm into a 1.6 mm board, hold it
   against the front lip. The dome press then depends on two faces of one print, not on
   the board's thickness or the slot's fit.
 - **Leak pins.** Ø2.5 × 6 mm metal pins stand upright at x ±3.85, just in front of the
   domes. Each is pushed up from below into a blind bore in the front wall and stands
-  0.1 mm proud of the bottom, so the case rests on the pins and a film of water reaches
+  0.2 mm proud of the bottom, so the case rests on the pins and a film of water reaches
   them first. The side of each pin presses its dome's apex: the pin surface is 0.2 mm off
   the board and the dome is assumed 0.3 mm high, a 0.1 mm press (`DomeApex`, `PinPress`).
-  The bore opens toward the dome through a 1.6 mm gap, narrower than the pin. The pin top
-  is 0.8 mm above the dome center; a longer pin would hit D1 or D2.
+  The bore opens toward the dome through a 2.0 mm gap, narrower than the pin, and the
+  bore's wall stops 0.7 mm short of the board, clear of D1 and D2. The pin top is 2.5 mm
+  above the dome center and 0.25 mm below D1 and D2; a longer pin would hit them.
 - **Cell.** Keystone 209 leaf spring (−) on a 1.6 mm divider behind the board, 228 button
   (+) on a 1.6 mm rear panel; both clip onto 1.52–1.78 mm panels and are listed for CR2.
   The 209 is assumed compressed to 2.5 mm between the divider and the cell. Two saddles
   under the cell, two ribs in the lid over it.
 - **Wiring.** BT1's pads face the divider across a 2.0 mm gap, where the 209's tab is.
-  The 228's tab sits in a 2.0 mm pocket behind the rear panel; its wire runs forward in a
-  1.0 × 0.5 mm floor groove under the cell, through notches in both panels.
+  The 228's tab sits in a 2.0 mm pocket behind the rear panel; its wire runs forward along
+  the bay's lower left corner, beside the cell, through 1.2 mm notches in both panels and
+  the saddles.
 - **Vents.** Four 0.8 mm slots in the front wall in front of U1, and four in the lid over
   the gap in front of the board, so air passes U1 (5.3).
-- **Lid.** 1.5 mm, with a 0.8 mm rim inside the walls and four 0.5 mm nubs into dimples
+- **Lid.** 1.2 mm, with a 0.8 mm rim inside the walls and four 0.5 mm nubs into dimples
   in the body; the rim stops short of the board.
 - **Checks.** No overlap between the body, lid, board and its parts, cell, contacts and
   pins. The board drops in from 25 mm above without touching anything but the ribs.
