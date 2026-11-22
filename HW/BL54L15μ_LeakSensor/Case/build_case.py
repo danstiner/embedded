@@ -2,7 +2,7 @@
 battery contacts and the leak pins.
 
 Run (from this folder): kicad-cli pcb export step --grid-origin --subst-models -o board.step ../BL54L15μ_LeakSensor.kicad_pcb
-     OUT=$PWD/LeakSensor_2026v5.FCStd STEP=$PWD/board.step [EXPORT=dir for STL/STEP] freecadcmd build_case.py
+     OUT=$PWD/LeakSensor_2026v5.FCStd STEP=$PWD/board.step [EXPORT=dir for STL/STEP and the case.3mf print plate] freecadcmd build_case.py
 Axes: X right as seen from the front (the board's x), Y from the front toward the rear (along the cell),
 Z up from the table. The board's front face is at Y = 0; its sketch coordinates (x, y) map to (X, Z = y + AxisZ).
 The parameter values are recorded in the "Params" variable set; geometry is rebuilt by rerunning this script.
@@ -252,4 +252,14 @@ if exp:
     for name, shp in (('body', body), ('lid', lid), ('board', refs['board']), ('cell', refs['cell']), ('pins', refs['pins']), ('contacts', refs['contacts'])):
         MeshPart.meshFromShape(Shape=shp, LinearDeflection=0.03, AngularDeflection=0.3).write('%s/%s.stl' % (exp, name))
     body.exportStep('%s/body.step' % exp); lid.exportStep('%s/lid.step' % exp)
+    # print plate: the body on its floor, the lid on its top beside it
+    lp = lid.copy(); lp.rotate(V(0, 0, 0), V(0, 1, 0), 180)
+    lp.translate(V(2 * g('OW') + 5, 0, -lp.BoundBox.ZMin))
+    plate = FreeCAD.newDocument('Plate')
+    objs = []
+    for name, shp in (('body', body), ('lid', lp)):
+        o = plate.addObject('Mesh::Feature', name)
+        o.Mesh = MeshPart.meshFromShape(Shape=shp, LinearDeflection=0.03, AngularDeflection=0.3)
+        objs.append(o)
+    Mesh.export(objs, '%s/case.3mf' % exp)
 print('SAVED', os.environ['OUT'])
