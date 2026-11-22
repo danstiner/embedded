@@ -7,3 +7,8 @@
 (rule "X1 and C2 tucked under IC1"
 	(constraint courtyard_clearance (min -1.5mm))
 	(condition "(A.Reference == 'X1' || A.Reference == 'C2') && (B.Reference == 'IC1' || B.Reference == 'X1' || B.Reference == 'C2')"))
+# The leak front end sits in the 1.5 mm band between X1 and the domes (README 5.6): the domes' courtyards
+# reach 0.8 mm past the 4 mm dome, and D1 and R1 sit just under X1.
+(rule "Leak front end between X1 and the domes"
+	(constraint courtyard_clearance (min -0.5mm))
+	(condition "(A.Reference == 'P1' || A.Reference == 'P2' || A.Reference == 'X1') && (B.Reference == 'D1' || B.Reference == 'D2' || B.Reference == 'R1' || B.Reference == 'R2')"))

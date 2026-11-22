@@ -14,7 +14,7 @@ board `bl54l15u_hygrometer@2026v4`).
 
 | Item          | 2026v4                                          | 2026v5                                                   |
 | ------------- | ----------------------------------------------- | -------------------------------------------------------- |
-| Size          | 48 mm square                                    | 17.0 × 19.5 mm, stands on the end of the cell (5.6)      |
+| Size          | 48 mm square                                    | 17.0 × 16.0 mm, stands on the end of the cell (5.6)      |
 | Battery       | CR2 in a Keystone 1011 holder                   | CR2 on wires, BAT+ and BAT− pads on the back             |
 | Leak contacts | 6 mm domes on the back, driven one way          | 4 mm domes on the front, either way (4.1)                |
 | Leak pins     | drive P0.01, sense P1.07, 1 MΩ to ground        | P1.07 and P1.04 each drive or sense; 1 MΩ to a GPIO      |
@@ -32,7 +32,7 @@ board `bl54l15u_hygrometer@2026v4`).
 | R-3 | No current through the contacts while dry; while measuring, equal current each way       |
 | R-4 | Average current at most 19 µA: 5 years on one CR2 (850 mAh); 10 years needs 9.7 µA        |
 | R-5 | Temperature and humidity as on 2026v4: SHT45 on `i2c21` with MCU pull-ups                |
-| R-6 | Board 17.0 × 19.5 mm standing on the end of a CR2 (Ø15.6 max) lying on its side          |
+| R-6 | Board 17.0 × 16.0 mm standing on the end of a CR2 (Ø15.6 max) lying on its side          |
 | R-7 | SWD through a soldered 2×5 1.27 mm header or a pogo-pin clip from the side               |
 | R-8 | Front parts in one reflow pass; the back has only pads and the optional J1               |
 
@@ -168,73 +168,92 @@ The Arm 10-pin Cortex debug pinout, as 2026v4: 1 VDD, 2 SWDIO, 3, 5 and 9 GND, 4
 ### 5.6 PCB layout
 
 Coordinates in mm, origin on the cell's axis, +y up, seen from the front (KiCad X = 100 + x,
-Y = 100 − y; grid origin on the cell's axis). Placed, routed and silkscreened 2026-11-21.
+Y = 100 − y; grid origin on the cell's axis). Placed, routed and silkscreened 2026-11-21;
+shortened from 19.5 to 16.0 mm the same day, so the case is no taller than the cell (5.7).
 
-- **Outline**: x ±8.5; flat top at y 11 with R1.5 corners; straight sides down to y 0;
-  an R8.5 semicircle below, centered on the cell axis. Two layers, 1.6 mm. The cell
-  (Ø15.6) lies behind the board.
+- **Outline**: 17.0 × 16.0 mm, x ±8.5, y ±8, centered on the cell's axis. Top corners
+  R0.3, so the module's corner ground pad keeps the edge rule; bottom corners R1.5, to
+  sit in the case's fillets. Two layers, 1.6 mm. The cell (Ø15.6) lies behind the board.
 - **Rules** (`BL54L15μ_LeakSensor.kicad_dru`): copper at least 0.381 mm from the edge, as
-  on the USB CO2 board; C2 may sit inside IC1's and X1's courtyards (below).
+  on the USB CO2 board; X1 and C2 may sit inside IC1's courtyard, and the leak front end
+  inside X1's and the domes' (below).
 
 | Part             | Side  | Position                       | Note                                            |
 | ---------------- | ----- | ------------------------------ | ----------------------------------------------- |
-| IC1              | front | x −7.15..−0.85, y 2.92..10.82  | top left, antenna end up, 0.18 mm from the top edge |
-| Antenna keep-out | all   | x −6.5..−1.5, y 7.82..10.82    | 3 × 5 mm, the module footprint's own rule area  |
-| U1, C1           | front | (5.8, 8.6), (7.6, 8.6) upright | top right; U1's SDA and SCL pads face IC1       |
-| X1               | front | (−3.675, 1.6)                  | just under IC1, centered on XL2 and XL1 (pads 10, 12) |
-| C2               | front | (−6.1, 1.6) upright            | just left of X1, pad 1 (VDD) at the top         |
-| D1, R1, R3       | front | (−3.85, −1.45), (−1.9, −1.45), (−0.9, 0.05) upright | contact A, the mirror of contact B about the center line |
-| D2, R2, R4       | front | (3.85, −1.45), (1.9, −1.45), (0.9, 0.05) upright | contact B: D2 over P2, R2 toward the center, R4 up toward pads 15 and 17 |
-| P1, P2           | front | (±3.85, −4.8), turned ∓36°     | 7.7 mm apart                                    |
-| TP1, TP2         | front | (3.45, 9.0), (1.5, 6.47)       | on the SDA and SCL traces                       |
-| J1               | back  | center (4.96, 3.5)             | right edge, odd column outboard, pin 1 at the top |
-| TP3, TP4         | back  | (−4.75, 3.2), (0.0, −1.05)     | on LEAK_A's back trace and LEAK_B's via         |
-| BT1              | back  | + (0.25, −3.6), − (−2.25, −3.6)| clear of the domes' through-hole feet           |
+| IC1              | front | x −7.6..−1.3, y −0.08..7.82    | top left, antenna end up, 0.18 mm from the top edge, 0.9 mm from the left |
+| Antenna keep-out | all   | x −6.95..−1.95, y 4.82..7.82   | 3 × 5 mm, the module footprint's own rule area; on the back, out to the left edge |
+| U1, C1           | front | (5.8, 5.6), (7.6, 5.6) upright | top right; U1's SDA and SCL pads face IC1       |
+| X1               | front | (−4.125, −1.25)                | just under IC1, centered on XL2 and XL1 (pads 10, 12) |
+| C2               | front | (−6.55, −1.4) upright          | just left of X1, pad 1 (VDD) at the top         |
+| D1, R1, R3       | front | (−3.87, −2.75), (−2.0, −2.75), (−0.57, −2.25) upright | contact A, the mirror of contact B about the center line |
+| D2, R2, R4       | front | (3.87, −2.75), (2.0, −2.75), (0.57, −2.25) upright | contact B: D2 over P2, R2 toward the center, R4 up toward pads 17 and 18 |
+| P1, P2           | front | (±3.85, −5.8), turned 180°     | 7.7 mm apart, feet 0.4 mm below center          |
+| TP1, TP2         | front | (3.45, 6.0), (1.05, 3.47)      | on the SDA and SCL traces                       |
+| J1               | back  | center (4.96, 1.0)             | right edge, odd column outboard, pin 1 at the top |
+| TP3, TP4         | back  | (−5.2, 0.2), (0.0, −1.0)       | on LEAK_A's back trace and LEAK_B's via         |
+| BT1              | back  | + (0, −3.6), − (0, −6.1)       | between the domes' inner feet                   |
 
-- **Module at the top left**, mirrored from the sketch. The module's SDA, SCL, SWDIO and
-  SWDCLK pads are on one side; turned toward the open middle of the board, I2C runs on the
-  front straight to U1 with no vias and SWD reaches J1 in about 5 mm on the back. At the
-  top right those pads faced the edge, where one track fits beside them, and I2C and SWD
-  would have crossed under the module.
-- **Module end.** As close to the edge as the module's end ground pads allow: their
-  copper ends 0.2 mm from the module's end, so the 0.381 mm edge rule puts the module
-  0.18 mm in from the top edge (the DevKit uses 0.23 mm). The keep-out's lower edge is
-  then at y 7.82, just above the cell's outline (radius 7.8).
+- **Module at the top left, chip antenna toward the corner.** The chip antenna sits in
+  the corner of the module's antenna end on pin 1's side, by ground pad G3 (datasheet
+  figure 10; Ezurio's product render and a photo of their development kit agree), which
+  is the module's top left here. The end is as close to the top edge as its end ground
+  pads allow: their copper ends 0.2 mm from the module's end, so the 0.381 mm edge rule
+  puts the module 0.18 mm in (the DevKit uses 0.23 mm). The side is 0.9 mm from the left
+  edge, the least that lets the front pour pass the module's left pad column and reach
+  ground pad 39 (0.381 edge rule, 0.16 pour neck, 0.1524 clearance, pads 0.2 mm inside
+  the body); in the corner itself, pad 39 had no connection. The chip antenna is then
+  1.4 mm from the left edge and 0.4 mm from the top, and seen from the front it sits
+  about 1.8 mm outside the cell's outline. The back pour stays out of the strip between
+  the keep-out and the left edge.
+- **Module mirrored from the sketch.** The module's SDA, SCL, SWDIO and SWDCLK pads are
+  on one side; turned toward the open middle of the board, I2C runs on the front straight
+  to U1 with no vias and SWD reaches J1 in about 6 mm on the back.
+- **Leak front end in one row.** X1, the row of D, R and R parts and the domes share the
+  board's bottom 8 mm: X1's pads end 0.32 mm above the row's, and the domes' tops are
+  0.5 mm below it. D1 and R1 sit inside X1's courtyard, and the domes' courtyards reach
+  0.8 mm past the 4 mm dome; a custom rule allows exactly those overlaps. The 1 MΩ
+  resistors stand upright between R1 and R2, with LEAK_B running down between them. D1's
+  and D2's ground pads tie straight into the front pour: there is no room for a via of
+  their own between X1, the dome and VDD on the back.
+- **Domes.** The 4 mm dome footprint (`MetalDomeSwitch:TriangleDome_Diameter4mm`) has its
+  two feet 2 mm either side of center, 0.4 mm off it. Turned 180°, the feet are below
+  center, clear of a fitted J1 header's shroud; the other way, the shroud's corner would
+  sit on P2's outer foot. The center pad is tied to both feet. The feet are plated slots
+  0.254 mm wide, under OSH Park's 0.508 mm minimum for drilled slots; 2026v4's 6 mm domes
+  had the same slots.
 - **J1 and the clip.** J1 sits at the right edge, not behind the module: the module's
   under-body vias would land in its pads. The odd pads (outboard: VDD, ground, key) end
   0.55 mm short of the even ones, so the back ground pour runs between them and the edge
-  and reaches pins 3, 5 and 9; nRESET comes down the gap between the columns to pin 10.
-  The pogo pins land 0.64 or 1.27 mm either side of J1's center line. The front opposite
-  carries no parts, only traces and TP2, so the clip's other jaw lands flat. A fitted box
-  header spans y −2.85 to 9.85 and stays inside the outline.
-- **X1 and C2 under the module.** X1's pads sit 0.62 mm below the module's bottom row and
-  C2 stands just left of X1, 0.2 mm off its pad; VDD runs diagonally from pad 5 onto C2's
-  top pad. Both lie inside the module's courtyard (which reaches 1 mm past its body) and
-  each other's; a custom rule allows exactly those overlaps.
-- **Domes.** The 4 mm dome footprint (`MetalDomeSwitch:TriangleDome_Diameter4mm`) has
-  its two feet 2 mm either side of center. Unrotated at (±3.85, −4.8), the outer foot
-  lands outside the board; turned 36° so the feet run along the edge, both foot pads stay
-  at least 0.5 mm inside. The center pad is tied to both feet. The feet are plated slots
-  0.254 mm wide, under OSH Park's 0.508 mm minimum for drilled slots; 2026v4's 6 mm domes
-  had the same slots.
+  and reaches pins 3, 5 and 9; nRESET passes over J1, just under the antenna keep-out, and
+  comes down the gap between the columns to pin 10, which is why J1 cannot move up. The
+  pogo pins land 0.64 or 1.27 mm either side of J1's center line. The front opposite
+  carries no parts, only traces, TP2 and the pour, so the clip's other jaw lands flat. A
+  fitted box header spans y −5.35 to 7.35, inside the outline and clear of the dome feet.
+- **X1 and C2 under the module.** X1's pads sit 0.47 mm below the module's bottom row
+  and C2 stands just left of X1, 0.2 mm off its pad; VDD runs diagonally from pad 5 onto
+  C2's top pad and on to a via left of C2. Both lie inside the module's courtyard (which
+  reaches 1 mm past its body) and each other's; a custom rule allows exactly those
+  overlaps.
 - **Fan-out.** The vias under the module for XL1, XL2, nRESET, SWO and ground are
   2026v4's, copied in the module's frame. Pad 8's via (LEAK_A) moved 0.4 mm into the
   module's open middle so that pad 4, a ground pad boxed in by signal pads, can reach a
   via of its own, as on the USB CO2 board.
-- **Routing.** Front: RET_A, LEAK_B and RET_B straight down from the module's
-  bottom-right corner to the two front ends, I2C, VDD from pad 5 to C2 and from the right
-  edge to U1 and C1, the dome ties. Back: SWD to J1, XL1/XL2 from the module's vias to
-  vias under X1's body, LEAK_A from pad 8 down through TP3 and under X1 to its node, and
-  VDD from C2's via down the left edge to BT1 and across to the right edge. Tracks
+- **Routing.** Front: RET_A, LEAK_B and RET_B down from the module's bottom-right corner
+  to the 1 MΩ resistors, I2C, VDD from pad 5 to C2 and from the right edge to U1 and C1,
+  the dome ties. Back: SWD to J1, XL1/XL2 from the module's vias to vias under X1's body,
+  LEAK_A from pad 8 down through TP3 and under X1 to its node, and VDD from C2's via down
+  the left edge, under LEAK_A, through BT1+ and across to the right edge. Tracks
   0.15 mm, power 0.3 mm.
-- **Silkscreen.** References at 0.75 mm (the board minimum) beside their parts, the front
-  test pads by signal name, BT1's + and −, and on the back "Leak Sensor", `${REVISION}`
-  and `${COMPANY}` from the board's literal title block. The back title sits where a
-  fitted J1 box header goes, so it is hidden on the boards that get a header.
+- **Silkscreen.** References at 0.75 mm (the board minimum) beside their parts: X1's
+  over the traces just right of it, R3's and R4's upright under them. The front test pads
+  are labeled by signal name, BT1 has its + and −, and the back carries "Leak Sensor",
+  `${REVISION}` and `${COMPANY}` from the board's literal title block. The back title and
+  BT1's label sit where a fitted J1 box header goes, so they are partly hidden on the
+  boards that get a header.
 - **Ground.** Pours on both layers outside the keep-out, 0.1524 mm clearance as on
   2026v4. Thermal reliefs on the front only for through-hole pads (it is reflowed); on
   the back for every pad, so J1, BT1's wires and the test pads can be hand-soldered.
-  Stitching vias around the edge; none under a dome or J1.
+  Stitching vias around the edge; none under a dome, J1, BT1 or the back title.
 
 ### 5.7 Case
 
@@ -310,9 +329,12 @@ Not started. Planned:
 
 ## 8. Known limitations and open questions
 
-- **Antenna.** The module sits on the top edge right of center, where the datasheet prefers
-  edge center (sections 5.2, 5.3.1, 6.2). The cell is metal within 20 mm, which the
-  datasheet says "will begin to significantly degrade performance" (5.3.2). The RSSI test
+- **Antenna.** The module sits at the top left with its chip antenna toward the corner,
+  where the datasheet prefers edge center (sections 5.2, 5.3.1, 6.2). The board is no
+  taller than the cell, so the antenna end is in front of the cell's top, with only the
+  antenna's corner clear of its outline, and the 209 contact is behind the board. Metal
+  within 20 mm "will begin to significantly degrade performance" (5.3.2). The 19.5 mm
+  board kept the keep-out above the cell; the lower case was chosen over it. The RSSI test
   in section 7 decides whether this layout holds.
 - **Battery life** is a target, not an estimate: the module idles at 3 µA (Ezurio
   datasheet, section 2.1) and the SHT45 at 0.08 µA, which leaves about 16 µA for Thread
