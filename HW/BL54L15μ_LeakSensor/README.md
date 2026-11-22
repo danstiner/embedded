@@ -172,8 +172,10 @@ Y = 100 − y; grid origin on the cell's axis). Placed, routed and silkscreened 
 shortened from 19.5 to 16.0 mm the same day, so the case is no taller than the cell (5.7).
 
 - **Outline**: 17.0 × 16.0 mm, x ±8.5, y ±8, centered on the cell's axis. Top corners
-  R0.3, so the module's corner ground pad keeps the edge rule; bottom corners R1.5, to
-  sit in the case's fillets. Two layers, 1.6 mm. The cell (Ø15.6) lies behind the board.
+  R0.3, so the module's corner ground pad keeps the edge rule. The bottom is an R30 arc
+  through (0, −8), rising 1.2 mm by the sides, joined to them by R3 fillets: rounded like
+  the first 2026v5 outline's R8.5 semicircle but mostly flat, since the domes now sit
+  low. Two layers, 1.6 mm. The cell (Ø15.6) lies behind the board.
 - **Rules** (`BL54L15μ_LeakSensor.kicad_dru`): copper at least 0.381 mm from the edge, as
   on the USB CO2 board; X1 and C2 may sit inside IC1's courtyard, and the leak front end
   inside X1's and the domes' (below).
@@ -187,7 +189,7 @@ shortened from 19.5 to 16.0 mm the same day, so the case is no taller than the c
 | C2               | front | (−6.55, −1.4) upright          | just left of X1, pad 1 (VDD) at the top         |
 | D1, R1, R3       | front | (−3.87, −2.75), (−2.0, −2.75), (−0.57, −2.25) upright | contact A, the mirror of contact B about the center line |
 | D2, R2, R4       | front | (3.87, −2.75), (2.0, −2.75), (0.57, −2.25) upright | contact B: D2 over P2, R2 toward the center, R4 up toward pads 17 and 18 |
-| P1, P2           | front | (±3.85, −5.8), turned 180°     | 7.7 mm apart, feet 0.4 mm below center          |
+| P1, P2           | front | (±3.85, −5.85), turned 180° ∓ 7.4° | 7.7 mm apart, feet below center along the bottom arc |
 | TP1, TP2         | front | (3.45, 6.0), (1.05, 3.47)      | on the SDA and SCL traces                       |
 | J1               | back  | center (4.96, 1.0)             | right edge, odd column outboard, pin 1 at the top |
 | TP3, TP4         | back  | (−5.2, 0.2), (0.0, −1.0)       | on LEAK_A's back trace and LEAK_B's via         |
@@ -218,7 +220,11 @@ shortened from 19.5 to 16.0 mm the same day, so the case is no taller than the c
 - **Domes.** The 4 mm dome footprint (`MetalDomeSwitch:TriangleDome_Diameter4mm`) has its
   two feet 2 mm either side of center, 0.4 mm off it. Turned 180°, the feet are below
   center, clear of a fitted J1 header's shroud; the other way, the shroud's corner would
-  sit on P2's outer foot. The center pad is tied to both feet. The feet are plated slots
+  sit on P2's outer foot. Each dome is then tilted 7.4° so its feet follow the bottom arc,
+  as on the first 2026v5 layout. The bottom radius is the smallest that keeps everything:
+  below R30, the dome's own outline silk runs off the edge before the outer foot clears
+  the shroud. At R30 the shroud's edge just reaches P2's outer foot pad (0.02 mm), clear
+  of the slot. The center pad is tied to both feet. The feet are plated slots
   0.254 mm wide, under OSH Park's 0.508 mm minimum for drilled slots; 2026v4's 6 mm domes
   had the same slots.
 - **J1 and the clip.** J1 sits at the right edge, not behind the module: the module's

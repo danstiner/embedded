@@ -12,8 +12,8 @@ import FreeCAD, Part
 from FreeCAD import Vector as V
 
 P = dict(
-    # board (README 5.6): 17.0 x 16.0, centered on the cell's axis
-    BoardW2=8.5, BoardTop=8.0, BoardBot=-8.0, BoardRT=0.3, BoardRB=1.5, BoardT=1.6,
+    # board (README 5.6): 17.0 x 16.0, centered on the cell's axis; top corners R0.3, an R30 bottom arc, R3 fillets
+    BoardW2=8.5, BoardTop=8.0, BoardBot=-8.0, BoardRT=0.3, BoardArcR=30.0, BoardRF=3.0, BoardT=1.6,
     # body
     Wall=1.5, Floor=1.0, FloorGap=0.1, TopGap=0.15, LidT=1.2, CornerR=3.0, InR=1.5, Clear=0.15,
     FrontGap=2.7,        # board front face to the front wall: the module stands 2.08 mm off the board, the pin bores need 2.7
@@ -30,7 +30,7 @@ P = dict(
     # front lip, and the dome press then depends on two faces of one printed part, not on the board's thickness
     Lip=0.4, LipT=0.8, Tol=0.1, DomeRelief=2.4, RailTop=7.5, RibR=0.3, RibCrush=0.1,
     # leak pins
-    PinD=2.5, PinL=6.0, PinX=3.85, DomeY=-5.8, DomeApex=0.3, PinPress=0.1, PinCap=0.8, BossWall=0.8,
+    PinD=2.5, PinL=6.0, PinX=3.85, DomeY=-5.85, DomeApex=0.3, PinPress=0.1, PinCap=0.8, BossWall=0.8,
     PinProud=0.2,        # also keeps the pin's top end 0.25 mm below D1 and D2
     BossBack=0.7,        # boss face toward the board, clear of D1 and D2: the pin stands 0.5 mm proud of it, onto the dome
     # cell cradle; the + wire runs along the bay's lower left corner (no room under the cell)
@@ -41,6 +41,8 @@ P = dict(
     RimT=0.8, RimH=1.0, NubR=0.5, NubProud=0.3,
 )
 P['AxisZ'] = -P['BoardBot'] + P['FloorGap'] + P['Floor']
+# where the board's straight sides start: the fillets' centers (sketch y)
+P['BoardSideY'] = P['BoardBot'] + P['BoardArcR'] - ((P['BoardArcR'] - P['BoardRF']) ** 2 - (P['BoardW2'] - P['BoardRF']) ** 2) ** 0.5
 P['IW'] = P['BoardW2'] + P['Clear']
 P['OW'] = P['IW'] + P['Wall']
 P['Ztop'] = P['AxisZ'] + P['BoardTop'] + P['TopGap'] + P['LidT']
@@ -85,15 +87,28 @@ def rrect(x0, x1, z0, z1, rb, rt, y0, y1):
 
 
 def outline(d, n=8):
-    """Board outline offset by d (sketch coordinates): a rectangle, top corners BoardRT, bottom corners BoardRB."""
-    w, t, b = g('BoardW2') + d, g('BoardTop') + d, g('BoardBot') - d
+    """Board outline offset by d (sketch coordinates): top corners BoardRT, sides, BoardRF fillets, the BoardArcR
+    bottom arc. Offsetting keeps every center: only the radii change."""
+    w, t = g('BoardW2') + d, g('BoardTop') + d
+    rt, rf, ra = max(g('BoardRT') + d, 0.0), g('BoardRF') + d, g('BoardArcR') + d
+    fx, fy, ay = g('BoardW2') - g('BoardRF'), g('BoardSideY'), g('BoardBot') + g('BoardArcR')
+    a1 = math.atan2(fy - ay, fx)                             # fillet-to-arc tangent direction, the same from both centers
     pts = []
-    for (cx, cy, r, a0) in ((w, t, g('BoardRT') + d, 0), (-w, t, g('BoardRT') + d, 90), (-w, b, g('BoardRB') + d, 180), (w, b, g('BoardRB') + d, 270)):
-        r = max(r, 0.0)
-        ox, oy = cx - math.copysign(r, cx), cy - math.copysign(r, cy)   # corner arc center
-        for i in range(n + 1):
-            a = math.radians(a0 + 90 * i / n)
-            pts.append((ox + r * math.cos(a), oy + r * math.sin(a)))
+    for i in range(n + 1):                                   # top right corner
+        a = math.radians(90 * i / n)
+        pts.append((w - rt + rt * math.sin(a), t - rt + rt * math.cos(a)))
+    for i in range(n + 1):                                   # right fillet, from the side down to the arc
+        a = a1 * i / n
+        pts.append((fx + rf * math.cos(a), fy + rf * math.sin(a)))
+    for i in range(1, 4 * n):                                # bottom arc, right to left
+        a = a1 + (-math.pi - 2 * a1) * i / (4 * n)
+        pts.append((ra * math.cos(a), ay + ra * math.sin(a)))
+    for i in range(n + 1):                                   # left fillet, up to the side
+        a = math.pi - a1 + a1 * i / n
+        pts.append((-fx + rf * math.cos(a), fy + rf * math.sin(a)))
+    for i in range(n + 1):                                   # top left corner
+        a = math.radians(90 * i / n)
+        pts.append((-w + rt - rt * math.cos(a), t - rt + rt * math.sin(a)))
     return pts
 
 
@@ -118,7 +133,7 @@ for yc in (g('Yc0') + g('CradleInset'), g('Yc1') - g('CradleInset')):           
 frame = box(-g('IW'), g('IW'), -g('LipT'), g('BoardT') + g('LipT'), g('Floor') - 0.01, AZ + g('RailTop'))
 frame = frame.cut(outline_prism(-g('Lip'), -5, 5))
 frame = frame.cut(outline_prism(g('Tol'), 0, g('BoardT') + g('Tol')))
-frame = frame.cut(box(-g('BoardW2') - g('Tol'), g('BoardW2') + g('Tol'), 0, g('BoardT') + g('Tol'), AZ + g('BoardBot') + g('BoardRB'), AZ + 30))
+frame = frame.cut(box(-g('BoardW2') - g('Tol'), g('BoardW2') + g('Tol'), 0, g('BoardT') + g('Tol'), AZ + g('BoardSideY'), AZ + 30))
 for sx in (-1, 1):                                       # front lip relief around each dome
     frame = frame.cut(cylY(sx * g('PinX'), AZ + g('DomeY'), g('DomeRelief'), -g('LipT') - 0.1, 0.0))
 adds.append(frame)
@@ -163,7 +178,7 @@ for y in (g('Yc0') + 6, g('Yc1') - 6):                   # dimples for the nubs
 ribs = []
 for sx in (-1, 1):
     x, y = sx * (g('BoardW2') - g('RibR')), g('BoardT') - g('RibCrush') + g('RibR')   # clear of the slot's side wall: tangent faces break the fuse
-    z0 = AZ + g('BoardBot') + g('BoardRB')                # where the straight sides start
+    z0 = AZ + g('BoardSideY')                             # where the straight sides start
     ribs.append(cylZ(x, y, g('RibR'), z0, AZ + g('RailTop') - g('RibR')).fuse(Part.makeSphere(g('RibR'), V(x, y, AZ + g('RailTop') - g('RibR')))))
 ribs = ribs[0].fuse(ribs[1])
 body, lid = body.removeSplitter(), lid.removeSplitter()
