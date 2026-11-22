@@ -313,20 +313,22 @@ then cut down to the cell's 15.6 mm by 2026-11-22. Laid out again the same day a
 `Case/build_case.py` builds the case in FreeCAD from the parameters at its top and saves
 `Case/LeakSensor_2026v5.FCStd`. The file also holds the board (KiCad's STEP export), the
 cell, the battery contacts and the leak pins as reference parts, and the script checks all
-of them against each other. The case is an open-top body with a half-dome rear end and a
-lid that slides on from the rear, 24.7 × 50.25 × 20.45 mm. The board stands across the
-front with the cell lying behind it. The board sets the width and height: its 20 mm plus 0.15 mm clearance and a
-2.2 mm wall each side, its 18 mm plus a 1.0 mm floor, a 1.2 mm lid and the slot's 0.1 mm
-under the board and 0.15 mm over it.
+of them against each other. The case is an open-top body with half-dome ends and a lid
+that slides on from the rear, 24.7 × 58.4 × 20.45 mm. The board stands across the front
+with the cell lying behind it. The board sets the width and height: its 20 mm plus
+0.15 mm clearance and a 2.2 mm wall each side, its 18 mm plus a 1.0 mm floor, a 1.2 mm
+lid and the slot's 0.1 mm under the board and 0.15 mm over it.
 
 The bottom follows the board's: inside and out, it is an arc tangent to the sides, R10.15
 inside (0.05 mm off the board's center) and R12.35 outside. Outside, the arc gives way to
 straight lines where it would overhang more than 60° when printed, leaving a 6.6 mm flat
 for the body to print upright on (`MaxOverhang`; 90 gives the full curve, which needs
-supports). The rear end is a half dome: the same section turned about a vertical axis
-1.0 mm in front of the cell's rear end, so the bowl clears the cell's rear edge by 0.1 mm
-(the floor clears the cell by 0.15 mm) and the 228 contact. The bottom's front edge is rounded 2 mm, the top's edges
-1 mm.
+supports). Both ends are half domes: the same section turned about a vertical axis. The
+front one's axis is the board's front face, so the board's full width stays in the
+straight part and the module, BZ1 and the leak pins stand in its bowl; it puts the case's
+front 12.35 mm ahead of the board. The rear one's axis is 1.0 mm in front of the cell's
+rear end, so its bowl clears the cell's rear edge by 0.1 mm (the floor clears the cell by
+0.15 mm) and the 228 contact. The top's edges are rounded 1 mm.
 
 - **Board slot.** 0.4 mm lips front and back along the board's sides and bottom; the
   board drops in from the top and rests 0.1 mm above the floor. The side lips stop at
@@ -335,7 +337,8 @@ supports). The rear end is a half dome: the same section turned about a vertical
   board, hold it against the front lip. The dome press then depends on two faces of one
   print, not on the board's thickness or the slot's fit.
 - **Leak pins.** Ø2.5 × 6 mm metal pins stand upright at x ±3.95, just in front of the
-  domes. Each is pushed up from below into a blind bore in the front wall and stands
+  domes. Each is pushed up from below into a blind bore in a boss that runs from the
+  front dome's wall back toward the board, and stands
   0.2 mm proud of the bottom, so the case rests on the pins and a film of water reaches
   them first. The side of each pin presses its dome's apex: the pin surface is 0.2 mm off
   the board and the dome is assumed 0.3 mm high, a 0.1 mm press (`DomeApex`, `PinPress`).
@@ -351,23 +354,26 @@ supports). The rear end is a half dome: the same section turned about a vertical
   The 228's tab sits in the dome's bowl behind the rear panel; its wire runs forward over
   both panels in the bay's upper left corner, 1.55 mm in from the wall to clear the dome's
   curve, 2.8 mm clear of the cell and below the lid.
-- **Vent.** One 1.0 × 2.0 mm slot in the right wall, into the gap between the front wall
-  and the board, just under the seam and 2.3 mm below U1 (5.3). There is no other
+- **Vent.** One 1.0 × 2.0 mm slot in the right wall of the front dome, into its bowl in
+  front of the board, just under the seam and 2.3 mm below U1 (5.3). There is no other
   opening: BZ1 sounds through the closed case.
 - **Lid.** A 1.2 mm plate that slides on from the rear, after the hygrometer 2026v3's
   case. The top 3.7 mm of each side wall is a 0.8 mm rail with a 45° ridge, 0.6 mm deep,
   facing out from its top 1.2 mm; the lid's skirts take the outer 1.4 mm of the wall and
-  carry the matching groove, so the lid cannot lift. It rests on the rails' tops and stops
-  against the front wall, which stands the full height. The lid also takes the dome's
-  top, so the seam runs at one height all round, 4.9 mm below the top: just under the two
-  ribs that hold the cell down (above), which slide out over the dome's rim.
+  carry the matching groove, so the lid cannot lift. It rests on the rails' tops, and its
+  skirts stop against the front dome, which stands to the rails' tops under the lid's
+  plate: the front dome can't be part of the lid, as its curve would sweep through the
+  rails while the lid slides on. The lid does take the rear dome's top. So the seam runs
+  1.2 mm below the top around the front, drops at the skirts' front ends, and runs 4.9 mm
+  below the top along the sides and round the rear: just under the two ribs that hold the
+  cell down (above), which slide out over the rear dome's rim.
 - **Fits, as on 2026v3.** Faces that slide or bear are drawn line to line: the skirts on
-  the rails' faces, the plate on the rails' tops, the skirts' feet on the walls' shoulders.
-  Only the groove is cut larger than the ridge, 0.05 mm deeper and 0.1 mm taller, so its
-  upper flank bears and its lower flank clears. The detent is 2026v3's too: a 60° bump,
-  0.5 mm high, on each rail 5 mm behind the front wall, and in each skirt a notch 0.05 mm
-  deeper behind a lead-in ramp, 0.8 mm deep at the lid's front end and running out over
-  4 mm, so the bump rides the skirt only for the last few millimeters.
+  the rails' faces, the plate on the rails' tops, the skirts' feet on the walls'
+  shoulders. Only the groove is cut larger than the ridge, 0.05 mm deeper and 0.1 mm
+  taller, so its upper flank bears and its lower flank clears. The detent is 2026v3's too:
+  a 60° bump, 0.5 mm high, on each rail 5 mm behind the skirts' stop, and in each skirt a
+  notch 0.05 mm deeper behind a lead-in ramp, 0.8 mm deep at the skirt's front end and
+  running out over 4 mm, so the bump rides the skirt only for the last few millimeters.
 - **Checks.** No overlap between the body, lid, board and its parts, cell, contacts, pins
   and a Ø1.2 mm + wire. The board drops in from 25 mm above without touching anything but
   the ribs, and the lid slides out to the rear touching only where the bumps ride the
