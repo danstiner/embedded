@@ -147,6 +147,12 @@ P2 ── ELEC_B ──┬── R2 10 kΩ ── LEAK_B (P1.04, AIN0) ── R4
 Unchanged from 2026v4: address 0x44, C1 100 nF beside it, I2C through the module's 13 kΩ
 pull-ups. Idle current 0.08 µA typical (SHT4x datasheet, table 4).
 
+No thermal isolation: the board averages about 0.06 mW (R-4). The USB CO2 board's thermal
+model put its SHT4x about 1 °C above ambient at 37 mW, roughly 0.03 °C per mW; scaled, this
+board warms U1 by a few thousandths of a degree, and radio bursts of a few milliseconds
+average out in the board's heat capacity. What matters is how freely room air reaches U1:
+the case's vent goes at the top right corner, beside it.
+
 ### 5.4 SWD pads (J1)
 
 The Arm 10-pin Cortex debug pinout, as 2026v4: 1 VDD, 2 SWDIO, 3, 5 and 9 GND, 4 SWDCLK,
@@ -226,8 +232,9 @@ Y = 100 − y; grid origin on the cell's axis). Placed, routed and silkscreened 
   and `${COMPANY}` from the board's literal title block. The back title sits where a
   fitted J1 box header goes, so it is hidden on the boards that get a header.
 - **Ground.** Pours on both layers outside the keep-out, 0.1524 mm clearance as on
-  2026v4, thermal reliefs on through-hole pads only. Stitching vias around the edge; none
-  under a dome or J1.
+  2026v4. Thermal reliefs on the front only for through-hole pads (it is reflowed); on
+  the back for every pad, so J1, BT1's wires and the test pads can be hand-soldered.
+  Stitching vias around the edge; none under a dome or J1.
 
 ## 6. Bill of materials
 
@@ -245,6 +252,11 @@ Y = 100 − y; grid origin on the cell's axis). Placed, routed and silkscreened 
 | J1      | 2×5 1.27 mm, optional   | CNC Tech 3220-10-0300-00                | custom pads (4.2)    | SWD; hand-soldered on a few boards   |
 | BT1     | CR2 on wires            | –                                       | two 2 mm pads        | Cell (5.5)                           |
 | TP1–TP4 | Test pad                | –                                       | 1.0 mm pad           | SDA, SCL, LEAK_A, LEAK_B             |
+
+3D models: U1 uses Sensirion's (`Components/SHT45_AD1F_R2`, with the download's license, as
+on the USB CO2 board); KiCad ships none for its SHT4x footprint. D1 and D2 use KiCad's 0402
+resistor model as a stand-in: KiCad has no 0402 diode model, and TI's X1SON (DPY) body is
+the same 1.0 × 0.6 mm.
 
 ## 7. Verification
 
