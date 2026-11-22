@@ -313,9 +313,9 @@ then cut down to the cell's 15.6 mm by 2026-11-22. Laid out again the same day a
 `Case/build_case.py` builds the case in FreeCAD from the parameters at its top and saves
 `Case/LeakSensor_2026v5.FCStd`. The file also holds the board (KiCad's STEP export), the
 cell, the battery contacts and the leak pins as reference parts, and the script checks all
-of them against each other. The case is an open-top body with a lid that slides on from
-the rear, 24.7 × 44.85 × 20.45 mm. The board stands across the front with the cell lying
-behind it. The board sets the width and height: its 20 mm plus 0.15 mm clearance and a
+of them against each other. The case is an open-top body with a half-dome rear end and a
+lid that slides on from the rear, 24.7 × 50.25 × 20.45 mm. The board stands across the
+front with the cell lying behind it. The board sets the width and height: its 20 mm plus 0.15 mm clearance and a
 2.2 mm wall each side, its 18 mm plus a 1.0 mm floor, a 1.2 mm lid and the slot's 0.1 mm
 under the board and 0.15 mm over it.
 
@@ -323,7 +323,10 @@ The bottom follows the board's: inside and out, it is an arc tangent to the side
 inside (0.05 mm off the board's center) and R12.35 outside. Outside, the arc gives way to
 straight lines where it would overhang more than 60° when printed, leaving a 6.6 mm flat
 for the body to print upright on (`MaxOverhang`; 90 gives the full curve, which needs
-supports). The bottom's front and rear edges are rounded 2 mm, the top's edges 1 mm.
+supports). The rear end is a half dome: the same section turned about a vertical axis
+1.0 mm in front of the cell's rear end, so the bowl clears the cell's rear edge by 0.1 mm
+(the floor clears the cell by 0.15 mm) and the 228 contact. The bottom's front edge is rounded 2 mm, the top's edges
+1 mm.
 
 - **Board slot.** 0.4 mm lips front and back along the board's sides and bottom; the
   board drops in from the top and rests 0.1 mm above the floor. The side lips stop at
@@ -345,23 +348,30 @@ supports). The bottom's front and rear edges are rounded 2 mm, the top's edges 1
   under the cell, and two ribs under the lid over them, 0.1 mm off the cell: the board,
   not the cell, sets the bay's height, which leaves 2.5 mm above the cell.
 - **Wiring.** BT1's pads face the divider across a 2.0 mm gap, where the 209's tab is.
-  The 228's tab sits in a 2.0 mm pocket behind the rear panel; its wire runs forward over
-  both panels in the bay's upper left corner, 2.8 mm clear of the cell and below the lid.
-- **Vent.** One 1.0 × 2.5 mm slot in the right wall, into the gap between the front wall
-  and the board, its top 0.8 mm below U1 (5.3). There is no other opening: BZ1 sounds
-  through the closed case.
+  The 228's tab sits in the dome's bowl behind the rear panel; its wire runs forward over
+  both panels in the bay's upper left corner, 1.55 mm in from the wall to clear the dome's
+  curve, 2.8 mm clear of the cell and below the lid.
+- **Vent.** One 1.0 × 2.0 mm slot in the right wall, into the gap between the front wall
+  and the board, just under the seam and 2.3 mm below U1 (5.3). There is no other
+  opening: BZ1 sounds through the closed case.
 - **Lid.** A 1.2 mm plate that slides on from the rear, after the hygrometer 2026v3's
-  case. The top 2.2 mm of each side wall is a 0.8 mm rail with a 45° ridge, 0.5 mm deep,
-  facing out; the lid's skirts take the outer 1.4 mm of the wall and carry the matching
-  groove, 0.1 mm clear, so the lid cannot lift. It rests on the rails' tops and stops
-  against the front wall, which stands the full height. Near the rear end a bump of R0.4
-  in each skirt clicks 0.2 mm into a dimple in the rail; it rides the rail only for the
-  last 3 mm. Two ribs under the lid hold the cell down (above), so the middle of the rear
-  wall's top is a plug on the lid's rear end: the ribs slide out over the wall's lower
-  part.
+  case. The top 3.7 mm of each side wall is a 0.8 mm rail with a 45° ridge, 0.6 mm deep,
+  facing out from its top 1.2 mm; the lid's skirts take the outer 1.4 mm of the wall and
+  carry the matching groove, so the lid cannot lift. It rests on the rails' tops and stops
+  against the front wall, which stands the full height. The lid also takes the dome's
+  top, so the seam runs at one height all round, 4.9 mm below the top: just under the two
+  ribs that hold the cell down (above), which slide out over the dome's rim.
+- **Fits, as on 2026v3.** Faces that slide or bear are drawn line to line: the skirts on
+  the rails' faces, the plate on the rails' tops, the skirts' feet on the walls' shoulders.
+  Only the groove is cut larger than the ridge, 0.05 mm deeper and 0.1 mm taller, so its
+  upper flank bears and its lower flank clears. The detent is 2026v3's too: a 60° bump,
+  0.5 mm high, on each rail 5 mm behind the front wall, and in each skirt a notch 0.05 mm
+  deeper behind a lead-in ramp, 0.8 mm deep at the lid's front end and running out over
+  4 mm, so the bump rides the skirt only for the last few millimeters.
 - **Checks.** No overlap between the body, lid, board and its parts, cell, contacts, pins
   and a Ø1.2 mm + wire. The board drops in from 25 mm above without touching anything but
-  the ribs, and the lid slides out to the rear touching only at the bumps. J1's header model
+  the ribs, and the lid slides out to the rear touching only where the bumps ride the
+  ramps (the line-to-line faces touch without overlapping). J1's header model
   is left out: a board with a header does not fit. The script first checks that booleans
   against each part work at all: refined with `removeSplitter()`, the lid looked valid but
   every check against it came back empty.
@@ -438,7 +448,7 @@ Not started. Planned:
   PR 23, closed and never built.
 - **Case.** Unprinted. The 209's compressed length and both contacts' tab positions come
   from Keystone's catalog drawing, not parts in hand. Boards with J1 fitted do not fit.
-  The lid's 0.1 mm slide clearance and its bumps need a test print; how loud BZ1 is
+  The lid's line-to-line slide fit and its detent need a test print; how loud BZ1 is
   through the closed case is untested. The 60° overhang under the bottom is steeper than
   the usual 45° rule for printing without supports.
 

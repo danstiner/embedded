@@ -1,5 +1,5 @@
-"""Leak sensor 2026v5 case: an open-top body and a lid that slides on from the rear, checked against the board, the
-cell, the battery contacts and the leak pins.
+"""Leak sensor 2026v5 case: an open-top body with a half-dome rear end and a lid that slides on from the rear, checked
+against the board, the cell, the battery contacts and the leak pins.
 
 Run (from this folder): kicad-cli pcb export step --grid-origin --subst-models -o board.step ../BL54L15μ_LeakSensor.kicad_pcb
      OUT=$PWD/LeakSensor_2026v5.FCStd STEP=$PWD/board.step [EXPORT=dir for STL/STEP and the case.3mf print plate] freecadcmd build_case.py
@@ -18,7 +18,7 @@ P = dict(
     Wall=2.2,            # side walls: room for the lid's rail and skirt
     Floor=1.0, FloorGap=0.1, TopGap=0.15, LidT=1.2, Clear=0.15,
     TopR=1.0,            # the top's edges, along and across
-    EndR=2.0,            # the bottom's front and rear edges
+    EndR=2.0,            # the bottom's front edge
     MaxOverhang=60,      # the bottom's curve gives way to a straight line here (degrees from vertical; 90: the full curve)
     FrontGap=2.7,        # board front face to the front wall: the module stands 2.08 mm off the board, BZ1 2.0, the pin bores need 2.7
     FrontT=1.5,
@@ -27,8 +27,8 @@ P = dict(
     SpringGap=2.5,       # 209 leaf, compressed: divider face to the cell's negative end (assumed; free height about 6.5)
     CellD=15.6, CellL=27.0,   # CR2 maximum
     ButtonGap=0.85,      # 228: 0.25 mm plate plus 0.6 mm button
-    EarGap=2.0,          # behind the rear panel: the 228's solder ear and its wire
-    RearT=1.5,
+    DomeIn=1.0,          # the rear end is a half dome (the cross-section turned about a vertical axis) starting this far in
+                         # front of the cell's rear end: its bowl then clears the cell's rear edge
     PanelTop=5.3,        # top edge of both contact panels above the cell axis (228: button 6.1 above its lower edge, 11.4 tall)
     # board slot. The domes push the board back, so the front face is the datum: crush ribs behind hold it on the
     # front lip, and the dome press then depends on two faces of one printed part, not on the board's thickness
@@ -38,16 +38,21 @@ P = dict(
     PinCap=0.6,          # bore cap over the pin
     PinProud=0.2,        # below the case's bottom, onto the wet floor
     BossBack=0.7,        # boss face toward the board, clear of the domes' feet: the pin stands 0.5 mm proud of it, onto the dome
-    # cell cradle; the + wire runs over both panels in the bay's upper left corner
-    CradleT=1.2, CradleInset=5.0, WireD=1.2,
+    # cell cradle; the + wire runs over both panels in the bay's upper left corner, inside the dome's curve
+    CradleT=1.2, CradleInset=5.0, WireD=1.2, WireX=-8.6,
     # one small vent in the right wall into the gap in front of the board, below U1: approximate humidity is enough
-    VentW=1.0, VentH=2.5, VentZ=6.4,     # slot width (along the case) and height; its center (sketch y)
+    VentW=1.0, VentH=2.0, VentZ=5.2,     # slot width (along the case) and height; its center (sketch y), under the seam
     # slide-in lid, as on the hygrometer 2026v3: the side walls' tops are rails with a 45 degree ridge facing out, the
-    # lid's skirts carry the matching groove; it slides on from the rear and stops against the front wall
-    RailT=0.8, RailH=2.2, RailV=0.5,     # rail thickness, height of the rail zone, ridge depth (its flanks span 2 x RailV)
-    DetentR=0.4, DetentProud=0.2, DetentY=3.0,   # a bump in each skirt clicks into the rail, DetentY from the rear face
+    # lid's skirts carry the matching groove; it slides on from the rear and stops against the front wall. The lid also
+    # takes the dome's top, so the body/lid seam runs at one height all round
+    SeamY=6.6,           # seam height (sketch y): under the cell hold-downs, so they slide out over the dome's rim
+    RailT=0.8, RailV=0.6,                # rail thickness; ridge depth (its flanks span 2 x RailV down from the rail top)
+    # fits as on 2026v3: faces that slide or bear are line to line; only the groove is cut 0.05 deeper (and 0.1 taller)
+    # than the ridge, and the detent's notch 0.05 deeper than its bump
+    GrooveC=0.05,
+    BumpH=0.5, BumpZ=2.0, BumpY=5.0,     # 60 degree bump on each rail: height, how far up from the seam, apex from the front wall
+    NotchC=0.05, RampD=0.8,              # the lid's notch over the bump, and a lead-in ramp RampD deep at its front end
     HoldW=4.0, HoldGap=0.1,   # ribs under the lid over the cell saddles: the board, not the cell, sets the bay's height
-    PlugY=6.6,           # the rear wall's middle above this (sketch y) is a plug on the lid, so the ribs slide out over it
 )
 P['AxisZ'] = -P['BoardBot'] + P['FloorGap'] + P['Floor']
 # where the board's straight sides start: the bottom corners' centers (sketch y)
@@ -64,8 +69,9 @@ P['Yc0'] = P['Yd1'] + P['SpringGap']
 P['Yc1'] = P['Yc0'] + P['CellL']
 P['Yr0'] = P['Yc1'] + P['ButtonGap']
 P['Yr1'] = P['Yr0'] + P['PanelT']
-P['Yw0'] = P['Yr1'] + P['EarGap']
-P['Yw1'] = P['Yw0'] + P['RearT']
+P['Ydome'] = P['Yc1'] - P['DomeIn']
+P['Yend'] = P['Ydome'] + P['OW']
+P['SeamZ'] = P['AxisZ'] + P['SeamY']
 P['PinY'] = -(P['DomeApex'] - P['PinPress'] + P['PinD'] / 2)
 P['PinZ0'] = -P['PinProud']
 P['PinZ1'] = P['PinZ0'] + P['PinL']
@@ -95,10 +101,10 @@ def rrect(x0, x1, z0, z1, rb, rt, y0, y1):
     return s.removeSplitter()
 
 
-def u_prism(w2, zb, zt, rt, y0, y1, ov=90):
-    """Section in XZ, extruded along Y: the board's shape grown to half-width w2 and bottom zb. The bottom corners are
-    arcs tangent to the sides, centered over the ends of the board's flat; past ov degrees of overhang a tangent line
-    takes over, down to a wider flat. Top corners rt."""
+def u_edges(w2, zb, zt, rt, ov, s, y0):
+    """Half the case's section in XZ at y0, bottom center to top center (s = -1 mirrors it): the board's shape grown to
+    half-width w2 and bottom zb. The bottom corners are arcs tangent to the sides, centered over the ends of the board's
+    flat; past ov degrees of overhang a tangent line takes over, down to a wider flat. Top corners rt."""
     f = g('BoardW2') - g('BoardRC')
     r = w2 - f
     zc = zb + r
@@ -107,36 +113,66 @@ def u_prism(w2, zb, zt, rt, y0, y1, ov=90):
     xf = tx - (tz - zb) / math.tan(a) if a else f
     m, h = (a + math.pi / 2) / 2, math.sqrt(0.5)
 
-    def half(s):                                  # bottom center to top center; s = -1 mirrors it
-        p = lambda x, z: V(s * x, y0, z)
-        e = [Part.LineSegment(p(0, zb), p(xf, zb))] if xf > 1e-6 else []     # a fully round board has no flat
-        if a:
-            e.append(Part.LineSegment(p(xf, zb), p(tx, tz)))
-        e += [Part.Arc(p(tx, tz), p(f + r * math.sin(m), zc - r * math.cos(m)), p(w2, zc)),
-              Part.LineSegment(p(w2, zc), p(w2, zt - rt))]
-        if rt:
-            e.append(Part.Arc(p(w2, zt - rt), p(w2 - rt + rt * h, zt - rt + rt * h), p(w2 - rt, zt)))
-        e.append(Part.LineSegment(p(w2 - rt, zt), p(0, zt)))
-        return [x.toShape() for x in e]
-    return Part.Face(Part.Wire(Part.__sortEdges__(half(1) + half(-1)))).extrude(V(0, y1 - y0, 0))
+    p = lambda x, z: V(s * x, y0, z)
+    e = [Part.LineSegment(p(0, zb), p(xf, zb))] if xf > 1e-6 else []     # a fully round board has no flat
+    if a:
+        e.append(Part.LineSegment(p(xf, zb), p(tx, tz)))
+    e += [Part.Arc(p(tx, tz), p(f + r * math.sin(m), zc - r * math.cos(m)), p(w2, zc)),
+          Part.LineSegment(p(w2, zc), p(w2, zt - rt))]
+    if rt:
+        e.append(Part.Arc(p(w2, zt - rt), p(w2 - rt + rt * h, zt - rt + rt * h), p(w2 - rt, zt)))
+    e.append(Part.LineSegment(p(w2 - rt, zt), p(0, zt)))
+    return [x.toShape() for x in e]
+
+
+def u_prism(w2, zb, zt, rt, y0, y1, ov=90):
+    """The section extruded along Y."""
+    e = u_edges(w2, zb, zt, rt, ov, 1, y0) + u_edges(w2, zb, zt, rt, ov, -1, y0)
+    return Part.Face(Part.Wire(Part.__sortEdges__(e))).extrude(V(0, y1 - y0, 0))
+
+
+def u_dome(w2, zb, zt, rt, yc, ov=90):
+    """Half the section turned 180 degrees about the vertical axis at yc, toward the rear: a half dome that continues
+    u_prism(..., y1 = yc) without a seam."""
+    e = u_edges(w2, zb, zt, rt, ov, 1, yc) + [Part.LineSegment(V(0, yc, zt), V(0, yc, zb)).toShape()]
+    return Part.Face(Part.Wire(Part.__sortEdges__(e))).revolve(V(0, yc, 0), V(0, 0, 1), 180)
 
 
 def end_round(rb, rt, y0, y1, z1):
-    """Side view: the bottom's front and rear edges rounded rb, the top's rt."""
+    """Side view: the bottom's front and rear edges rounded rb, the top's rt (only the front is used)."""
     s = rrect(y0, y1, 0, z1, rb, rt, -20, 20)
     s.rotate(V(0, 0, 0), V(0, 0, 1), 90)
     return s
 
 
-def lid_space(t):
-    """Everything above the walls and outside the rails, from the front wall's inner face out past the rear: the lid's
-    room (t = 0) or the lid itself, t clear of the body (across the ridge's flanks, under the skirts, at the front)."""
-    h = t * math.sqrt(2)
-    xr, zb, v, w = g('IW') + g('RailT') + h, g('Zb'), g('RailV'), g('OW') + 1
-    right = [(w, zb - g('RailH') + t), (xr, zb - g('RailH') + t), (xr, zb - 2 * v), (xr + v, zb - v), (xr, zb)]
-    y0 = g('Yfi') + t
-    pts = [V(x, y0, z) for x, z in [(-w, g('Ztop') + 1), (w, g('Ztop') + 1)] + right + [(-x, z) for x, z in reversed(right)]]
-    return Part.Face(Part.makePolygon(pts + [pts[0]])).extrude(V(0, g('Yw1') + 1 - y0, 0))
+def lid_space(c):
+    """The lid's share of the outer shape: above the walls and outside the rails from the front wall's inner face to
+    the dome, and everything above the seam over the dome. c = 0 gives the body's cut; c = GrooveC the lid, whose
+    groove then clears the ridge by c at its apex (2c at its foot) and touches it everywhere else."""
+    xr, zb, v, w = g('IW') + g('RailT'), g('Zb'), g('RailV'), g('OW') + 1
+    right = [(w, g('SeamZ')), (xr, g('SeamZ')), (xr, zb - 2 * v - 2 * c), (xr + v + c, zb - v - c), (xr, zb)]
+    pts = [V(x, g('Yfi'), z) for x, z in [(-w, g('Ztop') + 1), (w, g('Ztop') + 1)] + right + [(-x, z) for x, z in reversed(right)]]
+    rails = Part.Face(Part.makePolygon(pts + [pts[0]])).extrude(V(0, g('Ydome') - g('Yfi'), 0))
+    return rails.fuse(box(-w, w, g('Ydome'), g('Yend') + 1, g('SeamZ'), g('Ztop') + 1))
+
+
+def detent(cut):
+    """The 2026v3 detent, both sides: a 60 degree bump on each rail's face under the ridge (cut = False, for the body)
+    or the lid's notch over it, NotchC deeper, behind a lead-in ramp from the lid's front end (cut = True)."""
+    xr, yb, t60 = g('IW') + g('RailT'), g('Yfi') + g('BumpY'), math.tan(math.radians(60))
+    if cut:
+        hn = g('BumpH') + g('NotchC')
+        sec = [(xr - 0.01, g('Yfi') - 0.01), (xr + g('RampD'), g('Yfi') - 0.01), (xr, yb - hn * t60), (xr + hn, yb),
+               (xr, yb + hn * t60), (xr - 0.01, yb + hn * t60)]
+        z0, z1 = g('SeamZ') - 0.5, g('SeamZ') + g('BumpZ') + 0.3
+    else:
+        sec = [(xr - 0.01, yb - g('BumpH') * t60), (xr + g('BumpH'), yb), (xr - 0.01, yb + g('BumpH') * t60)]
+        z0, z1 = g('SeamZ'), g('SeamZ') + g('BumpZ')
+    out = []
+    for sx in (-1, 1):
+        pts = [V(sx * x, y, z0) for x, y in sec]
+        out.append(Part.Face(Part.makePolygon(pts + [pts[0]])).extrude(V(0, 0, z1 - z0)))
+    return out[0].fuse(out[1])
 
 
 def outline(d, n=8):
@@ -171,9 +207,16 @@ def outline_prism(d, y0, y1):
 
 
 # ============================ body ============================
-outer = u_prism(g('OW'), 0, g('Ztop'), g('TopR'), g('Yfo'), g('Yw1'), g('MaxOverhang')).common(
-    end_round(g('EndR'), g('TopR'), g('Yfo'), g('Yw1'), g('Ztop')))
-body = outer.cut(u_prism(g('IW'), g('Floor'), g('Zb') + 5, 0, g('Yfi'), g('Yw0')))
+outer = u_prism(g('OW'), 0, g('Ztop'), g('TopR'), g('Yfo'), g('Ydome'), g('MaxOverhang')).common(
+    end_round(g('EndR'), g('TopR'), g('Yfo'), g('Ydome') + 30, g('Ztop'))).fuse(
+    u_dome(g('OW'), 0, g('Ztop'), g('TopR'), g('Ydome'), g('MaxOverhang')))
+
+
+def cavity(zt):
+    return u_prism(g('IW'), g('Floor'), zt, 0, g('Yfi'), g('Ydome')).fuse(u_dome(g('IW'), g('Floor'), zt, 0, g('Ydome')))
+
+
+body = outer.cut(cavity(g('Zb') + 5))
 
 # inner parts stand on the curved floor: built from the bottom up, then trimmed to the outside
 adds = []
@@ -204,24 +247,19 @@ for sx in (-1, 1):                                       # pin bores
 vy = (g('Yfi') - g('LipT')) / 2                          # side vent, midway between the front wall and the board's front lip
 subs.append(box(g('IW') - 0.5, g('OW') + 1, vy - g('VentW') / 2, vy + g('VentW') / 2, AZ + g('VentZ') - g('VentH') / 2, AZ + g('VentZ') + g('VentH') / 2))
 subs.append(lid_space(0))
-subs.append(box(-g('IW'), g('IW'), g('Yw0') - 0.01, g('Yw1') + 1, AZ + g('PlugY'), g('Zb') + 1))
 for s in subs:
     body = body.cut(s)
+body = body.fuse(detent(False))
 
 # ============================ lid ============================
-lid = outer.common(lid_space(g('Tol')).fuse(box(-g('IW') + g('Tol'), g('IW') - g('Tol'), g('Yw0'), g('Yw1') + 1,
-                                                AZ + g('PlugY') + g('Tol'), g('Zb') + 0.01)))
-detents = [V(sx * (g('IW') + g('RailT') - g('DetentProud') + g('DetentR')), g('Yw1') - g('DetentY'),
-             g('Zb') - (g('RailH') + 2 * g('RailV')) / 2) for sx in (-1, 1)]     # in the rail's straight band, under the ridge
-for c in detents:
-    lid = lid.fuse(Part.makeSphere(g('DetentR'), c))
-    body = body.cut(Part.makeSphere(g('DetentR') + 0.05, c))
+lid = outer.cut(cavity(g('Zb'))).common(lid_space(g('GrooveC'))).cut(detent(True))
 hr, hw = g('CellD') / 2 + g('HoldGap'), g('HoldW')
 for yc in (g('Yc0') + g('CradleInset'), g('Yc1') - g('CradleInset')):              # cell hold-downs, drawn as a profile:
     y = yc - g('CradleT') / 2                                                       # cutting a cylinder out left the lid unorientable
     zs = AZ + math.sqrt(hr ** 2 - hw ** 2)
-    e = [Part.Arc(V(-hw, y, zs), V(0, y, AZ + hr), V(hw, y, zs)), Part.LineSegment(V(hw, y, zs), V(hw, y, g('Zb') + 0.01)),
-         Part.LineSegment(V(hw, y, g('Zb') + 0.01), V(-hw, y, g('Zb') + 0.01)), Part.LineSegment(V(-hw, y, g('Zb') + 0.01), V(-hw, y, zs))]
+    zt = g('Zb') + 0.5                                                              # well into the plate: a sliver breaks the fuse
+    e = [Part.Arc(V(-hw, y, zs), V(0, y, AZ + hr), V(hw, y, zs)), Part.LineSegment(V(hw, y, zs), V(hw, y, zt)),
+         Part.LineSegment(V(hw, y, zt), V(-hw, y, zt)), Part.LineSegment(V(-hw, y, zt), V(-hw, y, zs))]
     lid = lid.fuse(Part.Face(Part.Wire([x.toShape() for x in e])).extrude(V(0, g('CradleT'), 0)))
 # crush ribs on the back lip along the straight sides, with a rounded top as the lead-in; fused after the fit checks
 ribs = []
@@ -242,7 +280,7 @@ refs['board'] = Part.makeCompound([x.transformGeometry(m) for x in keep])
 refs['header'] = Part.makeCompound([x.transformGeometry(m) for x in s.Solids if x.BoundBox.ZMin <= -0.05])
 refs['cell'] = cylY(0, AZ, g('CellD') / 2, g('Yc0'), g('Yc1'))
 refs['pins'] = cylZ(-g('PinX'), g('PinY'), g('PinD') / 2, g('PinZ0'), g('PinZ1')).fuse(cylZ(g('PinX'), g('PinY'), g('PinD') / 2, g('PinZ0'), g('PinZ1')))
-refs['wire'] = cylY(-g('IW') + g('WireD') / 2 + 0.05, AZ + g('PanelTop') + g('WireD') / 2 + 0.05, g('WireD') / 2, g('Yd0'), g('Yr1'))
+refs['wire'] = cylY(g('WireX'), AZ + g('PanelTop') + g('WireD') / 2 + 0.05, g('WireD') / 2, g('Yd0'), g('Yr1'))
 pt = AZ + g('PanelTop')
 c209 = box(-3.95, 3.95, g('Yd0') - 0.3, g('Yd0'), pt - 9.0, pt + 0.3).fuse(box(-3.95, 3.95, g('Yd0') - 0.3, g('Yd1') + 0.3, pt, pt + 0.3)) \
     .fuse(box(-3.95, 3.95, g('Yd1'), g('Yc0'), pt + 0.3 - 12.1, pt + 0.3))
@@ -261,12 +299,12 @@ def vol(a, b):
 
 print('PART body solids %d valid %s vol %.0f bbox %s' % (len(body.Solids), body.isValid(), body.Volume, body.BoundBox))
 print('PART lid solids %d valid %s vol %.0f bbox %s' % (len(lid.Solids), lid.isValid(), lid.Volume, lid.BoundBox))
-print('SIZE %.2f x %.2f x %.2f mm (width x length x height)' % (2 * g('OW'), g('Yw1') - g('Yfo'), g('Ztop')))
+print('SIZE %.2f x %.2f x %.2f mm (width x length x height)' % (2 * g('OW'), g('Yend') - g('Yfo'), g('Ztop')))
 for name, part in (('body', body), ('lid', lid)):        # the checks below are booleans: make sure they see the part at all
     probe = vol(part, box(-0.1, 0.1, -10, 60, -1, 30))
     print('CHECK %s probe (0.2 mm slab across the middle) %.3f mm3' % (name, probe))
     assert probe > 1, 'booleans against the %s fail' % name
-print('CHECK body/lid overlap %.3f' % vol(body, lid))
+print('CHECK body/lid overlap %.3f (line-to-line fits touch)' % vol(body, lid))
 for k, r in refs.items():
     if k == 'header':
         continue
@@ -293,12 +331,12 @@ for dz10 in range(5, 260, 5):                   # the board drops in from the to
 print('CHECK board drop-in collisions (height above seat, mm3):', hits[:10], 'count', len(hits))
 others = body.fuse([refs[k] for k in ('board', 'cell', 'contacts', 'wire')])
 hits = []
-for dy10 in range(2, int(10 * (g('Yw1') - g('Yfi'))), 2):   # the lid slides out to the rear
+for dy10 in range(2, int(10 * (g('Yend') - g('Yfi'))), 2):  # the lid slides out to the rear
     mm_ = FreeCAD.Matrix(); mm_.move(V(0, dy10 / 10.0, 0))
     v = vol(others, lid.transformGeometry(mm_))
     if v > 0.001:
         hits.append((dy10 / 10.0, round(v, 3)))
-print('CHECK lid slide-out collisions (mm moved, mm3; the detents ride the rails at first):', hits, 'count', len(hits))
+print('CHECK lid slide-out collisions (mm moved, mm3; the bumps ride the ramps at first):', hits, 'count', len(hits))
 print('CHECK ribs: crest at y %.2f, %.2f mm into a %.1f mm board; vs other refs %.3f' % (
     ribs.BoundBox.YMin, g('BoardT') - ribs.BoundBox.YMin, g('BoardT'), sum(vol(ribs, refs[k]) for k in ('cell', 'pins', 'contacts'))))
 body = body.fuse(ribs)          # removeSplitter() here leaves an invalid solid
@@ -320,7 +358,7 @@ exp = os.environ.get('EXPORT')
 if exp:
     import Mesh, MeshPart
     for name, shp in (('body', body), ('lid', lid), ('board', refs['board']), ('cell', refs['cell']), ('pins', refs['pins']), ('contacts', refs['contacts']), ('wire', refs['wire'])):
-        MeshPart.meshFromShape(Shape=shp, LinearDeflection=0.03, AngularDeflection=0.3).write('%s/%s.stl' % (exp, name))
+        MeshPart.meshFromShape(Shape=shp, LinearDeflection=0.02, AngularDeflection=0.08).write('%s/%s.stl' % (exp, name))
     body.exportStep('%s/body.step' % exp); lid.exportStep('%s/lid.step' % exp)
     # print plate: the body on its floor, the lid on its top beside it
     lp = lid.copy(); lp.rotate(V(0, 0, 0), V(0, 1, 0), 180)
@@ -329,7 +367,7 @@ if exp:
     import zipfile
     objs, items = '', ''
     for i, (name, shp) in enumerate((('body', body), ('lid', lp)), 1):
-        pts, tris = MeshPart.meshFromShape(Shape=shp, LinearDeflection=0.03, AngularDeflection=0.3).Topology
+        pts, tris = MeshPart.meshFromShape(Shape=shp, LinearDeflection=0.02, AngularDeflection=0.08).Topology
         objs += '<object id="%d" name="%s" type="model"><mesh><vertices>%s</vertices><triangles>%s</triangles></mesh></object>' % (
             i, name, ''.join('<vertex x="%.4f" y="%.4f" z="%.4f"/>' % (p.x, p.y, p.z) for p in pts),
             ''.join('<triangle v1="%d" v2="%d" v3="%d"/>' % t for t in tris))
