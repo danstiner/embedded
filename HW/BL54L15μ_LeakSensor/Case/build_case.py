@@ -40,19 +40,21 @@ P = dict(
     # cell cradle; the + wire runs over both panels in the bay's upper left corner, inside the dome's curve
     CradleT=1.2, CradleInset=5.0, WireD=1.2, WireX=-8.6,
     # one small vent in the right wall into the gap in front of the board, below U1: approximate humidity is enough
-    VentW=1.0, VentH=2.0, VentZ=5.2, VentY=-1.75,   # slot width (along the case) and height; its center (sketch y, under
-                                                     # the seam) and along the case (between BZ1 and the board's front lip)
-    # slide-in lid, as on the hygrometer 2026v3: the side walls' tops are rails with a 45 degree ridge facing out, the
-    # lid's skirts carry the matching groove; it slides on from the rear and its skirts stop against the front dome. The
-    # lid also takes the rear dome's top and covers the front dome, which can't be part of it: its curve would sweep
-    # through the rails
-    SeamY=6.6,           # seam height (sketch y): under the cell hold-downs, so they slide out over the dome's rim
-    RailT=0.8, RailV=0.6,                # rail thickness; ridge depth (its flanks span 2 x RailV down from the rail top)
+    VentW=1.0, VentH=2.0, VentZ=8.0, VentY=-1.75,   # slot width (along the case) and height; its center (sketch y, beside
+                                                     # U1) and along the case (between BZ1 and the board's front lip)
+    # slide-in lid after the hygrometer 2026v3's, its track turned inside out: the side walls run up to the lid's plate
+    # outside, and a tongue on the lid slides in a track inside each, its 45 degree ridge facing out into a groove in
+    # the wall. The lid slides on from the rear; its tongues stop against the front dome, which the plate covers (as
+    # part of the lid its curve would sweep through the walls), and it takes the rear dome's top
+    SeamY=6.6,           # the tongues reach down to here (sketch y), as does the lid's share of the rear dome: just under
+                         # the cell hold-downs, so they slide out over the dome's rim
+    RailT=0.8, RailV=0.6,                # tongue thickness; ridge depth (its flanks span 2 x RailV down from the plate)
     # fits as on 2026v3: faces that slide or bear are line to line; only the groove is cut 0.05 deeper (and 0.1 taller)
     # than the ridge, and the detent's notch 0.05 deeper than its bump
     GrooveC=0.05,
-    BumpH=0.5, BumpZ=2.0, BumpY=5.0,     # 60 degree bump on each rail: height, how far up from the seam, apex from the stop
-    NotchC=0.05, RampD=0.8,              # the lid's notch over the bump, and a lead-in ramp RampD deep at its front end
+    BumpH=0.5, BumpZ=2.0, BumpY=5.0,     # 60 degree bump on each tongue: height, how far up from its foot, apex ahead of
+                                         # the track's rear entry
+    NotchC=0.05, RampD=0.8,              # the wall's notch under the bump, behind a lead-in ramp RampD deep at the entry
     HoldW=4.0, HoldGap=0.1,   # ribs under the lid over the cell saddles: the board, not the cell, sets the bay's height
 )
 P['AxisZ'] = -P['BoardBot'] + P['FloorGap'] + P['Floor']
@@ -130,25 +132,28 @@ def u_dome(w2, zb, zt, rt, yc, ov=90, s=1):
 
 
 def lid_space(c):
-    """The lid's share of the outer shape: everything above the rails' tops, outside the rails between the domes, and
-    above the seam over the rear dome. c = 0 gives the body's cut; c = GrooveC the lid, whose groove then clears the
-    ridge by c at its apex (2c at its foot) and touches it everywhere else."""
-    xr, zb, v, w = g('IW') + g('RailT'), g('Zb'), g('RailV'), g('OW') + 1
-    right = [(w, g('SeamZ')), (xr, g('SeamZ')), (xr, zb - 2 * v - 2 * c), (xr + v + c, zb - v - c), (xr, zb)]
-    pts = [V(x, g('Yf'), z) for x, z in [(-w, g('Ztop') + 1), (w, g('Ztop') + 1)] + right + [(-x, z) for x, z in reversed(right)]]
-    rails = Part.Face(Part.makePolygon(pts + [pts[0]])).extrude(V(0, g('Ydome') - g('Yf'), 0))
-    return rails.fuse([box(-w, w, g('Yfo') - 1, g('Yf'), zb, g('Ztop') + 1), box(-w, w, g('Ydome'), g('Yend') + 1, g('SeamZ'), g('Ztop') + 1)])
+    """The lid's share of the outer shape: everything above the walls' tops, a tongue inside each side wall between the
+    domes, and everything above the seam over the rear dome. c = 0 gives the lid; c = GrooveC the body's cut, whose
+    groove then clears the tongue's ridge by c at its apex (2c at its foot) and touches it everywhere else."""
+    xi, xr, zb, v, w = g('IW'), g('IW') + g('RailT'), g('Zb'), g('RailV'), g('OW') + 1
+    tongue = [(xi, g('SeamZ')), (xr, g('SeamZ')), (xr, zb - 2 * v - 2 * c), (xr + v + c, zb - v - c), (xr, zb), (xi, zb)]
+    parts = [box(-w, w, g('Ydome'), g('Yend') + 1, g('SeamZ'), g('Ztop') + 1)]
+    for sx in (-1, 1):
+        pts = [V(sx * x, g('Yf'), z) for x, z in tongue]
+        parts.append(Part.Face(Part.makePolygon(pts + [pts[0]])).extrude(V(0, g('Ydome') - g('Yf'), 0)))
+    return box(-w, w, g('Yfo') - 1, g('Yend') + 1, zb, g('Ztop') + 1).fuse(parts)
 
 
 def detent(cut):
-    """The 2026v3 detent, both sides: a 60 degree bump on each rail's face under the ridge (cut = False, for the body)
-    or the lid's notch over it, NotchC deeper, behind a lead-in ramp from the skirt's front end (cut = True)."""
-    xr, yb, t60 = g('IW') + g('RailT'), g('Yf') + g('BumpY'), math.tan(math.radians(60))
+    """The 2026v3 detent turned inside out, both sides: a 60 degree bump on each tongue's face under the ridge, near its
+    rear end (cut = False, for the lid), or the wall's notch over it, NotchC deeper, behind a lead-in ramp from the
+    track's rear entry (cut = True), so the bump rides the wall only for the last few millimeters."""
+    xr, yb, t60 = g('IW') + g('RailT'), g('Ydome') - g('BumpY'), math.tan(math.radians(60))
     if cut:
         hn = g('BumpH') + g('NotchC')
-        sec = [(xr - 0.01, g('Yf') - 0.01), (xr + g('RampD'), g('Yf') - 0.01), (xr, yb - hn * t60), (xr + hn, yb),
-               (xr, yb + hn * t60), (xr - 0.01, yb + hn * t60)]
-        z0, z1 = g('SeamZ') - 0.5, g('SeamZ') + g('BumpZ') + 0.3
+        sec = [(xr - 0.01, yb - hn * t60), (xr + hn, yb), (xr, yb + hn * t60), (xr + g('RampD'), g('Ydome') + 0.01),
+               (xr - 0.01, g('Ydome') + 0.01)]
+        z0, z1 = g('SeamZ'), g('SeamZ') + g('BumpZ') + 0.3
     else:
         sec = [(xr - 0.01, yb - g('BumpH') * t60), (xr + g('BumpH'), yb), (xr - 0.01, yb + g('BumpH') * t60)]
         z0, z1 = g('SeamZ'), g('SeamZ') + g('BumpZ')
@@ -233,13 +238,12 @@ for sx in (-1, 1):                                       # pin bores
     subs.append(cylZ(sx * g('PinX'), g('PinY'), g('PinD') / 2, -1, g('PinZ1')))
 vy = g('VentY')                                          # side vent
 subs.append(box(g('IW') - 1, g('OW') + 1, vy - g('VentW') / 2, vy + g('VentW') / 2, AZ + g('VentZ') - g('VentH') / 2, AZ + g('VentZ') + g('VentH') / 2))
-subs.append(lid_space(0))
+subs += [lid_space(g('GrooveC')), detent(True)]
 for s in subs:
     body = body.cut(s)
-body = body.fuse(detent(False))
 
 # ============================ lid ============================
-lid = outer.cut(cavity(g('Zb'))).common(lid_space(g('GrooveC'))).cut(detent(True))
+lid = outer.cut(cavity(g('Zb'))).common(lid_space(0)).fuse(detent(False))
 hr, hw = g('CellD') / 2 + g('HoldGap'), g('HoldW')
 for yc in (g('Yc0') + g('CradleInset'), g('Yc1') - g('CradleInset')):              # cell hold-downs, drawn as a profile:
     y = yc - g('CradleT') / 2                                                       # cutting a cylinder out left the lid unorientable
@@ -324,6 +328,7 @@ for dy10 in range(2, int(10 * (g('Yend') - g('Yfo'))), 2):  # the lid slides out
     if v > 0.001:
         hits.append((dy10 / 10.0, round(v, 3)))
 print('CHECK lid slide-out collisions (mm moved, mm3; the bumps ride the ramps at first):', hits, 'count', len(hits))
+print('CHECK slide-out ends after %.1f mm (the bumps leave the tracks after BumpY + their half length)' % (hits[-1][0] if hits else 0))
 print('CHECK ribs: crest at y %.2f, %.2f mm into a %.1f mm board; vs other refs %.3f' % (
     ribs.BoundBox.YMin, g('BoardT') - ribs.BoundBox.YMin, g('BoardT'), sum(vol(ribs, refs[k]) for k in ('cell', 'pins', 'contacts'))))
 body = body.fuse(ribs)          # removeSplitter() here leaves an invalid solid

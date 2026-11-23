@@ -344,7 +344,10 @@ rear end, so its bowl clears the cell's rear edge by 0.1 mm (the floor clears th
   the board and the dome is assumed 0.3 mm high, a 0.1 mm press (`DomeApex`, `PinPress`).
   The bore opens toward the dome through a 2.0 mm gap, narrower than the pin, and the
   bore's wall stops 0.7 mm short of the board, over the domes. The pin top is 1.7 mm
-  above the dome center, and the bosses clear X1, C2 and the diodes.
+  above the dome center, and the bosses clear X1, C2 and the diodes. The board's domes fix
+  the pins at the edge of the flat, where the front dome's bowl begins: the bottom under
+  each pin rises from 0 to 1.2 mm, so it stands 0.2 mm below the flat on its inner side
+  and 1.4 mm out of the curve on its outer side.
 - **Cell.** Keystone 209 leaf spring (−) on a 1.6 mm divider behind the board, 228 button
   (+) on a 1.6 mm rear panel; both clip onto 1.52–1.78 mm panels and are listed for CR2.
   The 209 is assumed compressed to 2.5 mm between the divider and the cell. Two saddles
@@ -355,25 +358,26 @@ rear end, so its bowl clears the cell's rear edge by 0.1 mm (the floor clears th
   both panels in the bay's upper left corner, 1.55 mm in from the wall to clear the dome's
   curve, 2.8 mm clear of the cell and below the lid.
 - **Vent.** One 1.0 × 2.0 mm slot in the right wall of the front dome, into its bowl in
-  front of the board, just under the seam and 2.3 mm below U1 (5.3). There is no other
-  opening: BZ1 sounds through the closed case.
-- **Lid.** A 1.2 mm plate that slides on from the rear, after the hygrometer 2026v3's
-  case. The top 3.7 mm of each side wall is a 0.8 mm rail with a 45° ridge, 0.6 mm deep,
-  facing out from its top 1.2 mm; the lid's skirts take the outer 1.4 mm of the wall and
-  carry the matching groove, so the lid cannot lift. It rests on the rails' tops, and its
-  skirts stop against the front dome, which stands to the rails' tops under the lid's
-  plate: the front dome can't be part of the lid, as its curve would sweep through the
-  rails while the lid slides on. The lid does take the rear dome's top. So the seam runs
-  1.2 mm below the top around the front, drops at the skirts' front ends, and runs 4.9 mm
-  below the top along the sides and round the rear: just under the two ribs that hold the
-  cell down (above), which slide out over the rear dome's rim.
-- **Fits, as on 2026v3.** Faces that slide or bear are drawn line to line: the skirts on
-  the rails' faces, the plate on the rails' tops, the skirts' feet on the walls'
-  shoulders. Only the groove is cut larger than the ridge, 0.05 mm deeper and 0.1 mm
-  taller, so its upper flank bears and its lower flank clears. The detent is 2026v3's too:
-  a 60° bump, 0.5 mm high, on each rail 5 mm behind the skirts' stop, and in each skirt a
-  notch 0.05 mm deeper behind a lead-in ramp, 0.8 mm deep at the skirt's front end and
-  running out over 4 mm, so the bump rides the skirt only for the last few millimeters.
+  front of the board, level with U1 (5.3). There is no other opening: BZ1 sounds through
+  the closed case.
+- **Lid.** A 1.2 mm plate that slides on from the rear, after the hygrometer 2026v3's case
+  with its track turned inside out: the side walls run up to the plate outside, and a
+  0.8 mm tongue under the plate slides in a track inside each wall, its 45° ridge, 0.6 mm
+  deep, facing out from its top 1.2 mm into a groove in the wall, so the lid cannot lift.
+  The tongues reach 3.7 mm below the plate and stop against the front dome, which stands
+  to the walls' height under the plate: as part of the lid, its curve would sweep through
+  the walls while the lid slides on. The lid does take the rear dome's top, down to 4.9 mm
+  below the top, just under the two ribs that hold the cell down (above), which slide out
+  over the rear dome's rim. Outside, the seam runs 1.2 mm below the top around the front
+  and along the sides, and drops to 4.9 mm where the rear dome begins.
+- **Fits, as on 2026v3.** Faces that slide or bear are drawn line to line: the tongues on
+  the tracks' outer faces, the plate on the walls' tops, the tongues' feet on the tracks'
+  floors. Only the groove is cut larger than the ridge, 0.05 mm deeper and 0.1 mm taller,
+  so its upper flank bears and its lower flank clears. The detent is 2026v3's turned
+  inside out too: a 60° bump, 0.5 mm high, on each tongue 5 mm ahead of its rear end, and
+  in each wall a notch 0.05 mm deeper behind a lead-in ramp, 0.8 mm deep at the track's
+  rear entry and running out over 4 mm, so the bump rides the wall only for the last 3.4
+  mm of travel. The 1.4 mm wall takes the ramp better than the 0.8 mm tongue would.
 - **Checks.** No overlap between the body, lid, board and its parts, cell, contacts, pins
   and a Ø1.2 mm + wire. The board drops in from 25 mm above without touching anything but
   the ribs, and the lid slides out to the rear touching only where the bumps ride the
