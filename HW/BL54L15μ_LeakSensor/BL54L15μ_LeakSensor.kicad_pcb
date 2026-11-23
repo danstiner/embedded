@@ -4780,6 +4780,17 @@
 			(uuid "cdb13567-1d2a-4b63-be35-985947f0d588")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/Components/Same_Sky_CMT-5023S-SMT-TR/Same_Sky_CMT-5023S-SMT-TR.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "CM7V_T1A_LOW_ESR_32_768KHZ_9PF_20_TA_QC:XTAL_CM7V-T1A-LOW-ESR-32.768KHZ-9PF-20-TA-QC"
 		(layer "F.Cu")

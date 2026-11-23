@@ -440,7 +440,7 @@ ones did. The top's edges are square.
   and running out over 4 mm, so the bump rides the wall only for the last 4.2 mm of
   travel. The wall takes the ramp better than the tongue would.
 - **Checks.** No overlap between the body, lid, board and its parts, cell, contacts, pins
-  and a Ø1.2 mm + wire. BZ1 and Q1 have no 3D model in the board's STEP, so boxes stand
+  and a Ø1.2 mm + wire. BZ1's model is not a solid and Q1 has none in the board's STEP, so boxes stand
   in for them (Q1's at its tallest), and the build prints the least gap between the
   front-side parts and the case. The board drops in from 25 mm above without touching anything but
   the ribs, and the lid slides out to the rear touching only where the bumps ride the
@@ -475,8 +475,10 @@ ones did. The top's edges are square.
 3D models: U1 uses Sensirion's SHT45-AD1F model, the same package (`Components/SHT45_AD1F_R2`,
 with the download's license, as on the USB CO2 board); KiCad ships none for its SHT4x footprint. D1 and D2 use KiCad's 0402
 resistor model as a stand-in: KiCad has no 0402 diode model, and TI's X1SON (DPY) body is
-the same 1.0 × 0.6 mm. BZ1 and Q1 have no model yet (KiCad ships none for SOT-523): to be
-downloaded from DigiKey. Until then the case checks use boxes for them (5.7).
+the same 1.0 × 0.6 mm. BZ1 uses Same Sky's (`Components/Same_Sky_CMT-5023S-SMT-TR`); it
+is an open shell, not a solid, so the case checks still use a box of the same 5 × 5 × 2 mm
+for it (5.7). Q1 has no model yet (KiCad ships none for SOT-523): to be downloaded from
+DigiKey; until then the case checks use a box for it too.
 
 ## 7. Verification
 

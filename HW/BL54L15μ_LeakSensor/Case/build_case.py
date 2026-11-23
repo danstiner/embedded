@@ -48,8 +48,9 @@ P = dict(
     # one small vent in the left wall into the gap in front of the board, beside U1: approximate humidity is enough
     VentW=1.0, VentH=2.0, VentZ=6.6, VentY=-1.75,   # slot width (along the case) and height; its center (sketch y, level
                                                      # with U1's lower half, 0.7 mm of wall over it) and along the case
-    # BZ1 and Q1 have no 3D model in the board's STEP: boxes for the fit checks (center, size, height; Q1's is its
-    # SOT-523 outline at its tallest)
+    # BZ1's model reaches the board's STEP as an open shell, not a solid, and Q1 has no model: boxes for the fit
+    # checks (center, size, height; BZ1's is its model's 5 x 5 x 2 mm bounding box, Q1's its SOT-523 outline at its
+    # tallest)
     BzX=-5.9, BzY=3.08, BzW=5.0, BzH=2.0, Q1X=-5.96, Q1Y=-1.02, Q1W=1.6, Q1L=1.7, Q1H=0.9,
     # slide-in lid after the hygrometer 2026v3's, its track turned inside out: the side walls run up to the lid's plate
     # outside, and a tongue under the plate runs just inside each wall, its 45 degree ridge facing out into a groove in

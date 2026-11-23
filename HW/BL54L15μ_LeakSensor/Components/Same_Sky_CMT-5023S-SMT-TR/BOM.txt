@@ -1,0 +1,3 @@
+3DX_Same_Sky_Supplier: Same Sky
+3DX_Same_Sky_Description: 5 mm, 3 Vo-p, 80 dB, Surface Mount (SMT), Magnetic Audio Transducer Buzzer
+3DX_Same_Sky_Model Number: CMT-5023S-SMT-TR
