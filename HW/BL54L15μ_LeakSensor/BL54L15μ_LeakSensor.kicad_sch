@@ -4263,6 +4263,17 @@
 		)
 		(uuid "0ddf31b4-eeb3-4ff0-8607-3026471e1f8f")
 	)
+	(text "Either contact drives or senses (README 5.1).\nArmed A to B: LEAK_A and LEAK_A_RET high, LEAK_B an input\nwith edge wake, LEAK_B_RET low. Swap A and B to reverse.\nParked once wet: all four low.\nThe edge wakes below about 0.4 MΩ across P1 and P2."
+		(exclude_from_sim no)
+		(at 92 94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1dc5e318-5d15-5d04-a928-856b39e7048a")
+	)
 	(text "CR2 Non-rechargable Battery"
 		(exclude_from_sim no)
 		(at 42.418 16.002 0)
@@ -4294,6 +4305,17 @@
 			(justify left bottom)
 		)
 		(uuid "45039e27-dd35-459d-9105-6ae205c6aba5")
+	)
+	(text "Same Sky CMT-5023S-SMT: 3 V, 4 kHz, 110 mA, 80 dB at 10 cm.\nP1.11 switches it through Q1; R7 holds Q1 off while\nthe pin floats; D3 clamps the coil when Q1 opens.\nOn the front over J1, so the clip's jaw rests on it."
+		(exclude_from_sim no)
+		(at 92.71 190.5 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5dfe76dd-57df-58b1-8001-db2600285d9c")
 	)
 	(text "Leak Detection"
 		(exclude_from_sim no)
@@ -4347,10 +4369,28 @@
 		(uuid "bbbb5a79-3209-4428-9bf7-01202e9f9e3c")
 	)
 	(junction
+		(at 124.46 152.4)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "025000ff-9db2-5a90-9b94-77b3626c78bb")
+	)
+	(junction
+		(at 109.22 160.02)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "05a6b8e7-1bf5-5c1a-8f3b-dcb1a8092097")
+	)
+	(junction
 		(at 46.99 33.02)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "08333faf-7932-4bef-ac78-732f8b59f0cb")
+	)
+	(junction
+		(at 63.5 85.09)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "438a8e26-082d-5bd8-a4eb-54e84d6c620d")
 	)
 	(junction
 		(at 63.5 110.49)
@@ -4375,6 +4415,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "9826685b-a65a-4686-ac4e-44e0c9b5e9a9")
+	)
+	(junction
+		(at 116.84 142.24)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "acd09b93-b72b-50f9-95f8-e131e18c202b")
 	)
 	(junction
 		(at 29.21 110.49)
@@ -4415,16 +4461,12 @@
 		(uuid "2acc29ed-83e8-4e2c-be14-c3e57bf2fc9d")
 	)
 	(no_connect
-		(at 261.62 88.9)
-		(uuid "2ce6b3b3-987d-4b20-8823-cdd923c12868")
+		(at 204.47 58.42)
+		(uuid "2fdeb2dd-b5cc-56ad-acb2-a12c814135cf")
 	)
 	(no_connect
-		(at 234.95 130.81)
-		(uuid "2daca082-4bfa-43f3-88dc-c256ed725b51")
-	)
-	(no_connect
-		(at 261.62 104.14)
-		(uuid "4789aef8-57b4-4bbd-a6c3-3c11d635dacd")
+		(at 179.07 111.76)
+		(uuid "34391a02-46db-5ece-a193-7d17fa64ec28")
 	)
 	(no_connect
 		(at 219.71 130.81)
@@ -4443,16 +4485,20 @@
 		(uuid "7b3dcc19-2af1-408b-be87-42c7462cf8fb")
 	)
 	(no_connect
-		(at 261.62 96.52)
-		(uuid "88325c99-b625-4352-824d-53d58779bcc9")
-	)
-	(no_connect
 		(at 179.07 81.28)
 		(uuid "97f2d24d-fe56-4f4c-92fd-37d76090d686")
 	)
 	(no_connect
+		(at 212.09 130.81)
+		(uuid "9c296d22-953a-5152-b455-d5256501f93e")
+	)
+	(no_connect
 		(at 234.95 58.42)
 		(uuid "a144f043-249b-4b83-9335-c73287910813")
+	)
+	(no_connect
+		(at 179.07 115.57)
+		(uuid "be85b1ef-5747-5fb0-9474-34d0e7ce6d8b")
 	)
 	(no_connect
 		(at 179.07 96.52)
@@ -4477,16 +4523,6 @@
 	(no_connect
 		(at 179.07 73.66)
 		(uuid "d4aa587c-0427-4e0a-b9b8-3782ca6a90c3")
-	)
-	(label "BUZZ"
-		(at 261.62 85.09 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "a726fab7-2c2f-555c-b6b9-a5929780d0e6")
 	)
 	(no_connect
 		(at 179.07 107.95)
@@ -4545,6 +4581,16 @@
 	)
 	(wire
 		(pts
+			(xy 124.46 165.1) (xy 124.46 167.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2440b366-b591-5137-a690-8c742225a09d")
+	)
+	(wire
+		(pts
 			(xy 34.29 143.51) (xy 39.37 143.51)
 		)
 		(stroke
@@ -4565,6 +4611,46 @@
 	)
 	(wire
 		(pts
+			(xy 71.12 85.09) (xy 63.5 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "316735b3-3705-59b5-bd5a-58c98641ed57")
+	)
+	(wire
+		(pts
+			(xy 63.5 118.11) (xy 71.12 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "33e6038f-868b-54c0-8069-cf2cd292bef5")
+	)
+	(wire
+		(pts
+			(xy 116.84 151.13) (xy 116.84 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3d315861-2e1b-56dc-9e42-5e59b4c830f3")
+	)
+	(wire
+		(pts
+			(xy 109.22 160.02) (xy 116.84 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "458d51d1-a5fd-5e3d-9d5f-3ee500d43e05")
+	)
+	(wire
+		(pts
 			(xy 19.05 113.03) (xy 29.21 113.03)
 		)
 		(stroke
@@ -4572,6 +4658,16 @@
 			(type default)
 		)
 		(uuid "45afd5c0-ca6e-4fae-8198-fb54e56737be")
+	)
+	(wire
+		(pts
+			(xy 116.84 140.97) (xy 116.84 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "477e8db0-2911-541f-9bba-5c01ac0b3537")
 	)
 	(polyline
 		(pts
@@ -4583,6 +4679,46 @@
 			(color 0 0 255 1)
 		)
 		(uuid "4e9b878a-1080-4a76-8611-52a162c6ad6c")
+	)
+	(wire
+		(pts
+			(xy 124.46 142.24) (xy 124.46 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "54e3ba5b-94cd-5be3-b3e0-f26c4a7fa0b6")
+	)
+	(wire
+		(pts
+			(xy 36.83 110.49) (xy 46.99 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5a6baba3-600d-42ec-bf4d-c6350efe028e")
+	)
+	(wire
+		(pts
+			(xy 101.6 160.02) (xy 109.22 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5e98d7e4-aae3-58b0-a853-cc263348be9b")
+	)
+	(wire
+		(pts
+			(xy 101.6 36.83) (xy 101.6 35.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5f60d38f-a439-44e1-8add-24f564d3a8f5")
 	)
 	(polyline
 		(pts
@@ -4597,26 +4733,6 @@
 	)
 	(wire
 		(pts
-			(xy 36.83 110.49) (xy 46.99 110.49)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5a6baba3-600d-42ec-bf4d-c6350efe028e")
-	)
-	(wire
-		(pts
-			(xy 101.6 36.83) (xy 101.6 35.56)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5f60d38f-a439-44e1-8add-24f564d3a8f5")
-	)
-	(wire
-		(pts
 			(xy 63.5 85.09) (xy 54.61 85.09)
 		)
 		(stroke
@@ -4627,13 +4743,13 @@
 	)
 	(wire
 		(pts
-			(xy 71.12 85.09) (xy 63.5 85.09)
+			(xy 63.5 92.71) (xy 71.12 92.71)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "316735b3-3705-59b5-bd5a-58c98641ed57")
+		(uuid "734430e0-2c37-55b5-a483-b86cedaeafea")
 	)
 	(wire
 		(pts
@@ -4675,6 +4791,36 @@
 		)
 		(uuid "9af79383-cd72-497c-8563-4903d79c5ce3")
 	)
+	(wire
+		(pts
+			(xy 116.84 152.4) (xy 124.46 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aa48f124-2050-5eb8-9376-5b7003761e85")
+	)
+	(wire
+		(pts
+			(xy 109.22 167.64) (xy 109.22 170.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b9b26dcb-0535-58b3-8dd3-5ea8d0c2ee91")
+	)
+	(wire
+		(pts
+			(xy 124.46 149.86) (xy 124.46 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bb043cd6-74a7-5cb1-b691-8416e76df1b0")
+	)
 	(polyline
 		(pts
 			(xy 160.02 127) (xy 12.7 127)
@@ -4698,6 +4844,16 @@
 	)
 	(wire
 		(pts
+			(xy 116.84 142.24) (xy 124.46 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c088d7be-fbea-564b-9869-5c03dce0efd6")
+	)
+	(wire
+		(pts
 			(xy 34.29 143.51) (xy 34.29 156.21)
 		)
 		(stroke
@@ -4705,6 +4861,16 @@
 			(type default)
 		)
 		(uuid "d88b6ed8-0f36-4240-b4b5-48e8ec95bc4c")
+	)
+	(wire
+		(pts
+			(xy 124.46 152.4) (xy 124.46 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e0cf9fe6-eab4-5833-8f7d-f673b665efb7")
 	)
 	(wire
 		(pts
@@ -4767,6 +4933,16 @@
 		)
 		(uuid "f1cd14ab-d669-4dfe-8d8c-996daeeecdf5")
 	)
+	(wire
+		(pts
+			(xy 116.84 142.24) (xy 116.84 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fdac295b-f346-5d60-a274-67dd75110d6f")
+	)
 	(label "SWO"
 		(at 179.07 88.9 180)
 		(effects
@@ -4787,6 +4963,16 @@
 		)
 		(uuid "0da2794e-ce36-4fb2-8cdc-7266a1aecf30")
 	)
+	(label "ELEC_A"
+		(at 38.1 85.09 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2201b980-ffb2-55e8-9542-95665553b62e")
+	)
 	(label "SCL"
 		(at 44.45 161.29 0)
 		(effects
@@ -4806,6 +4992,56 @@
 			(justify right bottom)
 		)
 		(uuid "46477925-9b19-4b11-95a0-fda5c8d80c70")
+	)
+	(label "BUZZ"
+		(at 101.6 160.02 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "4d236ac2-cf8b-51d4-a70c-ebf98f3f2fd8")
+	)
+	(label "LEAK_A"
+		(at 261.62 100.33 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4fb1e9be-4708-40af-a933-e155134b0cdd")
+	)
+	(label "SDA"
+		(at 261.62 107.95 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "68008c6f-8554-4232-8676-043a5f152ad0")
+	)
+	(label "LEAK_A_RET"
+		(at 261.62 88.9 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6a9d2b87-915e-4a21-bf26-216abbfbf68b")
+	)
+	(label "BUZZ"
+		(at 261.62 111.76 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6d2be8e4-2fd1-48fc-8c99-82fa9025771e")
 	)
 	(label "SDA"
 		(at 44.45 166.37 0)
@@ -4837,6 +5073,16 @@
 		)
 		(uuid "7a4cfdc3-2749-4273-b080-f21d5ca1a7be")
 	)
+	(label "BUZZER-"
+		(at 119.38 152.4 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "89f89cdc-3062-565c-b105-d64b66ae7c37")
+	)
 	(label "SWDCLK"
 		(at 119.38 48.26 270)
 		(effects
@@ -4857,15 +5103,25 @@
 		)
 		(uuid "9fd1d9d9-c422-4101-923b-bce7447d2b32")
 	)
-	(label "LEAK_B"
-		(at 261.62 115.57 0)
+	(label "LEAK_B_RET"
+		(at 261.62 92.71 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "c17c21be-e3e9-4031-8408-0e0f113a47a1")
+		(uuid "a1cb2a60-698f-4aef-9e96-a3f6b30aa003")
+	)
+	(label "LEAK_B"
+		(at 261.62 85.09 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c1dcc97b-2a82-406e-8e5f-47e5764b544d")
 	)
 	(label "LEAK_A"
 		(at 71.12 85.09 0)
@@ -4887,6 +5143,16 @@
 		)
 		(uuid "caa8440e-da8a-4228-bac9-3db6038a7683")
 	)
+	(label "LEAK_B_RET"
+		(at 71.12 118.11 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "d046f735-1392-5829-95a9-eb058cd63095")
+	)
 	(label "LEAK_B"
 		(at 71.12 110.49 0)
 		(effects
@@ -4896,6 +5162,16 @@
 			(justify left bottom)
 		)
 		(uuid "dbcf4523-998f-4fcb-913b-cd42135c4210")
+	)
+	(label "ELEC_B"
+		(at 38.1 110.49 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "dd7e9bde-96e3-5c03-a946-d968d38496b9")
 	)
 	(label "XL2"
 		(at 223.52 130.81 270)
@@ -4907,15 +5183,25 @@
 		)
 		(uuid "e3f9e03e-3aa7-43ad-9418-4f22d3173c6d")
 	)
-	(label "LEAK_A"
-		(at 215.9 130.81 270)
+	(label "SCL"
+		(at 261.62 115.57 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "f75f0bb5-3b97-4142-85a1-236e96696eb4")
+		(uuid "eb8d93e7-0007-4c96-8a8c-86f85a848f71")
+	)
+	(label "LEAK_A_RET"
+		(at 71.12 92.71 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f7c183a6-32df-5c52-8884-a8e8a22c8601")
 	)
 	(label "SWDIO"
 		(at 116.84 48.26 270)
@@ -4926,6 +5212,160 @@
 			(justify right bottom)
 		)
 		(uuid "fa88f813-5744-4351-a252-572a4a123331")
+	)
+	(symbol
+		(lib_id "power:VDD")
+		(at 116.84 140.97 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "0322aaa0-219b-50c0-b176-5874b2508507")
+		(property "Reference" "#PWR026"
+			(at 116.84 144.78 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "VDD"
+			(at 116.84 135.89 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 116.84 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 116.84 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
+			(at 116.84 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "06e17041-0141-576a-999a-b3c306654b7d")
+		)
+		(instances
+			(project "BL54L15μ_LeakSensor"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "#PWR026")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 109.22 170.18 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "04dd77db-e50a-5235-ad1a-79741b5eb6e6")
+		(property "Reference" "#PWR028"
+			(at 109.22 176.53 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 109.22 173.99 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 109.22 170.18 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 109.22 170.18 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\""
+			(at 109.22 170.18 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "4ca56e1f-2af4-59a7-965b-ac6327f76fe1")
+		)
+		(instances
+			(project "BL54L15μ_LeakSensor"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "#PWR028")
+					(unit 1)
+				)
+			)
+		)
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -6202,6 +6642,209 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 63.5 88.9 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "69fb7054-8998-5c10-81df-33b6978cd966")
+		(property "Reference" "R3"
+			(at 66.04 87.6299 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1MΩ"
+			(at 66.04 90.1699 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 61.722 88.9 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 63.5 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Weak pull-down resistor for leak sense input"
+			(at 63.5 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part Number" "RC0402FR-071ML"
+			(at 63.5 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
+			(at 63.5 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Availability" ""
+			(at 63.5 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Color" ""
+			(at 63.5 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description_1" ""
+			(at 63.5 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Design Guidance" ""
+			(at 63.5 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Design Guideline" ""
+			(at 63.5 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MP" ""
+			(at 63.5 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Package" ""
+			(at 63.5 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Price" ""
+			(at 63.5 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer_Name" ""
+			(at 63.5 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "3788d53a-c929-5d34-bdc5-6371580248bc")
+		)
+		(pin "2"
+			(uuid "2223e88b-e9c0-52f6-9025-51133eec87bf")
+		)
+		(instances
+			(project "BL54L15μ_LeakSensor"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "R3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 36.83 92.71 0)
 		(unit 1)
@@ -6686,6 +7329,109 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:Buzzer")
+		(at 127 147.32 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "8c4c42aa-bfbb-567f-9658-da245c4eb34c")
+		(property "Reference" "BZ1"
+			(at 130.81 146.05 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "CMT-5023S-SMT"
+			(at 130.81 148.59 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "LeakSensor:Buzzer_CUI_CMT-5023S-SMT"
+			(at 127 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.sameskydevices.com/product/resource/cmt-5023s-smt-tr.pdf"
+			(at 127 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Magnetic buzzer, 5 x 5 x 2 mm, 3 V, 4 kHz, 110 mA, 80 dB at 10 cm"
+			(at 127 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part Number" "CMT-5023S-SMT-TR"
+			(at 127 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Same Sky"
+			(at 127 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "431520d9-0d53-5704-8700-179ac8450046")
+		)
+		(pin "2"
+			(uuid "52f3c61a-7134-5298-9ee7-781745e6667b")
+		)
+		(instances
+			(project "BL54L15μ_LeakSensor"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "BZ1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:VDD")
 		(at 132.08 35.56 0)
 		(unit 1)
@@ -6960,6 +7706,83 @@
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
 					(reference "R4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 124.46 167.64 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "91cd7498-d5c0-50a3-846e-b90195a05d5e")
+		(property "Reference" "#PWR027"
+			(at 124.46 173.99 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 124.46 171.45 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 124.46 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 124.46 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\""
+			(at 124.46 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "85a8571c-991e-5a5e-9bd1-f13e18e242b5")
+		)
+		(instances
+			(project "BL54L15μ_LeakSensor"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "#PWR027")
 					(unit 1)
 				)
 			)
@@ -7860,6 +8683,112 @@
 		)
 	)
 	(symbol
+		(lib_id "Transistor_FET:DMG1012T")
+		(at 121.92 160.02 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "b4a9e217-0aee-5165-8a60-8b92131cf3ff")
+		(property "Reference" "Q1"
+			(at 127 158.75 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "DMG1012T"
+			(at 127 161.29 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-523"
+			(at 121.92 160.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/ds31783.pdf"
+			(at 121.92 160.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Buzzer switch: 20 V, 0.63 A N-channel MOSFET, SOT-523"
+			(at 121.92 160.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part Number" "DMG1012T-7"
+			(at 121.92 160.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Diodes Incorporated"
+			(at 121.92 160.02 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "0c2a84b5-dce1-5bb9-9c4f-c863eeaea8c0")
+		)
+		(pin "2"
+			(uuid "7a0974a8-b6d9-5d79-bd22-59b1b5d49eef")
+		)
+		(pin "3"
+			(uuid "0b6e9b9e-2cb2-5b6d-ac9b-ef3bdbc05919")
+		)
+		(instances
+			(project "BL54L15μ_LeakSensor"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "Q1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:PWR_FLAG")
 		(at 46.99 33.02 90)
 		(unit 1)
@@ -8376,6 +9305,109 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 109.22 163.83 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e42e491f-58f6-5e2c-87e3-e37f45ce1d0d")
+		(property "Reference" "R7"
+			(at 111.76 162.56 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1MΩ"
+			(at 111.76 165.1 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 109.22 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 109.22 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Holds Q1 off while P1.11 floats"
+			(at 109.22 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part Number" "RC0402FR-071ML"
+			(at 109.22 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
+			(at 109.22 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "230a730c-6abf-50b9-a3e3-24d45a439de8")
+		)
+		(pin "2"
+			(uuid "3db89383-3bc0-50d7-b811-0421cd6be20a")
+		)
+		(instances
+			(project "BL54L15μ_LeakSensor"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "R7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 194.31 130.81 0)
 		(unit 1)
@@ -8448,6 +9480,109 @@
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
 					(reference "#PWR03")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D")
+		(at 116.84 147.32 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "f3245675-33f0-5bd9-a035-7783fdb21bf7")
+		(property "Reference" "D3"
+			(at 114.3 146.05 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "1N4148WT"
+			(at 114.3 148.59 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Diode_SMD:D_SOD-523"
+			(at 116.84 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 116.84 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Flyback diode across BZ1's coil"
+			(at 116.84 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part Number" "1N4148WT-7"
+			(at 116.84 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Diodes Incorporated"
+			(at 116.84 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "d5114109-4127-59fd-aa57-3a495a0a69b4")
+		)
+		(pin "2"
+			(uuid "e939aa3f-aa8a-5838-979c-886391e44b66")
+		)
+		(instances
+			(project "BL54L15μ_LeakSensor"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "D3")
 					(unit 1)
 				)
 			)
@@ -8655,1157 +9790,6 @@
 				)
 			)
 		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 63.5 88.9 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "69fb7054-8998-5c10-81df-33b6978cd966")
-		(property "Reference" "R3"
-			(at 66.04 87.6299 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1MΩ"
-			(at 66.04 90.1699 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 61.722 88.9 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 63.5 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Weak pull-down resistor for leak sense input"
-			(at 63.5 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part Number" "RC0402FR-071ML"
-			(at 63.5 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer" "YAGEO"
-			(at 63.5 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Availability" ""
-			(at 63.5 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Color" ""
-			(at 63.5 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 63.5 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guidance" ""
-			(at 63.5 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guideline" ""
-			(at 63.5 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 63.5 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 63.5 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 63.5 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 63.5 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "3788d53a-c929-5d34-bdc5-6371580248bc")
-		)
-		(pin "2"
-			(uuid "2223e88b-e9c0-52f6-9025-51133eec87bf")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "R3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(junction
-		(at 63.5 85.09)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "438a8e26-082d-5bd8-a4eb-54e84d6c620d")
-	)
-	(wire
-		(pts
-			(xy 63.5 92.71) (xy 71.12 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "734430e0-2c37-55b5-a483-b86cedaeafea")
-	)
-	(label "LEAK_A_RET"
-		(at 71.12 92.71 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "f7c183a6-32df-5c52-8884-a8e8a22c8601")
-	)
-	(wire
-		(pts
-			(xy 63.5 118.11) (xy 71.12 118.11)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "33e6038f-868b-54c0-8069-cf2cd292bef5")
-	)
-	(label "LEAK_B_RET"
-		(at 71.12 118.11 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "d046f735-1392-5829-95a9-eb058cd63095")
-	)
-	(text "Either contact drives or senses (README 5.1).\nArmed A to B: LEAK_A and LEAK_A_RET high, LEAK_B an input\nwith edge wake, LEAK_B_RET low. Swap A and B to reverse.\nParked once wet: all four low.\nThe edge wakes below about 0.4 MΩ across P1 and P2."
-		(exclude_from_sim no)
-		(at 92 94 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "1dc5e318-5d15-5d04-a928-856b39e7048a")
-	)
-	(label "LEAK_A_RET"
-		(at 261.62 111.76 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "4dc881fe-d5ce-5ca0-9094-b63c0915fffb")
-	)
-	(no_connect
-		(at 204.47 58.42)
-		(uuid "2fdeb2dd-b5cc-56ad-acb2-a12c814135cf")
-	)
-	(no_connect
-		(at 179.07 115.57)
-		(uuid "be85b1ef-5747-5fb0-9474-34d0e7ce6d8b")
-	)
-	(label "ELEC_A"
-		(at 38.1 85.09 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "2201b980-ffb2-55e8-9542-95665553b62e")
-	)
-	(label "ELEC_B"
-		(at 38.1 110.49 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "dd7e9bde-96e3-5c03-a946-d968d38496b9")
-	)
-	(label "SCL"
-		(at 261.62 100.33 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "4e512476-639d-57bd-bd1c-4b99adac7a1f")
-	)
-	(no_connect
-		(at 212.09 130.81)
-		(uuid "9c296d22-953a-5152-b455-d5256501f93e")
-	)
-	(label "SDA"
-		(at 261.62 92.71 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "24bb64f9-fa3b-55e9-9ea9-e90a68d61584")
-	)
-	(no_connect
-		(at 179.07 111.76)
-		(uuid "34391a02-46db-5ece-a193-7d17fa64ec28")
-	)
-	(label "LEAK_B_RET"
-		(at 261.62 107.95 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "7bfebe7e-da88-5c5e-beb3-e6602cbeb65b")
-	)
-	(symbol
-		(lib_id "Device:Buzzer")
-		(at 127.0 147.32 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "8c4c42aa-bfbb-567f-9658-da245c4eb34c")
-		(property "Reference" "BZ1"
-			(at 130.81 146.05 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "CMT-5023S-SMT"
-			(at 130.81 148.59 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "LeakSensor:Buzzer_CUI_CMT-5023S-SMT"
-			(at 127.0 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.sameskydevices.com/product/resource/cmt-5023s-smt-tr.pdf"
-			(at 127.0 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Magnetic buzzer, 5 x 5 x 2 mm, 3 V, 4 kHz, 110 mA, 80 dB at 10 cm"
-			(at 127.0 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part Number" "CMT-5023S-SMT-TR"
-			(at 127.0 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer" "Same Sky"
-			(at 127.0 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "431520d9-0d53-5704-8700-179ac8450046")
-		)
-		(pin "2"
-			(uuid "52f3c61a-7134-5298-9ee7-781745e6667b")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "BZ1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:D")
-		(at 116.84 147.32 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "f3245675-33f0-5bd9-a035-7783fdb21bf7")
-		(property "Reference" "D3"
-			(at 114.3 146.05 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "1N4148WT"
-			(at 114.3 148.59 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Diode_SMD:D_SOD-523"
-			(at 116.84 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 116.84 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Flyback diode across BZ1's coil"
-			(at 116.84 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part Number" "1N4148WT-7"
-			(at 116.84 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer" "Diodes Incorporated"
-			(at 116.84 147.32 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "d5114109-4127-59fd-aa57-3a495a0a69b4")
-		)
-		(pin "2"
-			(uuid "e939aa3f-aa8a-5838-979c-886391e44b66")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "D3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Transistor_FET:DMG1012T")
-		(at 121.92 160.02 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "b4a9e217-0aee-5165-8a60-8b92131cf3ff")
-		(property "Reference" "Q1"
-			(at 127.0 158.75 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "DMG1012T"
-			(at 127.0 161.29 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-523"
-			(at 121.92 160.02 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/ds31783.pdf"
-			(at 121.92 160.02 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Buzzer switch: 20 V, 0.63 A N-channel MOSFET, SOT-523"
-			(at 121.92 160.02 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part Number" "DMG1012T-7"
-			(at 121.92 160.02 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer" "Diodes Incorporated"
-			(at 121.92 160.02 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "0c2a84b5-dce1-5bb9-9c4f-c863eeaea8c0")
-		)
-		(pin "2"
-			(uuid "7a0974a8-b6d9-5d79-bd22-59b1b5d49eef")
-		)
-		(pin "3"
-			(uuid "0b6e9b9e-2cb2-5b6d-ac9b-ef3bdbc05919")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "Q1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 109.22 163.83 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "e42e491f-58f6-5e2c-87e3-e37f45ce1d0d")
-		(property "Reference" "R7"
-			(at 111.76 162.56 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1MΩ"
-			(at 111.76 165.1 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 109.22 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 109.22 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Holds Q1 off while P1.11 floats"
-			(at 109.22 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part Number" "RC0402FR-071ML"
-			(at 109.22 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer" "YAGEO"
-			(at 109.22 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "230a730c-6abf-50b9-a3e3-24d45a439de8")
-		)
-		(pin "2"
-			(uuid "3db89383-3bc0-50d7-b811-0421cd6be20a")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "R7")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:VDD")
-		(at 116.84 140.97 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "0322aaa0-219b-50c0-b176-5874b2508507")
-		(property "Reference" "#PWR026"
-			(at 116.84 144.78 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "VDD"
-			(at 116.84 135.89 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 116.84 140.97 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 116.84 140.97 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VDD\""
-			(at 116.84 140.97 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "06e17041-0141-576a-999a-b3c306654b7d")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "#PWR026")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 124.46 167.64 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "91cd7498-d5c0-50a3-846e-b90195a05d5e")
-		(property "Reference" "#PWR027"
-			(at 124.46 173.98999999999998 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 124.46 171.45 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 124.46 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 124.46 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\""
-			(at 124.46 167.64 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "85a8571c-991e-5a5e-9bd1-f13e18e242b5")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "#PWR027")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 109.22 170.18 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "04dd77db-e50a-5235-ad1a-79741b5eb6e6")
-		(property "Reference" "#PWR028"
-			(at 109.22 176.53 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 109.22 173.99 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 109.22 170.18 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 109.22 170.18 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\""
-			(at 109.22 170.18 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "4ca56e1f-2af4-59a7-965b-ac6327f76fe1")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "#PWR028")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts
-			(xy 116.84 140.97) (xy 116.84 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "477e8db0-2911-541f-9bba-5c01ac0b3537")
-	)
-	(wire
-		(pts
-			(xy 116.84 142.24) (xy 116.84 143.51)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fdac295b-f346-5d60-a274-67dd75110d6f")
-	)
-	(wire
-		(pts
-			(xy 116.84 142.24) (xy 124.46 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c088d7be-fbea-564b-9869-5c03dce0efd6")
-	)
-	(wire
-		(pts
-			(xy 124.46 142.24) (xy 124.46 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "54e3ba5b-94cd-5be3-b3e0-f26c4a7fa0b6")
-	)
-	(wire
-		(pts
-			(xy 116.84 151.13) (xy 116.84 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3d315861-2e1b-56dc-9e42-5e59b4c830f3")
-	)
-	(wire
-		(pts
-			(xy 116.84 152.4) (xy 124.46 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "aa48f124-2050-5eb8-9376-5b7003761e85")
-	)
-	(wire
-		(pts
-			(xy 124.46 149.86) (xy 124.46 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bb043cd6-74a7-5cb1-b691-8416e76df1b0")
-	)
-	(wire
-		(pts
-			(xy 124.46 152.4) (xy 124.46 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e0cf9fe6-eab4-5833-8f7d-f673b665efb7")
-	)
-	(wire
-		(pts
-			(xy 124.46 165.1) (xy 124.46 167.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2440b366-b591-5137-a690-8c742225a09d")
-	)
-	(wire
-		(pts
-			(xy 101.6 160.02) (xy 109.22 160.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5e98d7e4-aae3-58b0-a853-cc263348be9b")
-	)
-	(wire
-		(pts
-			(xy 109.22 160.02) (xy 116.84 160.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "458d51d1-a5fd-5e3d-9d5f-3ee500d43e05")
-	)
-	(wire
-		(pts
-			(xy 109.22 167.64) (xy 109.22 170.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b9b26dcb-0535-58b3-8dd3-5ea8d0c2ee91")
-	)
-	(junction
-		(at 116.84 142.24)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "acd09b93-b72b-50f9-95f8-e131e18c202b")
-	)
-	(junction
-		(at 124.46 152.4)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "025000ff-9db2-5a90-9b94-77b3626c78bb")
-	)
-	(junction
-		(at 109.22 160.02)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "05a6b8e7-1bf5-5c1a-8f3b-dcb1a8092097")
-	)
-	(label "BUZZER-"
-		(at 119.38 152.4 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "89f89cdc-3062-565c-b105-d64b66ae7c37")
-	)
-	(label "BUZZ"
-		(at 101.6 160.02 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "4d236ac2-cf8b-51d4-a70c-ebf98f3f2fd8")
-	)
-	(text "Same Sky CMT-5023S-SMT: 3 V, 4 kHz, 110 mA, 80 dB at 10 cm.\nP1.11 switches it through Q1; R7 holds Q1 off while\nthe pin floats; D3 clamps the coil when Q1 opens.\nOn the front over J1, so the clip's jaw rests on it."
-		(exclude_from_sim no)
-		(at 92.71 190.5 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "5dfe76dd-57df-58b1-8001-db2600285d9c")
 	)
 	(sheet_instances
 		(path "/"

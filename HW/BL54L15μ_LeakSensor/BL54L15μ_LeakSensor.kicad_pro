@@ -78,8 +78,12 @@
       ],
       "drc_exclusions": [
         [
-          "silk_edge_clearance|110000000|92600000|8cef7188-92f6-4d8e-b6c2-83ac65aa2de4|78a8b9ae-04e2-470a-8c77-037e64102056",
-          "J1's back silk outline is the shroud, which may overhang the edge"
+          "silk_edge_clearance|91019300|101000000|0362367f-9e3e-56aa-a024-18645f9fbb83|78a8b9ae-04e2-470a-8c77-037e64102056",
+          ""
+        ],
+        [
+          "silk_overlap|92442656|93799004|892f5e42-0bb2-4247-a380-d68a40169d25|ddb21109-c193-449c-b4e0-2682f7a24b43",
+          ""
         ]
       ],
       "meta": {
@@ -221,7 +225,7 @@
         0.0,
         0.1524,
         0.2,
-        0.3
+        0.25
       ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
@@ -552,10 +556,10 @@
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": 0,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.3,
+        "track_width": 0.25,
         "tuning_profile": "",
-        "via_diameter": 0.6,
-        "via_drill": 0.3
+        "via_diameter": 0.508,
+        "via_drill": 0.254
       }
     ],
     "meta": {
