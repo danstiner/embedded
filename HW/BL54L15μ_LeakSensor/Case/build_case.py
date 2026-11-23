@@ -12,17 +12,19 @@ import FreeCAD, Part
 from FreeCAD import Vector as V
 
 P = dict(
-    # board (README 5.6): 20 x 18, centered on the cell's axis; square top corners, a fully round bottom (R10)
-    BoardW2=10.0, BoardTop=10.15, BoardBot=-7.85, BoardRT=0.0, BoardRC=10.0, BoardT=1.6,
+    # board (README 5.6): 18 x 16, centered on the cell's axis; square top corners, straight sides, and a half ellipse
+    # BoardBotB deep for a bottom, concentric with the case's inner bottom
+    BoardW2=9.0, BoardTop=8.15, BoardBot=-7.85, BoardBotB=7.4, BoardT=1.6,
     # body
     Wall=1.5,            # walls, sides and domes: 0.85 mm stays behind the track's groove (1.0 would leave 0.35)
     Floor=1.0, FloorGap=0.1, TopGap=0.15, LidT=1.2, Clear=0.15,
     BottomB=8.5,         # the bottom is a half ellipse, OW wide and this deep outside (the inside concentric): flatter at
                          # the bottom than a semicircle, and fuller, so it still clears the board's round bottom
     # both ends are half domes: the cross-section turned about a vertical axis, so seen from above they are semicircles
-    # and every cut through the axis shows the side's curve. The front one's axis is the board's front face, so the
-    # board's full width stays in the straight part; the rear one's is DomeIn in front of the cell's rear end
-    FrontDomeY=0.0, DomeIn=1.0,
+    # and every cut through the axis shows the side's curve. The front one's axis is 1.5 mm in front of the board, so
+    # the module's end (2.1 mm tall, 0.18 mm from the board's edge) clears the wall; the rear one's is DomeIn in front
+    # of the cell's rear end
+    FrontDomeY=-1.5, DomeIn=1.0,
     BackGap=2.0,         # board back to the divider: the 209's solder ear and the BT1 wire joints
     PanelT=1.6,          # Keystone snap-on contacts fit 1.52-1.78 mm panels
     SpringGap=2.5,       # 209 leaf, compressed: divider face to the cell's negative end (assumed; free height about 6.5)
@@ -32,35 +34,42 @@ P = dict(
     # board slot. The domes push the board back, so the front face is the datum: crush ribs behind hold it on the
     # front lip, and the dome press then depends on two faces of one printed part, not on the board's thickness
     Lip=0.4, LipT=0.8, Tol=0.1, DomeRelief=2.4, RailTop=7.3, RibR=0.3, RibCrush=0.1,
+    # the front lip is cut away beside parts that stand in its 0.4 mm, and each side's rib is only as long as the lip
+    # left opposite it: on the right the lip stops at LipFreeY (the module's antenna end is 0.18 mm from the board's
+    # edge from y 1.35 up); on the left it is open from LipLeftY0 to LipLeftY1 (D3 and BZ1, 0.5 to 0.6 mm from the edge)
+    LipFreeY=0.9, LipLeftY0=-2.0, LipLeftY1=5.9,
     # leak pins
     PinD=2.5, PinL=6.0, PinX=3.95, DomeY=-4.85, DomeApex=0.3, PinPress=0.1, BossWall=0.8,   # flat-ended stock pins
     PinCap=0.6,          # bore cap over the pin
-    BossBack=0.7,        # boss face toward the board, clear of the domes' feet: the pin stands 0.5 mm proud of it, onto the dome
+    BossBack=1.1,        # boss face toward the board: clear of the domes' feet and of Q1 (0.9 mm tall at most), which
+                         # ends just above the left boss. The pin stands 0.9 mm proud of it, onto the dome
     # cell cradle; the + wire runs over both panels in the bay's upper left corner, inside the dome's curve
-    CradleT=1.2, CradleInset=5.0, WireD=1.2, WireX=-8.3,
-    # one small vent in the right wall into the gap in front of the board, below U1: approximate humidity is enough
-    VentW=1.0, VentH=2.0, VentZ=8.0, VentY=-1.75,   # slot width (along the case) and height; its center (sketch y, beside
-                                                     # U1) and along the case (between BZ1 and the board's front lip)
+    CradleT=1.2, CradleInset=5.0, WireD=1.2, WireX=-7.0,
+    # one small vent in the left wall into the gap in front of the board, beside U1: approximate humidity is enough
+    VentW=1.0, VentH=2.0, VentZ=6.6, VentY=-1.75,   # slot width (along the case) and height; its center (sketch y, level
+                                                     # with U1's lower half, 0.7 mm of wall over it) and along the case
+    # BZ1 has no 3D model in the board's STEP: its body as a box for the fit checks (center, size, height)
+    BzX=-5.9, BzY=3.08, BzW=5.0, BzH=2.0,
     # slide-in lid after the hygrometer 2026v3's, its track turned inside out: the side walls run up to the lid's plate
     # outside, and a tongue under the plate runs just inside each wall, its 45 degree ridge facing out into a groove in
     # the wall's inner face. The lid slides on from the rear and stops where the grooves end, behind the board (in
     # front of it the tongues would meet the board's top corners); the plate covers the front dome (as part of the lid
     # its curve would sweep through the walls), and the lid takes the rear dome's top
-    SeamY=6.6,           # the tongues reach down to here (sketch y), as does the lid's share of the rear dome: just under
-                         # the cell hold-downs, so they slide out over the dome's rim
+    SeamY=5.5,           # the tongues reach down to here (sketch y), as does the lid's share of the rear dome: under the
+                         # cell hold-downs, so they slide out over the dome's rim, and 0.2 mm over the contact panels
     TrackY0=2.6,         # where the grooves start: just behind the board slot's back lip
     RailT=0.8, RailV=0.6,                # tongue thickness; ridge depth (its flanks span 2 x RailV down from the plate)
     # fits as on 2026v3: faces that slide or bear are line to line; only the groove is cut 0.05 deeper (and 0.1 taller)
     # than the ridge, and the detent's notch 0.05 deeper than its bump
     GrooveC=0.05,
-    BumpH=0.5, BumpZ=2.0, BumpY=5.0,     # 60 degree bump on each tongue: height, how far up from its foot, apex ahead of
-                                         # the track's rear entry
+    BumpH=0.5, BumpZ=1.4, BumpY=5.0,     # 60 degree bump on each tongue: height, how far up from its foot (it ends 0.2 mm
+                                         # under the ridge), apex ahead of the track's rear entry
     NotchC=0.05, RampD=0.6,              # the wall's notch under the bump, behind a lead-in ramp RampD deep at the entry
     HoldW=4.0, HoldGap=0.1,   # ribs under the lid over the cell saddles: the board, not the cell, sets the bay's height
 )
 P['AxisZ'] = -P['BoardBot'] + P['FloorGap'] + P['Floor']
-# where the board's straight sides start: the bottom corners' centers (sketch y)
-P['BoardSideY'] = P['BoardBot'] + P['BoardRC']
+# where the board's straight sides start: the bottom ellipse's center (sketch y)
+P['BoardSideY'] = P['BoardBot'] + P['BoardBotB']
 P['IW'] = P['BoardW2'] + P['Clear']
 P['OW'] = P['IW'] + P['Wall']
 P['Ztop'] = P['AxisZ'] + P['BoardTop'] + P['TopGap'] + P['LidT']
@@ -177,31 +186,23 @@ def detent(cut):
     return out[0].fuse(out[1])
 
 
-def outline(d, n=8):
-    """Board outline offset by d (sketch coordinates): top corners BoardRT, straight sides, BoardRC bottom corners, a
-    flat bottom. Offsetting keeps every center: only the radii change."""
-    w, t = g('BoardW2') + d, g('BoardTop') + d
-    rt, rc = max(g('BoardRT') + d, 0.0), g('BoardRC') + d
-    cx, cy = g('BoardW2') - g('BoardRC'), g('BoardSideY')
-    pts = []
-    for i in range(n + 1):                                   # top right corner
-        a = math.radians(90 * i / n)
-        pts.append((w - rt + rt * math.sin(a), t - rt + rt * math.cos(a)))
-    for i in range(2 * n + 1):                               # bottom right corner, from the side to the flat bottom
-        a = math.radians(-90 * i / (2 * n))
-        pts.append((cx + rc * math.cos(a), cy + rc * math.sin(a)))
-    for i in range(2 * n + 1):                               # bottom left corner
-        a = math.radians(-90 - 90 * i / (2 * n))
-        pts.append((-cx + rc * math.cos(a), cy + rc * math.sin(a)))
-    for i in range(n + 1):                                   # top left corner
-        a = math.radians(90 * i / n)
-        pts.append((-w + rt - rt * math.cos(a), t - rt + rt * math.sin(a)))
+def outline(d, n=48):
+    """Board outline offset by d (sketch coordinates): square top corners, straight sides, a half ellipse for a bottom.
+    Each point of the ellipse moves d along its normal."""
+    w, t, a, b, cy = g('BoardW2') + d, g('BoardTop') + d, g('BoardW2'), g('BoardBotB'), g('BoardSideY')
+    pts = [(w, t)]
+    for i in range(n + 1):                                   # right to left, through the bottom
+        u = -math.pi * i / n
+        nx, ny = math.cos(u) / a, math.sin(u) / b
+        k = d / math.hypot(nx, ny)
+        pts.append((a * math.cos(u) + k * nx, cy + b * math.sin(u) + k * ny))
+    pts.append((-w, t))
     return pts
 
 
 def outline_prism(d, y0, y1):
     pts = []
-    for x, y in outline(d):                                  # square corners and a round bottom repeat points
+    for x, y in outline(d):
         if not pts or (V(x, y0, y + AZ) - pts[-1]).Length > 1e-6:
             pts.append(V(x, y0, y + AZ))
     pts.append(pts[0])
@@ -237,6 +238,8 @@ frame = frame.cut(outline_prism(g('Tol'), 0, g('BoardT') + g('Tol')))
 frame = frame.cut(box(-g('BoardW2') - g('Tol'), g('BoardW2') + g('Tol'), 0, g('BoardT') + g('Tol'), AZ + g('BoardSideY'), AZ + 30))
 for sx in (-1, 1):                                       # front lip relief around each dome
     frame = frame.cut(cylY(sx * g('PinX'), AZ + g('DomeY'), g('DomeRelief'), -g('LipT') - 0.1, 0.0))
+frame = frame.cut(box(0, g('IW') + 1, -g('LipT') - 0.1, 0.0, AZ + g('LipFreeY'), AZ + 30))   # no front lip beside the module
+frame = frame.cut(box(-g('IW') - 1, 0, -g('LipT') - 0.1, 0.0, AZ + g('LipLeftY0'), AZ + g('LipLeftY1')))   # nor beside D3 and BZ1
 adds.append(frame)
 # leak pin bosses: in front of the board, out to the front dome's wall, bore blind at the top, open toward the dome
 for sx in (-1, 1):
@@ -250,7 +253,7 @@ subs = []
 for sx in (-1, 1):                                       # pin bores
     subs.append(cylZ(sx * g('PinX'), g('PinY'), g('PinD') / 2, -1, g('PinZ1')))
 vy = g('VentY')                                          # side vent
-subs.append(box(g('IW') - 1, g('OW') + 1, vy - g('VentW') / 2, vy + g('VentW') / 2, AZ + g('VentZ') - g('VentH') / 2, AZ + g('VentZ') + g('VentH') / 2))
+subs.append(box(-g('OW') - 1, -g('IW') + 1, vy - g('VentW') / 2, vy + g('VentW') / 2, AZ + g('VentZ') - g('VentH') / 2, AZ + g('VentZ') + g('VentH') / 2))
 subs += [lid_space(), track(True), detent(True)]
 for s in subs:
     body = body.cut(s)
@@ -269,8 +272,10 @@ for yc in (g('Yc0') + g('CradleInset'), g('Yc1') - g('CradleInset')):           
 ribs = []
 for sx in (-1, 1):
     x, y = sx * (g('BoardW2') - g('RibR')), g('BoardT') - g('RibCrush') + g('RibR')   # clear of the slot's side wall: tangent faces break the fuse
-    z0 = AZ + g('BoardSideY')                             # where the straight sides start
-    ribs.append(cylZ(x, y, g('RibR'), z0, AZ + g('RailTop') - g('RibR')).fuse(Part.makeSphere(g('RibR'), V(x, y, AZ + g('RailTop') - g('RibR')))))
+    # opposite what is left of the front lip on the straight sides: the top on the left, the bottom on the right
+    z0 = AZ + (g('LipLeftY1') if sx < 0 else g('BoardSideY'))
+    z1 = AZ + (g('RailTop') if sx < 0 else g('LipFreeY')) - g('RibR')
+    ribs.append(cylZ(x, y, g('RibR'), z0, z1).fuse(Part.makeSphere(g('RibR'), V(x, y, z1))))
 ribs = ribs[0].fuse(ribs[1])
 try:                                  # not the lid: refined, it looks valid but every boolean against it comes back empty.
     refined = body.copy().removeSplitter()  # Cosmetic, and on curved ends it has thrown, or turned its input inside
@@ -286,9 +291,11 @@ top = max(s.Solids, key=lambda x: x.Volume).BoundBox.ZMax          # KiCad's boa
 m = FreeCAD.Matrix(); m.rotateX(math.pi / 2); m.move(V(0, top, AZ))
 keep = [x for x in s.Solids if x.BoundBox.ZMin > -0.05]              # drop J1's header: production boards have none
 refs['board'] = Part.makeCompound([x.transformGeometry(m) for x in keep])
+front_parts = Part.makeCompound([x.transformGeometry(m) for x in keep if x.BoundBox.ZMax > top + 0.05])   # all but the bare board
 refs['header'] = Part.makeCompound([x.transformGeometry(m) for x in s.Solids if x.BoundBox.ZMin <= -0.05])
 refs['cell'] = cylY(0, AZ, g('CellD') / 2, g('Yc0'), g('Yc1'))
 refs['pins'] = cylZ(-g('PinX'), g('PinY'), g('PinD') / 2, g('PinZ0'), g('PinZ1')).fuse(cylZ(g('PinX'), g('PinY'), g('PinD') / 2, g('PinZ0'), g('PinZ1')))
+refs['buzzer'] = box(g('BzX') - g('BzW') / 2, g('BzX') + g('BzW') / 2, -g('BzH'), 0, AZ + g('BzY') - g('BzW') / 2, AZ + g('BzY') + g('BzW') / 2)
 refs['wire'] = cylY(g('WireX'), AZ + g('PanelTop') + g('WireD') / 2 + 0.05, g('WireD') / 2, g('Yd0'), g('Yr1'))
 pt = AZ + g('PanelTop')
 c209 = box(-3.95, 3.95, g('Yd0') - 0.3, g('Yd0'), pt - 9.0, pt + 0.3).fuse(box(-3.95, 3.95, g('Yd0') - 0.3, g('Yd1') + 0.3, pt, pt + 0.3)) \
@@ -327,16 +334,22 @@ for k, r in refs.items():
                 if so.Volume > 1e-3:
                     b = so.BoundBox
                     print('  hit %s %.3f mm3 at x %.2f..%.2f y %.2f..%.2f z %.2f..%.2f (sketch y %.2f..%.2f)' % (name, so.Volume, b.XMin, b.XMax, b.YMin, b.YMax, b.ZMin, b.ZMax, b.ZMin - AZ, b.ZMax - AZ))
-print('CHECK pins/board %.3f, pins/cell %.3f, contacts/cell %.3f, wire/cell %.3f, wire/contacts %.3f' % (
-    vol(refs['pins'], refs['board']), vol(refs['pins'], refs['cell']), vol(refs['contacts'], refs['cell']),
-    vol(refs['wire'], refs['cell']), vol(refs['wire'], refs['contacts'])))
+print('CHECK pins/board %.3f, pins/buzzer %.3f, pins/cell %.3f, contacts/cell %.3f, wire/cell %.3f, wire/contacts %.3f' % (
+    vol(refs['pins'], refs['board']), vol(refs['pins'], refs['buzzer']), vol(refs['pins'], refs['cell']),
+    vol(refs['contacts'], refs['cell']), vol(refs['wire'], refs['cell']), vol(refs['wire'], refs['contacts'])))
+for k, r in (('front parts', front_parts), ('buzzer', refs['buzzer'])):
+    print('CHECK %s: least gap to the body %.2f mm, to the lid %.2f mm' % (k, r.distToShape(body)[0], r.distToShape(lid)[0]))
+for so in front_parts.Solids:                   # which parts are close, and where (sketch coordinates)
+    d, pts, _ = so.distToShape(body)
+    if d < 0.5:
+        print('  %.2f mm at x %.2f, y %.2f, %.2f mm in front of the board' % (d, pts[0][0].x, pts[0][0].z - AZ, -pts[0][0].y))
 dome_gap = -refs['pins'].BoundBox.YMax          # pin surface to the board's front face
 print('CHECK pin surface %.2f mm in front of the board face; dome apex at %.2f: %.2f mm press' % (dome_gap, g('DomeApex'), g('DomeApex') - dome_gap))
 print('CHECK pins %.2f..%.2f mm above the table (ends flush with the curve\'s lowest point where they exit)' % (g('PinZ0'), g('PinZ1')))
 hits = []
 for dz10 in range(5, 260, 5):                   # the board drops in from the top
     mm_ = FreeCAD.Matrix(); mm_.move(V(0, 0, dz10 / 10.0))
-    v = vol(body, refs['board'].transformGeometry(mm_))
+    v = vol(body, refs['board'].transformGeometry(mm_)) + vol(body, refs['buzzer'].transformGeometry(mm_))
     if v > 0.01:
         hits.append((dz10 / 10.0, round(v, 3)))
 print('CHECK board drop-in collisions (height above seat, mm3):', hits[:10], 'count', len(hits))
@@ -361,6 +374,7 @@ for k, v in P.items():
     vs.addProperty('App::PropertyFloat', k, 'Build', 'mm; rerun build_case.py to apply'); setattr(vs, k, float(v))
 for name, shp, show in (('Body', body, True), ('Lid', lid, True), ('Board', refs['board'], True), ('Cell', refs['cell'], True),
                         ('Pins', refs['pins'], True), ('Contacts', refs['contacts'], True), ('Wire', refs['wire'], True),
+                        ('BZ1_envelope', refs['buzzer'], True),
                         ('J1_header', refs['header'], False)):
     o = doc.addObject('Part::Feature', name); o.Shape = shp
     o.Visibility = show
