@@ -252,7 +252,7 @@ from the front (KiCad X = 100 + x, Y = 100 − y).
   D3's cathode reach JP1 and C3 through their own via.
 - **Crystal.** X1's two legs are matched, 2.8 mm on the back and 2.1 mm on the front
   each, with ground poured around them on both layers.
-- **Ground.** Pours on both layers outside the keep-out, stitched with 26 vias. The point
+- **Ground.** Pours on both layers outside the keep-out, stitched with 27 vias. The point
   of either pour farthest from a via is 4.8 mm away, inside the 5.3 mm (λ/8 at 2.4 GHz)
   used on the USB CO2 board (`Sim/layout.py`). Pads on the back have thermal reliefs for
   hand soldering.
@@ -365,7 +365,7 @@ fits (5.7). Values no datasheet gives are marked ASSUMED in the scripts and list
 | I2C rise time                 | 91 to 115 ns on 8.5 pF with the 13 to 16 kΩ pull-ups; 300 ns allowed | pass at 400 kHz |
 | Crystal load                  | board stray adds about 0.5 pF: 6 ppm fast unless trimmed out         | trim in firmware |
 | Dome press                    | 0.1 mm nominal with 0.1 mm spread: no contact on 16 % of pins       | **too little** |
-| Ground stitching              | farthest pour point 4.8 mm from a via; 6.1 % over 3 mm               | pass (5.3 mm) |
+| Ground stitching              | farthest pour point 4.8 mm from a via; 4.4 % over 3 mm               | pass (5.3 mm) |
 | Ground under traces           | back pour under 62 to 82 % of the leak and I2C traces; gaps at most 1.8 mm | fine at these speeds |
 | Case fits                     | no overlap; least gap to a front part 0.28 mm; board drops in, lid slides off | pass |
 
