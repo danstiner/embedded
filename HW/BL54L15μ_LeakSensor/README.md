@@ -313,26 +313,24 @@ then cut down to the cell's 15.6 mm by 2026-11-22. Laid out again the same day a
 `Case/build_case.py` builds the case in FreeCAD from the parameters at its top and saves
 `Case/LeakSensor_2026v5.FCStd`. The file also holds the board (KiCad's STEP export), the
 cell, the battery contacts and the leak pins as reference parts, and the script checks all
-of them against each other. The case is an open-top body with rounded, squashed half-dome
-ends and a lid that slides on from the rear, 23.3 × 49.7 × 20.45 mm. The board stands across the front
+of them against each other. The case is an open-top body with half-dome ends and a lid that
+slides on from the rear, 23.3 × 57.0 × 20.45 mm. The board stands across the front
 with the cell lying behind it. The board sets the width and height: its 20 mm plus
 0.15 mm clearance and a 1.5 mm wall each side, its 18 mm plus a 1.0 mm floor, a 1.2 mm
 lid and the slot's 0.1 mm under the board and 0.15 mm over it.
 
-The bottom follows the board's: inside and out, it is an arc tangent to the sides, R10.15
-inside (0.05 mm off the board's center) and R11.65 outside. Outside, the arc gives way to
-straight lines where it would overhang more than 60° when printed, leaving a 6.2 mm flat
-for the body to print upright on (`MaxOverhang`; 90 gives the full curve, which needs
-supports). Both ends are squashed half domes: the same section turned about a vertical
-axis, then scaled along the case so the inside reaches 6 mm from the axis instead of
-10.15 mm; the wall stays at least 1.46 mm thick. The front one's axis is the board's front
-face, so the board's full width stays in the straight part; the module, BZ1, C1 and C2
-stand in its bowl, at least 0.19 mm clear, and the case's front is 7.5 mm ahead of the
-board. The rear one's axis is the cell's rear end, so the cell stays in the straight part
-and the dome holds only the 228 contact, its tab and the + wire; the case ends 7.5 mm
-behind the cell. Squashing the domes and thinning the walls from 2.2 to 1.5 mm took the
-case from 58.4 to 49.7 mm long and 24.7 to 23.3 mm wide; the squashed domes' undersides
-are also steeper to print. The top's edges are rounded 1 mm.
+The bottom is a half ellipse, 23.3 mm wide and 8.5 mm deep outside, the inside concentric
+(1.0 mm floor, 1.5 mm sides): flatter at the bottom than a semicircle and fuller, so it
+still clears the board's round bottom and the cell. With no flat, the body prints upright
+only with supports under its curve (PrusaSlicer's organic supports from the build plate).
+Both ends are half domes: the same section turned about a vertical axis, so they are
+semicircles seen from above and every cut through the axis shows the sides' curve. The
+front one's axis is the board's front face, so the board's full width stays in the
+straight part; the module, BZ1, C1 and C2 stand in its bowl, at least 0.19 mm clear, and
+the case's front is 11.65 mm ahead of the board. The rear one's axis is 1.0 mm in front of
+the cell's rear end: its bowl clears the cell's rear edge by 0.11 mm and holds the 228
+contact, its tab and the + wire. Round ends make the case 7.3 mm longer than the squashed
+ones did. The top's edges are square.
 
 - **Board slot.** 0.4 mm lips front and back along the board's sides and bottom; the
   board drops in from the top and rests 0.1 mm above the floor. The side lips stop at
@@ -349,9 +347,9 @@ are also steeper to print. The top's edges are rounded 1 mm.
   The bore opens toward the dome through a 2.0 mm gap, narrower than the pin, and the
   bore's wall stops 0.7 mm short of the board, over the domes. The pin top is 1.7 mm
   above the dome center, and the bosses clear X1, C2 and the diodes. The board's domes fix
-  the pins at the edge of the flat, where the front dome's bowl begins: the bottom around
-  each pin rises from 0 to 1.7 mm, so it stands 0.2 mm below the flat on its inner side
-  and 1.9 mm out of the curve on its outer front side.
+  the pins 3.95 mm either side of the center line, where the bottom has begun to curve up,
+  just behind the front dome's axis: the bottom around each pin rises 0.3 to 1.0 mm, so with
+  their ends 0.2 mm below the case's lowest line they show 0.5 to 1.2 mm.
 - **Cell.** Keystone 209 leaf spring (−) on a 1.6 mm divider behind the board, 228 button
   (+) on a 1.6 mm rear panel; both clip onto 1.52–1.78 mm panels and are listed for CR2.
   The 209 is assumed compressed to 2.5 mm between the divider and the cell. Two saddles
@@ -375,9 +373,9 @@ are also steeper to print. The top's edges are rounded 1 mm.
   height: as part of the lid, its curve would sweep through the walls while the lid slides
   on. The lid does take the rear dome's top, down to 4.9 mm below the top, just under the
   two ribs that hold the cell down (above), which slide out over the rear dome's rim; the
-  tongues run 2.5 mm into that part of the dome's wall to join it. Outside, the seam runs
-  1.2 mm below the top around the front and along the sides, and drops to 4.9 mm where the
-  rear dome begins.
+  tongues run on into that part of the dome's wall until it covers their ends, to join it.
+  Outside, the seam runs at the plate, 1.2 mm below the top, around the front and along
+  the sides, and drops to 4.9 mm where the rear dome begins.
 - **Fits, as on 2026v3.** Faces that slide or bear are drawn line to line: the tongues on
   the walls' inner faces, the plate on the walls' tops, the tongues' feet level with the
   seam. Only the groove is cut larger than the ridge, 0.05 mm deeper and 0.1 mm taller, so
@@ -468,8 +466,8 @@ Not started. Planned:
 - **Case.** Unprinted. The 209's compressed length and both contacts' tab positions come
   from Keystone's catalog drawing, not parts in hand. Boards with J1 fitted do not fit.
   The lid's line-to-line slide fit and its detent need a test print; how loud BZ1 is
-  through the closed case is untested. The 60° overhang under the bottom is steeper than
-  the usual 45° rule for printing without supports.
+  through the closed case is untested. The bottom has no flat: it prints with supports,
+  and on a table the case rests on the two pins and the rear of its lowest line.
 
 ## 9. References
 

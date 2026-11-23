@@ -17,14 +17,12 @@ P = dict(
     # body
     Wall=1.5,            # walls, sides and domes: 0.85 mm stays behind the track's groove (1.0 would leave 0.35)
     Floor=1.0, FloorGap=0.1, TopGap=0.15, LidT=1.2, Clear=0.15,
-    TopR=1.0,            # the top's edges
-    MaxOverhang=60,      # the bottom's curve gives way to a straight line here (degrees from vertical; 90: the full curve)
-    # both ends are squashed half domes: the cross-section turned about a vertical axis, then scaled along the case so
-    # its inside reaches DomeDepth from the axis (a full half dome would reach IW). The front one's axis is the board's
-    # front face, so the board's full width stays in the straight part; its depth clears BZ1's and the module's front
-    # corners, which stand in its bowl. The rear one's axis is the cell's rear end; its depth clears the 228 contact,
-    # its tab and the + wire
-    FrontDomeY=0.0, DomeDepth=6.0,
+    BottomB=8.5,         # the bottom is a half ellipse, OW wide and this deep outside (the inside concentric): flatter at
+                         # the bottom than a semicircle, and fuller, so it still clears the board's round bottom
+    # both ends are half domes: the cross-section turned about a vertical axis, so seen from above they are semicircles
+    # and every cut through the axis shows the side's curve. The front one's axis is the board's front face, so the
+    # board's full width stays in the straight part; the rear one's is DomeIn in front of the cell's rear end
+    FrontDomeY=0.0, DomeIn=1.0,
     BackGap=2.0,         # board back to the divider: the 209's solder ear and the BT1 wire joints
     PanelT=1.6,          # Keystone snap-on contacts fit 1.52-1.78 mm panels
     SpringGap=2.5,       # 209 leaf, compressed: divider face to the cell's negative end (assumed; free height about 6.5)
@@ -69,15 +67,15 @@ P['OW'] = P['IW'] + P['Wall']
 P['Ztop'] = P['AxisZ'] + P['BoardTop'] + P['TopGap'] + P['LidT']
 P['Zb'] = P['Ztop'] - P['LidT']
 P['Yf'] = P['FrontDomeY']
-P['Yfo'] = P['Yf'] - P['DomeDepth'] - P['Wall']
+P['Yfo'] = P['Yf'] - P['OW']
 P['Yd0'] = P['BoardT'] + P['BackGap']
 P['Yd1'] = P['Yd0'] + P['PanelT']
 P['Yc0'] = P['Yd1'] + P['SpringGap']
 P['Yc1'] = P['Yc0'] + P['CellL']
 P['Yr0'] = P['Yc1'] + P['ButtonGap']
 P['Yr1'] = P['Yr0'] + P['PanelT']
-P['Ydome'] = P['Yc1']
-P['Yend'] = P['Ydome'] + P['DomeDepth'] + P['Wall']
+P['Ydome'] = P['Yc1'] - P['DomeIn']
+P['Yend'] = P['Ydome'] + P['OW']
 P['SeamZ'] = P['AxisZ'] + P['SeamY']
 P['PinY'] = -(P['DomeApex'] - P['PinPress'] + P['PinD'] / 2)
 P['PinZ0'] = -P['PinProud']
@@ -98,45 +96,27 @@ def cylZ(x, y, r, z0, z1):
     return Part.makeCylinder(r, z1 - z0, V(x, y, z0), V(0, 0, 1))
 
 
-def u_edges(w2, zb, zt, rt, ov, s, y0):
-    """Half the case's section in XZ at y0, bottom center to top center (s = -1 mirrors it): the board's shape grown to
-    half-width w2 and bottom zb. The bottom corners are arcs tangent to the sides, centered over the ends of the board's
-    flat; past ov degrees of overhang a tangent line takes over, down to a wider flat. Top corners rt."""
-    f = g('BoardW2') - g('BoardRC')
-    r = w2 - f
-    zc = zb + r
-    a = math.radians(90 - ov)                     # where the arc ends, from straight down
-    tx, tz = f + r * math.sin(a), zc - r * math.cos(a)
-    xf = tx - (tz - zb) / math.tan(a) if a else f
-    m, h = (a + math.pi / 2) / 2, math.sqrt(0.5)
-
-    p = lambda x, z: V(s * x, y0, z)
-    e = [Part.LineSegment(p(0, zb), p(xf, zb))] if xf > 1e-6 else []     # a fully round board has no flat
-    if a:
-        e.append(Part.LineSegment(p(xf, zb), p(tx, tz)))
-    e += [Part.Arc(p(tx, tz), p(f + r * math.sin(m), zc - r * math.cos(m)), p(w2, zc)),
-          Part.LineSegment(p(w2, zc), p(w2, zt - rt))]
-    if rt:
-        e.append(Part.Arc(p(w2, zt - rt), p(w2 - rt + rt * h, zt - rt + rt * h), p(w2 - rt, zt)))
-    e.append(Part.LineSegment(p(w2 - rt, zt), p(0, zt)))
-    return [x.toShape() for x in e]
+def u_edges(w2, zb, zt, b, s, y0):
+    """Half the case's section in XZ at y0, bottom center to top center (s = -1 mirrors it): a quarter ellipse w2 wide
+    and b deep from the bottom at zb, then a straight side up to the square top at zt."""
+    c = V(0, y0, zb + b)
+    u0, u1 = (-math.pi / 2, 0) if s > 0 else (-math.pi, -math.pi / 2)
+    arc = Part.ArcOfEllipse(Part.Ellipse(c + V(w2, 0, 0), c + V(0, 0, b), c), u0, u1)
+    side, top = V(s * w2, y0, zb + b), V(s * w2, y0, zt)
+    return [arc.toShape(), Part.LineSegment(side, top).toShape(), Part.LineSegment(top, V(0, y0, zt)).toShape()]
 
 
-def u_prism(w2, zb, zt, rt, y0, y1, ov=90):
+def u_prism(w2, zb, zt, b, y0, y1):
     """The section extruded along Y."""
-    e = u_edges(w2, zb, zt, rt, ov, 1, y0) + u_edges(w2, zb, zt, rt, ov, -1, y0)
+    e = u_edges(w2, zb, zt, b, 1, y0) + u_edges(w2, zb, zt, b, -1, y0)
     return Part.Face(Part.Wire(Part.__sortEdges__(e))).extrude(V(0, y1 - y0, 0))
 
 
-def u_dome(w2, zb, zt, rt, yc, ov=90, s=1, depth=None):
-    """Half the section turned 180 degrees about the vertical axis at yc, toward the rear (s = 1) or the front (s = -1),
-    then scaled along Y to reach depth from the axis: a squashed half dome that continues u_prism without a seam."""
-    e = u_edges(w2, zb, zt, rt, ov, s, yc) + [Part.LineSegment(V(0, yc, zt), V(0, yc, zb)).toShape()]
-    d = Part.Face(Part.Wire(Part.__sortEdges__(e))).revolve(V(0, yc, 0), V(0, 0, 1), 180)
-    if depth is None:
-        return d
-    m = FreeCAD.Matrix(); m.A22 = depth / w2; m.A24 = yc * (1 - depth / w2)
-    return d.transformGeometry(m)
+def u_dome(w2, zb, zt, b, yc, s=1):
+    """Half the section turned 180 degrees about the vertical axis at yc, toward the rear (s = 1) or the front (s = -1):
+    a half dome that continues u_prism without a seam."""
+    e = u_edges(w2, zb, zt, b, s, yc) + [Part.LineSegment(V(0, yc, zt), V(0, yc, zb)).toShape()]
+    return Part.Face(Part.Wire(Part.__sortEdges__(e))).revolve(V(0, yc, 0), V(0, 0, 1), 180)
 
 
 def lid_space():
@@ -157,7 +137,8 @@ def track(groove):
     else:                                    # up into the plate: a tongue that stops at its underside breaks the fuse
         sec = [(xi - g('RailT'), g('SeamZ')), (xi, g('SeamZ')), (xi, zb - 2 * v), (xi + v, zb - v), (xi, zb), (xi, zb + 0.5),
                (xi - g('RailT'), zb + 0.5)]
-    y1 = g('Ydome') + (0 if groove else 2.5)  # the tongues run on into the rear dome's wall, so they join it in volume
+    # the tongues run on into the rear dome's wall until it covers their ends, so they join it in volume
+    y1 = g('Ydome') + (0 if groove else math.sqrt(xi ** 2 - (xi - g('RailT')) ** 2) + 0.1)
     out = []
     for sx in (-1, 1):
         pts = [V(sx * x, g('TrackY0'), z) for x, z in sec]
@@ -217,19 +198,19 @@ def outline_prism(d, y0, y1):
 
 
 # ============================ body ============================
-def capsule(w2, zb, zt, rt, depth, ov=90):
-    return u_prism(w2, zb, zt, rt, g('Yf'), g('Ydome'), ov).fuse([u_dome(w2, zb, zt, rt, g('Yf'), ov, -1, depth),
-                                                                 u_dome(w2, zb, zt, rt, g('Ydome'), ov, 1, depth)])
+def capsule(w2, zb, zt, b):
+    return u_prism(w2, zb, zt, b, g('Yf'), g('Ydome')).fuse([u_dome(w2, zb, zt, b, g('Yf'), -1),
+                                                             u_dome(w2, zb, zt, b, g('Ydome'), 1)])
 
 
-outer = capsule(g('OW'), 0, g('Ztop'), g('TopR'), g('DomeDepth') + g('Wall'), g('MaxOverhang'))
+outer = capsule(g('OW'), 0, g('Ztop'), g('BottomB'))
 
 
 def cavity(zt):
-    return capsule(g('IW'), g('Floor'), zt, 0, g('DomeDepth'))
+    return capsule(g('IW'), g('Floor'), zt, g('BottomB') - g('Floor'))
 
 
-body = outer.cut(cavity(g('Zb') + 0.5))     # kept inside the outer shell: crossing its rim breaks the domes' booleans
+body = outer.cut(cavity(g('Zb') + 0.5))     # kept inside the outer shell, clear of its top
 
 # inner parts stand on the curved floor: built from the bottom up, then trimmed to the outside
 adds = []
@@ -281,8 +262,8 @@ for sx in (-1, 1):
     ribs.append(cylZ(x, y, g('RibR'), z0, AZ + g('RailTop') - g('RibR')).fuse(Part.makeSphere(g('RibR'), V(x, y, AZ + g('RailTop') - g('RibR')))))
 ribs = ribs[0].fuse(ribs[1])
 try:                                  # not the lid: refined, it looks valid but every boolean against it comes back empty.
-    refined = body.copy().removeSplitter()  # Cosmetic, and with the squashed domes' spline faces it can throw, or turn
-    if refined.isValid() and abs(refined.Volume - body.Volume) < 1:   # its input inside out in place (hence the copy)
+    refined = body.copy().removeSplitter()  # Cosmetic, and on curved ends it has thrown, or turned its input inside
+    if refined.isValid() and abs(refined.Volume - body.Volume) < 1:   # out in place (hence the copy)
         body = refined
 except Part.OCCError:
     pass
