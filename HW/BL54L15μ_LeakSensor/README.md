@@ -338,19 +338,19 @@ ones did. The top's edges are square.
   front face is the datum: two crush ribs behind the straight sides, 0.1 mm into a 1.6 mm
   board, hold it against the front lip. The dome press then depends on two faces of one
   print, not on the board's thickness or the slot's fit.
-- **Leak pins.** Ø2.5 × 6 mm metal pins stand upright at x ±3.95, just in front of the
-  domes. Each is pushed up from below into a blind bore in a boss that runs from the front
-  dome's wall back toward the board. The side of each pin presses its dome's apex: the pin
-  surface is 0.2 mm off the board and the dome is assumed 0.3 mm high, a 0.1 mm press
-  (`DomeApex`, `PinPress`). The bore opens toward the dome through a 2.0 mm gap, narrower
-  than the pin, and the bore's wall stops 0.7 mm short of the board, over the domes; the
-  bosses clear X1, C2 and the diodes. The board's domes fix the pins 3.95 mm either side
-  of the center line, just behind the front dome's axis, where the bottom has begun to
-  curve up, and each pin's lower end is cut flush with that curve: a flat 16° bevel, its
-  high side facing out and slightly forward, is within 0.03 mm of it. A 6 mm pin keeps its
-  full length on its inner edge (5.3 mm on its outer one), with its top 6.28 mm above the
-  table. The pins' ends sit 0.3 to 1.0 mm above the table, so water has to stand that deep
-  to reach them.
+- **Leak pins.** Ø2.5 × 6 mm flat-ended metal pins, used as they come, stand upright at x
+  ±3.95, just in front of the domes. Each is pushed up from below into a blind bore in a
+  boss that runs from the front dome's wall back toward the board. The side of each pin
+  presses its dome's apex: the pin surface is 0.2 mm off the board and the dome is assumed
+  0.3 mm high, a 0.1 mm press (`DomeApex`, `PinPress`). The bore opens toward the dome
+  through a 2.0 mm gap, narrower than the pin, and the bore's wall stops 0.7 mm short of
+  the board, over the domes; the bosses clear X1, C2 and the diodes. The board's domes fix
+  the pins 3.95 mm either side of the center line, just behind the front dome's axis,
+  where the bottom has begun to curve up: across a pin it rises 0.7 mm. The bore's depth
+  sets each pin's end flush with the lowest point of the curve where it exits, 0.28 mm
+  above the table, so nothing stands proud; the outer part of the end sits up to 0.7 mm
+  inside its hole. Water has to stand 0.28 mm deep to reach the pins. Another length from
+  the box only changes the bore's depth (`PinL`).
 - **Cell.** Keystone 209 leaf spring (−) on a 1.6 mm divider behind the board, 228 button
   (+) on a 1.6 mm rear panel; both clip onto 1.52–1.78 mm panels and are listed for CR2.
   The 209 is assumed compressed to 2.5 mm between the divider and the cell. Two saddles
@@ -468,8 +468,8 @@ Not started. Planned:
   from Keystone's catalog drawing, not parts in hand. Boards with J1 fitted do not fit.
   The lid's line-to-line slide fit and its detent need a test print; how loud BZ1 is
   through the closed case is untested. The bottom has no flat: it prints with supports,
-  and on a table it rests on its lowest line. The pins' ends need a 16° bevel (5.7), and the
-  sensor now needs water about 0.3 mm deep before it reaches them.
+  and on a table it rests on its lowest line. The pins' ends sit 0.28 mm above the table,
+  so the sensor needs water about that deep before it reaches them.
 
 ## 9. References
 

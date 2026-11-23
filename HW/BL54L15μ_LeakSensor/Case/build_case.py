@@ -33,9 +33,7 @@ P = dict(
     # front lip, and the dome press then depends on two faces of one printed part, not on the board's thickness
     Lip=0.4, LipT=0.8, Tol=0.1, DomeRelief=2.4, RailTop=7.3, RibR=0.3, RibCrush=0.1,
     # leak pins
-    PinD=2.5, PinX=3.95, DomeY=-4.85, DomeApex=0.3, PinPress=0.1, BossWall=0.8,
-    PinTop=6.28,         # the pins' tops above the table. Their lower ends are cut to the case's curve where they exit
-                         # (a flat 16 degree bevel is within 0.03 mm of it), so a 6 mm pin keeps its length on its inner edge
+    PinD=2.5, PinL=6.0, PinX=3.95, DomeY=-4.85, DomeApex=0.3, PinPress=0.1, BossWall=0.8,   # flat-ended stock pins
     PinCap=0.6,          # bore cap over the pin
     BossBack=0.7,        # boss face toward the board, clear of the domes' feet: the pin stands 0.5 mm proud of it, onto the dome
     # cell cradle; the + wire runs over both panels in the bay's upper left corner, inside the dome's curve
@@ -79,7 +77,20 @@ P['Ydome'] = P['Yc1'] - P['DomeIn']
 P['Yend'] = P['Ydome'] + P['OW']
 P['SeamZ'] = P['AxisZ'] + P['SeamY']
 P['PinY'] = -(P['DomeApex'] - P['PinPress'] + P['PinD'] / 2)
-P['PinZ1'] = P['PinTop']
+
+
+def outer_z(x, y):
+    """Height of the case's outer bottom at (x, y): the half ellipse across, turned about each dome's axis."""
+    yd = P['FrontDomeY'] if y < P['FrontDomeY'] else (P['Ydome'] if y > P['Ydome'] else y)
+    rho = min(math.hypot(x, y - yd), P['OW'])
+    return P['BottomB'] * (1 - math.sqrt(1 - (rho / P['OW']) ** 2))
+
+
+# the pins go in until their flat ends are flush with the lowest point of the curve where they exit: nothing stands
+# proud, and the outer part of each end sits inside its hole by however much the curve rises across the pin
+P['PinZ0'] = min(outer_z(P['PinX'] + P['PinD'] / 2 * i / 10 * math.cos(math.radians(a)),
+                         P['PinY'] + P['PinD'] / 2 * i / 10 * math.sin(math.radians(a))) for i in range(11) for a in range(0, 360, 5))
+P['PinZ1'] = P['PinZ0'] + P['PinL']
 g = lambda k: P[k]
 AZ = g('AxisZ')
 
@@ -277,7 +288,7 @@ keep = [x for x in s.Solids if x.BoundBox.ZMin > -0.05]              # drop J1's
 refs['board'] = Part.makeCompound([x.transformGeometry(m) for x in keep])
 refs['header'] = Part.makeCompound([x.transformGeometry(m) for x in s.Solids if x.BoundBox.ZMin <= -0.05])
 refs['cell'] = cylY(0, AZ, g('CellD') / 2, g('Yc0'), g('Yc1'))
-refs['pins'] = cylZ(-g('PinX'), g('PinY'), g('PinD') / 2, -1, g('PinZ1')).fuse(cylZ(g('PinX'), g('PinY'), g('PinD') / 2, -1, g('PinZ1'))).common(outer)
+refs['pins'] = cylZ(-g('PinX'), g('PinY'), g('PinD') / 2, g('PinZ0'), g('PinZ1')).fuse(cylZ(g('PinX'), g('PinY'), g('PinD') / 2, g('PinZ0'), g('PinZ1')))
 refs['wire'] = cylY(g('WireX'), AZ + g('PanelTop') + g('WireD') / 2 + 0.05, g('WireD') / 2, g('Yd0'), g('Yr1'))
 pt = AZ + g('PanelTop')
 c209 = box(-3.95, 3.95, g('Yd0') - 0.3, g('Yd0'), pt - 9.0, pt + 0.3).fuse(box(-3.95, 3.95, g('Yd0') - 0.3, g('Yd1') + 0.3, pt, pt + 0.3)) \
@@ -319,9 +330,9 @@ for k, r in refs.items():
 print('CHECK pins/board %.3f, pins/cell %.3f, contacts/cell %.3f, wire/cell %.3f, wire/contacts %.3f' % (
     vol(refs['pins'], refs['board']), vol(refs['pins'], refs['cell']), vol(refs['contacts'], refs['cell']),
     vol(refs['wire'], refs['cell']), vol(refs['wire'], refs['contacts'])))
-dome_gap = -refs['pins'].optimalBoundingBox().YMax   # pin surface to the board's front face (the plain box is loose
-                                                      # round the pins' cut ends)
+dome_gap = -refs['pins'].BoundBox.YMax          # pin surface to the board's front face
 print('CHECK pin surface %.2f mm in front of the board face; dome apex at %.2f: %.2f mm press' % (dome_gap, g('DomeApex'), g('DomeApex') - dome_gap))
+print('CHECK pins %.2f..%.2f mm above the table (ends flush with the curve\'s lowest point where they exit)' % (g('PinZ0'), g('PinZ1')))
 hits = []
 for dz10 in range(5, 260, 5):                   # the board drops in from the top
     mm_ = FreeCAD.Matrix(); mm_.move(V(0, 0, dz10 / 10.0))
