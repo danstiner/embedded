@@ -7,3 +7,11 @@
 (rule "X1 and C2 tucked under IC1"
 	(constraint courtyard_clearance (min -1.5mm))
 	(condition "(A.Reference == 'X1' || A.Reference == 'C2') && (B.Reference == 'IC1' || B.Reference == 'X1' || B.Reference == 'C2')"))
+# The domes' courtyards reach 0.8 mm past the 4 mm dome; parts may stand in that margin, clear of the dome itself
+(rule "Domes' courtyard margin"
+	(constraint courtyard_clearance (min -0.85mm))
+	(condition "A.Reference == 'P1' || A.Reference == 'P2'"))
+# The leak front end's top corner stands in the module's 1 mm courtyard margin, clear of its body
+(rule "Front end by the module"
+	(constraint courtyard_clearance (min -1.0mm))
+	(condition "A.Reference == 'IC1' && (B.Reference == 'R3' || B.Reference == 'R4')"))
