@@ -3583,7 +3583,7 @@
 				)
 			)
 		)
-		(property "Digikey Part Number" "1649-SHT45-AD1F-R2CT-ND"
+		(property "Digikey Part Number" ""
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -3609,7 +3609,7 @@
 				)
 			)
 		)
-		(property "Part Number" "SHT45-AD1F-R2"
+		(property "Part Number" "SHT40-AD1F-R2"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")

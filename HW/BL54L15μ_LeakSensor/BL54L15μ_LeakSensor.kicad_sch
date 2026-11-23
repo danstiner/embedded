@@ -9365,7 +9365,7 @@
 				)
 			)
 		)
-		(property "Part Number" "SHT45-AD1F-R2"
+		(property "Part Number" "SHT40-AD1F-R2"
 			(at 36.83 163.83 0)
 			(hide yes)
 			(show_name no)
