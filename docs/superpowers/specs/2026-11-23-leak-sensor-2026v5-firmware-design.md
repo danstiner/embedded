@@ -9,8 +9,9 @@ the front end symmetric: either contact can drive while the other senses, so the
 through the water can be reversed. `SW/hygrometer` has to run on it, in both the Matter
 and the BTHome build.
 
-No 2026v5 board exists yet. Everything here is proven by building and by tests on the
-host until boards arrive.
+The boards were ordered on 2026-11-23 (tag `fab/BL54L15μ-leak-sensor/2026v5`) and have
+not arrived. Everything here is proven by building and by tests on the host until they
+do.
 
 ## Goals
 
