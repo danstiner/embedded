@@ -313,8 +313,8 @@ then cut down to the cell's 15.6 mm by 2026-11-22. Laid out again the same day a
 `Case/build_case.py` builds the case in FreeCAD from the parameters at its top and saves
 `Case/LeakSensor_2026v5.FCStd`. The file also holds the board (KiCad's STEP export), the
 cell, the battery contacts and the leak pins as reference parts, and the script checks all
-of them against each other. The case is an open-top body with half-dome ends and a lid
-that slides on from the rear, 24.7 × 58.4 × 20.45 mm. The board stands across the front
+of them against each other. The case is an open-top body with rounded, squashed half-dome
+ends and a lid that slides on from the rear, 24.7 × 51.1 × 20.45 mm. The board stands across the front
 with the cell lying behind it. The board sets the width and height: its 20 mm plus
 0.15 mm clearance and a 2.2 mm wall each side, its 18 mm plus a 1.0 mm floor, a 1.2 mm
 lid and the slot's 0.1 mm under the board and 0.15 mm over it.
@@ -323,12 +323,15 @@ The bottom follows the board's: inside and out, it is an arc tangent to the side
 inside (0.05 mm off the board's center) and R12.35 outside. Outside, the arc gives way to
 straight lines where it would overhang more than 60° when printed, leaving a 6.6 mm flat
 for the body to print upright on (`MaxOverhang`; 90 gives the full curve, which needs
-supports). Both ends are half domes: the same section turned about a vertical axis. The
-front one's axis is the board's front face, so the board's full width stays in the
-straight part and the module, BZ1 and the leak pins stand in its bowl; it puts the case's
-front 12.35 mm ahead of the board. The rear one's axis is 1.0 mm in front of the cell's
-rear end, so its bowl clears the cell's rear edge by 0.1 mm (the floor clears the cell by
-0.15 mm) and the 228 contact. The top's edges are rounded 1 mm.
+supports). Both ends are squashed half domes: the same section turned about a vertical
+axis, then scaled along the case so the inside reaches 6 mm from the axis instead of
+10.15 mm; the wall stays at least 2.14 mm thick. The front one's axis is the board's front
+face, so the board's full width stays in the straight part; the module, BZ1, C1 and C2
+stand in its bowl, at least 0.19 mm clear, and the case's front is 8.2 mm ahead of the
+board. The rear one's axis is the cell's rear end, so the cell stays in the straight part
+and the dome holds only the 228 contact, its tab and the + wire; the case ends 8.2 mm
+behind the cell. Squashing the domes took 7.3 mm off the length (full half domes made it
+58.4 mm) and steepens their undersides for printing. The top's edges are rounded 1 mm.
 
 - **Board slot.** 0.4 mm lips front and back along the board's sides and bottom; the
   board drops in from the top and rests 0.1 mm above the floor. The side lips stop at
@@ -345,9 +348,9 @@ rear end, so its bowl clears the cell's rear edge by 0.1 mm (the floor clears th
   The bore opens toward the dome through a 2.0 mm gap, narrower than the pin, and the
   bore's wall stops 0.7 mm short of the board, over the domes. The pin top is 1.7 mm
   above the dome center, and the bosses clear X1, C2 and the diodes. The board's domes fix
-  the pins at the edge of the flat, where the front dome's bowl begins: the bottom under
-  each pin rises from 0 to 1.2 mm, so it stands 0.2 mm below the flat on its inner side
-  and 1.4 mm out of the curve on its outer side.
+  the pins at the edge of the flat, where the front dome's bowl begins: the bottom around
+  each pin rises from 0 to 1.6 mm, so it stands 0.2 mm below the flat on its inner side
+  and 1.8 mm out of the curve on its outer front side.
 - **Cell.** Keystone 209 leaf spring (−) on a 1.6 mm divider behind the board, 228 button
   (+) on a 1.6 mm rear panel; both clip onto 1.52–1.78 mm panels and are listed for CR2.
   The 209 is assumed compressed to 2.5 mm between the divider and the cell. Two saddles
@@ -355,8 +358,8 @@ rear end, so its bowl clears the cell's rear edge by 0.1 mm (the floor clears th
   not the cell, sets the bay's height, which leaves 2.5 mm above the cell.
 - **Wiring.** BT1's pads face the divider across a 2.0 mm gap, where the 209's tab is.
   The 228's tab sits in the dome's bowl behind the rear panel; its wire runs forward over
-  both panels in the bay's upper left corner, 1.55 mm in from the wall to clear the dome's
-  curve, 2.8 mm clear of the cell and below the lid.
+  both panels in the bay's upper left corner, 1.85 mm in from the wall to clear the rear
+  dome's curve, clear of the cell and below the lid.
 - **Vent.** One 1.0 × 2.0 mm slot in the right wall of the front dome, into its bowl in
   front of the board, level with U1 (5.3). There is no other opening: BZ1 sounds through
   the closed case.

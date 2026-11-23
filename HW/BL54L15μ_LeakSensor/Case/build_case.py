@@ -19,15 +19,17 @@ P = dict(
     Floor=1.0, FloorGap=0.1, TopGap=0.15, LidT=1.2, Clear=0.15,
     TopR=1.0,            # the top's edges
     MaxOverhang=60,      # the bottom's curve gives way to a straight line here (degrees from vertical; 90: the full curve)
-    # both ends are half domes: the cross-section turned about a vertical axis. The front one's axis is the board's front
-    # face, so the board's full width stays in the straight part; the module and BZ1 stand in its bowl
-    FrontDomeY=0.0,
+    # both ends are squashed half domes: the cross-section turned about a vertical axis, then scaled along the case so
+    # its inside reaches DomeDepth from the axis (a full half dome would reach IW). The front one's axis is the board's
+    # front face, so the board's full width stays in the straight part; its depth clears BZ1's and the module's front
+    # corners, which stand in its bowl. The rear one's axis is the cell's rear end; its depth clears the 228 contact,
+    # its tab and the + wire
+    FrontDomeY=0.0, DomeDepth=6.0,
     BackGap=2.0,         # board back to the divider: the 209's solder ear and the BT1 wire joints
     PanelT=1.6,          # Keystone snap-on contacts fit 1.52-1.78 mm panels
     SpringGap=2.5,       # 209 leaf, compressed: divider face to the cell's negative end (assumed; free height about 6.5)
     CellD=15.6, CellL=27.0,   # CR2 maximum
     ButtonGap=0.85,      # 228: 0.25 mm plate plus 0.6 mm button
-    DomeIn=1.0,          # the rear dome's axis is this far in front of the cell's rear end: its bowl then clears the cell's rear edge
     PanelTop=5.3,        # top edge of both contact panels above the cell axis (228: button 6.1 above its lower edge, 11.4 tall)
     # board slot. The domes push the board back, so the front face is the datum: crush ribs behind hold it on the
     # front lip, and the dome press then depends on two faces of one printed part, not on the board's thickness
@@ -38,7 +40,7 @@ P = dict(
     PinProud=0.2,        # below the case's bottom, onto the wet floor
     BossBack=0.7,        # boss face toward the board, clear of the domes' feet: the pin stands 0.5 mm proud of it, onto the dome
     # cell cradle; the + wire runs over both panels in the bay's upper left corner, inside the dome's curve
-    CradleT=1.2, CradleInset=5.0, WireD=1.2, WireX=-8.6,
+    CradleT=1.2, CradleInset=5.0, WireD=1.2, WireX=-8.3,
     # one small vent in the right wall into the gap in front of the board, below U1: approximate humidity is enough
     VentW=1.0, VentH=2.0, VentZ=8.0, VentY=-1.75,   # slot width (along the case) and height; its center (sketch y, beside
                                                      # U1) and along the case (between BZ1 and the board's front lip)
@@ -65,15 +67,15 @@ P['OW'] = P['IW'] + P['Wall']
 P['Ztop'] = P['AxisZ'] + P['BoardTop'] + P['TopGap'] + P['LidT']
 P['Zb'] = P['Ztop'] - P['LidT']
 P['Yf'] = P['FrontDomeY']
-P['Yfo'] = P['Yf'] - P['OW']
+P['Yfo'] = P['Yf'] - P['DomeDepth'] - P['Wall']
 P['Yd0'] = P['BoardT'] + P['BackGap']
 P['Yd1'] = P['Yd0'] + P['PanelT']
 P['Yc0'] = P['Yd1'] + P['SpringGap']
 P['Yc1'] = P['Yc0'] + P['CellL']
 P['Yr0'] = P['Yc1'] + P['ButtonGap']
 P['Yr1'] = P['Yr0'] + P['PanelT']
-P['Ydome'] = P['Yc1'] - P['DomeIn']
-P['Yend'] = P['Ydome'] + P['OW']
+P['Ydome'] = P['Yc1']
+P['Yend'] = P['Ydome'] + P['DomeDepth'] + P['Wall']
 P['SeamZ'] = P['AxisZ'] + P['SeamY']
 P['PinY'] = -(P['DomeApex'] - P['PinPress'] + P['PinD'] / 2)
 P['PinZ0'] = -P['PinProud']
@@ -124,11 +126,15 @@ def u_prism(w2, zb, zt, rt, y0, y1, ov=90):
     return Part.Face(Part.Wire(Part.__sortEdges__(e))).extrude(V(0, y1 - y0, 0))
 
 
-def u_dome(w2, zb, zt, rt, yc, ov=90, s=1):
-    """Half the section turned 180 degrees about the vertical axis at yc, toward the rear (s = 1) or the front (s = -1):
-    a half dome that continues u_prism without a seam."""
+def u_dome(w2, zb, zt, rt, yc, ov=90, s=1, depth=None):
+    """Half the section turned 180 degrees about the vertical axis at yc, toward the rear (s = 1) or the front (s = -1),
+    then scaled along Y to reach depth from the axis: a squashed half dome that continues u_prism without a seam."""
     e = u_edges(w2, zb, zt, rt, ov, s, yc) + [Part.LineSegment(V(0, yc, zt), V(0, yc, zb)).toShape()]
-    return Part.Face(Part.Wire(Part.__sortEdges__(e))).revolve(V(0, yc, 0), V(0, 0, 1), 180)
+    d = Part.Face(Part.Wire(Part.__sortEdges__(e))).revolve(V(0, yc, 0), V(0, 0, 1), 180)
+    if depth is None:
+        return d
+    m = FreeCAD.Matrix(); m.A22 = depth / w2; m.A24 = yc * (1 - depth / w2)
+    return d.transformGeometry(m)
 
 
 def lid_space(c):
@@ -196,19 +202,19 @@ def outline_prism(d, y0, y1):
 
 
 # ============================ body ============================
-def capsule(w2, zb, zt, rt, ov=90):
-    return u_prism(w2, zb, zt, rt, g('Yf'), g('Ydome'), ov).fuse([u_dome(w2, zb, zt, rt, g('Yf'), ov, -1),
-                                                                 u_dome(w2, zb, zt, rt, g('Ydome'), ov, 1)])
+def capsule(w2, zb, zt, rt, depth, ov=90):
+    return u_prism(w2, zb, zt, rt, g('Yf'), g('Ydome'), ov).fuse([u_dome(w2, zb, zt, rt, g('Yf'), ov, -1, depth),
+                                                                 u_dome(w2, zb, zt, rt, g('Ydome'), ov, 1, depth)])
 
 
-outer = capsule(g('OW'), 0, g('Ztop'), g('TopR'), g('MaxOverhang'))
+outer = capsule(g('OW'), 0, g('Ztop'), g('TopR'), g('DomeDepth') + g('Wall'), g('MaxOverhang'))
 
 
 def cavity(zt):
-    return capsule(g('IW'), g('Floor'), zt, 0)
+    return capsule(g('IW'), g('Floor'), zt, 0, g('DomeDepth'))
 
 
-body = outer.cut(cavity(g('Zb') + 5))
+body = outer.cut(cavity(g('Zb') + 0.5))     # kept inside the outer shell: crossing its rim breaks the domes' booleans
 
 # inner parts stand on the curved floor: built from the bottom up, then trimmed to the outside
 adds = []
@@ -259,7 +265,12 @@ for sx in (-1, 1):
     z0 = AZ + g('BoardSideY')                             # where the straight sides start
     ribs.append(cylZ(x, y, g('RibR'), z0, AZ + g('RailTop') - g('RibR')).fuse(Part.makeSphere(g('RibR'), V(x, y, AZ + g('RailTop') - g('RibR')))))
 ribs = ribs[0].fuse(ribs[1])
-body = body.removeSplitter()          # not the lid: refined, it looks valid but every boolean against it comes back empty
+try:                                  # not the lid: refined, it looks valid but every boolean against it comes back empty.
+    refined = body.copy().removeSplitter()  # Cosmetic, and with the squashed domes' spline faces it can throw, or turn
+    if refined.isValid() and abs(refined.Volume - body.Volume) < 1:   # its input inside out in place (hence the copy)
+        body = refined
+except Part.OCCError:
+    pass
 
 # ============================ references (not printed) ============================
 refs = {}
@@ -295,6 +306,7 @@ for name, part in (('body', body), ('lid', lid)):        # the checks below are 
     probe = vol(part, box(-0.1, 0.1, -10, 60, -1, 30))
     print('CHECK %s probe (0.2 mm slab across the middle) %.3f mm3' % (name, probe))
     assert probe > 1, 'booleans against the %s fail' % name
+    assert part.isValid() and part.Volume > 0 and part.BoundBox.ZMax < g('Ztop') + 0.01, 'the %s came out broken' % name
 print('CHECK body/lid overlap %.3f (line-to-line fits touch)' % vol(body, lid))
 for k, r in refs.items():
     if k == 'header':
