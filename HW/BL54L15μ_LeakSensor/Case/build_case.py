@@ -229,9 +229,14 @@ body = outer.cut(cavity(g('Zb') + 0.5))     # kept inside the outer shell, clear
 adds = []
 for y0, y1 in ((g('Yd0'), g('Yd1')), (g('Yr0'), g('Yr1'))):                      # contact panels
     adds.append(box(-g('IW'), g('IW'), y0, y1, 0, AZ + g('PanelTop')))
-for yc in (g('Yc0') + g('CradleInset'), g('Yc1') - g('CradleInset')):              # cell saddles
-    adds.append(box(-g('IW'), g('IW'), yc - g('CradleT') / 2, yc + g('CradleT') / 2, 0, AZ).cut(
-        cylY(0, AZ, g('CellD') / 2 + 0.2, yc - 1, yc + 1)))
+# cell saddles. Below 45 degrees each seat leaves the cell's circle along its tangent, a V block: printed on its rim
+# (the body turned over) the seats then need no support. The V runs out into the floor about 4 mm from the middle
+rs = g('CellD') / 2 + 0.2
+vee = Part.Face(Part.makePolygon([V(-rs / math.sqrt(2), 0, AZ - rs / math.sqrt(2)), V(0, 0, AZ - rs * math.sqrt(2)),
+                                  V(rs / math.sqrt(2), 0, AZ - rs / math.sqrt(2)), V(-rs / math.sqrt(2), 0, AZ - rs / math.sqrt(2))]))
+for yc in (g('Yc0') + g('CradleInset'), g('Yc1') - g('CradleInset')):
+    seat = cylY(0, AZ, rs, yc - 1, yc + 1).fuse(vee.extrude(V(0, 2, 0)).translate(V(0, yc - 1, 0)))
+    adds.append(box(-g('IW'), g('IW'), yc - g('CradleT') / 2, yc + g('CradleT') / 2, 0, AZ).cut(seat))
 # board slot: lips 0.4 mm over the board's sides and bottom curve, front and back; open above the straight sides
 frame = box(-g('IW'), g('IW'), -g('LipT'), g('BoardT') + g('LipT'), 0, AZ + g('RailTop'))
 frame = frame.cut(outline_prism(-g('Lip'), -5, 5))
@@ -242,11 +247,14 @@ for sx in (-1, 1):                                       # front lip relief arou
 frame = frame.cut(box(0, g('IW') + 1, -g('LipT') - 0.1, 0.0, AZ + g('LipFreeY'), AZ + 30))   # no front lip beside the module
 frame = frame.cut(box(-g('IW') - 1, 0, -g('LipT') - 0.1, 0.0, AZ + g('LipLeftY0'), AZ + g('LipLeftY1')))   # nor beside D3 and BZ1
 adds.append(frame)
-# leak pin bosses: in front of the board, out to the front dome's wall, bore blind at the top, open toward the dome
+# leak pin bosses: in front of the board, out to the front dome's wall, bore blind at the top, open toward the dome.
+# Over the cap each boss rises at 45 degrees toward the front wall, so that turned over it grows out of the wall and
+# needs no support
 for sx in (-1, 1):
-    x = sx * g('PinX')
-    adds.append(box(x - g('PinD') / 2 - g('BossWall'), x + g('PinD') / 2 + g('BossWall'), g('Yfo'), -g('BossBack'),
-                    0, g('PinZ1') + g('PinCap')))
+    x0, x1 = sx * g('PinX') - g('PinD') / 2 - g('BossWall'), sx * g('PinX') + g('PinD') / 2 + g('BossWall')
+    zc, yb = g('PinZ1') + g('PinCap'), -g('BossBack')
+    roof = Part.Face(Part.makePolygon([V(x0, yb, zc), V(x0, g('Yfo'), zc), V(x0, g('Yfo'), zc + yb - g('Yfo')), V(x0, yb, zc)]))
+    adds.append(box(x0, x1, g('Yfo'), yb, 0, zc).fuse(roof.extrude(V(x1 - x0, 0, 0))))
 for a in adds:
     body = body.fuse(a.common(outer))
 

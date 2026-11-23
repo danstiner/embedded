@@ -326,8 +326,9 @@ The bottom is a half ellipse, 21.3 mm wide and 8.5 mm deep outside, the inside c
 board's bottom is the same curve 0.1 mm in, and the cell clears it by 0.1 mm. With no flat, the body needs
 supports either way up. The print plate (`LeakSensor_2026v5.3mf`) has it turned over, on its rim: the
 whole outside then prints without support, and the supports go inside, under the floor
-(about 600 mm²), the two bosses and the panels' top edges, all reachable from the open top.
-The board slot and the gap behind it bridge themselves. The rear dome's rim, 2.8 mm above
+(about 600 mm²) and the panels' top edges (18 mm spans, which may bridge), all reachable
+from the open top. The board slot and the gap behind it bridge themselves; the bosses and
+the cell's seats are shaped to need none (below). The rear dome's rim, 2.8 mm above
 the bed, needs a low support. Upright, about 880 mm² of the outside would stand on supports.
 Both ends are half domes: the same section turned about a vertical axis, so they are
 semicircles seen from above and every cut through the axis shows the sides' curve. The
@@ -349,7 +350,9 @@ ones did. The top's edges are square.
   print, not on the board's thickness or the slot's fit.
 - **Leak pins.** Ø2.5 × 6 mm flat-ended metal pins, used as they come, stand upright at x
   ±3.95, just in front of the domes. Each is pushed up from below into a blind bore in a
-  boss that runs from the front dome's wall back toward the board. The side of each pin
+  boss that runs from the front dome's wall back toward the board. Above the bore's cap
+  the boss rises at 45° toward the front wall, so that printed on its rim it grows out of
+  the wall without support. The side of each pin
   presses its dome's apex: the pin surface is 0.2 mm off the board and the dome is assumed
   0.3 mm high, a 0.1 mm press (`DomeApex`, `PinPress`). The bore opens toward the dome
   through a 2.4 mm gap, narrower than the pin, and the bore's wall stops 1.1 mm short of
@@ -365,7 +368,10 @@ ones did. The top's edges are square.
 - **Cell.** Keystone 209 leaf spring (−) on a 1.6 mm divider behind the board, 228 button
   (+) on a 1.6 mm rear panel; both clip onto 1.52–1.78 mm panels and are listed for CR2.
   The 209 is assumed compressed to 2.5 mm between the divider and the cell. Two saddles
-  under the cell, and two ribs under the lid over them, 0.1 mm off the cell: the board,
+  under the cell, 0.2 mm off it, and two ribs under the lid over them, 0.1 mm off it. Below
+  45° each saddle's seat leaves the cell's circle along its tangent, a V block that runs
+  out into the floor 4 mm from the middle: it prints without support, and the cell bears
+  on the two flanks: the board,
   not the cell, sets the bay's height, which leaves 0.5 mm above the cell.
 - **Wiring.** BT1's pads face the divider across a 2.0 mm gap, where the 209's tab is.
   The 228's tab sits in the dome's bowl behind the rear panel; its wire runs forward over
