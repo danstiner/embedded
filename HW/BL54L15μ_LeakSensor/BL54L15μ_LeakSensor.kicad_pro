@@ -78,11 +78,7 @@
       ],
       "drc_exclusions": [
         [
-          "invalid_outline|100946000|63933821|13f413d8-0c97-4491-87e1-c38bc00a08b2|13f413d8-0c97-4491-87e1-c38bc00a08b2",
-          ""
-        ],
-        [
-          "invalid_outline|99295001|67743821|8b97b3b5-5a15-476c-9edb-7c9220133a59|c484b650-9e0d-4613-9c15-b8775f3af93e",
+          "silk_edge_clearance|91019300|101000000|0362367f-9e3e-56aa-a024-18645f9fbb83|78a8b9ae-04e2-470a-8c77-037e64102056",
           ""
         ]
       ],
@@ -187,6 +183,7 @@
         {
           "td_allow_use_two_tracks": true,
           "td_curve_segcount": 0,
+          "td_enabled": false,
           "td_height_ratio": 1.0,
           "td_length_ratio": 0.5,
           "td_maxheight": 2.0,
@@ -198,6 +195,7 @@
         {
           "td_allow_use_two_tracks": true,
           "td_curve_segcount": 0,
+          "td_enabled": false,
           "td_height_ratio": 1.0,
           "td_length_ratio": 0.5,
           "td_maxheight": 2.0,
@@ -209,6 +207,7 @@
         {
           "td_allow_use_two_tracks": true,
           "td_curve_segcount": 0,
+          "td_enabled": false,
           "td_height_ratio": 1.0,
           "td_length_ratio": 0.5,
           "td_maxheight": 2.0,
@@ -222,7 +221,7 @@
         0.0,
         0.1524,
         0.2,
-        0.3
+        0.25
       ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
@@ -499,6 +498,7 @@
       "pin_to_pin": "warning",
       "power_pin_not_driven": "error",
       "same_local_global_label": "warning",
+      "same_local_global_power": "warning",
       "similar_label_and_power": "warning",
       "similar_labels": "warning",
       "similar_power": "warning",
@@ -552,17 +552,17 @@
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": 0,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.3,
+        "track_width": 0.25,
         "tuning_profile": "",
-        "via_diameter": 0.6,
-        "via_drill": 0.3
+        "via_diameter": 0.508,
+        "via_drill": 0.254
       }
     ],
     "meta": {
       "version": 5
     },
-    "net_colors": null,
-    "netclass_assignments": null,
+    "net_colors": {},
+    "netclass_assignments": {},
     "netclass_patterns": [
       {
         "netclass": "Power",
@@ -840,7 +840,7 @@
     ]
   ],
   "text_variables": {
-    "REVISION": "2026v4",
+    "REVISION": "2026v5",
     "TITLE": "nrf54 Leak Sensor"
   },
   "tuning_profiles": {

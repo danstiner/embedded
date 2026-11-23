@@ -1,0 +1,21 @@
+(version 1)
+(rule "Fab board edge keep-out"
+	(constraint edge_clearance (min 0.381mm))
+	(condition "B.Layer == 'Edge.Cuts'"))
+# X1 and C2 sit just under IC1, on purpose (README 5.6): their pads keep normal clearance, but each
+# lies inside IC1's 1 mm courtyard.
+(rule "X1 and C2 tucked under IC1"
+	(constraint courtyard_clearance (min -1.5mm))
+	(condition "(A.Reference == 'X1' || A.Reference == 'C2') && (B.Reference == 'IC1' || B.Reference == 'X1' || B.Reference == 'C2')"))
+# The domes' courtyards reach 0.8 mm past the 4 mm dome; parts may stand in that margin, clear of the dome itself
+(rule "Domes' courtyard margin"
+	(constraint courtyard_clearance (min -0.85mm))
+	(condition "A.Reference == 'P1' || A.Reference == 'P2'"))
+# The leak front end's top corner stands in the module's 1 mm courtyard margin, clear of its body
+(rule "Front end by the module"
+	(constraint courtyard_clearance (min -1.0mm))
+	(condition "A.Reference == 'IC1' && (B.Reference == 'R3' || B.Reference == 'R4')"))
+# JP1 and C3, the optional parts on the back, stand under the outline of J1's shroud and share a pad edge
+(rule "Optional back parts under J1"
+	(constraint courtyard_clearance (min -3mm))
+	(condition "(A.Reference == 'JP1' || A.Reference == 'C3') && (B.Reference == 'J1' || B.Reference == 'JP1' || B.Reference == 'C3')"))

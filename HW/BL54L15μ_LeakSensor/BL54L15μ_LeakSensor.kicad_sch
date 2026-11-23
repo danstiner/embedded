@@ -1452,129 +1452,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Connector:TestPoint"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 0.762)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "TP"
-				(at 0 6.858 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "TestPoint"
-				(at 0 5.08 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 5.08 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 5.08 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "test point"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "test point tp"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_fp_filters" "Pin* Test*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "TestPoint_0_1"
-				(circle
-					(center 0 3.302)
-					(radius 0.762)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "TestPoint_1_1"
-				(pin passive line
-					(at 0 0 90)
-					(length 2.54)
-					(name "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Device:Battery_Cell"
 			(pin_numbers
 				(hide yes)
@@ -2814,6 +2691,195 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Jumper:SolderJumper_2_Bridged"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom no)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "JP"
+				(at 0 2.032 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SolderJumper_2_Bridged"
+				(at 0 -2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 -6.35 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Solder Jumper, 2-pole, closed/bridged"
+				(at 0 -5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "solder jumper SPST"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "SolderJumper*Bridged*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "SolderJumper_2_Bridged_0_1"
+				(rectangle
+					(start -0.508 0.508)
+					(end 0.508 -0.508)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.254 1.016) (xy -0.254 -1.016)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -0.254 -1.016)
+					(mid -1.2656 0)
+					(end -0.254 1.016)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(arc
+					(start 0.254 1.016)
+					(mid 1.2656 0)
+					(end 0.254 -1.016)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 1.016) (xy 0.254 -1.016)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "SolderJumper_2_Bridged_1_1"
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 0 180)
+					(length 3.81)
+					(name "B"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Mechanical:MountingHole_Pad"
 			(pin_numbers
 				(hide yes)
@@ -3609,6 +3675,402 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Transistor_FET:DMG1012T"
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "Q"
+				(at 5.08 1.905 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "DMG1012T"
+				(at 5.08 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" "Package_TO_SOT_SMD:SOT-523"
+				(at 5.08 -1.905 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Datasheet" "https://www.diodes.com/assets/Datasheets/ds31783.pdf"
+				(at 5.08 -3.81 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Description" "20V Vds, 0.63 Id, N-Channel MOSFET with ESD protection, SOT-523"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "N-Channel MOSFET"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "SOT?523*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "DMG1012T_0_1"
+				(polyline
+					(pts
+						(xy 2.54 -3.81) (xy -2.286 -3.81) (xy -2.286 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "DMG1012T_1_1"
+				(circle
+					(center -2.286 0)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.016 -4.318) (xy -0.889 -4.191) (xy -0.889 -3.429) (xy -0.762 -3.302)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.889 -3.81) (xy -0.254 -4.191) (xy -0.254 -3.429) (xy -0.889 -3.81)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 1.905) (xy 0.254 -1.905)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 0) (xy -2.54 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 2.286) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 0.508) (xy 0.762 -0.508)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 -1.27) (xy 0.762 -2.286)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 -1.778) (xy 3.302 -1.778) (xy 3.302 1.778) (xy 0.762 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.016 0) (xy 2.032 0.381) (xy 2.032 -0.381) (xy 1.016 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.143 -3.81) (xy 0.508 -3.429) (xy 0.508 -4.191) (xy 1.143 -3.81)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 -3.302) (xy 1.143 -3.429) (xy 1.143 -4.191) (xy 1.016 -4.318)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 1.651 0)
+					(radius 2.794)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 2.54) (xy 2.54 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.54 1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(circle
+					(center 2.54 -1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 -2.54) (xy 2.54 0) (xy 0.762 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.54 -3.81)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.794 0.508) (xy 2.921 0.381) (xy 3.683 0.381) (xy 3.81 0.254)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 3.302 0.381) (xy 2.921 -0.254) (xy 3.683 -0.254) (xy 3.302 0.381)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin input line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "G"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(name "S"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 5.08 270)
+					(length 2.54)
+					(name "D"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "power:GND"
 			(power global)
 			(pin_numbers
@@ -3990,6 +4452,17 @@
 		)
 		(uuid "0ddf31b4-eeb3-4ff0-8607-3026471e1f8f")
 	)
+	(text "Either contact drives or senses (README 5.1).\nArmed A to B: LEAK_A and LEAK_A_RET high, LEAK_B an input\nwith edge wake, LEAK_B_RET low. Swap A and B to reverse.\nParked once wet: all four low.\nThe edge wakes below about 0.4 MΩ across P1 and P2."
+		(exclude_from_sim no)
+		(at 92 94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1dc5e318-5d15-5d04-a928-856b39e7048a")
+	)
 	(text "CR2 Non-rechargable Battery"
 		(exclude_from_sim no)
 		(at 42.418 16.002 0)
@@ -4011,7 +4484,7 @@
 		)
 		(uuid "44fb9bad-6c69-47ed-9c36-943bc9a9c3e5")
 	)
-	(text "Mechanical reverse-polarity protection"
+	(text "On wires: BAT+ and BAT- pads on the back"
 		(exclude_from_sim no)
 		(at 14.478 60.96 0)
 		(effects
@@ -4021,6 +4494,17 @@
 			(justify left bottom)
 		)
 		(uuid "45039e27-dd35-459d-9105-6ae205c6aba5")
+	)
+	(text "Same Sky CMT-5023S-SMT: 3 V, 4 kHz, 110 mA, 80 dB at 10 cm.\nP1.05 switches it through Q1; R7 holds Q1 off while\nthe pin floats; D3 clamps the coil when Q1 opens.\nOn the front over J1, so the clip's jaw rests on it.\nJP1 (bridged) and C3 (not fitted) are on the back: cut JP1,\nfit 2.2 to 4.7 Ω and C3 to keep BZ1's pulses off the supply."
+		(exclude_from_sim no)
+		(at 92.71 190.5 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5dfe76dd-57df-58b1-8001-db2600285d9c")
 	)
 	(text "Leak Detection"
 		(exclude_from_sim no)
@@ -4032,9 +4516,9 @@
 		)
 		(uuid "626eca54-3a82-4240-bd96-541a7173ca10")
 	)
-	(text "Test Points"
+	(text "Buzzer"
 		(exclude_from_sim no)
-		(at 101.854 67.818 0)
+		(at 101.854 131.318 0)
 		(effects
 			(font
 				(size 2.54 2.54)
@@ -4073,16 +4557,17 @@
 		)
 		(uuid "bbbb5a79-3209-4428-9bf7-01202e9f9e3c")
 	)
-	(text "Siren"
-		(exclude_from_sim no)
-		(at 91.186 129.54 0)
-		(effects
-			(font
-				(size 2.54 2.54)
-			)
-			(justify left top)
-		)
-		(uuid "c70669ae-c1f5-4a55-b88e-f87a40569321")
+	(junction
+		(at 124.46 152.4)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "025000ff-9db2-5a90-9b94-77b3626c78bb")
+	)
+	(junction
+		(at 109.22 160.02)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "05a6b8e7-1bf5-5c1a-8f3b-dcb1a8092097")
 	)
 	(junction
 		(at 46.99 33.02)
@@ -4091,22 +4576,10 @@
 		(uuid "08333faf-7932-4bef-ac78-732f8b59f0cb")
 	)
 	(junction
-		(at 107.95 142.24)
+		(at 63.5 85.09)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "1013cf20-1d20-4343-9d75-29f26d5fc6c6")
-	)
-	(junction
-		(at 119.38 170.18)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "24a2cf37-da73-4918-930d-3114b8507144")
-	)
-	(junction
-		(at 119.38 157.48)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "40533971-968c-4faf-8724-e4785933bcb1")
+		(uuid "438a8e26-082d-5bd8-a4eb-54e84d6c620d")
 	)
 	(junction
 		(at 63.5 110.49)
@@ -4121,16 +4594,10 @@
 		(uuid "4dee1304-990d-49b9-abf6-2e79c4544ec4")
 	)
 	(junction
-		(at 111.76 175.26)
+		(at 124.46 142.24)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "769a73c1-5f26-4bda-8f74-2f1f0ef7d9e0")
-	)
-	(junction
-		(at 115.57 184.15)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "7af84954-f1d7-43f1-abff-17b6031264ab")
+		(uuid "54e2e758-0c4f-5f8d-8e0b-08479f9967ef")
 	)
 	(junction
 		(at 46.99 40.64)
@@ -4143,6 +4610,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "9826685b-a65a-4686-ac4e-44e0c9b5e9a9")
+	)
+	(junction
+		(at 116.84 142.24)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "acd09b93-b72b-50f9-95f8-e131e18c202b")
 	)
 	(junction
 		(at 29.21 110.49)
@@ -4175,32 +4648,32 @@
 		(uuid "f1f0b6cf-918e-4543-9a0e-5f686469c218")
 	)
 	(no_connect
-		(at 179.07 111.76)
-		(uuid "15f5e9f9-63ce-432b-98f8-df36cd444170")
-	)
-	(no_connect
 		(at 227.33 130.81)
 		(uuid "188bc47f-e947-4d68-9d36-909a0d145327")
+	)
+	(no_connect
+		(at 261.62 96.52)
+		(uuid "2580c4e5-bc97-5c9f-ae38-50f6615ea743")
 	)
 	(no_connect
 		(at 261.62 73.66)
 		(uuid "2acc29ed-83e8-4e2c-be14-c3e57bf2fc9d")
 	)
 	(no_connect
-		(at 261.62 88.9)
-		(uuid "2ce6b3b3-987d-4b20-8823-cdd923c12868")
+		(at 204.47 58.42)
+		(uuid "2fdeb2dd-b5cc-56ad-acb2-a12c814135cf")
+	)
+	(no_connect
+		(at 179.07 111.76)
+		(uuid "34391a02-46db-5ece-a193-7d17fa64ec28")
 	)
 	(no_connect
 		(at 234.95 130.81)
-		(uuid "2daca082-4bfa-43f3-88dc-c256ed725b51")
+		(uuid "3da34382-53e2-5ccc-ac11-533385513445")
 	)
 	(no_connect
-		(at 261.62 111.76)
-		(uuid "2db06250-11eb-47ae-8a55-3e53babd8bac")
-	)
-	(no_connect
-		(at 261.62 104.14)
-		(uuid "4789aef8-57b4-4bbd-a6c3-3c11d635dacd")
+		(at 215.9 130.81)
+		(uuid "42742656-38dd-59bb-94fa-3de6baf5ccc8")
 	)
 	(no_connect
 		(at 219.71 130.81)
@@ -4219,32 +4692,24 @@
 		(uuid "7b3dcc19-2af1-408b-be87-42c7462cf8fb")
 	)
 	(no_connect
-		(at 261.62 96.52)
-		(uuid "88325c99-b625-4352-824d-53d58779bcc9")
+		(at 179.07 81.28)
+		(uuid "97f2d24d-fe56-4f4c-92fd-37d76090d686")
 	)
 	(no_connect
 		(at 212.09 130.81)
-		(uuid "967de307-5146-44e6-a898-e7b2b947a51d")
-	)
-	(no_connect
-		(at 179.07 81.28)
-		(uuid "97f2d24d-fe56-4f4c-92fd-37d76090d686")
+		(uuid "9c296d22-953a-5152-b455-d5256501f93e")
 	)
 	(no_connect
 		(at 234.95 58.42)
 		(uuid "a144f043-249b-4b83-9335-c73287910813")
 	)
 	(no_connect
-		(at 261.62 100.33)
-		(uuid "ae09b137-89ae-4d08-826c-816c351e44ae")
+		(at 179.07 115.57)
+		(uuid "be85b1ef-5747-5fb0-9474-34d0e7ce6d8b")
 	)
 	(no_connect
 		(at 179.07 96.52)
 		(uuid "c22e4770-eb78-48e8-807f-a83e788ade1c")
-	)
-	(no_connect
-		(at 261.62 92.71)
-		(uuid "c2f2a0d6-a0d6-4dd2-b3f7-2678346ddb4b")
 	)
 	(no_connect
 		(at 229.87 58.42)
@@ -4267,8 +4732,8 @@
 		(uuid "d4aa587c-0427-4e0a-b9b8-3782ca6a90c3")
 	)
 	(no_connect
-		(at 261.62 85.09)
-		(uuid "f6a0126d-5f9a-4f0a-907d-e2193f1c5f26")
+		(at 261.62 104.14)
+		(uuid "ee928b1f-9f32-5c79-b5e8-030da6b4a6b0")
 	)
 	(no_connect
 		(at 179.07 107.95)
@@ -4327,23 +4792,33 @@
 	)
 	(wire
 		(pts
-			(xy 104.14 175.26) (xy 111.76 175.26)
+			(xy 124.46 165.1) (xy 124.46 167.64)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "19bda9ae-f79c-4a77-bce9-0fcd16019066")
+		(uuid "2440b366-b591-5137-a690-8c742225a09d")
 	)
 	(wire
 		(pts
-			(xy 111.76 184.15) (xy 115.57 184.15)
+			(xy 139.7 132.08) (xy 146.05 132.08)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "252674d0-7a60-4426-b94d-de84d05cf9dd")
+		(uuid "247ee41c-ad95-5a0a-9359-24258eefa113")
+	)
+	(wire
+		(pts
+			(xy 124.46 142.24) (xy 139.7 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "26627c95-e07f-5fce-a696-04d98d12a14b")
 	)
 	(wire
 		(pts
@@ -4367,33 +4842,43 @@
 	)
 	(wire
 		(pts
-			(xy 128.27 157.48) (xy 119.38 157.48)
+			(xy 71.12 85.09) (xy 63.5 85.09)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "317d0531-eeab-4522-9398-7c8379da3843")
+		(uuid "316735b3-3705-59b5-bd5a-58c98641ed57")
 	)
 	(wire
 		(pts
-			(xy 115.57 184.15) (xy 119.38 184.15)
+			(xy 63.5 118.11) (xy 71.12 118.11)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "37730b21-8357-4eaf-a9ee-16cc6520807c")
+		(uuid "33e6038f-868b-54c0-8069-cf2cd292bef5")
 	)
 	(wire
 		(pts
-			(xy 119.38 142.24) (xy 119.38 157.48)
+			(xy 116.84 151.13) (xy 116.84 152.4)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "37a4e0f9-e9e3-411b-a233-0845d4e314a8")
+		(uuid "3d315861-2e1b-56dc-9e42-5e59b4c830f3")
+	)
+	(wire
+		(pts
+			(xy 109.22 160.02) (xy 116.84 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "458d51d1-a5fd-5e3d-9d5f-3ee500d43e05")
 	)
 	(wire
 		(pts
@@ -4407,7 +4892,7 @@
 	)
 	(polyline
 		(pts
-			(xy 88.9 198.12) (xy 88.9 12.7)
+			(xy 88.9 198.12) (xy 88.9 127)
 		)
 		(stroke
 			(width 0.127)
@@ -4415,6 +4900,16 @@
 			(color 0 0 255 1)
 		)
 		(uuid "4e9b878a-1080-4a76-8611-52a162c6ad6c")
+	)
+	(wire
+		(pts
+			(xy 124.46 142.24) (xy 124.46 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "54e3ba5b-94cd-5be3-b3e0-f26c4a7fa0b6")
 	)
 	(wire
 		(pts
@@ -4428,6 +4923,16 @@
 	)
 	(wire
 		(pts
+			(xy 101.6 160.02) (xy 109.22 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5e98d7e4-aae3-58b0-a853-cc263348be9b")
+	)
+	(wire
+		(pts
 			(xy 101.6 36.83) (xy 101.6 35.56)
 		)
 		(stroke
@@ -4438,7 +4943,28 @@
 	)
 	(wire
 		(pts
-			(xy 71.12 85.09) (xy 54.61 85.09)
+			(xy 139.7 142.24) (xy 139.7 139.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "64fbc886-6820-5100-8c08-ae43a7986db7")
+	)
+	(polyline
+		(pts
+			(xy 88.9 63.5) (xy 88.9 12.7)
+		)
+		(stroke
+			(width 0.127)
+			(type dash)
+			(color 0 0 255 1)
+		)
+		(uuid "686d03a7-73c7-58a4-99aa-ea7ed0367bfc")
+	)
+	(wire
+		(pts
+			(xy 63.5 85.09) (xy 54.61 85.09)
 		)
 		(stroke
 			(width 0)
@@ -4448,13 +4974,13 @@
 	)
 	(wire
 		(pts
-			(xy 119.38 184.15) (xy 119.38 180.34)
+			(xy 63.5 92.71) (xy 71.12 92.71)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "6e81f2ea-7a9d-4b1f-8703-c7179a4b2e4d")
+		(uuid "734430e0-2c37-55b5-a483-b86cedaeafea")
 	)
 	(wire
 		(pts
@@ -4468,33 +4994,13 @@
 	)
 	(wire
 		(pts
-			(xy 128.27 157.48) (xy 128.27 161.29)
+			(xy 146.05 132.08) (xy 146.05 133.35)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "79d1b332-0490-4c07-876f-be43752e8eca")
-	)
-	(wire
-		(pts
-			(xy 128.27 170.18) (xy 119.38 170.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7c6c5986-c31c-4adc-935c-fc6710e2da7d")
-	)
-	(wire
-		(pts
-			(xy 110.49 170.18) (xy 119.38 170.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "80857d82-525e-4c71-8982-91bf2c3671d8")
+		(uuid "9493bb84-933b-5178-aa82-ee7158a1bcd2")
 	)
 	(wire
 		(pts
@@ -4505,6 +5011,16 @@
 			(type default)
 		)
 		(uuid "95439e1b-2caf-4886-ae92-a7f4d574239d")
+	)
+	(wire
+		(pts
+			(xy 104.14 140.97) (xy 104.14 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "95ec57a9-0603-5a6d-896f-13cf64c5873d")
 	)
 	(wire
 		(pts
@@ -4528,23 +5044,33 @@
 	)
 	(wire
 		(pts
-			(xy 107.95 142.24) (xy 119.38 142.24)
+			(xy 116.84 152.4) (xy 124.46 152.4)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "a0081fa6-a8a2-424a-8584-9647a3e615ba")
+		(uuid "aa48f124-2050-5eb8-9376-5b7003761e85")
 	)
 	(wire
 		(pts
-			(xy 110.49 157.48) (xy 110.49 158.75)
+			(xy 109.22 167.64) (xy 109.22 170.18)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "bc78f1c0-7a70-44d0-bd3a-726f58ec48ae")
+		(uuid "b9b26dcb-0535-58b3-8dd3-5ea8d0c2ee91")
+	)
+	(wire
+		(pts
+			(xy 124.46 149.86) (xy 124.46 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bb043cd6-74a7-5cb1-b691-8416e76df1b0")
 	)
 	(polyline
 		(pts
@@ -4569,43 +5095,13 @@
 	)
 	(wire
 		(pts
-			(xy 111.76 184.15) (xy 111.76 182.88)
+			(xy 116.84 142.24) (xy 124.46 142.24)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c041470b-eea8-4131-8039-6ecaae6eff75")
-	)
-	(wire
-		(pts
-			(xy 110.49 170.18) (xy 110.49 166.37)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c547bc41-8e03-49e1-94a1-fc68326ee409")
-	)
-	(wire
-		(pts
-			(xy 110.49 157.48) (xy 119.38 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cc1d048d-c8d5-427a-8c83-3e9a9448b87b")
-	)
-	(wire
-		(pts
-			(xy 115.57 184.15) (xy 115.57 186.69)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d21fe9ab-68b8-4951-99ca-e42a18c9e8cc")
+		(uuid "c088d7be-fbea-564b-9869-5c03dce0efd6")
 	)
 	(wire
 		(pts
@@ -4616,6 +5112,16 @@
 			(type default)
 		)
 		(uuid "d88b6ed8-0f36-4240-b4b5-48e8ec95bc4c")
+	)
+	(wire
+		(pts
+			(xy 124.46 152.4) (xy 124.46 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e0cf9fe6-eab4-5833-8f7d-f673b665efb7")
 	)
 	(wire
 		(pts
@@ -4659,6 +5165,16 @@
 	)
 	(wire
 		(pts
+			(xy 104.14 142.24) (xy 106.68 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ea411990-82ff-5b20-8d5d-6f6d82ce8dc4")
+	)
+	(wire
+		(pts
 			(xy 101.6 33.02) (xy 101.6 35.56)
 		)
 		(stroke
@@ -4680,13 +5196,13 @@
 	)
 	(wire
 		(pts
-			(xy 128.27 166.37) (xy 128.27 170.18)
+			(xy 116.84 142.24) (xy 116.84 143.51)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "fb59044b-b8d8-44c5-98ba-cc7ebd942666")
+		(uuid "fdac295b-f346-5d60-a274-67dd75110d6f")
 	)
 	(label "SWO"
 		(at 179.07 88.9 180)
@@ -4708,45 +5224,15 @@
 		)
 		(uuid "0da2794e-ce36-4fb2-8cdc-7266a1aecf30")
 	)
-	(label "SDA"
-		(at 104.14 92.71 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "22fec69a-4b0e-4775-a436-1e0adc5382f9")
-	)
-	(label "SIREN"
-		(at 179.07 115.57 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "2830fbf5-141a-47eb-8642-470f2ed5d500")
-	)
-	(label "LEAK_SENSE"
-		(at 134.62 92.71 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "2926e219-92a7-40f5-94cd-133a2952c612")
-	)
-	(label "LEAK_DRIVE"
-		(at 204.47 58.42 90)
+	(label "ELEC_A"
+		(at 38.1 85.09 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "2bad35e0-ea37-4943-bbdb-fcdbc5a76a1b")
+		(uuid "2201b980-ffb2-55e8-9542-95665553b62e")
 	)
 	(label "SCL"
 		(at 44.45 161.29 0)
@@ -4758,6 +5244,16 @@
 		)
 		(uuid "2c69601f-c4db-4ca6-9f48-7007796843e4")
 	)
+	(label "BUZZER+"
+		(at 124.46 142.24 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3600c579-138a-5771-83a5-48e8eeacaf36")
+	)
 	(label "SWO"
 		(at 114.3 48.26 270)
 		(effects
@@ -4768,25 +5264,55 @@
 		)
 		(uuid "46477925-9b19-4b11-95a0-fda5c8d80c70")
 	)
-	(label "SCL"
-		(at 104.14 99.06 180)
+	(label "BUZZ"
+		(at 101.6 160.02 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "518bcfd4-e595-426b-82c1-9ed419de6abc")
+		(uuid "4d236ac2-cf8b-51d4-a70c-ebf98f3f2fd8")
 	)
-	(label "SIREN"
-		(at 134.62 80.01 180)
+	(label "LEAK_A"
+		(at 261.62 100.33 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "70102e21-3056-4ecc-8ece-1e08b3f88b7d")
+		(uuid "4fb1e9be-4708-40af-a933-e155134b0cdd")
+	)
+	(label "SDA"
+		(at 261.62 107.95 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "68008c6f-8554-4232-8676-043a5f152ad0")
+	)
+	(label "LEAK_A_RET"
+		(at 261.62 88.9 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6a9d2b87-915e-4a21-bf26-216abbfbf68b")
+	)
+	(label "BUZZ"
+		(at 261.62 111.76 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "6d2be8e4-2fd1-48fc-8c99-82fa9025771e")
 	)
 	(label "SDA"
 		(at 44.45 166.37 0)
@@ -4818,15 +5344,15 @@
 		)
 		(uuid "7a4cfdc3-2749-4273-b080-f21d5ca1a7be")
 	)
-	(label "SDA"
-		(at 261.62 107.95 0)
+	(label "BUZZER-"
+		(at 124.46 152.4 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "8c06cc13-5e18-4ca4-88cd-192b441367da")
+		(uuid "89f89cdc-3062-565c-b105-d64b66ae7c37")
 	)
 	(label "SWDCLK"
 		(at 119.38 48.26 270)
@@ -4848,37 +5374,27 @@
 		)
 		(uuid "9fd1d9d9-c422-4101-923b-bce7447d2b32")
 	)
-	(label "SIREN"
-		(at 104.14 175.26 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "a568a698-8149-4b7f-84f4-4f360a97de06")
-	)
-	(label "LEAK_DRIVE"
-		(at 134.62 86.36 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "b87c5e30-4c0f-4543-9588-61bb3edaadfd")
-	)
-	(label "SCL"
-		(at 261.62 115.57 0)
+	(label "LEAK_B_RET"
+		(at 261.62 92.71 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "c17c21be-e3e9-4031-8408-0e0f113a47a1")
+		(uuid "a1cb2a60-698f-4aef-9e96-a3f6b30aa003")
 	)
-	(label "LEAK_DRIVE"
+	(label "LEAK_B"
+		(at 261.62 85.09 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c1dcc97b-2a82-406e-8e5f-47e5764b544d")
+	)
+	(label "LEAK_A"
 		(at 71.12 85.09 0)
 		(effects
 			(font
@@ -4898,27 +5414,17 @@
 		)
 		(uuid "caa8440e-da8a-4228-bac9-3db6038a7683")
 	)
-	(label "BUZZER-"
-		(at 134.62 99.06 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "cca6026a-fc1c-4b56-8c90-b3a4e8188b1d")
-	)
-	(label "BUZZER-"
-		(at 128.27 170.18 0)
+	(label "LEAK_B_RET"
+		(at 71.12 118.11 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "d8122a30-3525-4c92-a79d-5b73bcb43908")
+		(uuid "d046f735-1392-5829-95a9-eb058cd63095")
 	)
-	(label "LEAK_SENSE"
+	(label "LEAK_B"
 		(at 71.12 110.49 0)
 		(effects
 			(font
@@ -4927,6 +5433,16 @@
 			(justify left bottom)
 		)
 		(uuid "dbcf4523-998f-4fcb-913b-cd42135c4210")
+	)
+	(label "ELEC_B"
+		(at 38.1 110.49 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "dd7e9bde-96e3-5c03-a946-d968d38496b9")
 	)
 	(label "XL2"
 		(at 223.52 130.81 270)
@@ -4938,15 +5454,25 @@
 		)
 		(uuid "e3f9e03e-3aa7-43ad-9418-4f22d3173c6d")
 	)
-	(label "LEAK_SENSE"
-		(at 215.9 130.81 270)
+	(label "SCL"
+		(at 261.62 115.57 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
-		(uuid "f75f0bb5-3b97-4142-85a1-236e96696eb4")
+		(uuid "eb8d93e7-0007-4c96-8a8c-86f85a848f71")
+	)
+	(label "LEAK_A_RET"
+		(at 71.12 92.71 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f7c183a6-32df-5c52-8884-a8e8a22c8601")
 	)
 	(label "SWDIO"
 		(at 116.84 48.26 270)
@@ -4959,9 +5485,8 @@
 		(uuid "fa88f813-5744-4351-a252-572a4a123331")
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 266.7 157.48 0)
-		(mirror y)
+		(lib_id "power:VDD")
+		(at 104.14 140.97 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4969,10 +5494,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "0370f2ea-4ee4-4f65-9bff-11debae2b07b")
-		(property "Reference" "#PWR047"
-			(at 266.7 163.83 0)
+		(uuid "0322aaa0-219b-50c0-b176-5874b2508507")
+		(property "Reference" "#PWR026"
+			(at 104.14 144.78 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4982,8 +5506,8 @@
 				)
 			)
 		)
-		(property "Value" "GND"
-			(at 266.7 162.56 0)
+		(property "Value" "VDD"
+			(at 104.14 135.89 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4993,7 +5517,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 266.7 157.48 0)
+			(at 104.14 140.97 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5004,7 +5528,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 266.7 157.48 0)
+			(at 104.14 140.97 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5014,8 +5538,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 266.7 157.48 0)
+		(property "Description" "Power symbol creates a global label with name \"VDD\""
+			(at 104.14 140.97 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5026,12 +5550,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "dc3db0bf-65df-424a-96ed-487d18abdec0")
+			(uuid "06e17041-0141-576a-999a-b3c306654b7d")
 		)
 		(instances
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "#PWR047")
+					(reference "#PWR026")
 					(unit 1)
 				)
 			)
@@ -5039,7 +5563,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 247.65 157.48 0)
+		(at 109.22 170.18 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5047,10 +5571,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "05336fb2-7491-4b97-a298-e928d4742d06")
-		(property "Reference" "#PWR049"
-			(at 247.65 163.83 0)
+		(uuid "04dd77db-e50a-5235-ad1a-79741b5eb6e6")
+		(property "Reference" "#PWR028"
+			(at 109.22 176.53 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5061,7 +5584,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 247.65 162.56 0)
+			(at 109.22 173.99 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5071,7 +5594,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 247.65 157.48 0)
+			(at 109.22 170.18 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5082,7 +5605,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 247.65 157.48 0)
+			(at 109.22 170.18 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5092,86 +5615,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 247.65 157.48 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "a5773a59-7012-41b6-99a2-df8a005bc524")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "#PWR049")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 115.57 186.69 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "053792b4-9801-4124-bad5-dea25bcdf69f")
-		(property "Reference" "#PWR015"
-			(at 115.57 193.04 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 115.57 191.77 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 115.57 186.69 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 115.57 186.69 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 115.57 186.69 0)
+		(property "Description" "Power symbol creates a global label with name \"GND\""
+			(at 109.22 170.18 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5182,12 +5627,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "5dd5f125-7c8d-47bb-92ed-2dac01af3c06")
+			(uuid "4ca56e1f-2af4-59a7-965b-ac6327f76fe1")
 		)
 		(instances
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "#PWR015")
+					(reference "#PWR028")
 					(unit 1)
 				)
 			)
@@ -5195,40 +5640,39 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 107.95 146.05 0)
+		(at 139.7 135.89 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "07ba5800-7852-407b-9dd4-626c18c940fe")
-		(property "Reference" "C2"
-			(at 111.76 144.7799 0)
+		(dnp yes)
+		(uuid "0c8795d5-4370-56dc-abef-8fbf6092f80b")
+		(property "Reference" "C3"
+			(at 137.16 134.62 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
-		(property "Value" "10μF"
-			(at 111.76 147.3199 0)
+		(property "Value" "100μF"
+			(at 137.16 137.16 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
+				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 108.9152 149.86 0)
+		(property "Footprint" "LeakSensor:C_1206_3216Metric_NoSilk"
+			(at 139.7 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5239,7 +5683,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 107.95 146.05 0)
+			(at 139.7 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5249,8 +5693,8 @@
 				)
 			)
 		)
-		(property "Description" "Unpolarized capacitor"
-			(at 107.95 146.05 0)
+		(property "Description" "Optional reservoir for BZ1, on the back; not fitted"
+			(at 139.7 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5259,50 +5703,17 @@
 					(size 1.27 1.27)
 				)
 			)
-		)
-		(property "Part Number" "CL10A106KP8NNNC"
-			(at 107.95 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer" "Samsung Electro-Mechanics"
-			(at 107.95 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 107.95 146.05 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "a2555e67-ba6c-4b04-b040-c77ad3257da1")
 		)
 		(pin "1"
-			(uuid "aca52b84-b875-4107-9989-68a267063f80")
+			(uuid "9df97417-06c7-54f0-86d3-7c8bf1008f8e")
+		)
+		(pin "2"
+			(uuid "83d1bd61-c389-568a-90b0-6618edb3cc32")
 		)
 		(instances
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "C2")
+					(reference "C3")
 					(unit 1)
 				)
 			)
@@ -5609,7 +6020,7 @@
 				)
 			)
 		)
-		(property "Value" "6mmMetalDome"
+		(property "Value" "4mmMetalDome"
 			(at 24.13 80.01 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5619,7 +6030,7 @@
 				)
 			)
 		)
-		(property "Footprint" "MetalDomeSwitch:TriangleDome_Diameter6mm"
+		(property "Footprint" "MetalDomeSwitch:TriangleDome_Diameter4mm"
 			(at 24.13 80.01 0)
 			(hide yes)
 			(show_name no)
@@ -5652,7 +6063,7 @@
 				)
 			)
 		)
-		(property "Part Number" "Triangle 6mm - 0.8mm feet"
+		(property "Part Number" "4 mm metal dome, part TBD"
 			(at 24.13 85.09 0)
 			(hide yes)
 			(show_name no)
@@ -5695,327 +6106,6 @@
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
 					(reference "P1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Mechanical:MountingHole_Pad")
-		(at 266.7 154.94 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "23581c7e-eb27-4e54-9536-573fe04d7564")
-		(property "Reference" "H2"
-			(at 269.24 153.6699 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "MountingHole"
-			(at 269.24 156.2099 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "MountingHoleCompact:MountingHole_M1.2_1.3mm_Plated"
-			(at 266.7 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 266.7 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Mounting Hole with connection"
-			(at 266.7 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Availability" ""
-			(at 266.7 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 266.7 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 266.7 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 266.7 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 266.7 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 266.7 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "322c4640-8eed-47ca-b2f1-a51bb53d023e")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "H2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 104.14 80.01 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "37d20f2b-af83-4e00-8ed7-85bb71d745fa")
-		(property "Reference" "TP1"
-			(at 108.839 78.994 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "VDD"
-			(at 108.839 81.534 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 104.14 85.09 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 104.14 85.09 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "test point"
-			(at 104.14 80.01 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Availability" ""
-			(at 104.14 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Color" ""
-			(at 104.14 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 104.14 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guidance" ""
-			(at 104.14 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guideline" ""
-			(at 104.14 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 104.14 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 104.14 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 104.14 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 104.14 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "ead25362-3afd-49d7-b2e8-19230939fd74")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "TP1")
 					(unit 1)
 				)
 			)
@@ -6904,8 +6994,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:VDD")
-		(at 104.14 80.01 0)
+		(lib_id "Device:R")
+		(at 63.5 88.9 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6913,30 +7003,32 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "6e4819a5-71e4-4fcb-bf0a-bc76eabc86fe")
-		(property "Reference" "#PWR021"
-			(at 104.14 83.82 0)
-			(hide yes)
+		(fields_autoplaced yes)
+		(uuid "69fb7054-8998-5c10-81df-33b6978cd966")
+		(property "Reference" "R3"
+			(at 66.04 87.6299 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
-		(property "Value" "VDD"
-			(at 100.838 80.01 0)
+		(property "Value" "1MΩ"
+			(at 66.04 90.1699 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
-		(property "Footprint" ""
-			(at 104.14 80.01 0)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 61.722 88.9 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6947,7 +7039,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 104.14 80.01 0)
+			(at 63.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6957,8 +7049,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \"VDD\""
-			(at 104.14 80.01 0)
+		(property "Description" "Weak pull-down resistor for leak sense input"
+			(at 63.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6968,53 +7060,8 @@
 				)
 			)
 		)
-		(pin "1"
-			(uuid "a2a06410-5cb3-40c2-86af-f349badcf310")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "#PWR021")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 104.14 92.71 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "770170f4-5910-4670-87e1-2800641552dc")
-		(property "Reference" "TP5"
-			(at 108.839 91.694 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "SDA"
-			(at 108.839 94.234 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 104.14 97.79 0)
+		(property "Part Number" "RC0402FR-071ML"
+			(at 63.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7024,19 +7071,8 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
-			(at 104.14 97.79 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "test point"
-			(at 104.14 92.71 0)
+		(property "Manufacturer" "YAGEO"
+			(at 63.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7047,7 +7083,7 @@
 			)
 		)
 		(property "Availability" ""
-			(at 104.14 92.71 90)
+			(at 63.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7058,7 +7094,7 @@
 			)
 		)
 		(property "Color" ""
-			(at 104.14 92.71 90)
+			(at 63.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7069,7 +7105,7 @@
 			)
 		)
 		(property "Description_1" ""
-			(at 104.14 92.71 90)
+			(at 63.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7080,7 +7116,7 @@
 			)
 		)
 		(property "Design Guidance" ""
-			(at 104.14 92.71 90)
+			(at 63.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7091,7 +7127,7 @@
 			)
 		)
 		(property "Design Guideline" ""
-			(at 104.14 92.71 90)
+			(at 63.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7102,7 +7138,7 @@
 			)
 		)
 		(property "MP" ""
-			(at 104.14 92.71 90)
+			(at 63.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7113,7 +7149,7 @@
 			)
 		)
 		(property "Package" ""
-			(at 104.14 92.71 90)
+			(at 63.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7124,7 +7160,7 @@
 			)
 		)
 		(property "Price" ""
-			(at 104.14 92.71 90)
+			(at 63.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7135,7 +7171,7 @@
 			)
 		)
 		(property "Manufacturer_Name" ""
-			(at 104.14 92.71 90)
+			(at 63.5 88.9 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7146,371 +7182,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "42d3cc94-020c-4484-95e7-8cefb14126fd")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "TP5")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Mechanical:MountingHole_Pad")
-		(at 247.65 154.94 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "780ee6da-1196-4b68-a36b-e5d6730f5844")
-		(property "Reference" "H1"
-			(at 250.19 152.3999 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "MountingHole"
-			(at 250.19 154.9399 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "MountingHoleCompact:MountingHole_M1.2_1.3mm_Plated"
-			(at 247.65 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 247.65 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Mounting Hole with connection"
-			(at 247.65 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Availability" ""
-			(at 247.65 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 247.65 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 247.65 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 247.65 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 247.65 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Part_Number" ""
-			(at 247.65 154.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "0339df0b-fe64-46b9-b983-e61676dc64c6")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "H1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:Buzzer")
-		(at 130.81 163.83 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "78d5558f-7e12-4c29-9e6f-e6abb6b925cf")
-		(property "Reference" "BZ1"
-			(at 134.62 162.5599 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "AST0827MW-03BTRQ"
-			(at 134.62 165.0999 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "AST0827MW-03BTRQ:AST0827MW-03BTRQ_MAL"
-			(at 130.175 161.29 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.mspindy.com/spec-sheets/AST0827MW-03BTRQ.pdf"
-			(at 130.175 161.29 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Buzzer, polarized"
-			(at 130.81 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part Number" "AST0827MW-03BTRQ"
-			(at 130.81 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer" "Mallory Sonalert Products Inc."
-			(at 130.81 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Technical Guide" "https://mspindy.com/technical-guides/transducers-external-drive-electromagnetic/"
-			(at 130.81 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Availability" ""
-			(at 130.81 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Color" ""
-			(at 130.81 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 130.81 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guidance" ""
-			(at 130.81 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guideline" ""
-			(at 130.81 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 130.81 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 130.81 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 130.81 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 130.81 163.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "dd3aa6f3-267d-4ddc-b364-b6184879586d")
+			(uuid "3788d53a-c929-5d34-bdc5-6371580248bc")
 		)
 		(pin "2"
-			(uuid "3de7c64d-92b3-483f-baaf-fac6e487de45")
+			(uuid "2223e88b-e9c0-52f6-9025-51133eec87bf")
 		)
 		(instances
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "BZ1")
+					(reference "R3")
 					(unit 1)
 				)
 			)
@@ -7595,40 +7275,39 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 134.62 80.01 270)
+		(lib_id "power:GND")
+		(at 146.05 133.35 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "7d60487e-c96c-44f7-be85-96f1e159131a")
-		(property "Reference" "TP7"
-			(at 139.319 78.994 90)
+		(uuid "7e95d0d8-0cbd-5d09-94d8-f69b1944db46")
+		(property "Reference" "#PWR029"
+			(at 146.05 139.7 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
-		(property "Value" "SIREN"
-			(at 139.319 81.534 90)
+		(property "Value" "GND"
+			(at 146.05 137.16 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 134.62 85.09 0)
+		(property "Footprint" ""
+			(at 146.05 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7639,7 +7318,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 134.62 85.09 0)
+			(at 146.05 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7649,107 +7328,8 @@
 				)
 			)
 		)
-		(property "Description" "test point"
-			(at 134.62 80.01 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Availability" ""
-			(at 134.62 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Color" ""
-			(at 134.62 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 134.62 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guidance" ""
-			(at 134.62 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guideline" ""
-			(at 134.62 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 134.62 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 134.62 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 134.62 80.01 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 134.62 80.01 90)
+		(property "Description" "Power symbol creates a global label with name \"GND\""
+			(at 146.05 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7760,189 +7340,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "507b5d0f-4c5e-4994-863c-0e0a9931c0df")
+			(uuid "d7311eb6-9b1f-511e-9f6e-5209dce1c4a1")
 		)
 		(instances
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "TP7")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 104.14 99.06 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "7d8c2fca-eb9e-45eb-8298-21f0fecaeb8f")
-		(property "Reference" "TP6"
-			(at 108.839 98.044 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "SCL"
-			(at 108.839 100.584 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 104.14 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 104.14 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "test point"
-			(at 104.14 99.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Availability" ""
-			(at 104.14 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Color" ""
-			(at 104.14 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 104.14 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guidance" ""
-			(at 104.14 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guideline" ""
-			(at 104.14 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 104.14 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 104.14 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 104.14 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 104.14 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "8444f505-6d83-410e-8059-041664355c86")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "TP6")
+					(reference "#PWR029")
 					(unit 1)
 				)
 			)
@@ -8094,7 +7497,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_1.27mm:PinHeader_2x05_P1.27mm_Vertical_SMD"
+		(property "Footprint" "LeakSensor:SWD_2x05_P1.27mm_HeaderOrPogo"
 			(at 116.84 35.56 0)
 			(hide yes)
 			(show_name no)
@@ -8278,260 +7681,6 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 104.14 86.36 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "83482306-a5d6-44c5-9b89-b32860123fb9")
-		(property "Reference" "#PWR027"
-			(at 104.14 92.71 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 100.838 86.36 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 104.14 86.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 104.14 86.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 104.14 86.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "d898e73f-89dd-4123-b6a6-7129325638bf")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "#PWR027")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 134.62 99.06 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "858a6789-dbf8-4d57-8f59-d995967c9a76")
-		(property "Reference" "TP10"
-			(at 139.319 98.044 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "BUZZER"
-			(at 139.319 100.584 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 134.62 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 134.62 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "test point"
-			(at 134.62 99.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Availability" ""
-			(at 134.62 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Color" ""
-			(at 134.62 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 134.62 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guidance" ""
-			(at 134.62 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guideline" ""
-			(at 134.62 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 134.62 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 134.62 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 134.62 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 134.62 99.06 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "1ec7fdca-0e25-4157-a720-e50348846a83")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "TP10")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
 		(at 34.29 171.45 0)
 		(unit 1)
 		(body_style 1)
@@ -8603,6 +7752,109 @@
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
 					(reference "#PWR09")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:Buzzer")
+		(at 127 147.32 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "8c4c42aa-bfbb-567f-9658-da245c4eb34c")
+		(property "Reference" "BZ1"
+			(at 130.81 146.05 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "CMT-5023S-SMT"
+			(at 130.81 148.59 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "LeakSensor:Buzzer_CUI_CMT-5023S-SMT"
+			(at 127 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.sameskydevices.com/product/resource/cmt-5023s-smt-tr.pdf"
+			(at 127 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Magnetic buzzer, 5 x 5 x 2 mm, 3 V, 4 kHz, 110 mA, 80 dB at 10 cm"
+			(at 127 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part Number" "CMT-5023S-SMT-TR"
+			(at 127 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Same Sky"
+			(at 127 147.32 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "431520d9-0d53-5704-8700-179ac8450046")
+		)
+		(pin "2"
+			(uuid "52f3c61a-7134-5298-9ee7-781745e6667b")
+		)
+		(instances
+			(project "BL54L15μ_LeakSensor"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "BZ1")
 					(unit 1)
 				)
 			)
@@ -8697,7 +7949,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9021e426-6673-4cda-8a66-157c57433174")
-		(property "Reference" "R3"
+		(property "Reference" "R4"
 			(at 66.04 113.0299 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8882,7 +8134,7 @@
 		(instances
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "R3")
+					(reference "R4")
 					(unit 1)
 				)
 			)
@@ -8890,7 +8142,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 63.5 118.11 0)
+		(at 124.46 167.64 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8898,10 +8150,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "92761252-6d75-4a7e-bed4-c5ccb571f08c")
-		(property "Reference" "#PWR08"
-			(at 63.5 124.46 0)
+		(uuid "91cd7498-d5c0-50a3-846e-b90195a05d5e")
+		(property "Reference" "#PWR027"
+			(at 124.46 173.99 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8912,7 +8163,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 63.5 123.19 0)
+			(at 124.46 171.45 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8922,7 +8173,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 63.5 118.11 0)
+			(at 124.46 167.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8933,7 +8184,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 63.5 118.11 0)
+			(at 124.46 167.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8943,8 +8194,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 63.5 118.11 0)
+		(property "Description" "Power symbol creates a global label with name \"GND\""
+			(at 124.46 167.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8955,12 +8206,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "28e884ea-891a-4c75-90a0-5a8b42fee4e7")
+			(uuid "85a8571c-991e-5a5e-9bd1-f13e18e242b5")
 		)
 		(instances
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "#PWR08")
+					(reference "#PWR027")
 					(unit 1)
 				)
 			)
@@ -8988,7 +8239,7 @@
 				)
 			)
 		)
-		(property "Value" "6mmMetalDome"
+		(property "Value" "4mmMetalDome"
 			(at 24.13 105.41 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8998,7 +8249,7 @@
 				)
 			)
 		)
-		(property "Footprint" "MetalDomeSwitch:TriangleDome_Diameter6mm"
+		(property "Footprint" "MetalDomeSwitch:TriangleDome_Diameter4mm"
 			(at 24.13 105.41 0)
 			(hide yes)
 			(show_name no)
@@ -9031,7 +8282,7 @@
 				)
 			)
 		)
-		(property "Part Number" "Triangle 6mm - 0.8mm feet"
+		(property "Part Number" "4 mm metal dome, part TBD"
 			(at 24.13 110.49 0)
 			(hide yes)
 			(show_name no)
@@ -9074,231 +8325,6 @@
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
 					(reference "P2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:D")
-		(at 110.49 162.56 90)
-		(mirror x)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "a75300e4-ab1a-4e66-8d8e-75054412fa26")
-		(property "Reference" "D3"
-			(at 107.95 160.9724 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "MBR0520L"
-			(at 107.95 163.5124 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Diode_SMD:D_SOD-123"
-			(at 110.49 162.56 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.onsemi.com/pdf/datasheet/mbr0520lt1-d.pdf"
-			(at 110.49 162.56 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Diode"
-			(at 110.49 162.56 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part Number" "MBR0520LT3G"
-			(at 110.49 162.56 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer" "onsemi"
-			(at 110.49 162.56 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Availability" ""
-			(at 110.49 162.56 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Color" ""
-			(at 110.49 162.56 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 110.49 162.56 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guidance" ""
-			(at 110.49 162.56 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guideline" ""
-			(at 110.49 162.56 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 110.49 162.56 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 110.49 162.56 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 110.49 162.56 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 110.49 162.56 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Device" "D"
-			(at 110.49 162.56 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Pins" "1=K 2=A"
-			(at 110.49 162.56 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "e2e37225-4e27-4d0d-b295-49192dde1e5a")
-		)
-		(pin "2"
-			(uuid "b9ce0368-0dc9-4485-aaa8-2035e4bf88f5")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "D3")
 					(unit 1)
 				)
 			)
@@ -9982,7 +9008,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "af5e60e2-de72-410a-8332-0252455337f6")
-		(property "Reference" "C3"
+		(property "Reference" "C2"
 			(at 204.47 142.2399 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10079,25 +9105,25 @@
 		(instances
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "C3")
+					(reference "C2")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 134.62 92.71 270)
+		(lib_id "Transistor_FET:DMG1012T")
+		(at 121.92 160.02 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
-		(in_bom no)
+		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "b46f7bc7-bbf9-484b-877d-c12050e4ec5f")
-		(property "Reference" "TP9"
-			(at 139.319 91.694 90)
+		(uuid "b4a9e217-0aee-5165-8a60-8b92131cf3ff")
+		(property "Reference" "Q1"
+			(at 127 158.75 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10107,8 +9133,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "LEAK_SENSE"
-			(at 139.319 94.234 90)
+		(property "Value" "DMN2004TK"
+			(at 127 161.29 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10118,8 +9144,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 134.62 97.79 0)
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-523"
+			(at 121.92 160.02 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10129,8 +9155,8 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
-			(at 134.62 97.79 0)
+		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/ds30936.pdf"
+			(at 121.92 160.02 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10140,8 +9166,8 @@
 				)
 			)
 		)
-		(property "Description" "test point"
-			(at 134.62 92.71 0)
+		(property "Description" "Buzzer switch: 20 V, 0.54 A N-channel MOSFET, SOT-523"
+			(at 121.92 160.02 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10151,8 +9177,8 @@
 				)
 			)
 		)
-		(property "Availability" ""
-			(at 134.62 92.71 90)
+		(property "Part Number" "DMN2004TK-7"
+			(at 121.92 160.02 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10162,85 +9188,8 @@
 				)
 			)
 		)
-		(property "Color" ""
-			(at 134.62 92.71 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 134.62 92.71 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guidance" ""
-			(at 134.62 92.71 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guideline" ""
-			(at 134.62 92.71 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 134.62 92.71 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 134.62 92.71 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 134.62 92.71 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 134.62 92.71 90)
+		(property "Manufacturer" "Diodes Incorporated"
+			(at 121.92 160.02 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10251,12 +9200,18 @@
 			)
 		)
 		(pin "1"
-			(uuid "cac08ec9-0450-4e3f-b970-96b33f515c76")
+			(uuid "0c2a84b5-dce1-5bb9-9c4f-c863eeaea8c0")
+		)
+		(pin "2"
+			(uuid "7a0974a8-b6d9-5d79-bd22-59b1b5d49eef")
+		)
+		(pin "3"
+			(uuid "0b6e9b9e-2cb2-5b6d-ac9b-ef3bdbc05919")
 		)
 		(instances
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "TP9")
+					(reference "Q1")
 					(unit 1)
 				)
 			)
@@ -10342,183 +9297,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 134.62 86.36 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "c4040d4a-39a5-4ca0-a50a-61a1550e15d2")
-		(property "Reference" "TP8"
-			(at 139.319 85.344 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "LEAK_DRIVE"
-			(at 139.319 87.884 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 134.62 91.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 134.62 91.44 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "test point"
-			(at 134.62 86.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Availability" ""
-			(at 134.62 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Color" ""
-			(at 134.62 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 134.62 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guidance" ""
-			(at 134.62 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guideline" ""
-			(at 134.62 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 134.62 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 134.62 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 134.62 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 134.62 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "dfcd5329-de5d-4669-b3e0-570dd20e035c")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "TP8")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Sensor_Humidity:SHT4x")
 		(at 36.83 163.83 0)
 		(mirror y)
@@ -10587,7 +9365,7 @@
 				)
 			)
 		)
-		(property "Part Number" "SHT45-AD1F-R2"
+		(property "Part Number" "SHT40-AD1F-R2"
 			(at 36.83 163.83 0)
 			(hide yes)
 			(show_name no)
@@ -10675,7 +9453,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "1011:BAT_1011"
+		(property "Footprint" "LeakSensor:CR2_WirePads_D2.0mm_P2.5mm"
 			(at 46.99 36.576 90)
 			(hide yes)
 			(show_name no)
@@ -10708,7 +9486,7 @@
 				)
 			)
 		)
-		(property "Part Number" "1011"
+		(property "Part Number" ""
 			(at 46.99 38.1 0)
 			(hide yes)
 			(show_name no)
@@ -10752,7 +9530,7 @@
 				)
 			)
 		)
-		(property "Manufacturer" "Keystone Electronics"
+		(property "Manufacturer" ""
 			(at 46.99 38.1 0)
 			(hide yes)
 			(show_name no)
@@ -10878,210 +9656,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R")
-		(at 111.76 179.07 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "d0c74920-91e1-4fdc-96f8-6e304bb9b457")
-		(property "Reference" "R7"
-			(at 109.22 177.7999 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "1MΩ"
-			(at 109.22 180.3399 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 109.982 179.07 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 111.76 179.07 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Weak pull-down resistor for N-FET gate"
-			(at 111.76 179.07 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part Number" "RC0402FR-071ML"
-			(at 111.76 179.07 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer" "YAGEO"
-			(at 111.76 179.07 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Availability" ""
-			(at 111.76 179.07 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Color" ""
-			(at 111.76 179.07 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 111.76 179.07 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guidance" ""
-			(at 111.76 179.07 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guideline" ""
-			(at 111.76 179.07 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 111.76 179.07 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 111.76 179.07 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 111.76 179.07 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 111.76 179.07 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "d40f2fa7-80a4-4ed4-9e79-32ee53dadffa")
-		)
-		(pin "1"
-			(uuid "d15bac5a-143d-4a4b-ad56-549db90f7761")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "R7")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 104.14 86.36 270)
+		(lib_id "Jumper:SolderJumper_2_Bridged")
+		(at 111.76 142.24 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -11089,31 +9665,29 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d36ede12-158c-4044-8924-68030145b94c")
-		(property "Reference" "TP2"
-			(at 108.839 85.344 90)
+		(uuid "ce030b8d-effc-53ca-97fb-6a15d7d82e2a")
+		(property "Reference" "JP1"
+			(at 111.76 138.684 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
-		(property "Value" "GND"
-			(at 108.839 87.884 90)
+		(property "Value" "Bridged"
+			(at 111.76 136.652 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_1.0x1.0mm"
-			(at 104.14 91.44 0)
+		(property "Footprint" "LeakSensor:R_0402_Bridged"
+			(at 111.76 142.24 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11124,7 +9698,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 104.14 91.44 0)
+			(at 111.76 142.24 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11134,107 +9708,8 @@
 				)
 			)
 		)
-		(property "Description" "test point"
-			(at 104.14 86.36 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Availability" ""
-			(at 104.14 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Color" ""
-			(at 104.14 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 104.14 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guidance" ""
-			(at 104.14 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guideline" ""
-			(at 104.14 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 104.14 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 104.14 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 104.14 86.36 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 104.14 86.36 90)
+		(property "Description" "Copper bridge on the back; cut it to fit a resistor in series with BZ1"
+			(at 111.76 142.24 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11245,12 +9720,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "918c532a-9a8f-4f1a-9e70-49d50706bea7")
+			(uuid "1066f289-7008-5280-82f7-56c7dff61641")
+		)
+		(pin "2"
+			(uuid "4f23a01a-d694-5532-b20b-7b439848f413")
 		)
 		(instances
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "TP2")
+					(reference "JP1")
 					(unit 1)
 				)
 			)
@@ -11335,6 +9813,109 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 109.22 163.83 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "e42e491f-58f6-5e2c-87e3-e37f45ce1d0d")
+		(property "Reference" "R7"
+			(at 111.76 162.56 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1MΩ"
+			(at 111.76 165.1 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 109.22 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 109.22 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Holds Q1 off while P1.11 floats"
+			(at 109.22 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Part Number" "RC0402FR-071ML"
+			(at 109.22 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "YAGEO"
+			(at 109.22 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "230a730c-6abf-50b9-a3e3-24d45a439de8")
+		)
+		(pin "2"
+			(uuid "3db89383-3bc0-50d7-b811-0421cd6be20a")
+		)
+		(instances
+			(project "BL54L15μ_LeakSensor"
+				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
+					(reference "R7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 194.31 130.81 0)
 		(unit 1)
@@ -11413,8 +9994,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 107.95 149.86 0)
+		(lib_id "Device:D")
+		(at 116.84 147.32 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -11422,31 +10003,31 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "ef41e868-af94-4621-a98d-48afdc423247")
-		(property "Reference" "#PWR016"
-			(at 107.95 156.21 0)
-			(hide yes)
+		(uuid "f3245675-33f0-5bd9-a035-7783fdb21bf7")
+		(property "Reference" "D3"
+			(at 114.3 146.05 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
-		(property "Value" "GND"
-			(at 107.95 154.94 0)
+		(property "Value" "DLLFSD01T"
+			(at 114.3 148.59 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
-		(property "Footprint" ""
-			(at 107.95 149.86 0)
+		(property "Footprint" "Diode_SMD:D_SOD-523"
+			(at 116.84 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11457,7 +10038,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 107.95 149.86 0)
+			(at 116.84 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11467,8 +10048,8 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 107.95 149.86 0)
+		(property "Description" "Flyback diode across BZ1's coil"
+			(at 116.84 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11478,32 +10059,8 @@
 				)
 			)
 		)
-		(pin "1"
-			(uuid "3316615e-f91f-4cb0-96d3-daa4f96896ba")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "#PWR016")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:VDD")
-		(at 107.95 142.24 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "fa702ef5-6f8b-4476-b1d4-3d7a826019c3")
-		(property "Reference" "#PWR014"
-			(at 107.95 146.05 0)
+		(property "Part Number" "DLLFSD01T-7"
+			(at 116.84 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11513,40 +10070,8 @@
 				)
 			)
 		)
-		(property "Value" "VDD"
-			(at 107.95 137.16 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 107.95 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 107.95 142.24 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VDD\""
-			(at 107.95 142.24 0)
+		(property "Manufacturer" "Diodes Incorporated"
+			(at 116.84 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11557,12 +10082,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "eee42535-1f44-4883-b1df-ec9ef8291852")
+			(uuid "d5114109-4127-59fd-aa57-3a495a0a69b4")
+		)
+		(pin "2"
+			(uuid "e939aa3f-aa8a-5838-979c-886391e44b66")
 		)
 		(instances
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "#PWR014")
+					(reference "D3")
 					(unit 1)
 				)
 			)
@@ -11766,245 +10294,6 @@
 			(project "BL54L15μ_LeakSensor"
 				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
 					(reference "D1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Simulation_SPICE:NMOS")
-		(at 116.84 175.26 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "fb7fab60-07ce-4d35-b62f-7a08d2d498dc")
-		(property "Reference" "Q1"
-			(at 123.19 173.9899 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "AOSS32136C"
-			(at 123.19 176.5299 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-3"
-			(at 121.92 172.72 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" "https://www.aosmd.com/res/datasheets/AOSS32136C.pdf"
-			(at 116.84 187.96 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "N-MOSFET transistor, drain/source/gate"
-			(at 116.84 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Device" "NMOS"
-			(at 116.84 192.405 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Type" "VDMOS"
-			(at 116.84 194.31 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Sim.Pins" "1=D 2=G 3=S"
-			(at 116.84 190.5 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part Number" "AOSS32136C"
-			(at 116.84 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer" "Alpha & Omega Semiconductor Inc."
-			(at 116.84 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Availability" ""
-			(at 116.84 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Color" ""
-			(at 116.84 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description_1" ""
-			(at 116.84 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guidance" ""
-			(at 116.84 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Design Guideline" ""
-			(at 116.84 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MP" ""
-			(at 116.84 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Package" ""
-			(at 116.84 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Price" ""
-			(at 116.84 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Manufacturer_Name" ""
-			(at 116.84 175.26 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "60035678-5a6d-4691-a460-fe06167340fb")
-		)
-		(pin "3"
-			(uuid "65a97a23-f48a-4eab-b2b5-df0ebdde23bb")
-		)
-		(pin "2"
-			(uuid "bd73ef0d-057b-494e-b4d3-644843243103")
-		)
-		(instances
-			(project "BL54L15μ_LeakSensor"
-				(path "/07e487b9-2d90-4597-98c9-db7d4604c3e4"
-					(reference "Q1")
 					(unit 1)
 				)
 			)

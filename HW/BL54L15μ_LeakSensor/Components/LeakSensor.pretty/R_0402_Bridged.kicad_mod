@@ -1,0 +1,92 @@
+(footprint "R_0402_Bridged"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "0402 resistor pads joined by a 0.2 mm copper bridge under a mask opening: cut the bridge to fit a resistor")
+	(tags "net tie solder jumper bridged resistor")
+	(property "Reference" "REF**"
+		(at 0 -1.1 0)
+		(layer "F.SilkS")
+		(uuid "cc1dab54-b1d6-5d3d-bbad-9856ffa1fcaf")
+		(effects
+			(font
+				(size 0.75 0.75)
+				(thickness 0.13)
+			)
+		)
+	)
+	(property "Value" "R_0402_Bridged"
+		(at 0 1.2 0)
+		(layer "F.Fab")
+		(uuid "ec10101d-e171-5bd5-ae62-a3a88f0ef799")
+		(effects
+			(font
+				(size 0.5 0.5)
+				(thickness 0.08)
+			)
+		)
+	)
+	(attr exclude_from_pos_files exclude_from_bom allow_soldermask_bridges)
+	(net_tie_pad_groups "1, 2")
+	(fp_poly
+		(pts
+			(xy -0.3 -0.1) (xy 0.3 -0.1) (xy 0.3 0.1) (xy -0.3 0.1)
+		)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(fill yes)
+		(layer "F.Cu")
+		(uuid "c8353c95-443b-5399-a0af-3fc7248faa05")
+	)
+	(fp_rect
+		(start -0.24 -0.2)
+		(end 0.24 0.2)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(fill yes)
+		(layer "F.Mask")
+		(uuid "6bdc7d09-6a86-530b-9887-e64f1105b5df")
+	)
+	(fp_rect
+		(start -0.93 -0.47)
+		(end 0.93 0.47)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "e428dea6-9b3e-515c-8c11-c55b68e3f0b0")
+	)
+	(fp_rect
+		(start -0.525 -0.27)
+		(end 0.525 0.27)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "cb316ac1-3883-5d6a-8d5b-7ededf66e04f")
+	)
+	(pad "1" smd roundrect
+		(at -0.51 0)
+		(size 0.54 0.64)
+		(layers "F.Cu" "F.Mask")
+		(roundrect_rratio 0.25)
+		(uuid "a2af3e3b-749d-53a3-bee9-b7fe2c0800a6")
+	)
+	(pad "2" smd roundrect
+		(at 0.51 0)
+		(size 0.54 0.64)
+		(layers "F.Cu" "F.Mask")
+		(roundrect_rratio 0.25)
+		(uuid "223f84d8-2185-59ea-bbb0-a2463edb807a")
+	)
+	(embedded_fonts no)
+)
