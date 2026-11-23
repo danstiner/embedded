@@ -6678,8 +6678,8 @@
 			(layer "B.CrtYd")
 			(uuid "dad3665a-0eea-4c8c-9b99-78c00874b112")
 		)
-		(fp_text user "+"
-			(at 1.45 0 0)
+		(fp_text user "+3V"
+			(at 2.2606 0 0)
 			(layer "B.SilkS")
 			(uuid "13239a99-f18d-4657-87db-f48f79ab286c")
 			(effects
@@ -8447,6 +8447,7 @@
 	)
 	(zone
 		(net "GND")
+		(locked yes)
 		(layer "F.Cu")
 		(uuid "4f7d97c2-4f78-4ac3-b59f-ecf114d2c0da")
 		(name "GND top")
@@ -9035,6 +9036,7 @@
 	)
 	(zone
 		(net "GND")
+		(locked yes)
 		(layer "B.Cu")
 		(uuid "a3aea244-35d0-47eb-8f51-eb87e992a256")
 		(name "GND bottom")

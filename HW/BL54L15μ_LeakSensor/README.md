@@ -256,7 +256,7 @@ from the front (KiCad X = 100 + x, Y = 100 − y).
   of either pour farthest from a via is 4.8 mm away, inside the 5.3 mm (λ/8 at 2.4 GHz)
   used on the USB CO2 board (`Sim/layout.py`). Pads on the back have thermal reliefs for
   hand soldering.
-- **Silkscreen.** References at 0.75 mm beside their parts, + and − at BT1, and the
+- **Silkscreen.** References at 0.75 mm beside their parts, +3V and − at BT1, and the
   title, revision and company on the back.
 
 ### 5.7 Case
