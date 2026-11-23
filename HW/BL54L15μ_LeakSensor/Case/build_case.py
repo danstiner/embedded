@@ -15,7 +15,7 @@ P = dict(
     # board (README 5.6): 20 x 18, centered on the cell's axis; square top corners, a fully round bottom (R10)
     BoardW2=10.0, BoardTop=10.15, BoardBot=-7.85, BoardRT=0.0, BoardRC=10.0, BoardT=1.6,
     # body
-    Wall=2.2,            # side walls: room for the lid's rail and skirt
+    Wall=1.5,            # walls, sides and domes: 0.85 mm stays behind the track's groove (1.0 would leave 0.35)
     Floor=1.0, FloorGap=0.1, TopGap=0.15, LidT=1.2, Clear=0.15,
     TopR=1.0,            # the top's edges
     MaxOverhang=60,      # the bottom's curve gives way to a straight line here (degrees from vertical; 90: the full curve)
@@ -45,18 +45,20 @@ P = dict(
     VentW=1.0, VentH=2.0, VentZ=8.0, VentY=-1.75,   # slot width (along the case) and height; its center (sketch y, beside
                                                      # U1) and along the case (between BZ1 and the board's front lip)
     # slide-in lid after the hygrometer 2026v3's, its track turned inside out: the side walls run up to the lid's plate
-    # outside, and a tongue on the lid slides in a track inside each, its 45 degree ridge facing out into a groove in
-    # the wall. The lid slides on from the rear; its tongues stop against the front dome, which the plate covers (as
-    # part of the lid its curve would sweep through the walls), and it takes the rear dome's top
+    # outside, and a tongue under the plate runs just inside each wall, its 45 degree ridge facing out into a groove in
+    # the wall's inner face. The lid slides on from the rear and stops where the grooves end, behind the board (in
+    # front of it the tongues would meet the board's top corners); the plate covers the front dome (as part of the lid
+    # its curve would sweep through the walls), and the lid takes the rear dome's top
     SeamY=6.6,           # the tongues reach down to here (sketch y), as does the lid's share of the rear dome: just under
                          # the cell hold-downs, so they slide out over the dome's rim
+    TrackY0=2.6,         # where the grooves start: just behind the board slot's back lip
     RailT=0.8, RailV=0.6,                # tongue thickness; ridge depth (its flanks span 2 x RailV down from the plate)
     # fits as on 2026v3: faces that slide or bear are line to line; only the groove is cut 0.05 deeper (and 0.1 taller)
     # than the ridge, and the detent's notch 0.05 deeper than its bump
     GrooveC=0.05,
     BumpH=0.5, BumpZ=2.0, BumpY=5.0,     # 60 degree bump on each tongue: height, how far up from its foot, apex ahead of
                                          # the track's rear entry
-    NotchC=0.05, RampD=0.8,              # the wall's notch under the bump, behind a lead-in ramp RampD deep at the entry
+    NotchC=0.05, RampD=0.6,              # the wall's notch under the bump, behind a lead-in ramp RampD deep at the entry
     HoldW=4.0, HoldGap=0.1,   # ribs under the lid over the cell saddles: the board, not the cell, sets the bay's height
 )
 P['AxisZ'] = -P['BoardBot'] + P['FloorGap'] + P['Floor']
@@ -137,24 +139,37 @@ def u_dome(w2, zb, zt, rt, yc, ov=90, s=1, depth=None):
     return d.transformGeometry(m)
 
 
-def lid_space(c):
-    """The lid's share of the outer shape: everything above the walls' tops, a tongue inside each side wall between the
-    domes, and everything above the seam over the rear dome. c = 0 gives the lid; c = GrooveC the body's cut, whose
-    groove then clears the tongue's ridge by c at its apex (2c at its foot) and touches it everywhere else."""
-    xi, xr, zb, v, w = g('IW'), g('IW') + g('RailT'), g('Zb'), g('RailV'), g('OW') + 1
-    tongue = [(xi, g('SeamZ')), (xr, g('SeamZ')), (xr, zb - 2 * v - 2 * c), (xr + v + c, zb - v - c), (xr, zb), (xi, zb)]
-    parts = [box(-w, w, g('Ydome'), g('Yend') + 1, g('SeamZ'), g('Ztop') + 1)]
+def lid_space():
+    """The lid's share of the outer shape: everything above the walls' tops, and above the seam over the rear dome."""
+    w = g('OW') + 1
+    return box(-w, w, g('Yfo') - 1, g('Yend') + 1, g('Zb'), g('Ztop') + 1).fuse(
+        box(-w, w, g('Ydome'), g('Yend') + 1, g('SeamZ'), g('Ztop') + 1))
+
+
+def track(groove):
+    """Both tracks, from TrackY0 to the rear dome: the lid's tongues just inside the walls, ridges and all (groove = False),
+    or the walls' grooves, GrooveC deeper at the ridge's apex and 2 GrooveC lower at its foot, so only the upper flank
+    and the faces either side touch (groove = True)."""
+    xi, zb, v = g('IW'), g('Zb'), g('RailV')
+    if groove:
+        c = g('GrooveC')
+        sec = [(xi - 0.05, zb - 2 * v - 2 * c), (xi, zb - 2 * v - 2 * c), (xi + v + c, zb - v - c), (xi, zb), (xi - 0.05, zb)]
+    else:                                    # up into the plate: a tongue that stops at its underside breaks the fuse
+        sec = [(xi - g('RailT'), g('SeamZ')), (xi, g('SeamZ')), (xi, zb - 2 * v), (xi + v, zb - v), (xi, zb), (xi, zb + 0.5),
+               (xi - g('RailT'), zb + 0.5)]
+    y1 = g('Ydome') + (0 if groove else 2.5)  # the tongues run on into the rear dome's wall, so they join it in volume
+    out = []
     for sx in (-1, 1):
-        pts = [V(sx * x, g('Yf'), z) for x, z in tongue]
-        parts.append(Part.Face(Part.makePolygon(pts + [pts[0]])).extrude(V(0, g('Ydome') - g('Yf'), 0)))
-    return box(-w, w, g('Yfo') - 1, g('Yend') + 1, zb, g('Ztop') + 1).fuse(parts)
+        pts = [V(sx * x, g('TrackY0'), z) for x, z in sec]
+        out.append(Part.Face(Part.makePolygon(pts + [pts[0]])).extrude(V(0, y1 - g('TrackY0'), 0)))
+    return out[0].fuse(out[1])
 
 
 def detent(cut):
     """The 2026v3 detent turned inside out, both sides: a 60 degree bump on each tongue's face under the ridge, near its
     rear end (cut = False, for the lid), or the wall's notch over it, NotchC deeper, behind a lead-in ramp from the
     track's rear entry (cut = True), so the bump rides the wall only for the last few millimeters."""
-    xr, yb, t60 = g('IW') + g('RailT'), g('Ydome') - g('BumpY'), math.tan(math.radians(60))
+    xr, yb, t60 = g('IW'), g('Ydome') - g('BumpY'), math.tan(math.radians(60))
     if cut:
         hn = g('BumpH') + g('NotchC')
         sec = [(xr - 0.01, yb - hn * t60), (xr + hn, yb), (xr, yb + hn * t60), (xr + g('RampD'), g('Ydome') + 0.01),
@@ -244,12 +259,12 @@ for sx in (-1, 1):                                       # pin bores
     subs.append(cylZ(sx * g('PinX'), g('PinY'), g('PinD') / 2, -1, g('PinZ1')))
 vy = g('VentY')                                          # side vent
 subs.append(box(g('IW') - 1, g('OW') + 1, vy - g('VentW') / 2, vy + g('VentW') / 2, AZ + g('VentZ') - g('VentH') / 2, AZ + g('VentZ') + g('VentH') / 2))
-subs += [lid_space(g('GrooveC')), detent(True)]
+subs += [lid_space(), track(True), detent(True)]
 for s in subs:
     body = body.cut(s)
 
 # ============================ lid ============================
-lid = outer.cut(cavity(g('Zb'))).common(lid_space(0)).fuse(detent(False))
+lid = outer.cut(cavity(g('Zb'))).common(lid_space()).fuse([track(False), detent(False)])
 hr, hw = g('CellD') / 2 + g('HoldGap'), g('HoldW')
 for yc in (g('Yc0') + g('CradleInset'), g('Yc1') - g('CradleInset')):              # cell hold-downs, drawn as a profile:
     y = yc - g('CradleT') / 2                                                       # cutting a cylinder out left the lid unorientable
@@ -362,7 +377,11 @@ exp = os.environ.get('EXPORT')
 if exp:
     import Mesh, MeshPart
     for name, shp in (('body', body), ('lid', lid), ('board', refs['board']), ('cell', refs['cell']), ('pins', refs['pins']), ('contacts', refs['contacts']), ('wire', refs['wire'])):
-        MeshPart.meshFromShape(Shape=shp, LinearDeflection=0.02, AngularDeflection=0.08).write('%s/%s.stl' % (exp, name))
+        mesh = MeshPart.meshFromShape(Shape=shp, LinearDeflection=0.02, AngularDeflection=0.08)
+        if name in ('body', 'lid'):         # what the slicer gets: a valid solid can still mesh with open or shared edges
+            print('CHECK %s mesh: solid %s, non-manifold %s' % (name, mesh.isSolid(), mesh.hasNonManifolds()))
+            assert mesh.isSolid() and not mesh.hasNonManifolds(), 'the %s does not mesh to a closed solid' % name
+        mesh.write('%s/%s.stl' % (exp, name))
     body.exportStep('%s/body.step' % exp); lid.exportStep('%s/lid.step' % exp)
     # print plate: the body on its floor, the lid on its top beside it
     lp = lid.copy(); lp.rotate(V(0, 0, 0), V(0, 1, 0), 180)

@@ -314,24 +314,25 @@ then cut down to the cell's 15.6 mm by 2026-11-22. Laid out again the same day a
 `Case/LeakSensor_2026v5.FCStd`. The file also holds the board (KiCad's STEP export), the
 cell, the battery contacts and the leak pins as reference parts, and the script checks all
 of them against each other. The case is an open-top body with rounded, squashed half-dome
-ends and a lid that slides on from the rear, 24.7 × 51.1 × 20.45 mm. The board stands across the front
+ends and a lid that slides on from the rear, 23.3 × 49.7 × 20.45 mm. The board stands across the front
 with the cell lying behind it. The board sets the width and height: its 20 mm plus
-0.15 mm clearance and a 2.2 mm wall each side, its 18 mm plus a 1.0 mm floor, a 1.2 mm
+0.15 mm clearance and a 1.5 mm wall each side, its 18 mm plus a 1.0 mm floor, a 1.2 mm
 lid and the slot's 0.1 mm under the board and 0.15 mm over it.
 
 The bottom follows the board's: inside and out, it is an arc tangent to the sides, R10.15
-inside (0.05 mm off the board's center) and R12.35 outside. Outside, the arc gives way to
-straight lines where it would overhang more than 60° when printed, leaving a 6.6 mm flat
+inside (0.05 mm off the board's center) and R11.65 outside. Outside, the arc gives way to
+straight lines where it would overhang more than 60° when printed, leaving a 6.2 mm flat
 for the body to print upright on (`MaxOverhang`; 90 gives the full curve, which needs
 supports). Both ends are squashed half domes: the same section turned about a vertical
 axis, then scaled along the case so the inside reaches 6 mm from the axis instead of
-10.15 mm; the wall stays at least 2.14 mm thick. The front one's axis is the board's front
+10.15 mm; the wall stays at least 1.46 mm thick. The front one's axis is the board's front
 face, so the board's full width stays in the straight part; the module, BZ1, C1 and C2
-stand in its bowl, at least 0.19 mm clear, and the case's front is 8.2 mm ahead of the
+stand in its bowl, at least 0.19 mm clear, and the case's front is 7.5 mm ahead of the
 board. The rear one's axis is the cell's rear end, so the cell stays in the straight part
-and the dome holds only the 228 contact, its tab and the + wire; the case ends 8.2 mm
-behind the cell. Squashing the domes took 7.3 mm off the length (full half domes made it
-58.4 mm) and steepens their undersides for printing. The top's edges are rounded 1 mm.
+and the dome holds only the 228 contact, its tab and the + wire; the case ends 7.5 mm
+behind the cell. Squashing the domes and thinning the walls from 2.2 to 1.5 mm took the
+case from 58.4 to 49.7 mm long and 24.7 to 23.3 mm wide; the squashed domes' undersides
+are also steeper to print. The top's edges are rounded 1 mm.
 
 - **Board slot.** 0.4 mm lips front and back along the board's sides and bottom; the
   board drops in from the top and rests 0.1 mm above the floor. The side lips stop at
@@ -349,8 +350,8 @@ behind the cell. Squashing the domes took 7.3 mm off the length (full half domes
   bore's wall stops 0.7 mm short of the board, over the domes. The pin top is 1.7 mm
   above the dome center, and the bosses clear X1, C2 and the diodes. The board's domes fix
   the pins at the edge of the flat, where the front dome's bowl begins: the bottom around
-  each pin rises from 0 to 1.6 mm, so it stands 0.2 mm below the flat on its inner side
-  and 1.8 mm out of the curve on its outer front side.
+  each pin rises from 0 to 1.7 mm, so it stands 0.2 mm below the flat on its inner side
+  and 1.9 mm out of the curve on its outer front side.
 - **Cell.** Keystone 209 leaf spring (−) on a 1.6 mm divider behind the board, 228 button
   (+) on a 1.6 mm rear panel; both clip onto 1.52–1.78 mm panels and are listed for CR2.
   The 209 is assumed compressed to 2.5 mm between the divider and the cell. Two saddles
@@ -364,27 +365,32 @@ behind the cell. Squashing the domes took 7.3 mm off the length (full half domes
   front of the board, level with U1 (5.3). There is no other opening: BZ1 sounds through
   the closed case.
 - **Lid.** A 1.2 mm plate that slides on from the rear, after the hygrometer 2026v3's case
-  with its track turned inside out: the side walls run up to the plate outside, and a
-  0.8 mm tongue under the plate slides in a track inside each wall, its 45° ridge, 0.6 mm
-  deep, facing out from its top 1.2 mm into a groove in the wall, so the lid cannot lift.
-  The tongues reach 3.7 mm below the plate and stop against the front dome, which stands
-  to the walls' height under the plate: as part of the lid, its curve would sweep through
-  the walls while the lid slides on. The lid does take the rear dome's top, down to 4.9 mm
-  below the top, just under the two ribs that hold the cell down (above), which slide out
-  over the rear dome's rim. Outside, the seam runs 1.2 mm below the top around the front
-  and along the sides, and drops to 4.9 mm where the rear dome begins.
+  with its track turned inside out: the side walls run up to the plate outside, and a 0.8
+  mm tongue under the plate runs just inside each wall, its 45° ridge, 0.6 mm deep, facing
+  out from its top 1.2 mm into a groove in the wall's inner face, so the lid cannot lift;
+  0.85 mm of the 1.5 mm wall stays behind the groove (a 1.0 mm wall would keep 0.35 mm).
+  The tracks run from just behind the board slot's back lip (y 2.6), since further forward
+  the tongues would meet the board's top corners, to the rear dome, and the lid stops
+  where the grooves end. The plate covers the front dome, which stands to the walls'
+  height: as part of the lid, its curve would sweep through the walls while the lid slides
+  on. The lid does take the rear dome's top, down to 4.9 mm below the top, just under the
+  two ribs that hold the cell down (above), which slide out over the rear dome's rim; the
+  tongues run 2.5 mm into that part of the dome's wall to join it. Outside, the seam runs
+  1.2 mm below the top around the front and along the sides, and drops to 4.9 mm where the
+  rear dome begins.
 - **Fits, as on 2026v3.** Faces that slide or bear are drawn line to line: the tongues on
-  the tracks' outer faces, the plate on the walls' tops, the tongues' feet on the tracks'
-  floors. Only the groove is cut larger than the ridge, 0.05 mm deeper and 0.1 mm taller,
-  so its upper flank bears and its lower flank clears. The detent is 2026v3's turned
-  inside out too: a 60° bump, 0.5 mm high, on each tongue 5 mm ahead of its rear end, and
-  in each wall a notch 0.05 mm deeper behind a lead-in ramp, 0.8 mm deep at the track's
-  rear entry and running out over 4 mm, so the bump rides the wall only for the last 3.4
-  mm of travel. The 1.4 mm wall takes the ramp better than the 0.8 mm tongue would.
+  the walls' inner faces, the plate on the walls' tops, the tongues' feet level with the
+  seam. Only the groove is cut larger than the ridge, 0.05 mm deeper and 0.1 mm taller, so
+  its upper flank bears and its lower flank clears. The detent is 2026v3's turned inside
+  out too: a 60° bump, 0.5 mm high, on each tongue 5 mm ahead of the track's rear entry,
+  and in each wall a notch 0.05 mm deeper behind a lead-in ramp, 0.6 mm deep at the entry
+  and running out over 4 mm, so the bump rides the wall only for the last 4.2 mm of
+  travel. The wall takes the ramp better than the tongue would.
 - **Checks.** No overlap between the body, lid, board and its parts, cell, contacts, pins
   and a Ø1.2 mm + wire. The board drops in from 25 mm above without touching anything but
   the ribs, and the lid slides out to the rear touching only where the bumps ride the
-  ramps (the line-to-line faces touch without overlapping). J1's header model
+  ramps (the line-to-line faces touch without overlapping). The build also checks that
+  both parts mesh to closed solids for the slicer. J1's header model
   is left out: a board with a header does not fit. The script first checks that booleans
   against each part work at all: refined with `removeSplitter()`, the lid looked valid but
   every check against it came back empty.
