@@ -21,7 +21,7 @@ def spice(deck):
 
 # ---------------------------------------------------------------- buzzer driver (README 5.5)
 # CMT-5023S-SMT: 3 Vo-p, 4 kHz square wave at half duty, 110 mA at most, coil 12 +-3 ohm (datasheet). Its inductance
-# is not given: ASSUMED 1 mH, swept. DMG1012T: Vgs(th) 0.5 to 1.0 V, about 0.4 ohm at Vgs 2.5 V (datasheet), as a
+# is not given: ASSUMED 1 mH, swept. DMN2004TK: Vgs(th) 0.5 to 1.0 V, 0.7 ohm at most at Vgs 2.5 V (datasheet), as a
 # level 1 model. C2: 10 uF X5R, ASSUMED 5 uF left at 3 V bias. GPIO drive ASSUMED 500 ohm.
 BUZZ = """buzzer driver
 Vbat bat 0 {voc}
@@ -47,7 +47,7 @@ Rg gdrv gate 500
 R7 gate 0 1Meg
 Bpq pq 0 V=V(drain)*(I(Vcoil)-I(Vd3))
 Bpt pt 0 V=V(cell)*(I(Vcoil)-I(Vd3))
-.model NM NMOS(LEVEL=1 VTO={vth} KP=1.43 LAMBDA=0.01)
+.model NM NMOS(LEVEL=1 VTO={vth} KP=0.82 LAMBDA=0.01)
 .model D4148 D(IS=2.52n RS=0.568 N=1.752 CJO=4p TT=20n BV=100)
 .tran 0.2u 10m 0 0.2u
 .meas tran vmin min v(vdd) from=8m to=10m

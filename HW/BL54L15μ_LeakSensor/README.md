@@ -186,8 +186,8 @@ BT1 is a CR2 on wires: two 2 mm pads on the back, BAT+ (VDD) and BAT− (GND). T
 test pads; VDD and GND are at BT1 and J1, the signals at J1 and on the parts' pads.
 
 ```
-VDD ── JP1 ──┬── BZ1 + ── BZ1 − ──┬── BUZZER− ── Q1 drain   Q1 DMG1012T, source to GND
-  (BUZZER+)  ├──── D3 1N4148WT ───┘   (cathode to BUZZER+)
+VDD ── JP1 ──┬── BZ1 + ── BZ1 − ──┬── BUZZER− ── Q1 drain   Q1 DMN2004TK, source to GND
+  (BUZZER+)  ├──── D3 DLLFSD01T ──┘   (cathode to BUZZER+)
              └── C3 100 µF, not fitted ── GND
 BUZZ (P1.05) ──┬── Q1 gate
                └── R7 1 MΩ to GND
@@ -215,8 +215,14 @@ BUZZ (P1.05) ──┬── Q1 gate
     tall, $3.04).
   - Same leads as the Ole Wolff part: Same Sky CMT-0502-75-SMT (75 dB, $2.71) and
     CMT-0525-75-SMT (75 dB, 2.5 mm tall, $2.36).
-- **Q1**, DMG1012T: 20 V, 0.63 A N-channel FET with an ESD-protected gate, in SOT-523.
-- **D3**, 1N4148WT, clamps the coil's flyback when Q1 turns off.
+- **Q1**, DMN2004TK: 20 V, 0.54 A N-channel FET in SOT-523, gate protected to 2 kV. On
+  resistance at most 0.7 Ω with 2.5 V on the gate and 0.9 Ω with 1.8 V: under 0.2 V lost
+  at the coil's peak. 2026v4's AOSS32136C is a SOT-23, too large for the place between
+  D3, R7, BZ1 and the left dome.
+- **D3**, DLLFSD01T, an 80 V, 300 mA switching diode in SOD-523, clamps the coil's flyback
+  when Q1 turns off. A low-drop diode, as 2026v4's MBR0520L, also works, but lets the
+  coil's current decay more slowly: by simulation about 10 % more cell current and 10 %
+  less swing in the coil at 1 mH.
 - **JP1 and C3**, on the back, are an optional filter for BZ1's feed. As built, JP1 is a
   copper bridge between 0402 pads and C3 is not fitted: BZ1 runs straight from the cell
   and nothing on the back is needed. If BZ1's pulses turn out to disturb the radio (7.1),
@@ -465,8 +471,8 @@ ones did. The top's edges are square.
 | P1, P2  | 4 mm metal dome         | to be chosen                            | TriangleDome 4 mm    | Leak contacts (5.6)                  |
 | J1      | 2×5 1.27 mm, optional   | CNC Tech 3220-10-0300-00                | custom pads (4.2)    | SWD; hand-soldered on a few boards   |
 | BZ1     | Buzzer, 3 V, 4 kHz      | Same Sky CMT-5023S-SMT-TR               | 5 × 5 mm, 3 pads     | Magnetic transducer (5.5)            |
-| Q1      | DMG1012T                | DMG1012T-7                              | SOT-523              | Buzzer switch (5.5)                  |
-| D3      | 1N4148WT                | 1N4148WT-7                              | SOD-523              | Flyback clamp across BZ1 (5.5)       |
+| Q1      | DMN2004TK               | DMN2004TK-7                             | SOT-523              | Buzzer switch (5.5)                  |
+| D3      | DLLFSD01T               | DLLFSD01T-7                             | SOD-523              | Flyback clamp across BZ1 (5.5)       |
 | R7      | 1 MΩ                    | RC0402FR-071ML                          | 0402                 | Q1 gate pull-down (5.5)              |
 | BT1     | CR2 on wires            | –                                       | two 2 mm pads        | Cell (5.5)                           |
 | JP1     | copper bridge           | –                                       | 0402 pads, bridged   | Optional: cut, fit 2.2 to 4.7 Ω (5.5) |
@@ -497,8 +503,8 @@ ASSUMED in the scripts and named here.
 | SAADC, 40 µs acquisition      | −1.3 % at 10 MΩ with a 2.5 pF sampling capacitor, −7 % at 10 pF     | pass (R-4)        |
 | False leak from leakage       | 10 nA into the sense pin reads as 300 MΩ; 100 MΩ of film reads as itself | pass |
 | ESD at a dome, 8 kV contact   | about 30 A in the TVS, clamped near 22 V; 1.9 mA through R1 into the pin | pass |
-| Buzzer, coil current          | peak 125 to 232 mA, 45 to 95 mA from the cell, for 3 to 0.3 mH       | within 110 mA |
-| Buzzer, Q1 and D3             | drain clamped at 3.9 V; Q1 under 7 mW; D3 13 to 42 mA average        | pass |
+| Buzzer, coil current          | peak 124 to 227 mA, 45 to 94 mA from the cell, for 3 to 0.3 mH       | within 110 mA |
+| Buzzer, Q1 and D3             | drain clamped at 3.9 V; Q1 under 12 mW; D3 13 to 41 mA average       | pass |
 | Buzzer, brown-out             | module stays above 1.7 V up to 8 Ω of cell resistance at 3.0 V, 4 Ω at 2.4 V | pass |
 | Buzzer, supply ripple         | 60 to 120 mV peak to peak at the module on a 0.5 Ω cell             | **over Ezurio's 10 mV** |
 | The same, JP1 and C3 fitted   | 23 to 35 mV with 2.2 Ω and 100 µF; 12 to 17 mV with 4.7 Ω           | optional fix (5.5) |
@@ -624,8 +630,11 @@ Not started. Planned:
 - [CNC Tech 3220-XX-0300-00 drawing](https://cnctech.us/pdfs/3220-XX-0300-00_.pdf), revision D,
   10 April 2023: P.C.B layout (pads 0.65 × 2.77 mm, 6.80 mm across), tails 5.50 ± 0.30 mm
   across (4.2).
-- Diodes Incorporated DMG1012T datasheet and SOT523 package outline: gate threshold 0.5 to
-  1.0 V, body up to 0.8 mm with up to 0.1 mm standoff (5.5, 5.7, 7.1).
+- Diodes Incorporated DMN2004TK datasheet (DS30936): gate threshold 0.5 to 1.0 V, on
+  resistance 0.7 Ω at 2.5 V and 0.9 Ω at 1.8 V at most, 2 kV gate protection; SOT-523
+  outline, body up to 0.8 mm with up to 0.1 mm standoff (5.5, 5.7, 7.1).
+- Diodes Incorporated DLLFSD01T datasheet: 80 V, 300 mA forward continuous, 0.82 V at
+  10 mA (5.5).
 - Texas Instruments TPD1E10B06 datasheet: 12 pF, 100 nA leakage (7.1).
 - R. Lee and W. Kester,
   [Fully Automatic Self-Calibrated Conductivity Measurement System](https://www.analog.com/en/resources/analog-dialogue/articles/fully-automatic-self-calibrated-conductivity-measurement-system.html),
