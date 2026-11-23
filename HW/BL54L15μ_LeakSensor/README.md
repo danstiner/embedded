@@ -323,8 +323,12 @@ lid and the slot's 0.1 mm under the board and 0.15 mm over it.
 
 The bottom is a half ellipse, 21.3 mm wide and 8.5 mm deep outside, the inside concentric
 (1.0 mm floor, 1.5 mm sides): flatter at the bottom than a semicircle and fuller. The
-board's bottom is the same curve 0.1 mm in, and the cell clears it by 0.1 mm. With no flat, the body prints upright
-only with supports under its curve (PrusaSlicer's organic supports from the build plate).
+board's bottom is the same curve 0.1 mm in, and the cell clears it by 0.1 mm. With no flat, the body needs
+supports either way up. The print plate (`LeakSensor_2026v5.3mf`) has it turned over, on its rim: the
+whole outside then prints without support, and the supports go inside, under the floor
+(about 600 mm²), the two bosses and the panels' top edges, all reachable from the open top.
+The board slot and the gap behind it bridge themselves. The rear dome's rim, 2.8 mm above
+the bed, needs a low support. Upright, about 880 mm² of the outside would stand on supports.
 Both ends are half domes: the same section turned about a vertical axis, so they are
 semicircles seen from above and every cut through the axis shows the sides' curve. The
 front one's axis is 1.5 mm ahead of the board's front face. On the face, the module's
@@ -540,7 +544,7 @@ Not started. Planned:
 - **Case.** Unprinted. The 209's compressed length and both contacts' tab positions come
   from Keystone's catalog drawing, not parts in hand. Boards with J1 fitted do not fit.
   The lid's line-to-line slide fit and its detent, now 1.4 mm tall, need a test print; how loud BZ1 is
-  through the closed case is untested. The bottom has no flat: it prints with supports,
+  through the closed case is untested. The bottom has no flat: it prints with supports (inside, turned over: 5.7),
   and on a table it rests on its lowest line. The pins' ends sit 0.28 mm above the table,
   so the sensor needs water about that deep before it reaches them.
 

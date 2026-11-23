@@ -392,13 +392,16 @@ if exp:
             assert mesh.isSolid() and not mesh.hasNonManifolds(), 'the %s does not mesh to a closed solid' % name
         mesh.write('%s/%s.stl' % (exp, name))
     body.exportStep('%s/body.step' % exp); lid.exportStep('%s/lid.step' % exp)
-    # print plate: the body on its floor, the lid on its top beside it
+    # print plate: both turned over, the lid on its top and the body on its rim beside it. The body's outside then needs
+    # no supports; those under its floor, bosses and panels are inside, and the rear dome's rim needs a low one
     lp = lid.copy(); lp.rotate(V(0, 0, 0), V(0, 1, 0), 180)
     lp.translate(V(2 * g('OW') + 5, 0, -lp.BoundBox.ZMin))
+    bp = body.copy(); bp.rotate(V(0, 0, 0), V(0, 1, 0), 180)
+    bp.translate(V(0, 0, -bp.BoundBox.ZMin))
     # written by hand: FreeCAD's 3MF export leaves the objects unnamed
     import zipfile
     objs, items = '', ''
-    for i, (name, shp) in enumerate((('body', body), ('lid', lp)), 1):
+    for i, (name, shp) in enumerate((('body', bp), ('lid', lp)), 1):
         pts, tris = MeshPart.meshFromShape(Shape=shp, LinearDeflection=0.02, AngularDeflection=0.08).Topology
         objs += '<object id="%d" name="%s" type="model"><mesh><vertices>%s</vertices><triangles>%s</triangles></mesh></object>' % (
             i, name, ''.join('<vertex x="%.4f" y="%.4f" z="%.4f"/>' % (p.x, p.y, p.z) for p in pts),
