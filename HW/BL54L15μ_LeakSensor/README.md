@@ -3,8 +3,8 @@
 ## 1. Scope
 
 Battery-powered leak and humidity sensor built on the Ezurio BL54L15μ (nRF54L15) module.
-Two contacts on the bottom detect water, immediately triggering a report over Matter/Zigbee
-and optionally an alarm buzzer. A SHT40 measures temperature and humidity for mold detection.
+Two contacts on the bottom detect water, immediately triggering a report over Matter
+and optionally an alarm buzzer. An SHT40 measures temperature and humidity for mold detection.
 
 This is revision **2026v5**, in design. The baseline is 2026v4, the first leak board,
 fabricated as the hygrometer's 2026v4 (tag `fab/BL54L15μ-hygrometer/2026v4`, firmware
@@ -35,7 +35,7 @@ board `bl54l15u_hygrometer@2026v4`).
 | R-6 | Minimize case size with small board standing on the end of a CR2 (Ø15.6 max)            |
 | R-7 | SWD through a soldered 2×5 1.27 mm header or a pogo-pin clip from the side              |
 | R-8 | Front parts in one reflow pass; the back has only pads and optional parts (J1, JP1, C3) |
-| R-9 | A buzzer that can optionally sound when it finds water, >=65 dBA at 10 meters           |
+| R-9 | A buzzer that can optionally sound when it finds water, >=60 dBA at 1 m                 |
 
 ## 4. Design trades
 
@@ -88,7 +88,7 @@ keep-out is reserved for it.
 ### 4.3 Supply
 
 As on 2026v4, the CR2 feeds everything directly: the module takes 1.7 to 3.5 V (Ezurio
-datasheet 0.7, table 3) and the SHT45 1.08 to 3.6 V. The firmware reads the cell
+datasheet 0.7, table 3) and the SHT40 1.08 to 3.6 V. The firmware reads the cell
 through the SAADC's VDD input, as before. There is no reverse-polarity protection; the
 wires are soldered once.
 
@@ -159,10 +159,13 @@ P2 ── ELEC_B ──┬── R2 10 kΩ ── LEAK_B (P1.11, AIN4) ── R4
   gpio2 buzzer pin go; `i2c21`'s pins stay.
 - All other pins are open and flagged no-connect. The module's DC/DC inductor is inside.
 
-### 5.3 Temperature and humidity: SHT45-AD1F (U1)
+### 5.3 Temperature and humidity: SHT40-AD1F (U1)
 
-Unchanged from 2026v4: address 0x44, C1 100 nF beside it, I2C through the module's 13 kΩ
-pull-ups. Idle current 0.08 µA typical (SHT4x datasheet, table 4).
+2026v4 used an SHT45-AD1F. Watching for mold does not need its ±1.0 %RH and ±0.1 °C: the
+SHT40 is typically within ±1.8 %RH and ±0.2 °C (SHT4x datasheet, tables 1 and 2). The
+AD1F version keeps the membrane over the sensor opening, and the package, footprint and
+commands are the same. Otherwise unchanged: address 0x44, C1 100 nF beside it, I2C
+through the module's 13 kΩ pull-ups. Idle current 0.08 µA typical (table 4).
 
 No thermal isolation: the board averages about 0.05 mW (R-2). The USB CO2 board's thermal
 model put its SHT4x about 1 °C above ambient at 37 mW, roughly 0.03 °C per mW; scaled, this
@@ -191,7 +194,8 @@ BUZZ (P1.05) ──┬── Q1 gate
 ```
 
 - **BZ1**, Same Sky CMT-5023S-SMT: a magnetic transducer, 5 × 5 × 2 mm, rated 3 V at
-  4 kHz, 110 mA at most, 80 dB at 10 cm (datasheet). It has no oscillator of its own: the
+  4 kHz, 110 mA at most, 80 dBA at least at 10 cm (datasheet). In open air that is 60 dBA
+  at 1 m: R-9 with nothing to spare for the case. It has no oscillator of its own: the
   firmware drives P1.05 with a 4 kHz square wave. 110 mA is far beyond a GPIO's drive, so
   Q1 switches BZ1's low side.
 - **Other 5 mm buzzers**, compared from their datasheets and one distributor's single-piece
@@ -451,7 +455,7 @@ ones did. The top's edges are square.
 | Ref     | Value                   | Part                                    | Footprint            | Description                          |
 | ------- | ----------------------- | --------------------------------------- | -------------------- | ------------------------------------ |
 | IC1     | BL54L15μ                | Ezurio 453-00223R                       | module               | nRF54L15 module, chip antenna (5.2)  |
-| U1      | SHT45                   | SHT45-AD1F-R2                           | DFN-4 1.5 mm         | Temperature and humidity (5.3)       |
+| U1      | SHT40                   | SHT40-AD1F-R2                           | DFN-4 1.5 mm         | Temperature and humidity (5.3)       |
 | X1      | 32.768 kHz, 9 pF        | CM7V-T1A-LOW-ESR-32.768KHZ-9PF-20-TA-QC | 3.2 × 1.5 mm         | Low-frequency crystal                |
 | C1      | 100 nF                  | GRM155R61A104KA01J                      | 0402                 | U1 decoupling                        |
 | C2      | 10 µF                   | CL10A106KP8NNNC                         | 0603                 | Module supply                        |
@@ -468,8 +472,8 @@ ones did. The top's edges are square.
 | JP1     | copper bridge           | –                                       | 0402 pads, bridged   | Optional: cut, fit 2.2 to 4.7 Ω (5.5) |
 | C3      | 100 µF, not fitted      | to be chosen                            | 1206                 | Optional reservoir for BZ1 (5.5)     |
 
-3D models: U1 uses Sensirion's (`Components/SHT45_AD1F_R2`, with the download's license, as
-on the USB CO2 board); KiCad ships none for its SHT4x footprint. D1 and D2 use KiCad's 0402
+3D models: U1 uses Sensirion's SHT45-AD1F model, the same package (`Components/SHT45_AD1F_R2`,
+with the download's license, as on the USB CO2 board); KiCad ships none for its SHT4x footprint. D1 and D2 use KiCad's 0402
 resistor model as a stand-in: KiCad has no 0402 diode model, and TI's X1SON (DPY) body is
 the same 1.0 × 0.6 mm. BZ1 and Q1 have no model yet (KiCad ships none for SOT-523): to be
 downloaded from DigiKey. Until then the case checks use boxes for them (5.7).
@@ -543,10 +547,10 @@ Not started. Planned:
 | Average current on Thread over 24 h                                        | R-2      | under 15 µA                                    |
 | RSSI with and without a CR2 behind the antenna (first on a 2026v4 board)   | 8        | record the difference                          |
 | Flash through a soldered header, then through the pogo clip                | R-7      | both work                                      |
-| SHT45 against a reference thermometer                                      | R-5      | within 0.5 °C                                  |
-| Buzzer at 4 kHz in the closed case, on a partly used CR2                   | R-9      | audible across a room; no brown-out            |
+| U1 against a reference thermometer                                         | R-5      | within 0.5 °C                                  |
+| Buzzer at 4 kHz in the closed case, on a partly used CR2                   | R-9      | at least 60 dBA at 1 m; no brown-out           |
 | VDD ripple at C2 with the buzzer on; packet loss with and without it       | 7.1      | record both                                    |
-| SHT45 reading through a one-minute alarm and the 10 minutes after          | 7.1      | record the rise and the recovery               |
+| U1's reading through a one-minute alarm and the 10 minutes after           | 7.1      | record the rise and the recovery               |
 | Pin to dome continuity on each printed case                                | 7.1      | both pins connect                              |
 
 ## 8. Known limitations and open questions
@@ -559,7 +563,7 @@ Not started. Planned:
   14 mm from the chip, X1 10 mm, the right leak pin 12 mm. The RSSI test in section 7
   decides whether this layout holds.
 - **Battery life** is a target, not an estimate: the module idles at 3 µA (Ezurio
-  datasheet, section 2.1) and the SHT45 at 0.08 µA, which leaves about 12 µA for Thread
+  datasheet, section 2.1) and the SHT40 at 0.08 µA, which leaves about 12 µA for Thread
   polling and reports. A 2026v4 current measurement comes first.
 - **Input threshold.** V_IH and any input hysteresis are to be read from the nRF54L15
   datasheet. A slowly wetting contact holds the sense node near the threshold, so the
@@ -600,7 +604,7 @@ Not started. Planned:
   schematic checklist (13 kΩ pull-ups), sections 5.1 (one mandatory 10 µF), 5.2, 5.3.1,
   5.3.2 and 6.2.
 - [Sensirion SHT4x datasheet](https://sensirion.com/resource/datasheet/sht4x), version
-  7.3, June 2026: table 4 (supply range, idle current).
+  7.3, June 2026: tables 1 and 2 (accuracy), table 4 (supply range, idle current).
 - Nordic Semiconductor nRF54L15 datasheet: GPIO electrical specification, to be read for
   V_IH (5.1, 8); [port capabilities](https://docs.nordicsemi.com/r/bundle/ps_nrf54l15/page/gpio.html-concept_port_capabilities)
   (each port's power domain; port 2 cannot wake the chip) and
