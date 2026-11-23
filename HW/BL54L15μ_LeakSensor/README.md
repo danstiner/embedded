@@ -339,17 +339,17 @@ ones did. The top's edges are square.
   board, hold it against the front lip. The dome press then depends on two faces of one
   print, not on the board's thickness or the slot's fit.
 - **Leak pins.** Ø2.5 × 6 mm metal pins stand upright at x ±3.95, just in front of the
-  domes. Each is pushed up from below into a blind bore in a boss that runs from the
-  front dome's wall back toward the board, and stands
-  0.2 mm proud of the bottom, so the case rests on the pins and a film of water reaches
-  them first. The side of each pin presses its dome's apex: the pin surface is 0.2 mm off
-  the board and the dome is assumed 0.3 mm high, a 0.1 mm press (`DomeApex`, `PinPress`).
-  The bore opens toward the dome through a 2.0 mm gap, narrower than the pin, and the
-  bore's wall stops 0.7 mm short of the board, over the domes. The pin top is 1.7 mm
-  above the dome center, and the bosses clear X1, C2 and the diodes. The board's domes fix
-  the pins 3.95 mm either side of the center line, where the bottom has begun to curve up,
-  just behind the front dome's axis: the bottom around each pin rises 0.3 to 1.0 mm, so with
-  their ends 0.2 mm below the case's lowest line they show 0.5 to 1.2 mm.
+  domes. Each is pushed up from below into a blind bore in a boss that runs from the front
+  dome's wall back toward the board, its end flush with the case's lowest line, so the
+  pins touch the table along with the case and a film of water reaches them. The side of
+  each pin presses its dome's apex: the pin surface is 0.2 mm off the board and the dome
+  is assumed 0.3 mm high, a 0.1 mm press (`DomeApex`, `PinPress`). The bore opens toward
+  the dome through a 2.0 mm gap, narrower than the pin, and the bore's wall stops 0.7 mm
+  short of the board, over the domes. The pin top is 1.9 mm above the dome center, and the
+  bosses clear X1, C2 and the diodes. The board's domes fix the pins 3.95 mm either side
+  of the center line, where the bottom has begun to curve up, just behind the front dome's
+  axis: the bottom around each pin rises 0.3 to 1.0 mm, which is all of the pin that
+  shows.
 - **Cell.** Keystone 209 leaf spring (−) on a 1.6 mm divider behind the board, 228 button
   (+) on a 1.6 mm rear panel; both clip onto 1.52–1.78 mm panels and are listed for CR2.
   The 209 is assumed compressed to 2.5 mm between the divider and the cell. Two saddles
@@ -467,7 +467,7 @@ Not started. Planned:
   from Keystone's catalog drawing, not parts in hand. Boards with J1 fitted do not fit.
   The lid's line-to-line slide fit and its detent need a test print; how loud BZ1 is
   through the closed case is untested. The bottom has no flat: it prints with supports,
-  and on a table the case rests on the two pins and the rear of its lowest line.
+  and on a table it rests on its lowest line, with the pins' ends level with it.
 
 ## 9. References
 

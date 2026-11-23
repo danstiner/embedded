@@ -35,7 +35,7 @@ P = dict(
     # leak pins
     PinD=2.5, PinL=6.0, PinX=3.95, DomeY=-4.85, DomeApex=0.3, PinPress=0.1, BossWall=0.8,
     PinCap=0.6,          # bore cap over the pin
-    PinProud=0.2,        # below the case's bottom, onto the wet floor
+    PinProud=0.0,        # pin ends below the case's lowest line: flush, so they show as little as the curve allows
     BossBack=0.7,        # boss face toward the board, clear of the domes' feet: the pin stands 0.5 mm proud of it, onto the dome
     # cell cradle; the + wire runs over both panels in the bay's upper left corner, inside the dome's curve
     CradleT=1.2, CradleInset=5.0, WireD=1.2, WireX=-8.3,
