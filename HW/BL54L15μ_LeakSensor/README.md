@@ -230,8 +230,8 @@ from the front (KiCad X = 100 + x, Y = 100 − y).
 - **Rules** (`BL54L15μ_LeakSensor.kicad_dru`): tracks and clearance 0.1524 mm, copper at
   least 0.381 mm from the edge. Courtyards may overlap in four places where parts are
   packed on purpose: X1 and C2 against IC1's; parts inside the domes' margins; R3 and R4
-  in IC1's margin; JP1 and C3 inside J1's header outline. Two DRC exclusions: J1's silk
-  past the left edge and U1's label against its own outline.
+  in IC1's margin; JP1 and C3 inside J1's header outline. One DRC exclusion: J1's silk
+  past the left edge.
 - **Module and antenna.** The chip antenna is in the corner of the module's antenna end
   on pin 1's side (datasheet figure 10), which is the board's top right corner. The
   module's end is 0.18 mm from the right edge, as close as the edge rule lets its end
@@ -252,7 +252,7 @@ from the front (KiCad X = 100 + x, Y = 100 − y).
   D3's cathode reach JP1 and C3 through their own via.
 - **Crystal.** X1's two legs are matched, 2.8 mm on the back and 2.1 mm on the front
   each, with ground poured around them on both layers.
-- **Ground.** Pours on both layers outside the keep-out, stitched with 27 vias. The point
+- **Ground.** Pours on both layers outside the keep-out, stitched with 26 vias. The point
   of either pour farthest from a via is 4.8 mm away, inside the 5.3 mm (λ/8 at 2.4 GHz)
   used on the USB CO2 board (`Sim/layout.py`). Pads on the back have thermal reliefs for
   hand soldering.
@@ -349,7 +349,7 @@ fits (5.7). Values no datasheet gives are marked ASSUMED in the scripts and list
 
 | Check                         | Result                                                              | Verdict |
 | ----------------------------- | ------------------------------------------------------------------- | ------- |
-| ERC, DRC, schematic parity    | 0 errors and warnings, 0 unconnected, 0 parity issues; 2 exclusions (5.6) | pass |
+| ERC, DRC, schematic parity    | 0 errors and warnings, 0 unconnected, 0 parity issues; 1 exclusion (5.6)  | pass |
 | Edge wake threshold           | sense node at 0.7 VDD below 0.41 MΩ, back under 0.3 VDD above 2.3 MΩ | as designed (R-1) |
 | Leak settling                 | 99 % in 71 µs at 10 MΩ, faster below; the firmware waits 100 µs     | pass |
 | SAADC, 40 µs acquisition      | −1.3 % at 10 MΩ with a 2.5 pF sampling capacitor, −7 % at 10 pF     | pass (R-4) |

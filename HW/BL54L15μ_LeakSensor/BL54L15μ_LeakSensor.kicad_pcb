@@ -142,7 +142,7 @@
 		(descr "Resistor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "resistor")
 		(property "Reference" "R1"
-			(at 0 -0.9 90)
+			(at 0.0002 -1.2542 180)
 			(layer "F.SilkS")
 			(uuid "280da7f2-2734-402b-b769-988ffb8004c7")
 			(effects
@@ -445,7 +445,7 @@
 		(uuid "03992456-5852-4d08-ae72-ed66c4ba9162")
 		(at 96.05 104.85 155.5)
 		(property "Reference" "P1"
-			(at -3.190075 0.354853 0)
+			(at -3.683341 -0.639745 0)
 			(unlocked yes)
 			(layer "F.SilkS")
 			(uuid "d216f3ab-a919-4229-a84b-17a015e41f65")
@@ -1622,7 +1622,7 @@
 		(descr "Capacitor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "capacitor")
 		(property "Reference" "C1"
-			(at 0.48 1.182 180)
+			(at 0.5562 1.1566 180)
 			(layer "F.SilkS")
 			(uuid "4e2cb44a-3612-400b-b1db-c614a7802216")
 			(effects
@@ -1967,7 +1967,7 @@
 		(uuid "33de40e4-dfe9-4e46-aafc-cb005f9afd28")
 		(at 103.95 104.85 -155.5)
 		(property "Reference" "P2"
-			(at 3.190075 0.354853 0)
+			(at 3.614002 -0.671345 0)
 			(unlocked yes)
 			(layer "F.SilkS")
 			(uuid "d827b414-ec7a-4e72-bf30-d62b48ebc18f")
@@ -2355,7 +2355,7 @@
 		(descr "Diode SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf)")
 		(tags "diode")
 		(property "Reference" "D1"
-			(at 0 -0.9 90)
+			(at -1.772 -0.0858 180)
 			(layer "F.SilkS")
 			(uuid "312686fe-2a93-4eb2-9fc9-4a1bc5548190")
 			(effects
@@ -2673,7 +2673,7 @@
 		(descr "Resistor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "resistor")
 		(property "Reference" "R4"
-			(at 0 0.9 90)
+			(at 0.0198 1.2034 180)
 			(layer "F.SilkS")
 			(uuid "7ac8643a-89f0-4895-8bd3-cb16cbb4a29e")
 			(effects
@@ -3244,7 +3244,7 @@
 		(descr "Resistor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "resistor")
 		(property "Reference" "R3"
-			(at 0 -0.9 90)
+			(at -0.0056 -1.2288 180)
 			(layer "F.SilkS")
 			(uuid "e70d789a-8bba-448e-8f64-14b2de6f1b56")
 			(effects
@@ -3535,8 +3535,9 @@
 		(descr "Sensirion, SHT40, SHT41, SHT45, DFN, 4 Pin (https://sensirion.com/media/documents/33FD6951/624C4357/Datasheet_SHT4x.pdf)")
 		(tags "DFN NoLead")
 		(property "Reference" "U1"
-			(at -0.7762 1.3208 180)
+			(at 0 0 180)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "892f5e42-0bb2-4247-a380-d68a40169d25")
 			(effects
 				(font
@@ -4013,7 +4014,7 @@
 		(descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "capacitor")
 		(property "Reference" "C2"
-			(at 2.1714 -0.6858 0)
+			(at 1.9936 -0.7874 0)
 			(layer "F.SilkS")
 			(uuid "57fd2af6-04ed-46e1-baad-cbe4215dc2bd")
 			(effects
@@ -4568,7 +4569,7 @@
 		(property "Reference" "BZ1"
 			(at 0.499999 -0.9 0)
 			(layer "F.SilkS")
-			(uuid "86938fdc-8644-4eb8-b731-307c6d71f0d1")
+			(uuid "74eb9e42-f119-4e44-9bee-5eca4cc81097")
 			(effects
 				(font
 					(size 0.75 0.75)
@@ -4580,7 +4581,7 @@
 			(at 0 3.599999 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "60010b49-91d9-4a66-a7f6-c8c0a4816822")
+			(uuid "a5557262-8986-4165-af27-932e4583c9f8")
 			(effects
 				(font
 					(size 1 1)
@@ -4592,7 +4593,7 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "b08db992-46e2-44b3-ae62-caa6eee47ba4")
+			(uuid "1f1171f6-c1c2-4c2b-ac8d-0acc03d6a0b4")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4604,7 +4605,7 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "aaeb07ef-c8e5-4054-9c37-16ce33485c4d")
+			(uuid "418ca91e-3bfb-4cb3-b2aa-ff005c5477f3")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4797,7 +4798,7 @@
 		(uuid "bbf9fa6b-5b53-493f-a9ef-1fca2e2241fd")
 		(at 98.7554 95.821 -90)
 		(property "Reference" "X1"
-			(at -0.001 0 90)
+			(at 2.528 -0.0254 180)
 			(layer "F.SilkS")
 			(uuid "5eab74ed-c427-4577-b0c8-951f92e83f34")
 			(effects
@@ -5190,7 +5191,7 @@
 		(descr "Resistor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf)")
 		(tags "resistor")
 		(property "Reference" "R2"
-			(at 0 0.9 90)
+			(at 0.0002 1.2034 180)
 			(layer "F.SilkS")
 			(uuid "142b1ee3-35c4-462a-be32-5e731cba5b4c")
 			(effects
@@ -5495,7 +5496,7 @@
 		(descr "Diode SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf)")
 		(tags "diode")
 		(property "Reference" "D2"
-			(at 0 0.9 90)
+			(at -1.772 0.1112 180)
 			(layer "F.SilkS")
 			(uuid "9ae87d09-07e8-4e55-9f5d-fe032c856d8d")
 			(effects
@@ -6302,9 +6303,8 @@
 		(descr "0402 resistor pads joined by a 0.2 mm copper bridge under a mask opening: cut the bridge to fit a resistor")
 		(tags "net tie solder jumper bridged resistor")
 		(property "Reference" "JP1"
-			(at 0 1.1 0)
+			(at -1.8816 0 0)
 			(layer "B.SilkS")
-			(hide yes)
 			(uuid "97eb7211-a6cc-4836-abbe-dc289dd29808")
 			(effects
 				(font
@@ -6426,7 +6426,7 @@
 		(property "Reference" "BT1"
 			(at -1.95 0 0)
 			(layer "B.SilkS")
-			(uuid "3ff0add4-8669-4a44-a6ff-1901b8c75cb1")
+			(uuid "e42f3987-47eb-430a-9cf8-8a438d967656")
 			(effects
 				(font
 					(size 0.75 0.75)
@@ -6439,7 +6439,7 @@
 			(at 0 -4.4 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "cbf8bd3d-262a-4ae7-9170-c3a788c8c67a")
+			(uuid "e22fca12-a06a-489e-a990-b48811e55860")
 			(effects
 				(font
 					(size 1 1)
@@ -6452,7 +6452,7 @@
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "b8f9d8e1-75b4-450e-9738-e1e3cbcc6a31")
+			(uuid "419f1bb6-e3c4-4bfc-bfa4-d23f62b2ebd1")
 			(effects
 				(font
 					(size 1 1)
@@ -6465,7 +6465,7 @@
 			(at 0 0 0)
 			(layer "B.Fab")
 			(hide yes)
-			(uuid "738f7d4a-0a34-4150-b245-dd6ce815776a")
+			(uuid "ca3db9b7-43f0-42c1-9a57-531d0f015e86")
 			(effects
 				(font
 					(size 1 1)
@@ -6691,7 +6691,7 @@
 			)
 		)
 		(fp_text user "-"
-			(at 0 -3.68 0)
+			(at 1.524 -2.5008 0)
 			(layer "B.SilkS")
 			(uuid "736e5bef-d8b5-4c25-80b3-77d0180180ab")
 			(effects
@@ -6752,6 +6752,30 @@
 		(fill no)
 		(layer "Edge.Cuts")
 		(uuid "0362367f-9e3e-56aa-a024-18645f9fbb83")
+	)
+	(gr_text "U"
+		(at 91.491 92.8626 0)
+		(layer "F.SilkS")
+		(uuid "4d9a2827-5c57-4b24-95c5-ace21b2fc1f6")
+		(effects
+			(font
+				(size 0.75 0.75)
+				(thickness 0.13)
+				(bold yes)
+			)
+		)
+	)
+	(gr_text "1"
+		(at 91.491 93.8024 0)
+		(layer "F.SilkS")
+		(uuid "0427d235-9fd7-4e5c-a70d-b9012b4c6c58")
+		(effects
+			(font
+				(size 0.75 0.75)
+				(thickness 0.13)
+				(bold yes)
+			)
+		)
 	)
 	(gr_text "Leak Sensor"
 		(at 101.35 92.8 0)
@@ -7070,7 +7094,7 @@
 		(uuid "2f6c5d91-c509-4453-b801-ca3932ab26c6")
 	)
 	(via
-		(at 97.841 101.397)
+		(at 98.1712 101.6002)
 		(size 0.508)
 		(drill 0.254)
 		(layers "F.Cu" "B.Cu")
@@ -7084,14 +7108,6 @@
 		(layers "F.Cu" "B.Cu")
 		(net "GND")
 		(uuid "3054cf24-8c01-412d-8765-15634ce5905f")
-	)
-	(via
-		(at 98.5 102.286)
-		(size 0.508)
-		(drill 0.254)
-		(layers "F.Cu" "B.Cu")
-		(net "GND")
-		(uuid "30ff105b-5fe0-4361-ba3a-d4cfc38d7756")
 	)
 	(via
 		(at 97.8918 95.809)
@@ -7246,7 +7262,7 @@
 		(uuid "ef75f59b-0461-4cdb-bf6f-16e14aeb014d")
 	)
 	(via
-		(at 101.4986 102.286)
+		(at 101.8542 102.2352)
 		(size 0.508)
 		(drill 0.254)
 		(layers "F.Cu" "B.Cu")
