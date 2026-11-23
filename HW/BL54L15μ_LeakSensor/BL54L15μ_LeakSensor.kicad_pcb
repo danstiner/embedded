@@ -3528,7 +3528,7 @@
 			)
 		)
 	)
-	(footprint "LeakSensor:Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad_StackedRef"
+	(footprint "Sensor_Humidity:Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad"
 		(layer "F.Cu")
 		(uuid "5a3f6317-26bc-4dfd-bae4-ae0bf50a3e0e")
 		(at 92.826 92.888)
@@ -3912,30 +3912,6 @@
 			)
 			(layer "F.Fab")
 			(uuid "e180699c-b532-4d31-8a01-8177ad8a3073")
-		)
-		(fp_text user "U"
-			(at -1.335 -0.0254 0)
-			(layer "F.SilkS")
-			(uuid "300963de-9308-40cf-ab57-2ba8e1db8b1d")
-			(effects
-				(font
-					(size 0.75 0.75)
-					(thickness 0.13)
-					(bold yes)
-				)
-			)
-		)
-		(fp_text user "1"
-			(at -1.335 0.9144 0)
-			(layer "F.SilkS")
-			(uuid "96989155-e2d0-4c95-adc8-4e76e24919d3")
-			(effects
-				(font
-					(size 0.75 0.75)
-					(thickness 0.13)
-					(bold yes)
-				)
-			)
 		)
 		(fp_text user "${REFERENCE}"
 			(at 0 0 0)
@@ -6776,6 +6752,30 @@
 		(fill no)
 		(layer "Edge.Cuts")
 		(uuid "0362367f-9e3e-56aa-a024-18645f9fbb83")
+	)
+	(gr_text "U"
+		(at 91.491 92.8626 0)
+		(layer "F.SilkS")
+		(uuid "4d9a2827-5c57-4b24-95c5-ace21b2fc1f6")
+		(effects
+			(font
+				(size 0.75 0.75)
+				(thickness 0.13)
+				(bold yes)
+			)
+		)
+	)
+	(gr_text "1"
+		(at 91.491 93.8024 0)
+		(layer "F.SilkS")
+		(uuid "0427d235-9fd7-4e5c-a70d-b9012b4c6c58")
+		(effects
+			(font
+				(size 0.75 0.75)
+				(thickness 0.13)
+				(bold yes)
+			)
+		)
 	)
 	(gr_text "Leak Sensor"
 		(at 101.35 92.8 0)
