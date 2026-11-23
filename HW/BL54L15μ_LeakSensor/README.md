@@ -196,6 +196,23 @@ BUZZ (P1.05) ──┬── Q1 gate
   4 kHz, 110 mA at most, 80 dB at 10 cm (datasheet). It has no oscillator of its own: the
   firmware drives P1.05 with a 4 kHz square wave. 110 mA is far beyond a GPIO's drive, so
   Q1 switches BZ1's low side.
+- **Other 5 mm buzzers**, compared from their datasheets and one distributor's single-piece
+  prices on 2026-11-23. All are 4 kHz magnetic transducers rated near 3 V, with 12 Ω coils
+  where stated, so the driver and the supply ripple stay the same.
+  - **Ole Wolff OWMB-505020S-40-12D**: 80 dB at 10 cm, $1.79 against BZ1's $3.79. The part
+    to try for the next revision; the footprint stays as it is for this one. Its leads
+    reach 5.5 mm across in rows 4.2 mm apart, its body is 5.3 ± 0.3 mm square and 2.1 mm
+    tall, and its recommended land pattern is 6.5 × 5.2 mm. At BZ1's place that pattern
+    runs 0.15 mm past the board's edge and over SDA, SCL and BUZZ, so using it means moving
+    BZ1, rerouting those and giving the case 0.1 mm more height. The leads do land on BZ1's
+    present pads, overhanging their ends by up to 0.1 mm with no fillet at the toe: a few
+    can be tried on a 2026v5 board first. The datasheet is one page, with no coil
+    resistance, current or reflow limit.
+  - Same terminals as BZ1, by their drawings: Same Sky CSS-0575A-SMT (76 dBA, $3.71),
+    Mallory AST0540MW-03TRQ (75 dB, $3.11) and AST0540MW-3.6TRQ (80 dB at 3.6 V, 3.0 mm
+    tall, $3.04).
+  - Same leads as the Ole Wolff part: Same Sky CMT-0502-75-SMT (75 dB, $2.71) and
+    CMT-0525-75-SMT (75 dB, 2.5 mm tall, $2.36).
 - **Q1**, DMG1012T: 20 V, 0.63 A N-channel FET with an ESD-protected gate, in SOT-523.
 - **D3**, 1N4148WT, clamps the coil's flyback when Q1 turns off.
 - **JP1 and C3**, on the back, are an optional filter for BZ1's feed. As built, JP1 is a
@@ -561,7 +578,9 @@ Not started. Planned:
   is not known here. The same current puts 60 to 120 mV of ripple on the module's supply,
   over Ezurio's 10 mV for the radio, and warms U1. Whether that ripple costs packets is
   not known: the firmware should beep between radio events, and JP1 and C3 on the back
-  are there to filter BZ1's feed if a board shows it matters (5.5).
+  are there to filter BZ1's feed if a board shows it matters (5.5). BZ1 costs about twice
+  what an Ole Wolff part of the same rating does; that part needs a wider land pattern, so
+  it waits for the next revision (5.5).
 - **Analog channels.** AIN4 (P1.11) and AIN5 (P1.12) come from Ezurio's pin table and
   have not been read on hardware. 2026v4 showed that a wrong channel reads near VDD.
 - **Firmware.** New board revision, a leak driver for four pins and both directions, and
@@ -594,6 +613,10 @@ Not started. Planned:
   [nRF54 TWIM/I2C clock pin assignment](https://devzone.nordicsemi.com/f/nordic-q-a/120600/nrf54-twim-i2c-clock-pin-assignment/539274)
   (SCL on a clock pin) (5.2).
 - Same Sky CMT-5023S-SMT datasheet: 3 Vo-p, 4 kHz, 110 mA at most, coil 12 ± 3 Ω (5.5, 7.1).
+- [Ole Wolff OWMB-505020S-40-12D datasheet](https://products.owolff.com/acoustics/buzzers-(print)-/@1252/OWMB-505020S-40-12D?output=pdf&delay=3000&recordid393=1252),
+  updated 4 November 2025: 80 dB at 10 cm, mechanical drawing and land pattern; Same Sky
+  CSS-0575A-SMT, CMT-0502-75-SMT and CMT-0525-75-SMT and Mallory Sonalert AST0540MW-03TRQ
+  and AST0540MW-3.6TRQ datasheets: ratings and drawings of the other 5 mm buzzers (5.5).
 - Diodes Incorporated DMG1012T datasheet and SOT523 package outline: gate threshold 0.5 to
   1.0 V, body up to 0.8 mm with up to 0.1 mm standoff (5.5, 5.7, 7.1).
 - Texas Instruments TPD1E10B06 datasheet: 12 pF, 100 nA leakage (7.1).
