@@ -13,6 +13,9 @@ target_include_directories(app PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../../src/sensor
 )
 
+# Compile the real driver under test (it needs only leak.h / leak_model.h /
+# sensor_reading.h, no sensor_reading.cpp).
 target_sources(app PRIVATE
   src/main.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../src/sensor/leak_bidir.cpp
 )
