@@ -15,12 +15,12 @@ board `bl54l15u_hygrometer@2026v4`).
 
 | Item          | 2026v4                                          | 2026v5                                                   |
 | ------------- | ----------------------------------------------- | -------------------------------------------------------- |
-| Size          | 48 mm square                                    | 20 × 18 mm, round bottom, stands on the end of the cell (5.6) |
+| Size          | 48 mm square                                    | 18 × 16 mm, elliptical bottom, stands on the end of the cell (5.6) |
 | Battery       | CR2 in a Keystone 1011 holder                   | CR2 on wires, BAT+ and BAT− pads on the back             |
 | Leak contacts | 6 mm domes on the back, driven one way          | 4 mm domes on the front, either way (4.1)                |
-| Leak pins     | drive P0.01, sense P1.07, 1 MΩ to ground        | P1.07 and P1.04 each drive or sense; 1 MΩ to a GPIO      |
-| I2C           | SDA P1.14, SCL P1.04                            | SDA P1.10, SCL P1.12 (5.2)                               |
-| Buzzer        | BZ1, Q1, D3, R7 (never driven by firmware)      | CMT-5023S-SMT on the front over J1, on P1.11 (5.5)       |
+| Leak pins     | drive P0.01, sense P1.07, 1 MΩ to ground        | P1.12 and P1.11 each drive or sense; 1 MΩ to a GPIO      |
+| I2C           | SDA P1.14, SCL P1.04                            | unchanged (5.2)                                          |
+| Buzzer        | BZ1, Q1, D3, R7 (never driven by firmware)      | CMT-5023S-SMT on the front over J1, on P1.05 (5.5)       |
 | SWD           | 2×5 1.27 mm box header on the front             | 2×5 1.27 mm pads on the back: header or pogo clip (4.2)  |
 | Mounting      | H1, H2                                          | none; the case holds the board by its edge               |
 
@@ -33,7 +33,7 @@ board `bl54l15u_hygrometer@2026v4`).
 | R-3 | No current through the contacts while dry; while measuring, equal current each way       |
 | R-4 | Average current at most 19 µA: 5 years on one CR2 (850 mAh); 10 years needs 9.7 µA        |
 | R-5 | Temperature and humidity as on 2026v4: SHT45 on `i2c21` with MCU pull-ups                |
-| R-6 | Board 20 × 18 mm standing on the end of a CR2 (Ø15.6 max) lying on its side              |
+| R-6 | Board 18 × 16 mm standing on the end of a CR2 (Ø15.6 max) lying on its side              |
 | R-7 | SWD through a soldered 2×5 1.27 mm header or a pogo-pin clip from the side               |
 | R-8 | Front parts in one reflow pass; the back has only pads and the optional J1               |
 | R-9 | A buzzer the firmware can sound when it finds water                                     |
@@ -59,7 +59,7 @@ Analog Dialogue 50-11).
 - **Not the internal pull-down.** At the nRF54L15's 13 kΩ typical (Ezurio datasheet, I2C
   note) the sense node could never reach the input-high level through 20 kΩ of series
   resistance.
-- **Both sense pins analog-capable** (AIN3, AIN0), since each side senses in one direction.
+- **Both sense pins analog-capable** (AIN5, AIN4), since each side senses in one direction.
 
 Reversing the drive is standard practice for conductivity cells. This particular wake and
 reversal scheme has not been checked against patents; do a freedom-to-operate check before
@@ -71,7 +71,7 @@ selling it.
 (measured from its 3D model in `Components/`). Fitted on 2026v5's back, it would hold the
 cell at least 5 mm behind the board.
 
-2026v5 has pads that take either that header or a pogo-pin clip clamped on from the right
+2026v5 has pads that take either that header or a pogo-pin clip clamped on from the left
 edge. The first few boards get a header; the rest are flashed with the clip, and the case
 is sized for boards without J1. KiCad's stock 2×5 1.27 mm SMD land pattern (pads from 0.75
 to 3.15 mm off center) would miss a clip whose two rows are 1.27 mm apart, as its pins
@@ -89,8 +89,8 @@ keep-out is reserved for it.
 
 ### 4.3 Supply
 
-As on 2026v4, the CR2 feeds everything directly: the module takes 1.7 to 3.6 V (Ezurio
-datasheet, schematic checklist) and the SHT45 1.08 to 3.6 V. The firmware reads the cell
+As on 2026v4, the CR2 feeds everything directly: the module takes 1.7 to 3.5 V (Ezurio
+datasheet 0.7, table 3) and the SHT45 1.08 to 3.6 V. The firmware reads the cell
 through the SAADC's VDD input, as before. There is no reverse-polarity protection; the
 wires are soldered once.
 
@@ -99,9 +99,9 @@ wires are soldered once.
 ### 5.1 Leak front end: P1, P2, D1, D2, R1–R4
 
 ```
-P1 ── ELEC_A ──┬── R1 10 kΩ ── LEAK_A (P1.07, AIN3) ── R3 1 MΩ ── LEAK_A_RET (P1.05)
+P1 ── ELEC_A ──┬── R1 10 kΩ ── LEAK_A (P1.12, AIN5) ── R3 1 MΩ ── LEAK_A_RET (P1.09)
                D1 TPD1E10B06 to GND
-P2 ── ELEC_B ──┬── R2 10 kΩ ── LEAK_B (P1.04, AIN0) ── R4 1 MΩ ── LEAK_B_RET (P1.14)
+P2 ── ELEC_B ──┬── R2 10 kΩ ── LEAK_B (P1.11, AIN4) ── R4 1 MΩ ── LEAK_B_RET (P1.10)
                D2 TPD1E10B06 to GND
 ```
 
@@ -128,31 +128,38 @@ P2 ── ELEC_B ──┬── R2 10 kΩ ── LEAK_B (P1.04, AIN0) ── R4
 | Pad    | nRF54L15      | Net        | Use                                        |
 | ------ | ------------- | ---------- | ------------------------------------------ |
 | 5      | VDD           | VDD        | C2 10 µF, the one capacitor Ezurio requires (5.1) |
-| 8      | P1.07 / AIN3  | LEAK_A     | Contact A: drive, edge wake, SAADC         |
-| 17     | P1.04 / AIN0  | LEAK_B     | Contact B                                  |
-| 15     | P1.05         | LEAK_A_RET | R3's return                                |
-| 18     | P1.14         | LEAK_B_RET | R4's return                                |
-| 21, 19 | P1.10, P1.12  | SDA, SCL   | U1 (firmware `i2c21`), internal pull-ups   |
-| 23     | P1.11         | BUZZ       | Q1's gate: BZ1 at 4 kHz (5.5)              |
+| 19     | P1.12 / AIN5  | LEAK_A     | Contact A: drive, edge wake, SAADC         |
+| 23     | P1.11 / AIN4  | LEAK_B     | Contact B                                  |
+| 22     | P1.09         | LEAK_A_RET | R3's return                                |
+| 21     | P1.10         | LEAK_B_RET | R4's return                                |
+| 18, 17 | P1.14, P1.04  | SDA, SCL   | U1 (firmware `i2c21`), internal pull-ups; 2026v4's pins |
+| 15     | P1.05         | BUZZ       | Q1's gate: BZ1 at 4 kHz (5.5)              |
 | 12, 10 | P1.00, P1.01  | XL1, XL2   | X1, 32.768 kHz, internal load capacitors   |
 | 27, 25 | SWDIO, SWDCLK | –          | J1 2, 4                                    |
 | 32     | nRESET        | –          | J1 10                                      |
 | 42     | P2.07         | SWO        | J1 6                                       |
 
-- The AIN numbers are from the Ezurio pin table; 2026v4 confirmed P1.07 = AIN3 on
-  hardware. All four leak pins are on port 1, like 2026v4's sense pin; the 2026v4
-  overlay's gpio0 (drive) node goes and the buzzer moves from gpio2 to P1.11.
-- Pins chosen for routing (5.6). Both contacts' 1 MΩ resistors stand in the middle of
-  the board under the module's bottom-right corner, so RET_A (pad 15), LEAK_B (pad 17)
-  and RET_B (pad 18) leave that corner in the order the parts need, and LEAK_A reaches
-  its node on the back through pad 8's fan-out via. Pad 17 was SCL, so SCL moves to
-  P1.12 (pad 19), also a clock pin. SDA moves to P1.10 (pad 21), just above SCL, so the
-  two reach U1's pads without crossing (U1's pin order is fixed: SDA must arrive on the
-  left-hand side). P1.06 and P1.08 are now unused. BUZZ takes P1.11 (pad 23), just above
-  SDA on the same column, and crosses under the I2C on the back. Firmware only sees this
-  in the new board revision's overlay (`i2c21` pinctrl, leak node pins, SAADC channels
-  and the buzzer's PWM pin).
-- All other pins are open. The module's DC/DC inductor is inside.
+- **Pins chosen for routing** (5.6), within Nordic's rules: a peripheral uses pins of its
+  own port, so TWIM and PWM reach port 1 only; port 2 has no TWIM and cannot wake the
+  chip; SCL must be on a clock pin (Nordic DevZone, section 9). The module's left pad
+  column and bottom rows face the rest of the board, and the pads are used in the order
+  the traces leave: I2C first, toward U1, then the leak nets, down to the columns.
+- **I2C** keeps 2026v4's pins. SCL (pad 17, a clock pin) leaves to the left; SDA (pad 18)
+  drops out below it and follows. They reach U1 with SDA outermost, the order U1's fixed
+  pin order needs, with no vias.
+- **Leak.** LEAK_A (pad 19) and LEAK_B (pad 23) are the analog pads left in the bottom
+  row, with LEAK_B_RET between them on pad 21, which has no analog input. A fourth net
+  cannot leave that row on the front, so LEAK_A_RET takes inner pad 22 and a via in the
+  module's middle; it is a static line. All four pins are on port 1.
+- **BUZZ** is on pad 15: a port 1 pin for the PWM, 1.6 mm from the crystal's pads. Pad 13
+  beside it is P2.02, which the PWM cannot reach.
+- The AIN numbers are from the Ezurio pin table. 2026v4 confirmed P1.07 = AIN3 on
+  hardware; AIN4 and AIN5 are unconfirmed (section 8). A wrong channel reads near VDD,
+  which looks like a leak.
+- Firmware sees this only in the new board revision's overlay: the leak node's four pins
+  and two SAADC channels, and the buzzer as a PWM on P1.05. 2026v4's gpio0 drive node and
+  gpio2 buzzer pin go; `i2c21`'s pins stay.
+- All other pins are open and flagged no-connect. The module's DC/DC inductor is inside.
 
 ### 5.3 Temperature and humidity: SHT45-AD1F (U1)
 
@@ -164,7 +171,8 @@ model put its SHT4x about 1 °C above ambient at 37 mW, roughly 0.03 °C per mW;
 board warms U1 by a few thousandths of a degree, and radio bursts of a few milliseconds
 average out in the board's heat capacity. What matters is how freely room air reaches U1.
 The sensor watches for mold conditions, so approximate humidity is enough: the case has
-one small vent in its right wall, just below U1 (5.7), and U1 follows the room slowly.
+one small vent in its left wall, beside U1 (5.7), and U1 follows the room slowly. BZ1 is
+2 mm away: an alarm warms U1 for some minutes (7.1).
 
 ### 5.4 SWD pads (J1)
 
@@ -179,17 +187,17 @@ test pads; VDD and GND are at BT1 and J1, the signals at J1 and on the parts' pa
 ```
 VDD ──┬── BZ1 + ── BZ1 − ──┬── BUZZER− ── Q1 drain      Q1 DMG1012T, source to GND
       └──── D3 1N4148WT ───┘   (cathode to VDD)
-BUZZ (P1.11) ──┬── Q1 gate
+BUZZ (P1.05) ──┬── Q1 gate
                └── R7 1 MΩ to GND
 ```
 
 - **BZ1**, Same Sky CMT-5023S-SMT: a magnetic transducer, 5 × 5 × 2 mm, rated 3 V at
   4 kHz, 110 mA at most, 80 dB at 10 cm (datasheet). It has no oscillator of its own: the
-  firmware drives P1.11 with a 4 kHz square wave. 110 mA is far beyond a GPIO's drive, so
+  firmware drives P1.05 with a 4 kHz square wave. 110 mA is far beyond a GPIO's drive, so
   Q1 switches BZ1's low side.
 - **Q1**, DMG1012T: 20 V, 0.63 A N-channel FET with an ESD-protected gate, in SOT-523.
 - **D3**, 1N4148WT, clamps the coil's flyback when Q1 turns off.
-- **R7** holds Q1 off while P1.11 floats (reset, or the pin left disconnected in sleep),
+- **R7** holds Q1 off while P1.05 floats (reset, or the pin left disconnected in sleep),
   so BZ1 stays silent. It draws current only while the buzzer sounds.
 - The parts and the land pattern come from the datasheets' recommendations; BZ1's third
   terminal is mechanical and left unconnected.
@@ -197,116 +205,110 @@ BUZZ (P1.11) ──┬── Q1 gate
 ### 5.6 PCB layout
 
 Coordinates in mm, origin on the cell's axis, +y up, seen from the front (KiCad X = 100 + x,
-Y = 100 − y; grid origin on the cell's axis). Placed, routed and silkscreened 2026-11-21,
-then cut down to the cell's 15.6 mm by 2026-11-22. Laid out again the same day at
-20 × 18 mm to take the buzzer, without test points and routed by hand.
+Y = 100 − y; grid origin on the cell's axis). First laid out 2026-11-21 at 20 × 18 mm with
+the module upright at the top left. Shrunk on 2026-11-22 to 18 × 16 mm with the module
+lying flat, then re-pinned (5.2) and routed by hand.
 
-- **Outline**: 20 × 18 mm, x ±10, y −7.85..10.15. Square top corners; the bottom is a
-  semicircle, R10 about (0, 2.15), so the straight sides run from y 2.15 to the top. The
-  cell (Ø15.6) lies behind the board on its axis: the board reaches 2.2 mm past it at each
-  side and 2.35 mm above it. Narrower boards (18 and 19 mm) left no room for the buzzer
-  in the top row, and an 18 × 16 mm board with a round bottom cannot take the domes,
-  which need 16.4 mm of height. Two layers, 1.6 mm.
+- **Outline**: 18 × 16 mm, x ±9, y −7.85..8.15. Square top corners and straight sides down
+  to y −0.45; below that a half ellipse 7.4 mm deep, the case's inner bottom curve 0.1 mm
+  in (5.7). The ellipse is fuller than a semicircle, which at this height left no room for
+  the domes. The cell (Ø15.6) lies behind the board on its axis: the board reaches 1.2 mm
+  past it at each side and 0.35 mm above it. Two layers, 1.6 mm.
 - **Rules** (`BL54L15μ_LeakSensor.kicad_dru`): copper at least 0.381 mm from the edge, as
-  on the USB CO2 board; courtyard overlaps allowed only for X1 and C2 inside IC1's. A DRC
-  exclusion covers J1's silk past the right edge (the header's shroud).
+  on the USB CO2 board. Courtyards may overlap in three places: X1 and C2 at the edge of
+  IC1's; parts in the domes' courtyards, which reach 0.8 mm past the 4 mm dome; R3 and R4
+  in IC1's 1 mm margin. Two DRC exclusions: J1's silk past the left edge (the header's
+  shroud) and U1's label against its own outline.
 
 | Part             | Side  | Position                       | Note                                            |
 | ---------------- | ----- | ------------------------------ | ----------------------------------------------- |
-| IC1              | front | x −9.1..−2.8, y 2.07..9.97     | top left, antenna end up, 0.18 mm from the top edge, 0.9 mm from the left |
-| Antenna keep-out | all   | x −8.45..−3.45, y 6.97..9.97   | 3 × 5 mm, the module footprint's own rule area; on the back, out to the left edge |
-| U1, C1           | front | (7.87, 9.21), (8.82, 7.44)     | top right corner; U1's SDA and SCL pads face IC1 |
-| X1               | front | (−5.625, 0.2)                  | 1.1 mm under IC1's body, centered on the XL1 and XL2 vias |
-| C2               | front | (−8.74, 0.75) upright          | left of X1, pad 1 (VDD) at the top              |
-| R3, R1, D1       | front | x −0.6, y 1.65, −0.21, −2.07, upright | contact A's column, top to bottom        |
+| IC1              | front | x 0.9..8.8, y 1.35..7.65       | top right, lying flat: antenna end 0.18 mm from the right edge, pin 1's side 0.5 mm from the top |
+| Antenna keep-out | all   | x 5.82..8.82, y 2.0..7.0       | 3 × 5 mm, the module footprint's own rule area; two more keep pours out of the strip above it |
+| U1, C1           | front | (−7.17, 7.11), (−5.5, 6.99) upright | top left corner, by the vent; U1's SDA and SCL pads face the left edge |
+| X1               | front | (−1.25, 4.18) upright          | 1.3 mm left of IC1, its pads' ends toward it    |
+| C2               | front | (−1.56, 7.24)                  | above X1, pad 1 (VDD) toward the module         |
+| R3, R1, D1       | front | x −0.6, y −0.35, −2.21, −4.07, upright | contact A's column, top to bottom        |
 | R4, R2, D2       | front | x 0.6, same y, upright         | contact B's column, beside A's                  |
-| P1, P2           | front | (∓3.95, −4.85), turned 180° ∓ 24.5° | 7.9 mm apart, feet below center along the round bottom |
-| BZ1              | front | (6.85, 4.1)                    | right edge, over J1; mounting terminal top left |
-| D3, Q1, R7       | front | (5.8, 0.55), (8.2, −0.25) turned 90°, (6.58, −1.6) upright | under BZ1 |
-| J1               | back  | center (6.97, 4.1)             | right edge, odd column outboard, pin 1 at the top |
+| P1, P2           | front | (∓3.95, −4.85), turned 180° ∓ 24.5° | 7.9 mm apart, feet below center along the bottom curve |
+| BZ1              | front | (−5.90, 3.08)                  | left edge, over J1; mounting terminal top left  |
+| D3, Q1, R7       | front | (−8.0, −1.04) upright, (−5.96, −1.02), (−3.68, −1.02) | in a row under BZ1    |
+| J1               | back  | center (−6.02, 2.3)            | left edge, odd column outboard, pin 1 at the bottom |
 | BT1              | back  | + (0, −3.9), − (0, −6.4)       | between the domes' inner feet                   |
 
-- **Module at the top left, chip antenna toward the corner.** The chip antenna sits in
-  the corner of the module's antenna end on pin 1's side, by ground pad G3 (datasheet
+- **Module flat in the top right, antenna end at the right edge.** The chip antenna sits
+  in the corner of the module's antenna end on pin 1's side, by ground pad G3 (datasheet
   figure 10; Ezurio's product render and a photo of their development kit agree), which
-  is the module's top left here. The end is as close to the top edge as its end ground
+  is the board's top right corner. The end is as close to the right edge as its end ground
   pads allow: their copper ends 0.2 mm from the module's end, so the 0.381 mm edge rule
-  puts the module 0.18 mm in (the DevKit uses 0.23 mm). The side is 0.9 mm from the left
-  edge, the least that lets the front pour pass the module's left pad column and reach
-  ground pad 39 (0.381 edge rule, 0.16 pour neck, 0.1524 clearance, pads 0.2 mm inside
-  the body); in the corner itself, pad 39 had no connection. The chip antenna is then
-  1.4 mm from the left edge and 0.4 mm from the top, and seen from the front it sits
-  about 5.2 mm outside the cell's outline. BZ1 and J1 are at the right edge, away from it.
-  The back pour stays out of the strip between the keep-out and the left edge.
-- **Module mirrored from the sketch.** The module's SDA, SCL, SWDIO and SWDCLK pads are
-  on one side; turned toward the open middle of the board, I2C runs on the front to U1
-  with no vias, and SWD crosses to J1 on the back.
+  puts the module 0.18 mm in (the DevKit uses 0.23 mm). Pin 1's side is 0.5 mm from the
+  top edge. At 0.18 mm, ground pad 39 could not be joined at 0.1524 mm rules; 0.32 mm
+  lower, its trace runs over pad 37 (no connection) along the edge rule to pad 46, and
+  pads 46 to 48 link along their row and down to pad 36. The chip is then about 0.4 mm
+  from the right edge and 1.0 mm from the top, and seen from the front it sits about
+  3.4 mm outside the cell's outline (5.2 mm on the 20 × 18 layout). Neither pour enters
+  the strip between the keep-out and the top edge; on the back, no track or via does.
+- **Why flat.** Upright, the module took the board's full height and its pads faced one
+  side. Flat, its left pad column and bottom rows face the rest of the board, U1 takes the
+  far top corner by the vent, and the board loses 2 mm each way.
 - **Leak front end in two columns.** Each contact's parts stand upright end to end below
   the module, in the chain's order: the 1 MΩ resistor at the top, then the 10 kΩ, then
   the TVS diode with its ground pad facing down. The columns are 1.2 mm apart about the
-  axis, so the same values sit side by side for hand assembly, and stand high enough that
-  D1 and D2 end level with the tops of the domes. Pads that meet share a net, so each
-  column's links are short stubs. RET_A runs from pad 15 under pad 17 into R3; LEAK_B
-  leaves pad 17 over R3 and runs down the gap between the columns to the R4–R2 joint;
-  RET_B drops from pad 18 into R4; LEAK_A comes from pad 8's via along the back, round
-  the outside of X1's fence, and up through a via into the R3–R1 joint. ELEC_A and ELEC_B
-  leave the resistor-diode joints at 45° for the domes' center pads. D1's and D2's ground
-  pads each get a via just outboard.
+  axis, so the same values sit side by side for hand assembly. Pads that meet share a net,
+  so each column's links are short stubs. LEAK_A leaves pad 19, runs left under the I2C
+  pair and down the gap between the columns to the R3–R1 joint; LEAK_B_RET drops from pad
+  21 into R4 from the right; LEAK_B leaves pad 23 down the right of its column into the
+  R4–R2 joint. LEAK_A_RET goes from inner pad 22 to a via in the module's middle, 5.9 mm
+  along the back, and up through a via onto R3's top pad. ELEC_A and ELEC_B leave the
+  resistor-diode joints at 45° for the domes' center pads. D1's and D2's ground pads each
+  get a via just outboard.
 - **Domes.** The 4 mm dome footprint (`MetalDomeSwitch:TriangleDome_Diameter4mm`) has its
   two feet 2 mm either side of center, 0.4 mm off it. Turned 180°, the feet are below
-  center; each dome is tilted 24.5° so its feet follow the round bottom, about 1.2 mm in
+  center; each dome is tilted 24.5° so its feet follow the bottom curve, about 1.3 mm in
   from the edge. The domes are 7.9 mm apart, their inner feet clear of BT1's pads on the
   back; the water's resistance between the pins hardly depends on their spacing (it grows
   with its logarithm). The center pad is tied to both feet. The feet are plated slots
   0.254 mm wide, under OSH Park's 0.508 mm minimum for drilled slots; 2026v4's 6 mm domes
   had the same slots.
-- **J1 and the clip.** J1 sits at the right edge, not behind the module: the module's
+- **J1 and the clip.** J1 sits at the left edge, not behind the module: the module's
   under-body vias would land in its pads. Its outboard pads (odd: VDD, ground, key) reach
-  the edge rule at pin 9's corner, where the round bottom begins (4.2). nRESET comes down
-  the gap between J1's columns to pin 10, which cuts pins 3 and 5 off from the rest of the
-  back pour; a via in pin 3 ties them to the front pour under BZ1. Pin 9 joins the main
-  back pour. The pogo pins land 0.64 or 1.27 mm either side of J1's center line, and BZ1
-  on the front opposite takes the clip's other jaw.
+  the edge rule. Pins 3 and 5 are shut in by the pads round them; a via in the gap between
+  J1's columns ties them to the front pour under BZ1. Pin 9 joins the main back pour. The pogo pins land 0.64 or 1.27 mm either side of
+  J1's center line, and BZ1 on the front opposite takes the clip's other jaw.
 - **BZ1 and its driver.** BZ1 sits over J1 with its + pad at the bottom left, its − pad
-  at the bottom right and its unconnected mounting terminal at the top left. VDD comes up
-  from BT1+ through a via below the + pad, which also feeds D3's cathode. D3, Q1
-  and R7 sit under BZ1, inside the round bottom: the − pad drops to Q1's drain, with D3's
-  anode on the way. BUZZ leaves pad 23 on the front, crosses under the I2C on the back
-  between two vias, and comes down to R7 and Q1's gate. Q1's source and R7's ground end
-  share a ground via.
-- **X1 and C2 under the module.** X1 sits about 1.1 mm below the module's body, centered
-  between the XL1 and XL2 fan-out vias: each leg runs straight down the back to a via
-  1.4 mm above X1, then a 0.2 mm front stub drops onto its pad, so the two legs match.
-  Eight ground vias fence X1 on the left, right and bottom; the module and the crystal's
-  vias close the top. C2 stands left of X1; VDD runs from pad 5 onto C2's top pad and on
-  to a via left of C2. Both lie inside the module's courtyard (which reaches 1 mm past its
-  body); a custom rule allows exactly that.
-- **Fan-out.** The vias under the module for XL1, XL2, nRESET, SWO and ground are
-  2026v4's, copied in the module's frame. Pad 8's via (LEAK_A) moved 0.4 mm into the
-  module's open middle so that pad 4, a ground pad boxed in by signal pads, can reach a
-  via of its own, as on the USB CO2 board.
-- **Routing.** Front: RET_A, LEAK_B and RET_B from the module's bottom-right corner to
-  the columns; I2C from pads 21 and 19 across the board's middle and up the left of BZ1
-  into U1's left pads; VDD from pad 5 to C2, and from BZ1's + pad up under BZ1's middle
-  to C1 and round U1's right side, clear of the keep-out under U1's body; the
-  dome ties. Back: SWD and SWO to J1's inboard pads; nRESET just under and right of the
-  antenna keep-out, across the top and down between J1's columns; XL1/XL2; LEAK_A round
-  X1's fence; BUZZ under the I2C; VDD from C2's via down the left edge and across to BT1+,
-  then from BT1+ up to the via below BZ1, with a via onto J1's pin 1. Tracks 0.15 mm,
-  power 0.3 mm; 0.25 mm in the driver, 0.2 mm into U1 and C1, for the crystal stubs and
-  the dome ties.
-- **Silkscreen.** References at 0.75 mm (the board minimum) beside their parts: X1's on
-  its body between its pads, the column parts' upright outboard of their columns, P1's and
-  P2's above the domes' outer feet, BZ1's under the part (hidden once fitted). BT1 has its
-  + and −, and the back carries "Leak Sensor", `${REVISION}` and `${COMPANY}` from the
-  board's literal title block. J1's back outline is the header's shroud and runs past the
-  right edge.
+  at the bottom right and its unconnected mounting terminal at the top left. D3, Q1 and R7
+  stand in a row under it, D3 upright at the left edge. The − pad drops to Q1's drain and
+  D3's anode; D3's cathode and the + pad share the supply via between D3 and Q1. D3 is
+  within 3 mm of both of BZ1's pads; the few nanohenries of trace are nothing beside the
+  coil. BUZZ leaves pad 15, crosses under the I2C pair and LEAK_A on the back between two
+  vias, and comes down to R7 and Q1's gate. Q1's source and R7's ground end join the pour.
+- **X1 and C2.** X1 stands upright 1.3 mm left of the module. Each leg runs 2.8 mm along
+  the back from the module's fan-out via to a via beside X1's pad, then a 2.1 mm front
+  stub, 0.2 mm wide, so the two legs match; ground is poured between and around them on
+  both layers. C2 lies above X1 with its VDD pad 1.5 mm from pad 5. Both courtyards touch
+  the module's, which reaches 1 mm past its body; a custom rule allows that.
+- **Fan-out.** Under the module: 2026v4's vias for XL1 and XL2, copied in the module's
+  frame, and vias for SWO, nRESET, LEAK_A_RET and ground. Ground pad 4, boxed in by
+  signal pads, has a via of its own, as on the USB CO2 board.
+- **Routing.** Front: I2C from pads 17 and 18 left under X1, then up under BZ1's body
+  between its pads into U1's left pads, SDA round the outside; the leak nets; the supply
+  from the via by D3 to D3 and BZ1's + pad, on under BZ1 to a second via, and from a third
+  by C1 to U1, C1, along the top to C2 and pad 5 (about 50 mΩ from BT1 to the module);
+  the dome ties. Back: SWD to J1's pins 2
+  and 4; SWO and nRESET from the module's middle over the top and down to pins 6 and 10;
+  XL1 and XL2; LEAK_A_RET; BUZZ; the supply from BT1+ to the via by D3 and J1's pin 1, and
+  between the second and third vias up between J1's pins 9 and 10. Tracks 0.15 mm; power
+  0.2 to 0.3 mm; 0.25 mm in the driver; 0.2 mm for the crystal stubs and the dome ties.
+- **Silkscreen.** References at 0.75 mm (the board minimum) beside their parts; IC1's,
+  X1's and BZ1's are under the parts, hidden once fitted. BT1 has its + and −, and the back
+  carries "Leak Sensor", `${REVISION}` and `${COMPANY}` from the board's literal title
+  block, behind the module. J1's back outline is the header's shroud and runs past the
+  left edge.
 - **Ground.** Pours on both layers outside the keep-out, 0.1524 mm clearance as on
   2026v4. Thermal reliefs on the front only for through-hole pads (it is reflowed); on
-  the back for every pad, so J1 and BT1's wires can be hand-soldered. 30 ground vias:
-  X1's fence, the module's, the diodes', the driver's, J1's pin 3, and stitching placed
-  farthest-first until every point of either pour is within 3 mm of a via, except over
-  the domes, in the antenna corner, in U1's corner and under J1's pads.
+  the back for every pad, so J1 and BT1's wires can be hand-soldered. 28 ground vias. The
+  point of either pour farthest from one is 4.8 mm away, in U1's corner, inside the
+  5.3 mm (λ/8 at 2.4 GHz) used on the USB CO2 board; 4.6 % of the pour is more than 3 mm
+  from one (`Sim/layout.py`).
 
 ### 5.7 Case
 
@@ -314,54 +316,59 @@ then cut down to the cell's 15.6 mm by 2026-11-22. Laid out again the same day a
 `Case/LeakSensor_2026v5.FCStd`. The file also holds the board (KiCad's STEP export), the
 cell, the battery contacts and the leak pins as reference parts, and the script checks all
 of them against each other. The case is an open-top body with half-dome ends and a lid that
-slides on from the rear, 23.3 × 57.0 × 20.45 mm. The board stands across the front
-with the cell lying behind it. The board sets the width and height: its 20 mm plus
-0.15 mm clearance and a 1.5 mm wall each side, its 18 mm plus a 1.0 mm floor, a 1.2 mm
+slides on from the rear, 21.3 × 56.5 × 18.45 mm. The board stands across the front
+with the cell lying behind it. The board sets the width and height: its 18 mm plus
+0.15 mm clearance and a 1.5 mm wall each side, its 16 mm plus a 1.0 mm floor, a 1.2 mm
 lid and the slot's 0.1 mm under the board and 0.15 mm over it.
 
-The bottom is a half ellipse, 23.3 mm wide and 8.5 mm deep outside, the inside concentric
-(1.0 mm floor, 1.5 mm sides): flatter at the bottom than a semicircle and fuller, so it
-still clears the board's round bottom and the cell. With no flat, the body prints upright
+The bottom is a half ellipse, 21.3 mm wide and 8.5 mm deep outside, the inside concentric
+(1.0 mm floor, 1.5 mm sides): flatter at the bottom than a semicircle and fuller. The
+board's bottom is the same curve 0.1 mm in, and the cell clears it by 0.1 mm. With no flat, the body prints upright
 only with supports under its curve (PrusaSlicer's organic supports from the build plate).
 Both ends are half domes: the same section turned about a vertical axis, so they are
 semicircles seen from above and every cut through the axis shows the sides' curve. The
-front one's axis is the board's front face, so the board's full width stays in the
-straight part; the module, BZ1, C1 and C2 stand in its bowl, at least 0.19 mm clear, and
-the case's front is 11.65 mm ahead of the board. The rear one's axis is 1.0 mm in front of
-the cell's rear end: its bowl clears the cell's rear edge by 0.11 mm and holds the 228
+front one's axis is 1.5 mm ahead of the board's front face. On the face, the module's
+end, 2.1 mm tall and 0.18 mm from the board's edge, came within 0.09 mm of the curving
+wall; now it clears by 0.31 mm, the least gap round any front-side part is 0.28 mm, and
+the case's front is 12.15 mm ahead of the board. The rear one's axis is 1.0 mm in front of
+the cell's rear end: its bowl clears the cell's rear edge by 0.10 mm and holds the 228
 contact, its tab and the + wire. Round ends make the case 7.3 mm longer than the squashed
 ones did. The top's edges are square.
 
 - **Board slot.** 0.4 mm lips front and back along the board's sides and bottom; the
   board drops in from the top and rests 0.1 mm above the floor. The side lips stop at
-  y 7.3, 2.85 mm below the board's top. The domes push the board back, so its
-  front face is the datum: two crush ribs behind the straight sides, 0.1 mm into a 1.6 mm
-  board, hold it against the front lip. The dome press then depends on two faces of one
+  y 7.3, 0.85 mm below the board's top. The front lip is cut away where parts stand
+  within its 0.4 mm: on the right above y 0.9 (the module's end), on the left from
+  y −2.0 to 5.9 (D3 and BZ1). The domes push the board back, so its front face is the
+  datum: a crush rib behind each straight side, 0.1 mm into a 1.6 mm board and only as
+  long as the front lip left opposite it, holds it against that lip. The dome press then depends on two faces of one
   print, not on the board's thickness or the slot's fit.
 - **Leak pins.** Ø2.5 × 6 mm flat-ended metal pins, used as they come, stand upright at x
   ±3.95, just in front of the domes. Each is pushed up from below into a blind bore in a
   boss that runs from the front dome's wall back toward the board. The side of each pin
   presses its dome's apex: the pin surface is 0.2 mm off the board and the dome is assumed
   0.3 mm high, a 0.1 mm press (`DomeApex`, `PinPress`). The bore opens toward the dome
-  through a 2.0 mm gap, narrower than the pin, and the bore's wall stops 0.7 mm short of
-  the board, over the domes; the bosses clear X1, C2 and the diodes. The board's domes fix
-  the pins 3.95 mm either side of the center line, just behind the front dome's axis,
-  where the bottom has begun to curve up: across a pin it rises 0.7 mm. The bore's depth
+  through a 2.4 mm gap, narrower than the pin, and the bore's wall stops 1.1 mm short of
+  the board, over the domes. That clears Q1, whose body ends 0.2 mm above the left boss
+  and stands up to 0.9 mm tall: 0.28 mm at its tallest (at 0.7 mm it collided). The
+  bosses also clear R7 and the diodes. The board's domes fix the pins 3.95 mm either side
+  of the center line, at the front dome's axis, where the bottom curves up across the
+  case: across a pin it rises 0.8 mm. The bore's depth
   sets each pin's end flush with the lowest point of the curve where it exits, 0.28 mm
-  above the table, so nothing stands proud; the outer part of the end sits up to 0.7 mm
+  above the table, so nothing stands proud; the outer part of the end sits up to 0.8 mm
   inside its hole. Water has to stand 0.28 mm deep to reach the pins. Another length from
   the box only changes the bore's depth (`PinL`).
 - **Cell.** Keystone 209 leaf spring (−) on a 1.6 mm divider behind the board, 228 button
   (+) on a 1.6 mm rear panel; both clip onto 1.52–1.78 mm panels and are listed for CR2.
   The 209 is assumed compressed to 2.5 mm between the divider and the cell. Two saddles
   under the cell, and two ribs under the lid over them, 0.1 mm off the cell: the board,
-  not the cell, sets the bay's height, which leaves 2.5 mm above the cell.
+  not the cell, sets the bay's height, which leaves 0.5 mm above the cell.
 - **Wiring.** BT1's pads face the divider across a 2.0 mm gap, where the 209's tab is.
   The 228's tab sits in the dome's bowl behind the rear panel; its wire runs forward over
-  both panels in the bay's upper left corner, 1.85 mm in from the wall to clear the rear
+  both panels in the bay's upper left corner, 1.55 mm in from the wall to clear the rear
   dome's curve, clear of the cell and below the lid.
-- **Vent.** One 1.0 × 2.0 mm slot in the right wall of the front dome, into its bowl in
-  front of the board, level with U1 (5.3). There is no other opening: BZ1 sounds through
+- **Vent.** One 1.0 × 2.0 mm slot in the left wall, into the space in front of the
+  board, level with U1's lower half (5.3), with 0.7 mm of wall above it. There is no other opening: BZ1 sounds through
   the closed case.
 - **Lid.** A 1.2 mm plate that slides on from the rear, after the hygrometer 2026v3's case
   with its track turned inside out: the side walls run up to the plate outside, and a 0.8
@@ -372,21 +379,25 @@ ones did. The top's edges are square.
   the tongues would meet the board's top corners, to the rear dome, and the lid stops
   where the grooves end. The plate covers the front dome, which stands to the walls'
   height: as part of the lid, its curve would sweep through the walls while the lid slides
-  on. The lid does take the rear dome's top, down to 4.9 mm below the top, just under the
+  on. The lid does take the rear dome's top, down to 4.0 mm below the top, under the
   two ribs that hold the cell down (above), which slide out over the rear dome's rim; the
   tongues run on into that part of the dome's wall until it covers their ends, to join it.
   Outside, the seam runs at the plate, 1.2 mm below the top, around the front and along
-  the sides, and drops to 4.9 mm where the rear dome begins.
+  the sides, and drops to 4.0 mm where the rear dome begins. The tongues' feet pass 0.2 mm over the
+  contact panels.
 - **Fits, as on 2026v3.** Faces that slide or bear are drawn line to line: the tongues on
   the walls' inner faces, the plate on the walls' tops, the tongues' feet level with the
   seam. Only the groove is cut larger than the ridge, 0.05 mm deeper and 0.1 mm taller, so
   its upper flank bears and its lower flank clears. The detent is 2026v3's turned inside
-  out too: a 60° bump, 0.5 mm high, on each tongue 5 mm ahead of the track's rear entry,
+  out too: a 60° bump, 0.5 mm high and 1.4 mm tall (it ends 0.2 mm under the ridge), on each tongue
+  5 mm ahead of the track's rear entry,
   and in each wall a notch 0.05 mm deeper behind a lead-in ramp, 0.6 mm deep at the entry
   and running out over 4 mm, so the bump rides the wall only for the last 4.2 mm of
   travel. The wall takes the ramp better than the tongue would.
 - **Checks.** No overlap between the body, lid, board and its parts, cell, contacts, pins
-  and a Ø1.2 mm + wire. The board drops in from 25 mm above without touching anything but
+  and a Ø1.2 mm + wire. BZ1 and Q1 have no 3D model in the board's STEP, so boxes stand
+  in for them (Q1's at its tallest), and the build prints the least gap between the
+  front-side parts and the case. The board drops in from 25 mm above without touching anything but
   the ribs, and the lid slides out to the rear touching only where the bumps ride the
   ramps (the line-to-line faces touch without overlapping). The build also checks that
   both parts mesh to closed solids for the slicer. J1's header model
@@ -418,15 +429,70 @@ ones did. The top's edges are square.
 on the USB CO2 board); KiCad ships none for its SHT4x footprint. D1 and D2 use KiCad's 0402
 resistor model as a stand-in: KiCad has no 0402 diode model, and TI's X1SON (DPY) body is
 the same 1.0 × 0.6 mm. BZ1 and Q1 have no model yet (KiCad ships none for SOT-523): to be
-downloaded from DigiKey.
+downloaded from DigiKey. Until then the case checks use boxes for them (5.7).
 
 ## 7. Verification
+
+### 7.1 By calculation and simulation
+
+Run on the committed board, 2026-11-22. `Sim/sim.py` runs the circuit checks (ngspice for
+the buzzer driver and the leak front end), `Sim/layout.py` the layout checks with KiCad's
+Python, and `Case/build_case.py` the fits (5.7). Values no datasheet gives are marked
+ASSUMED in the scripts and named here.
+
+| Check                         | Result                                                              | Verdict |
+| ----------------------------- | ------------------------------------------------------------------- | ------- |
+| ERC, DRC, schematic parity    | 0 errors and warnings, 0 unconnected, 0 parity issues; 2 exclusions (5.6) | pass |
+| Edge wake threshold           | sense node at 0.7 VDD below 0.41 MΩ, back under 0.3 VDD above 2.3 MΩ | as designed (R-1) |
+| Leak settling                 | 99 % in 71 µs at 10 MΩ, faster below; 2026v4's driver waits 100 µs  | pass |
+| SAADC, 40 µs acquisition      | −1.3 % at 10 MΩ with a 2.5 pF sampling capacitor, −7 % at 10 pF     | pass (R-2: 10 %) |
+| False leak from leakage       | 10 nA into the sense pin reads as 300 MΩ; 100 MΩ of film reads as itself | pass |
+| ESD at a dome, 8 kV contact   | about 30 A in the TVS, clamped near 22 V; 1.9 mA through R1 into the pin | pass |
+| Buzzer, coil current          | peak 125 to 232 mA, 45 to 95 mA from the cell, for 3 to 0.3 mH       | within 110 mA |
+| Buzzer, Q1 and D3             | drain clamped at 3.9 V; Q1 under 7 mW; D3 13 to 42 mA average        | pass |
+| Buzzer, brown-out             | module stays above 1.7 V up to 8 Ω of cell resistance at 3.0 V, 4 Ω at 2.4 V | pass |
+| Buzzer, supply ripple         | 60 to 120 mV peak to peak at the module on a 0.5 Ω cell             | **over Ezurio's 10 mV** |
+| Buzzer, heat                  | about 170 mW beside U1; the board warms roughly 1 K in 10 s, 5 K in 60 s | **U1 reads high** |
+| Buzzer, charge                | about 1 mAh a minute at 1 mH, up to 1.8 mAh at the rated 110 mA      | note |
+| I2C rise time                 | 91 to 115 ns on 8.5 pF with the 13 to 16 kΩ pull-ups; 300 ns allowed | pass at 400 kHz |
+| Crystal load                  | board stray adds about 0.5 pF: 6 ppm fast unless trimmed out         | trim in firmware |
+| Dome press                    | 0.1 mm nominal with 0.1 mm spread: no contact on 16 % of pins       | **too little** |
+| Ground stitching              | farthest pour point 4.8 mm from a via; 4.6 % over 3 mm               | pass (5.3 mm) |
+| Case fits                     | no overlap; least gap to a front part 0.28 mm; board drops in, lid slides off | pass |
+
+- **Buzzer inductance.** Same Sky gives the coil's resistance (12 ± 3 Ω) but not its
+  inductance: 1 mH is assumed and 0.3 to 3 mH swept. The datasheet's 110 mA fits the low
+  end. Q1 is modeled from its datasheet threshold and on-resistance; with the worst
+  threshold (1.0 V) on a 2.0 V cell it still switches fully.
+- **Supply ripple.** The cell's own resistance sets it (0.5 Ω assumed for the row above);
+  C2 is 8 Ω at 4 kHz and does little. Ezurio's table 3 allows 10 mV of ripple on VDD "that
+  does not disturb the radio", so the firmware should not transmit or receive while the
+  buzzer sounds: beep between radio events.
+- **Heat.** A single lump of 1.5 J/K losing 12 mW/K is assumed; it is a rough bound, and
+  U1 is 2 mm from BZ1. The firmware should mark temperature and humidity as suspect during
+  an alarm and for some minutes after.
+- **Leak front end.** The node capacitance (12 pF of TVS, 5 pF assumed for the pin and
+  trace) holds the SAADC's sample: the reading is right even though 1 MΩ is over Nordic's
+  800 kΩ for a 40 µs acquisition. With 3 µs it would read 11 % low at 10 MΩ. V_IH and the
+  SAADC's sampling capacitor are assumed, not read from Nordic's tables.
+- **Dome press.** The spread is assumed: 0.08 mm for the printed bore, 0.05 mm for the
+  slot, 0.03 mm for the dome. With it, a 0.2 mm nominal press misses on 2 % of pins and
+  0.25 mm on 0.6 %. A pressed-flat dome still connects (its center pad shares the net), so
+  more press costs nothing electrically; `PinPress` is left at 0.1 until a dome is chosen.
+- **Ground under traces.** The back pour lies under 73 and 82 % of LEAK_A and LEAK_B and
+  64 to 67 % of the I2C pair; the gaps, at most 1.8 mm, are over the BUZZ and LEAK_A_RET
+  hops. Nothing on the board is fast enough for that to matter.
+- **Not simulated.** The antenna (no field solver; the RSSI test below decides), battery
+  life (needs 2026v4's measured current), and the sound level through the closed case.
+
+### 7.2 On hardware
 
 Not started. Planned:
 
 | Test                                                                       | Checks   | Pass                                           |
 | -------------------------------------------------------------------------- | -------- | ---------------------------------------------- |
 | Sleep current, leak armed, then parked                                     | R-3, R-4 | no measurable difference                       |
+| SAADC on AIN5 and AIN4 with LEAK_A, then LEAK_B, held at a known voltage   | 5.2      | each channel reads its own pin                 |
 | Resistance box across P1–P2, both directions: largest value that wakes     | R-1      | about 0.4 MΩ; record it                        |
 | SAADC reading at 10 kΩ, 100 kΩ, 1 MΩ and 10 MΩ, both directions            | R-2      | within 10 % of the divider, both ways          |
 | Tap water across the contacts                                              | R-1, R-3 | report within a second, pins parked after      |
@@ -435,17 +501,19 @@ Not started. Planned:
 | Flash through a soldered header, then through the pogo clip                | R-7      | both work                                      |
 | SHT45 against a reference thermometer                                      | R-5      | within 0.5 °C                                  |
 | Buzzer at 4 kHz in the closed case, on a partly used CR2                   | R-9      | audible across a room; no brown-out            |
+| VDD ripple at C2 with the buzzer on; packet loss with and without it       | 7.1      | record both                                    |
+| SHT45 reading through a one-minute alarm and the 10 minutes after          | 7.1      | record the rise and the recovery               |
+| Pin to dome continuity on each printed case                                | 7.1      | both pins connect                              |
 
 ## 8. Known limitations and open questions
 
-- **Antenna.** The module sits at the top left with its chip antenna toward the corner,
-  where the datasheet prefers edge center (sections 5.2, 5.3.1, 6.2). The board is wider
-  and taller than the cell, so seen from the front the antenna keep-out lies outside the
-  cell's outline (its inner corner just touches it) and the chip is about 5.2 mm outside
-  it. The cell is still within a few millimeters behind, and the 209 contact is behind the
-  board. Metal within 20 mm "will begin to significantly degrade performance" (5.3.2);
-  BZ1, a coil and magnet, is about 13 mm from the chip at its nearest corner. The RSSI
-  test in section 7 decides whether this layout holds.
+- **Antenna.** The module lies in the top right corner with its chip antenna toward the
+  corner, where the datasheet prefers edge center (sections 5.2, 5.3.1, 6.2). Seen from
+  the front the chip is about 3.4 mm outside the cell's outline, less than the 5.2 mm of
+  the 20 × 18 layout, and the cell is a few millimeters behind. Metal within 20 mm "will
+  begin to significantly degrade performance" (5.3.2): BZ1, a coil and magnet, is about
+  14 mm from the chip, X1 10 mm, the right leak pin 12 mm. The RSSI test in section 7
+  decides whether this layout holds.
 - **Battery life** is a target, not an estimate: the module idles at 3 µA (Ezurio
   datasheet, section 2.1) and the SHT45 at 0.08 µA, which leaves about 16 µA for Thread
   polling and reports. A 2026v4 current measurement comes first.
@@ -454,19 +522,24 @@ Not started. Planned:
   firmware should debounce the edge, as for 2026v4.
 - **Dome press.** The 4 mm dome part is not chosen. A dome travels only a few tenths of a
   millimeter, so the case's 0.3 mm height and 0.1 mm press (5.7) need checking against
-  the chosen part's drawing and a test print.
+  the chosen part's drawing and a test print. With a plausible print spread, 0.1 mm leaves
+  one pin in six without contact (7.1): expect to raise `PinPress` to 0.2 mm or more.
 - **Pogo clip.** J1's pads accept rows 1.27 or 2.54 mm apart; check against the clip used,
   and that BZ1 takes its other jaw.
 - **Buzzer.** BZ1's land pattern, Q1 and D3 come from datasheets, not parts in hand. BZ1
-  draws up to 110 mA from the CR2: check that the cell's sag on a cold, partly used cell
-  keeps the module above 1.7 V, or limit the alarm's duty.
+  draws up to 110 mA from the CR2. By simulation the module stays above 1.7 V unless the
+  cell's resistance passes 4 Ω at 2.4 V (7.1); the CR2's resistance cold and partly used
+  is not known here. The same current puts 60 to 120 mV of ripple on the module's supply,
+  over Ezurio's 10 mV for the radio, and warms U1.
+- **Analog channels.** AIN4 (P1.11) and AIN5 (P1.12) come from Ezurio's pin table and
+  have not been read on hardware. 2026v4 showed that a wrong channel reads near VDD.
 - **Firmware.** New board revision, a leak driver for four pins and both directions, and
-  the buzzer moved to P1.11 as a 4 kHz PWM. Whether the board keeps the name
+  the buzzer moved to P1.05 as a 4 kHz PWM, sounded between radio events (7.1). Whether the board keeps the name
   `bl54l15u_hygrometer` is open; 2026v5 was also the name of the battery CO2 hygrometer in
   PR 23, closed and never built.
 - **Case.** Unprinted. The 209's compressed length and both contacts' tab positions come
   from Keystone's catalog drawing, not parts in hand. Boards with J1 fitted do not fit.
-  The lid's line-to-line slide fit and its detent need a test print; how loud BZ1 is
+  The lid's line-to-line slide fit and its detent, now 1.4 mm tall, need a test print; how loud BZ1 is
   through the closed case is untested. The bottom has no flat: it prints with supports,
   and on a table it rests on its lowest line. The pins' ends sit 0.28 mm above the table,
   so the sensor needs water about that deep before it reaches them.
@@ -474,13 +547,25 @@ Not started. Planned:
 ## 9. References
 
 - [Ezurio BL54L15µ datasheet](https://www.ezurio.com/documentation/datasheet-bl54l15u),
-  version 0.6, 18 March 2025: section 2.1 (System ON idle 3 µA), the pin table (AIN
-  mapping), the schematic checklist (13 kΩ pull-ups), sections 5.1 (one mandatory 10 µF),
-  5.2, 5.3.1, 5.3.2 and 6.2.
+  version 0.7, 11 April 2025: section 2.1 (System ON idle 3 µA), the pin table (AIN
+  mapping, clock pins), table 3 (supply 1.7 to 3.5 V, 10 mV ripple for the radio), the
+  schematic checklist (13 kΩ pull-ups), sections 5.1 (one mandatory 10 µF), 5.2, 5.3.1,
+  5.3.2 and 6.2.
 - [Sensirion SHT4x datasheet](https://sensirion.com/resource/datasheet/sht4x), version
   7.3, June 2026: table 4 (supply range, idle current).
 - Nordic Semiconductor nRF54L15 datasheet: GPIO electrical specification, to be read for
-  V_IH (5.1, 8).
+  V_IH (5.1, 8); [port capabilities](https://docs.nordicsemi.com/r/bundle/ps_nrf54l15/page/gpio.html-concept_port_capabilities)
+  (each port's power domain; port 2 cannot wake the chip) and
+  [clock pins](https://docs.nordicsemi.com/r/bundle/ps_nrf54l15/page/chapters/pin.html-clock_pins) (5.2);
+  the SAADC's acquisition time table (40 µs for sources up to 800 kΩ, 7.1).
+- Nordic DevZone: [nRF54L15 TWI pin configuration](https://devzone.nordicsemi.com/f/nordic-q-a/120725/nrf54l15-twi-pin-configuration/535144)
+  (no TWIM on port 2) and
+  [nRF54 TWIM/I2C clock pin assignment](https://devzone.nordicsemi.com/f/nordic-q-a/120600/nrf54-twim-i2c-clock-pin-assignment/539274)
+  (SCL on a clock pin) (5.2).
+- Same Sky CMT-5023S-SMT datasheet: 3 Vo-p, 4 kHz, 110 mA at most, coil 12 ± 3 Ω (5.5, 7.1).
+- Diodes Incorporated DMG1012T datasheet and SOT523 package outline: gate threshold 0.5 to
+  1.0 V, body up to 0.8 mm with up to 0.1 mm standoff (5.5, 5.7, 7.1).
+- Texas Instruments TPD1E10B06 datasheet: 12 pF, 100 nA leakage (7.1).
 - R. Lee and W. Kester,
   [Fully Automatic Self-Calibrated Conductivity Measurement System](https://www.analog.com/en/resources/analog-dialogue/articles/fully-automatic-self-calibrated-conductivity-measurement-system.html),
   Analog Dialogue 50-11, November 2016: DC on conductivity electrodes causes polarization

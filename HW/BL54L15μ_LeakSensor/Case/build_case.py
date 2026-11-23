@@ -48,8 +48,9 @@ P = dict(
     # one small vent in the left wall into the gap in front of the board, beside U1: approximate humidity is enough
     VentW=1.0, VentH=2.0, VentZ=6.6, VentY=-1.75,   # slot width (along the case) and height; its center (sketch y, level
                                                      # with U1's lower half, 0.7 mm of wall over it) and along the case
-    # BZ1 has no 3D model in the board's STEP: its body as a box for the fit checks (center, size, height)
-    BzX=-5.9, BzY=3.08, BzW=5.0, BzH=2.0,
+    # BZ1 and Q1 have no 3D model in the board's STEP: boxes for the fit checks (center, size, height; Q1's is its
+    # SOT-523 outline at its tallest)
+    BzX=-5.9, BzY=3.08, BzW=5.0, BzH=2.0, Q1X=-5.96, Q1Y=-1.02, Q1W=1.6, Q1L=1.7, Q1H=0.9,
     # slide-in lid after the hygrometer 2026v3's, its track turned inside out: the side walls run up to the lid's plate
     # outside, and a tongue under the plate runs just inside each wall, its 45 degree ridge facing out into a groove in
     # the wall's inner face. The lid slides on from the rear and stops where the grooves end, behind the board (in
@@ -296,6 +297,7 @@ refs['header'] = Part.makeCompound([x.transformGeometry(m) for x in s.Solids if 
 refs['cell'] = cylY(0, AZ, g('CellD') / 2, g('Yc0'), g('Yc1'))
 refs['pins'] = cylZ(-g('PinX'), g('PinY'), g('PinD') / 2, g('PinZ0'), g('PinZ1')).fuse(cylZ(g('PinX'), g('PinY'), g('PinD') / 2, g('PinZ0'), g('PinZ1')))
 refs['buzzer'] = box(g('BzX') - g('BzW') / 2, g('BzX') + g('BzW') / 2, -g('BzH'), 0, AZ + g('BzY') - g('BzW') / 2, AZ + g('BzY') + g('BzW') / 2)
+refs['q1'] = box(g('Q1X') - g('Q1W') / 2, g('Q1X') + g('Q1W') / 2, -g('Q1H'), 0, AZ + g('Q1Y') - g('Q1L') / 2, AZ + g('Q1Y') + g('Q1L') / 2)
 refs['wire'] = cylY(g('WireX'), AZ + g('PanelTop') + g('WireD') / 2 + 0.05, g('WireD') / 2, g('Yd0'), g('Yr1'))
 pt = AZ + g('PanelTop')
 c209 = box(-3.95, 3.95, g('Yd0') - 0.3, g('Yd0'), pt - 9.0, pt + 0.3).fuse(box(-3.95, 3.95, g('Yd0') - 0.3, g('Yd1') + 0.3, pt, pt + 0.3)) \
@@ -334,10 +336,10 @@ for k, r in refs.items():
                 if so.Volume > 1e-3:
                     b = so.BoundBox
                     print('  hit %s %.3f mm3 at x %.2f..%.2f y %.2f..%.2f z %.2f..%.2f (sketch y %.2f..%.2f)' % (name, so.Volume, b.XMin, b.XMax, b.YMin, b.YMax, b.ZMin, b.ZMax, b.ZMin - AZ, b.ZMax - AZ))
-print('CHECK pins/board %.3f, pins/buzzer %.3f, pins/cell %.3f, contacts/cell %.3f, wire/cell %.3f, wire/contacts %.3f' % (
-    vol(refs['pins'], refs['board']), vol(refs['pins'], refs['buzzer']), vol(refs['pins'], refs['cell']),
+print('CHECK pins/board %.3f, pins/buzzer %.3f, pins/q1 %.3f, pins/cell %.3f, contacts/cell %.3f, wire/cell %.3f, wire/contacts %.3f' % (
+    vol(refs['pins'], refs['board']), vol(refs['pins'], refs['buzzer']), vol(refs['pins'], refs['q1']), vol(refs['pins'], refs['cell']),
     vol(refs['contacts'], refs['cell']), vol(refs['wire'], refs['cell']), vol(refs['wire'], refs['contacts'])))
-for k, r in (('front parts', front_parts), ('buzzer', refs['buzzer'])):
+for k, r in (('front parts', front_parts), ('buzzer', refs['buzzer']), ('q1', refs['q1'])):
     print('CHECK %s: least gap to the body %.2f mm, to the lid %.2f mm' % (k, r.distToShape(body)[0], r.distToShape(lid)[0]))
 for so in front_parts.Solids:                   # which parts are close, and where (sketch coordinates)
     d, pts, _ = so.distToShape(body)
@@ -349,7 +351,7 @@ print('CHECK pins %.2f..%.2f mm above the table (ends flush with the curve\'s lo
 hits = []
 for dz10 in range(5, 260, 5):                   # the board drops in from the top
     mm_ = FreeCAD.Matrix(); mm_.move(V(0, 0, dz10 / 10.0))
-    v = vol(body, refs['board'].transformGeometry(mm_)) + vol(body, refs['buzzer'].transformGeometry(mm_))
+    v = sum(vol(body, refs[k].transformGeometry(mm_)) for k in ('board', 'buzzer', 'q1'))
     if v > 0.01:
         hits.append((dz10 / 10.0, round(v, 3)))
 print('CHECK board drop-in collisions (height above seat, mm3):', hits[:10], 'count', len(hits))
@@ -374,7 +376,7 @@ for k, v in P.items():
     vs.addProperty('App::PropertyFloat', k, 'Build', 'mm; rerun build_case.py to apply'); setattr(vs, k, float(v))
 for name, shp, show in (('Body', body, True), ('Lid', lid, True), ('Board', refs['board'], True), ('Cell', refs['cell'], True),
                         ('Pins', refs['pins'], True), ('Contacts', refs['contacts'], True), ('Wire', refs['wire'], True),
-                        ('BZ1_envelope', refs['buzzer'], True),
+                        ('BZ1_envelope', refs['buzzer'], True), ('Q1_envelope', refs['q1'], True),
                         ('J1_header', refs['header'], False)):
     o = doc.addObject('Part::Feature', name); o.Shape = shp
     o.Visibility = show
