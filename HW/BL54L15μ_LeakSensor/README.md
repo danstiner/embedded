@@ -9,7 +9,8 @@ and optionally an alarm buzzer. An SHT40 measures temperature and humidity for m
 The board stands on the end of a CR2 cell in a printed case. Two metal pins in the case's
 floor touch the water and press on two dome contacts on the board (5.7).
 
-This is revision **2026v5**, in design. The baseline is 2026v4, the first leak board,
+This is revision **2026v5**, ordered on 2026-11-23 (tag `fab/BL54L15μ-leak-sensor/2026v5`)
+and not yet assembled. The baseline is 2026v4, the first leak board,
 fabricated as the hygrometer's 2026v4 (tag `fab/BL54L15μ-hygrometer/2026v4`, firmware
 board `bl54l15u_hygrometer@2026v4`).
 
