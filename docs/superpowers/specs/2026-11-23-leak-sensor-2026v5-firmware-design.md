@@ -81,7 +81,9 @@ Everything here follows how 2026v4 was added.
     12 bit);
   - the `vbatt` node, as 2026v4;
   - the leak node (below);
-  - no buzzer node, and `gpio0` and `gpio2` stay disabled: every pin used is on port 1.
+  - no buzzer node. `gpio2` stays disabled: every pin used is on port 1. `gpio0` is
+    enabled although unused, because the Matter build links NCS's DK buttons/LEDs
+    library, which refers to the gpio0 device unconditionally (found when building).
 - New `SW/hygrometer/boards/bl54l15u_hygrometer_nrf54l15_cpuapp_2026v5.conf`, the same
   settings as 2026v4's (`CONFIG_ADC`, `CONFIG_APP_LEAK_SENSOR`, BME688 and STCC4 off).
 - `.github/workflows/hygrometer.yml`: add `bl54l15u_hygrometer@2026v5` to the matrix.
