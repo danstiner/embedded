@@ -303,8 +303,9 @@ are half domes of the same section.
 - **Checks.** The script checks that the body, lid, board and its parts, cell, contacts,
   pins and + wire do not overlap, that the board drops in and the lid slides off without
   touching anything else, and that both parts mesh to closed solids. BZ1's model is not a
-  solid and Q1 has none, so boxes stand in for them. J1's header is left out: a board
-  with a header does not fit.
+  solid, so a box of its size stands in for it. Q1's model clears the left pin boss by
+  0.32 mm, and a box at the package's tallest by 0.28 mm. J1's header is left out: a
+  board with a header does not fit.
 
 ## 6. Bill of materials
 
