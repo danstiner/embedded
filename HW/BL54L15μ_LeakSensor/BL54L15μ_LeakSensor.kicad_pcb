@@ -2988,7 +2988,7 @@
 				)
 			)
 		)
-		(property "Value" "DMG1012T"
+		(property "Value" "DMN2004TK"
 			(at 0 1.75 180)
 			(layer "F.Fab")
 			(hide yes)
@@ -3000,7 +3000,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/ds31783.pdf"
+		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/ds30936.pdf"
 			(at 0 0 180)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -3013,7 +3013,7 @@
 				)
 			)
 		)
-		(property "Description" "Buzzer switch: 20 V, 0.63 A N-channel MOSFET, SOT-523"
+		(property "Description" "Buzzer switch: 20 V, 0.54 A N-channel MOSFET, SOT-523"
 			(at 0 0 180)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -3026,7 +3026,7 @@
 				)
 			)
 		)
-		(property "Part Number" "DMG1012T-7"
+		(property "Part Number" "DMN2004TK-7"
 			(at 0 0 180)
 			(layer "F.SilkS")
 			(hide yes)
@@ -4277,7 +4277,7 @@
 				)
 			)
 		)
-		(property "Value" "1N4148WT"
+		(property "Value" "DLLFSD01T"
 			(at 0 1.399999 90)
 			(layer "F.Fab")
 			(hide yes)
@@ -4315,7 +4315,7 @@
 				)
 			)
 		)
-		(property "Part Number" "1N4148WT-7"
+		(property "Part Number" "DLLFSD01T-7"
 			(at 0 0 90)
 			(layer "F.SilkS")
 			(hide yes)
@@ -6474,7 +6474,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Part Number" "1011"
+		(property "Part Number" ""
 			(at 0 0 0)
 			(layer "B.SilkS")
 			(hide yes)
@@ -6526,7 +6526,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Manufacturer" "Keystone Electronics"
+		(property "Manufacturer" ""
 			(at 0 0 0)
 			(layer "B.SilkS")
 			(hide yes)
