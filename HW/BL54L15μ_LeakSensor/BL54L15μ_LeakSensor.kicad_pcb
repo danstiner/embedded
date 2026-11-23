@@ -3528,7 +3528,7 @@
 			)
 		)
 	)
-	(footprint "Sensor_Humidity:Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad"
+	(footprint "LeakSensor:Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_NoCentralPad_StackedRef"
 		(layer "F.Cu")
 		(uuid "5a3f6317-26bc-4dfd-bae4-ae0bf50a3e0e")
 		(at 92.826 92.888)
