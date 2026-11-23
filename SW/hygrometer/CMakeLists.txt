@@ -26,10 +26,12 @@ target_sources_ifdef(CONFIG_STCC4_ENABLE app PRIVATE
   src/sensor/stcc4.cpp
 )
 
-# Leak sensor (2026v4 hardware)
-target_sources_ifdef(CONFIG_APP_LEAK_SENSOR app PRIVATE
-  src/sensor/leak.cpp
-)
+# Leak sensor: one-way front end (2026v4) or two-way (2026v5), as the devicetree describes
+if(CONFIG_APP_LEAK_SENSOR_BIDIR)
+  target_sources(app PRIVATE src/sensor/leak_bidir.cpp)
+elseif(CONFIG_APP_LEAK_SENSOR)
+  target_sources(app PRIVATE src/sensor/leak.cpp)
+endif()
 
 if(CONFIG_APP_USE_MATTER)
   include(${ZEPHYR_CONNECTEDHOMEIP_MODULE_DIR}/config/nrfconnect/app/enable-gnu-std.cmake)
