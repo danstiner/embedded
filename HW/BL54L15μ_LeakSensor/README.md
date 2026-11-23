@@ -2,10 +2,9 @@
 
 ## 1. Scope
 
-A battery leak and humidity sensor built on the Ezurio BL54L15μ (nRF54L15) module. Two
-contacts near the bottom detect water and wake the board at once; a buzzer can sound the
-alarm on the spot; an SHT45 reports temperature and humidity. Firmware: `SW/hygrometer`
-(Matter over Thread or BTHome).
+Battery-powered leak and humidity sensor built on the Ezurio BL54L15μ (nRF54L15) module.
+Two contacts on the bottom detect water, immediately triggering a report over Matter/Zigbee
+and optionally an alarm buzzer. A SHT40 measures temperature and humidity for mold detection.
 
 This is revision **2026v5**, in design. The baseline is 2026v4, the first leak board,
 fabricated as the hygrometer's 2026v4 (tag `fab/BL54L15μ-hygrometer/2026v4`, firmware
@@ -15,7 +14,7 @@ board `bl54l15u_hygrometer@2026v4`).
 
 | Item          | 2026v4                                          | 2026v5                                                   |
 | ------------- | ----------------------------------------------- | -------------------------------------------------------- |
-| Size          | 48 mm square                                    | 18 × 16 mm, elliptical bottom, stands on the end of the cell (5.6) |
+| Size          | 48 mm circle                                    | 18 × 16 mm, elliptical bottom, stands on the end of the cell (5.6) |
 | Battery       | CR2 in a Keystone 1011 holder                   | CR2 on wires, BAT+ and BAT− pads on the back             |
 | Leak contacts | 6 mm domes on the back, driven one way          | 4 mm domes on the front, either way (4.1)                |
 | Leak pins     | drive P0.01, sense P1.07, 1 MΩ to ground        | P1.12 and P1.11 each drive or sense; 1 MΩ to a GPIO      |
@@ -26,17 +25,17 @@ board `bl54l15u_hygrometer@2026v4`).
 
 ## 3. Requirements
 
-| ID  | Requirement                                                                              |
-| --- | ---------------------------------------------------------------------------------------- |
-| R-1 | Wake on water across the contacts from a pin edge, without polling                       |
-| R-2 | Measure the resistance between the contacts with the SAADC, in both directions           |
-| R-3 | No current through the contacts while dry; while measuring, equal current each way       |
-| R-4 | Average current at most 19 µA: 5 years on one CR2 (850 mAh); 10 years needs 9.7 µA        |
-| R-5 | Temperature and humidity as on 2026v4: SHT45 on `i2c21` with MCU pull-ups                |
-| R-6 | Board 18 × 16 mm standing on the end of a CR2 (Ø15.6 max) lying on its side              |
-| R-7 | SWD through a soldered 2×5 1.27 mm header or a pogo-pin clip from the side               |
-| R-8 | Front parts in one reflow pass; the back has only pads and optional parts (J1, JP1, C3)  |
-| R-9 | A buzzer the firmware can sound when it finds water                                     |
+| ID  | Requirement                                                                             |
+| --- | --------------------------------------------------------------------------------------- |
+| R-1 | Wake on water across the contacts: Edge triggered, not polling                          |
+| R-2 | Last 5 years on one CR2 (850 mAh): average current under 15 µA assuming 20% derating    |
+| R-3 | Minimize probe corrosion: alternate probe voltage                                       |
+| R-4 | Confirm water by measuring resistance with the SAADC, in both directions                |
+| R-5 | Temperature and humidity reports from SHT4x over I2C with MCU pull-ups                  |
+| R-6 | Minimize case size with small board standing on the end of a CR2 (Ø15.6 max)            |
+| R-7 | SWD through a soldered 2×5 1.27 mm header or a pogo-pin clip from the side              |
+| R-8 | Front parts in one reflow pass; the back has only pads and optional parts (J1, JP1, C3) |
+| R-9 | A buzzer that can optionally sound when it finds water, >=65 dBA at 10 meters           |
 
 ## 4. Design trades
 
@@ -52,18 +51,14 @@ Analog Dialogue 50-11).
 2026v5 makes both sides identical, so either can drive and either can sense:
 
 - **1 MΩ returned to a GPIO, not ground.** While armed, the driving side's 1 MΩ would
-  otherwise sit across the cell and draw 3 µA, 15 % of R-4. With its return pin at the
+  otherwise sit across the cell and draw 3 µA, 20 % of R-2. With its return pin at the
   same level as the drive it draws nothing.
 - **Two return pins, not one.** One shared return cannot sit high for the driving side and
   low for the sensing side at the same time.
-- **Not the internal pull-down.** At the nRF54L15's 13 kΩ typical (Ezurio datasheet, I2C
-  note) the sense node could never reach the input-high level through 20 kΩ of series
-  resistance.
+- **External pull-down.** At the nRF54L15's 13 kΩ typical internal pull-down (Ezurio
+  datasheet, I2C note) the sense node could never reach the input-high level through
+  20 kΩ of series resistance.
 - **Both sense pins analog-capable** (AIN5, AIN4), since each side senses in one direction.
-
-Reversing the drive is standard practice for conductivity cells. This particular wake and
-reversal scheme has not been checked against patents; do a freedom-to-operate check before
-selling it.
 
 ### 4.2 Debug connector
 
@@ -73,12 +68,15 @@ cell at least 5 mm behind the board.
 
 2026v5 has pads that take either that header or a pogo-pin clip clamped on from the left
 edge. The first few boards get a header; the rest are flashed with the clip, and the case
-is sized for boards without J1. KiCad's stock 2×5 1.27 mm SMD land pattern (pads from 0.75
-to 3.15 mm off center) would miss a clip whose two rows are 1.27 mm apart, as its pins
-land 0.635 mm off center. J1's pads run from 0.3 mm off center (the odd ones to 2.6 mm,
-the even ones to 3.15 mm), so they catch rows 1.27 or 2.54 mm apart as well as the
-header's tails (`Components/LeakSensor.pretty`). The back gets no paste: J1 is soldered by
-hand.
+is sized for boards without J1. Header land patterns cover the bent tails, which run
+outward from the pin rows 0.635 mm off center: the header's datasheet gives pads from
+0.63 to 3.40 mm off center, KiCad's stock 2×5 1.27 mm SMD pattern from 0.75 to 3.15 mm.
+A clip whose two rows are 1.27 mm apart would land on the very ends of those pads or
+just short of them. J1's pads run from 0.3 mm off center (the odd ones to 2.6 mm, the
+even ones to 3.15 mm), so they catch rows 1.27 or 2.54 mm apart as well as the header's
+tails (`Components/LeakSensor.pretty`). The tails reach 2.75 ± 0.15 mm off center: on
+the odd side they overhang the pads by about 0.15 mm, with no fillet at the toe. The
+back gets no paste: J1 is soldered by hand.
 
 The odd pads reach the 0.381 mm edge rule, so the clip's outer row lands as close to the
 edge as the copper allows; a fitted header's shroud overhangs the edge. BZ1 sits on the
@@ -166,7 +164,7 @@ P2 ── ELEC_B ──┬── R2 10 kΩ ── LEAK_B (P1.11, AIN4) ── R4
 Unchanged from 2026v4: address 0x44, C1 100 nF beside it, I2C through the module's 13 kΩ
 pull-ups. Idle current 0.08 µA typical (SHT4x datasheet, table 4).
 
-No thermal isolation: the board averages about 0.06 mW (R-4). The USB CO2 board's thermal
+No thermal isolation: the board averages about 0.05 mW (R-2). The USB CO2 board's thermal
 model put its SHT4x about 1 °C above ambient at 37 mW, roughly 0.03 °C per mW; scaled, this
 board warms U1 by a few thousandths of a degree, and radio bursts of a few milliseconds
 average out in the board's heat capacity. What matters is how freely room air reaches U1.
@@ -490,7 +488,7 @@ ASSUMED in the scripts and named here.
 | ERC, DRC, schematic parity    | 0 errors and warnings, 0 unconnected, 0 parity issues; 2 exclusions (5.6) | pass |
 | Edge wake threshold           | sense node at 0.7 VDD below 0.41 MΩ, back under 0.3 VDD above 2.3 MΩ | as designed (R-1) |
 | Leak settling                 | 99 % in 71 µs at 10 MΩ, faster below; 2026v4's driver waits 100 µs  | pass |
-| SAADC, 40 µs acquisition      | −1.3 % at 10 MΩ with a 2.5 pF sampling capacitor, −7 % at 10 pF     | pass (R-2: 10 %) |
+| SAADC, 40 µs acquisition      | −1.3 % at 10 MΩ with a 2.5 pF sampling capacitor, −7 % at 10 pF     | pass (R-4)        |
 | False leak from leakage       | 10 nA into the sense pin reads as 300 MΩ; 100 MΩ of film reads as itself | pass |
 | ESD at a dome, 8 kV contact   | about 30 A in the TVS, clamped near 22 V; 1.9 mA through R1 into the pin | pass |
 | Buzzer, coil current          | peak 125 to 232 mA, 45 to 95 mA from the cell, for 3 to 0.3 mH       | within 110 mA |
@@ -537,12 +535,12 @@ Not started. Planned:
 
 | Test                                                                       | Checks   | Pass                                           |
 | -------------------------------------------------------------------------- | -------- | ---------------------------------------------- |
-| Sleep current, leak armed, then parked                                     | R-3, R-4 | no measurable difference                       |
+| Sleep current, leak armed, then parked                                     | R-2, R-3 | no measurable difference                       |
 | SAADC on AIN5 and AIN4 with LEAK_A, then LEAK_B, held at a known voltage   | 5.2      | each channel reads its own pin                 |
 | Resistance box across P1–P2, both directions: largest value that wakes     | R-1      | about 0.4 MΩ; record it                        |
-| SAADC reading at 10 kΩ, 100 kΩ, 1 MΩ and 10 MΩ, both directions            | R-2      | within 10 % of the divider, both ways          |
+| SAADC reading at 10 kΩ, 100 kΩ, 1 MΩ and 10 MΩ, both directions            | R-4      | within 10 % of the divider, both ways          |
 | Tap water across the contacts                                              | R-1, R-3 | report within a second, pins parked after      |
-| Average current on Thread over 24 h                                        | R-4      | at most 19 µA                                  |
+| Average current on Thread over 24 h                                        | R-2      | under 15 µA                                    |
 | RSSI with and without a CR2 behind the antenna (first on a 2026v4 board)   | 8        | record the difference                          |
 | Flash through a soldered header, then through the pogo clip                | R-7      | both work                                      |
 | SHT45 against a reference thermometer                                      | R-5      | within 0.5 °C                                  |
@@ -561,7 +559,7 @@ Not started. Planned:
   14 mm from the chip, X1 10 mm, the right leak pin 12 mm. The RSSI test in section 7
   decides whether this layout holds.
 - **Battery life** is a target, not an estimate: the module idles at 3 µA (Ezurio
-  datasheet, section 2.1) and the SHT45 at 0.08 µA, which leaves about 16 µA for Thread
+  datasheet, section 2.1) and the SHT45 at 0.08 µA, which leaves about 12 µA for Thread
   polling and reports. A 2026v4 current measurement comes first.
 - **Input threshold.** V_IH and any input hysteresis are to be read from the nRF54L15
   datasheet. A slowly wetting contact holds the sense node near the threshold, so the
@@ -617,6 +615,9 @@ Not started. Planned:
   updated 4 November 2025: 80 dB at 10 cm, mechanical drawing and land pattern; Same Sky
   CSS-0575A-SMT, CMT-0502-75-SMT and CMT-0525-75-SMT and Mallory Sonalert AST0540MW-03TRQ
   and AST0540MW-3.6TRQ datasheets: ratings and drawings of the other 5 mm buzzers (5.5).
+- [CNC Tech 3220-XX-0300-00 drawing](https://cnctech.us/pdfs/3220-XX-0300-00_.pdf), revision D,
+  10 April 2023: P.C.B layout (pads 0.65 × 2.77 mm, 6.80 mm across), tails 5.50 ± 0.30 mm
+  across (4.2).
 - Diodes Incorporated DMG1012T datasheet and SOT523 package outline: gate threshold 0.5 to
   1.0 V, body up to 0.8 mm with up to 0.1 mm standoff (5.5, 5.7, 7.1).
 - Texas Instruments TPD1E10B06 datasheet: 12 pF, 100 nA leakage (7.1).
@@ -624,7 +625,7 @@ Not started. Planned:
   [Fully Automatic Self-Calibrated Conductivity Measurement System](https://www.analog.com/en/resources/analog-dialogue/articles/fully-automatic-self-calibrated-conductivity-measurement-system.html),
   Analog Dialogue 50-11, November 2016: DC on conductivity electrodes causes polarization
   and electrode damage; AC excitation with no DC offset (4.1).
-- Panasonic CR2 datasheet: Ø15.6 mm maximum, 850 mAh (R-4, R-6), as given in the design
+- Panasonic CR2 datasheet: Ø15.6 mm maximum, 850 mAh (R-2, R-6), as given in the design
   notes; not re-read.
 - [Keystone Electronics battery contacts catalog](https://docs.rs-online.com/049f/0900766b813ebe31.pdf),
   page 12: snap-on contacts 209 and 228, their size, plate thickness and 1.52–1.78 mm
