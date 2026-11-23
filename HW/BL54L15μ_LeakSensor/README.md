@@ -364,7 +364,7 @@ fits (5.7). Values no datasheet gives are marked ASSUMED in the scripts and list
 | Buzzer, heat                  | about 170 mW beside U1; the board warms roughly 1 K in 10 s, 5 K in 60 s | **U1 reads high** |
 | Buzzer, charge                | about 1 mAh a minute at 1 mH, up to 1.8 mAh at the rated 110 mA      | note |
 | I2C rise time                 | 91 to 115 ns on 8.5 pF with the 13 to 16 kΩ pull-ups; 300 ns allowed | pass at 400 kHz |
-| Crystal load                  | board stray adds about 0.5 pF: 6 ppm fast unless trimmed out         | trim in firmware |
+| Crystal load                  | board stray assumed about 0.5 pF: 6 ppm slow unless trimmed out      | measure, then trim |
 | Dome press                    | 0.1 mm nominal with 0.1 mm spread: no contact on 16 % of pins       | **too little** |
 | Ground stitching              | farthest pour point 4.8 mm from a via; 4.4 % over 3 mm               | pass (5.3 mm) |
 | Ground under traces           | back pour under 62 to 82 % of the leak and I2C traces; gaps at most 1.8 mm | fine at these speeds |

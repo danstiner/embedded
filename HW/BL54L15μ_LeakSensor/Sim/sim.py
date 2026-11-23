@@ -175,7 +175,7 @@ def misc_report():
     # CM7V-T1A, 9 pF load. Each leg: 2.1 mm front, 2.8 mm back, two vias and a 1.8 x 1.0 mm pad: ASSUMED 1.0 pF.
     # Pulling ASSUMED 13 ppm/pF (C1 2.6 fF, C0 1 pF, tuning fork typical)
     stray = 1.0 / 2
-    print('  board stray adds about %.1f pF to the load: %.0f ppm fast if the internal capacitors are set for 9 pF, trimmed out by setting them %.1f pF lower' % (
+    print('  board stray adds about %.1f pF to the load: %.0f ppm slow if the internal capacitors are set for 9 pF, trimmed out by setting them %.1f pF lower' % (
         stray, stray * 13, stray * 2))
     print('== Dome press (README 5.7) ==')
     # nominal: pin surface 0.20 mm off the board, dome 0.30 mm high. ASSUMED one-sigma spreads: printed bore
