@@ -15,3 +15,7 @@
 (rule "Front end by the module"
 	(constraint courtyard_clearance (min -1.0mm))
 	(condition "A.Reference == 'IC1' && (B.Reference == 'R3' || B.Reference == 'R4')"))
+# JP1 and C3, the optional parts on the back, stand under the outline of J1's shroud and share a pad edge
+(rule "Optional back parts under J1"
+	(constraint courtyard_clearance (min -3mm))
+	(condition "(A.Reference == 'JP1' || A.Reference == 'C3') && (B.Reference == 'J1' || B.Reference == 'JP1' || B.Reference == 'C3')"))

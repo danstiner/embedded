@@ -30,7 +30,9 @@ Rw1 cell vdd 0.05
 C2 vdd c2e 5u
 Rc2 c2e 0 0.005
 Imod vdd 0 3u
-Rw2 cell vbz 0.05
+Rw2 cell vbz {rs}
+Cb vbz cbe {cb}
+Rcb cbe 0 0.01
 Vcoil vbz n0 0
 Lbz n0 n1 {l}
 Rbz n1 drain {rcoil}
@@ -61,8 +63,9 @@ Bpt pt 0 V=V(cell)*(I(Vcoil)-I(Vd3))
 """
 
 
-def buzzer(voc=3.0, esr=0.5, l=1e-3, rcoil=12.0, vth=0.75):
-    return spice(BUZZ.format(voc=voc, esr=esr, l=l, rcoil=rcoil, vth=vth))
+def buzzer(voc=3.0, esr=0.5, l=1e-3, rcoil=12.0, vth=0.75, rs=0.05, cb=1e-12):
+    """rs and cb: the optional resistor across JP1 and capacitor C3 in BZ1's own feed (what is left of C3 at 3 V)."""
+    return spice(BUZZ.format(voc=voc, esr=esr, l=l, rcoil=rcoil, vth=vth, rs=rs, cb=cb))
 
 
 def buzzer_report():
@@ -82,6 +85,12 @@ def buzzer_report():
     r = buzzer(vth=1.0, voc=2.0, esr=2.0)
     print('Worst gate: Vth 1.0 V, cell 2.0 V and 2 ohm: coil peak %.0f mA, Q1 %.1f mW, VDD min %.2f V' % (
         r['ipk'] * 1e3, r['pq'] * 1e3, r['vmin']))
+    print('Optional filter in BZ1\'s feed (JP1 cut and a resistor fitted, C3 fitted; ASSUMED 60 % of C3 left at 3 V):')
+    print('   fitted                 ripple mV (L 0.3 / 1 mH)   coil peak, of unfiltered')
+    base = {l: buzzer(l=l) for l in (0.3e-3, 1e-3)}
+    for name, rs, cb in (('nothing (as built)', 0.05, 1e-12), ('2.2 ohm, 100 uF', 2.2, 60e-6), ('4.7 ohm, 100 uF', 4.7, 60e-6), ('4.7 ohm, 47 uF', 4.7, 28e-6)):
+        f = {l: buzzer(l=l, rs=rs, cb=cb) for l in (0.3e-3, 1e-3)}
+        print('   %-20s   %5.0f / %-5.0f              %3.0f %%' % (name, f[0.3e-3]['vpp'] * 1e3, f[1e-3]['vpp'] * 1e3, 100 * f[1e-3]['ipk'] / base[1e-3]['ipk']))
     r = buzzer()
     i_cell = (r['ibat'] - r['id3'])
     print('One minute of alarm takes %.2f mAh of the 850 mAh cell (%.0f mA average)' % (i_cell * 1000 / 60, i_cell * 1e3))
