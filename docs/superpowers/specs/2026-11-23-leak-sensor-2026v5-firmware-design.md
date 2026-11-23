@@ -1,6 +1,6 @@
 # Leak sensor 2026v5 firmware: board revision and two-way leak driver
 
-Status: draft for Dan's approval, 2026-11-23. Branch `sw-leak-sensor-2026v5`.
+Status: approved by Dan, 2026-11-23. Branch `sw-leak-sensor-2026v5`.
 
 ## Intent
 
@@ -29,7 +29,11 @@ do.
   Here P1.05 is left unconfigured; R7 holds Q1 off while the pin floats.
 - Renaming the board. It stays `bl54l15u_hygrometer`; the rename is already deferred.
 - Any change to the Matter data model. 2026v5 uses 2026v4's.
-- Trimming the crystal's load. The 0.5 pF of board stray is an estimate (README 7.1).
+- Trimming the crystal's load. Dan wants it as its own PR, covering 2026v4 as well. The
+  0.5 pF of board stray in README 7.1 is an assumed 1 pF per crystal leg, not a
+  simulation or a measurement, and it is one step of the setting (about 6 ppm, inside
+  the crystal's ±20 ppm). That PR should start from the clock's error measured on a
+  2026v4 board.
 
 ## Anti-goals
 
@@ -170,6 +174,12 @@ checks:
 - Builds: `@2026v5` for BTHome and for Matter; `@2026v3` and `@2026v4` still build.
 - `@2026v4`'s generated devicetree (`build/zephyr/zephyr.dts`) and `.config` are
   identical before and after, apart from the new Kconfig symbol reading `n`.
+
+### Pull requests
+
+One PR if the diff stays reviewable. If it grows too large (Dan), split it in two at the
+natural seam: first the binding, driver, model and host tests, which no board uses yet;
+then the board revision, its config, CI and README.
 
 ## Left for hardware
 
