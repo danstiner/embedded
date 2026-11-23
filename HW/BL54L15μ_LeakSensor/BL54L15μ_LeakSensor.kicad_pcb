@@ -3225,7 +3225,7 @@
 			(uuid "76dcf297-988a-47cc-83ed-738c5b46b845")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-523.step"
+		(model "${KIPRJMOD}/Components/ul_DMN2004TK-7/SOT523_DMN2004_DIO.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -3233,7 +3233,7 @@
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz 0 0 90)
 			)
 		)
 	)

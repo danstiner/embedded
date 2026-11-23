@@ -332,8 +332,9 @@ The case adds two Ø2.5 × 6 mm pins, Keystone 209 and 228 contacts and two wire
 
 3D models: U1 uses Sensirion's SHT45-AD1F model, the same package
 (`Components/SHT45_AD1F_R2`). D1 and D2 use KiCad's 0402 resistor model, the same
-1.0 × 0.6 mm body. BZ1 uses Same Sky's (`Components/Same_Sky_CMT-5023S-SMT-TR`). Q1 has
-none yet: KiCad ships no SOT-523 model.
+1.0 × 0.6 mm body. BZ1 uses Same Sky's (`Components/Same_Sky_CMT-5023S-SMT-TR`) and Q1
+the DMN2004TK's from Ultra Librarian (`Components/ul_DMN2004TK-7`), turned 90° to match
+the footprint.
 
 ## 7. Verification
 
