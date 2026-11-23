@@ -4306,7 +4306,7 @@
 		)
 		(uuid "45039e27-dd35-459d-9105-6ae205c6aba5")
 	)
-	(text "Same Sky CMT-5023S-SMT: 3 V, 4 kHz, 110 mA, 80 dB at 10 cm.\nP1.11 switches it through Q1; R7 holds Q1 off while\nthe pin floats; D3 clamps the coil when Q1 opens.\nOn the front over J1, so the clip's jaw rests on it."
+	(text "Same Sky CMT-5023S-SMT: 3 V, 4 kHz, 110 mA, 80 dB at 10 cm.\nP1.05 switches it through Q1; R7 holds Q1 off while\nthe pin floats; D3 clamps the coil when Q1 opens.\nOn the front over J1, so the clip's jaw rests on it."
 		(exclude_from_sim no)
 		(at 92.71 190.5 0)
 		(effects
@@ -4451,6 +4451,22 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f1f0b6cf-918e-4543-9a0e-5f686469c218")
+	)
+	(no_connect
+		(at 215.9 130.81)
+		(uuid "42742656-38dd-59bb-94fa-3de6baf5ccc8")
+	)
+	(no_connect
+		(at 234.95 130.81)
+		(uuid "3da34382-53e2-5ccc-ac11-533385513445")
+	)
+	(no_connect
+		(at 261.62 104.14)
+		(uuid "ee928b1f-9f32-5c79-b5e8-030da6b4a6b0")
+	)
+	(no_connect
+		(at 261.62 96.52)
+		(uuid "2580c4e5-bc97-5c9f-ae38-50f6615ea743")
 	)
 	(no_connect
 		(at 227.33 130.81)
