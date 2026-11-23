@@ -191,9 +191,11 @@ BUZZ (P1.05) ──┬── Q1 gate
   pads and fit a 100 µF 1206 at C3. C3 then supplies the pulses and the resistor keeps
   them out of the cell: by simulation the module's ripple falls from about 100 mV to 23
   to 35 mV with 2.2 Ω and 12 to 17 mV with 4.7 Ω, for 3 to 7 % less coil current. The
-  module's own feed does not pass through JP1. When fitted, C3 leaks up to about 0.6 µA
-  and stands where a J1 header's shroud goes, so a board gets one or the other and is
-  flashed before C3 goes on. There are 2.0 mm between the board and the case's divider:
+  module's own feed does not pass through JP1. When fitted, C3 may leak up to about
+  0.06 µA per µF at 3 V (a 50 MΩ·µF insulation limit, usual for 6.3 V X5R parts; check
+  the part chosen): 6 µA for 100 µF, 40 % of R-2, so measure the sleep current with it
+  fitted. It also stands where a J1 header's shroud goes, so a board gets one or the
+  other and is flashed before C3 goes on. There are 2.0 mm between the board and the case's divider:
   check the capacitor's height.
 - **Other 5 mm buzzers** were compared from their datasheets and one distributor's
   single-piece prices on 2026-11-23. All are 4 kHz magnetic transducers rated near 3 V,
