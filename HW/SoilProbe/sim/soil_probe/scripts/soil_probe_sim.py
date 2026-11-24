@@ -1,0 +1,362 @@
+#!/usr/bin/env python3
+"""
+soil_probe_sim.py -- 2-D quasi-static field simulation of capacitive soil-moisture
+probe cross-sections: PCB electrodes on the OSH Park 2-layer stack, or steel nails.
+
+Physics
+-------
+Solves  div( eps*(x,y) grad(phi) ) = 0  on a rectilinear finite-volume grid with
+complex permittivity
+        eps* = eps0 * er * (1 - j*tan_d)  -  j*sigma/omega
+so the answer is the full per-unit-length admittance of the probe cross-section
+        Y = G + j*omega*C      [S/m  and  F/m  per metre of inserted length]
+Quasi-static is valid while the probe is << wavelength in the soil (fine to
+~100 MHz for a 10 cm probe in wet soil).  Electrodes are Dirichlet regions
+(sense = 1 V, ground = 0 V).  Outer boundary is Neumann (isolated), so the
+domain must be several board-widths wide -- see check_domain().
+
+Units: geometry in mm, materials in SI.  Cross-section is x (width) by
+y (thickness); z (probe length / insertion) is handled analytically.
+
+OSH Park 2-layer stack (docs.oshpark.com/services/two-layer, Sep 2026):
+  core 60 mil = 1.524 mm Kingboard KB6167F, Dk 4.5 @ 10 MHz
+  1 oz copper = 35.6 um each side
+  solder resist 0.6 mil = 15.2 um Taiyo PSR-4000BN (Dk ~3.9 typical for PSR-4000)
+"""
+import numpy as np
+import scipy.sparse as sp
+import scipy.sparse.linalg as spla
+
+EPS0 = 8.8541878128e-12
+
+# ----------------------------------------------------------------------------
+# Materials  (er, sigma [S/m], tan_delta)
+# ----------------------------------------------------------------------------
+AIR   = (1.0,   0.0,   0.0)
+FR4   = (4.5,   0.0,   0.02)    # KB6167F Dk 4.5 (OSH Park), tan_d ~0.02 (1-10 MHz)
+MASK  = (3.9,   0.0,   0.025)   # Taiyo PSR-4000 series LPI mask, typical
+COAT  = (3.0,   0.0,   0.02)    # generic epoxy / acrylic conformal coat
+WATER = (80.0,  0.02,  0.0)     # free water film (rain / irrigation water)
+ELEC  = (1e5,   0.0,   0.0)     # huge er => electrode cell is an equipotential
+
+STACK = dict(h_core=1.524, t_cu=0.0356, t_mask=0.0152)   # mm, OSH Park 2-layer
+
+REGIONS = {'soil': 0, 'fr4': 1, 'mask': 2, 'gap': 3, 'coat': 4, 'elec': 5, 'air': 6}
+
+
+def topp_er(theta):
+    """Topp et al. 1980 empirical curve for MINERAL soils (bulk density ~1.3-1.5)."""
+    return 3.03 + 9.3 * theta + 146.0 * theta**2 - 76.7 * theta**3
+
+
+def crim_er(theta, porosity=0.70, er_solid=4.0, er_water=78.3):
+    """CRIM / refractive-index mixing model (Birchak 1974, Roth 1990, alpha = 0.5).
+    Defaults are a peat/perlite potting mix: porosity ~0.7, solid er ~4.
+    sqrt(er) = theta*sqrt(er_w) + (1-porosity)*sqrt(er_s) + (porosity-theta)*1"""
+    return (theta * np.sqrt(er_water) + (1 - porosity) * np.sqrt(er_solid) + (porosity - theta))**2
+
+
+def soil_sigma(theta, sigma_w=0.05, sigma_s=0.02):
+    """Bulk EC.  Archie-type pore-water term + a surface-conduction term that
+    scales with the water film so it vanishes in dry soil (Rhoades 1989 in spirit):
+        sigma_b = sigma_w*theta^2 + sigma_s*theta
+    sigma_w = pore-water EC: 0.05 S/m rain-fed ... 0.3 S/m fertilised potting mix
+    sigma_s*theta: ~0.005 S/m at theta=0.25 for peaty / clayey media."""
+    return sigma_w * theta**2 + sigma_s * theta
+
+
+def water_er(T=25.0):
+    """Static permittivity of water, Malmberg & Maryott 1956 (0-100 C).  The Debye relaxation
+    (~17 GHz at 25 C) is far above the probe frequency, so the static value applies."""
+    return 87.740 - 0.40008 * T + 9.398e-4 * T**2 - 1.410e-6 * T**3
+
+
+def soil_material(theta, sigma_w=0.05, model=crim_er, T=25.0):
+    """Bulk soil (er, sigma, tan_d) at volumetric water content theta and temperature T [C].
+    sigma_w is the pore-water EC at 25 C; conductivity rises ~2 %/C.  model=topp_er (mineral
+    soil) is an empirical fit with no temperature term."""
+    er = model(theta, er_water=water_er(T)) if model is crim_er else model(theta)
+    return (er, soil_sigma(theta, sigma_w) * (1 + 0.02 * (T - 25.0)), 0.0)
+
+
+def eps_complex(mat, f):
+    er, sigma, tand = mat
+    w = 2 * np.pi * f
+    return EPS0 * er * (1 - 1j * tand) - 1j * sigma / w
+
+
+# ----------------------------------------------------------------------------
+# Grid
+# ----------------------------------------------------------------------------
+def graded_axis(pts, dmin, dmax, growth=1.3):
+    """Cell edges containing every coordinate in pts, with cell size dmin[k]
+    at pts[k] growing geometrically to dmax in between."""
+    pts = np.asarray(pts, float)
+    edges = [pts[0]]
+    for k in range(len(pts) - 1):
+        a, b = pts[k], pts[k + 1]
+        L = b - a
+        left, right = [], []
+        dl, dr = dmin[k], dmin[k + 1]
+        sl = sr = 0.0
+        while True:
+            if sl <= sr:
+                if sl + sr + dl > L: break
+                left.append(dl); sl += dl; dl = min(dl * growth, dmax)
+            else:
+                if sl + sr + dr > L: break
+                right.append(dr); sr += dr; dr = min(dr * growth, dmax)
+        seq = np.array(left + right[::-1]) if (left or right) else np.array([L])
+        seq *= L / seq.sum()
+        edges.extend(a + np.cumsum(seq))
+    return np.array(edges)
+
+
+class Scene:
+    """Rectilinear cell-centred material map (materials stored as indices)."""
+
+    def __init__(self, xe, ye):
+        self.xe, self.ye = xe, ye
+        self.xc = 0.5 * (xe[1:] + xe[:-1]); self.yc = 0.5 * (ye[1:] + ye[:-1])
+        self.dx = np.diff(xe); self.dy = np.diff(ye)
+        self.nx, self.ny = len(self.xc), len(self.yc)
+        self.X, self.Y = np.meshgrid(self.xc, self.yc)            # (ny, nx)
+        self.mats = []                                            # material table
+        self.mid = np.zeros((self.ny, self.nx), dtype=np.int16)   # index into mats
+        self.elec = np.zeros((self.ny, self.nx), dtype=np.int8)   # 0 free, 1 sense, 2 gnd
+        self.region = np.zeros((self.ny, self.nx), dtype=np.int8)
+
+    def _id(self, mat):
+        mat = tuple(mat)
+        if mat not in self.mats: self.mats.append(mat)
+        return self.mats.index(mat)
+
+    def fill(self, mat, region):
+        self.mid[:] = self._id(mat); self.region[:] = REGIONS[region]
+
+    def rect(self, x0, x1, y0, y1, mat=None, region=None, elec=0):
+        m = (self.X >= x0) & (self.X < x1) & (self.Y >= y0) & (self.Y < y1)
+        self.paint(m, mat, region, elec)
+
+    def disc(self, cx, cy, r, mat=None, region=None, elec=0):
+        m = (self.X - cx)**2 + (self.Y - cy)**2 < r**2
+        self.paint(m, mat, region, elec)
+
+    def paint(self, m, mat, region, elec=0):
+        if elec:
+            self.mid[m] = self._id(ELEC); self.elec[m] = elec; self.region[m] = REGIONS['elec']
+        else:
+            self.mid[m] = self._id(mat); self.region[m] = REGIONS[region]; self.elec[m] = 0
+
+    def eps_array(self, f):
+        table = np.array([eps_complex(m, f) for m in self.mats])
+        return table[self.mid]
+
+
+# ----------------------------------------------------------------------------
+# Geometry builders
+# ----------------------------------------------------------------------------
+def pcb_scene(top, bot, soil, W=12.0, gap_top=0.0, gap_bot=0.0, gap_mat=AIR,
+              mask=True, coat=None, stack=STACK, medium=None,
+              Lx=40.0, Ly=40.0, dmin=0.005, dmax=2.0, growth=1.3):
+    """Two-layer board: top/bot are lists of ('S'|'G', x0, x1) strips; see stack_scene.
+    mask=False is bare (ENIG) copper."""
+    st = dict(dielectrics=[(stack['h_core'], FR4)], cu=[stack['t_cu']] * 2, t_mask=stack['t_mask'] if mask else 0.0)
+    return stack_scene(st, {0: bot, 1: top}, soil, W=W, gap_top=gap_top, gap_bot=gap_bot, gap_mat=gap_mat,
+                       coat=coat, medium=medium, Lx=Lx, Ly=Ly, dmin=dmin, dmax=dmax, growth=growth)
+
+
+def nail_scene(soil, r=1.75, spacing=20.0, coat=0.0, coat_mat=COAT, gap=0.0,
+               gap_mat=AIR, medium=None, L=40.0, dmin=0.02, dmax=2.0, growth=1.3):
+    """Two parallel steel nails (radius r, centre spacing) in soil, optional
+    insulating coat and a loose-hole gap ring around each."""
+    R = r + coat + gap
+    cx = spacing / 2
+    pts = [-L, -cx - R, -cx - r, -cx, -cx + r, -cx + R, cx - R, cx - r, cx, cx + r, cx + R, L]
+    dm = [dmax, dmin, dmin, 0.2, dmin, dmin, dmin, dmin, 0.2, dmin, dmin, dmax]
+    xe = graded_axis(*_dedupe(pts, dm), dmax, growth)
+    ypts = [-L, -R, -r, 0.0, r, R, L]; ydm = [dmax, dmin, dmin, 0.2, dmin, dmin, dmax]
+    ye = graded_axis(*_dedupe(ypts, ydm), dmax, growth)
+    sc = Scene(xe, ye)
+    bulk = medium if medium is not None else soil
+    sc.fill(bulk, 'soil' if medium is None else 'air')
+    for x, e in ((-cx, 1), (cx, 2)):
+        if gap > 0:  sc.disc(x, 0, r + coat + gap, gap_mat, 'gap')
+        if coat > 0: sc.disc(x, 0, r + coat, coat_mat, 'coat')
+        sc.disc(x, 0, r, elec=e)
+    return sc
+
+
+# ----------------------------------------------------------------------------
+# General stackup builder: buried (inner-layer) electrodes, forks
+# ----------------------------------------------------------------------------
+FR408HR = (3.7, 0.0, 0.009)     # Isola FR408HR, Dk 3.61-3.68 at 1-2 GHz, slightly higher at 70 MHz
+
+# dielectrics bottom -> top as (thickness mm, material); cu[i] = copper thickness at interface i
+# (0 = bottom face, len(dielectrics) = top face).  Outer copper sits proud of the laminate under
+# the mask; inner copper is embedded in the neighbouring prepreg.
+OSHPARK_2L = dict(dielectrics=[(1.524, FR4)], cu=[0.0356, 0.0356], t_mask=0.0152)
+OSHPARK_4L = dict(dielectrics=[(0.1999, FR408HR), (0.9906, FR408HR), (0.1999, FR408HR)],
+                  cu=[0.0432, 0.0175, 0.0175, 0.0432], t_mask=0.0152)
+
+
+def stack_scene(stack, strips, soil, W=12.0, slots=(), gap_top=0.0, gap_bot=0.0, gap_mat=AIR,
+                coat=None, medium=None, half_space=None, Lx=40.0, Ly=40.0, dmin=0.005, dmax=2.0,
+                growth=1.3):
+    """
+    strips : {interface index: [('S'|'G', x0, x1), ...]}
+    slots  : [(x0, x1), ...] board material removed and replaced by soil (fork prongs)
+    half_space : (d_mm, material) soil only within d of the board faces, material beyond
+                 (sampling-depth experiment: lower the probe toward a second medium)
+    """
+    diel, cu, tm = stack['dielectrics'], stack['cu'], stack['t_mask']
+    n = len(diel)
+    H = sum(t for t, _ in diel)
+    zi = np.concatenate([[0.0], np.cumsum([t for t, _ in diel])]) - H / 2     # interface heights
+    tc = coat[0] if coat else 0.0
+    top_cu = cu[n] if strips.get(n) else 0.0
+    bot_cu = cu[0] if strips.get(0) else 0.0
+    face_t = H / 2 + top_cu + tm + tc
+    face_b = -(H / 2 + bot_cu + tm + tc)
+    ypts = [-Ly, face_b - gap_bot, face_b, -H / 2 - bot_cu - tm, -H / 2 - bot_cu,
+            H / 2 + top_cu, H / 2 + top_cu + tm, face_t, face_t + gap_top, Ly,
+            H / 2 + tm, H / 2 + tm + gap_top, -H / 2 - tm, -H / 2 - tm - gap_bot]
+    ydm = [dmax, 0.01, 0.01, dmin, dmin, dmin, dmin, 0.01, 0.01, dmax, dmin, dmin, dmin, dmin]
+    for i, z in enumerate(zi):
+        ypts.append(z); ydm.append(dmin if strips.get(i) else 0.02)
+        if strips.get(i) and 0 < i < n:
+            sgn = 1 if z < 0 else -1                      # inner copper grows toward the core
+            ypts.append(z + sgn * cu[i]); ydm.append(dmin)
+    if half_space:
+        ypts += [face_t + half_space[0], face_b - half_space[0]]; ydm += [0.02, 0.02]
+    xpts = [-Lx, -W / 2, W / 2, Lx]; xdm = [dmax, 0.02, 0.02, dmax]
+    for i, lst in strips.items():
+        for _, x0, x1 in lst:
+            xpts += [x0, x1]; xdm += [0.01, 0.01]
+            if i in (0, n) and not coat:                  # mask, and any air film, wrap the copper edges
+                for d in {tm, tm + (gap_top if i == n else gap_bot)} - {0.0}:
+                    xpts += [x0 - d, x1 + d]; xdm += [dmin, dmin]
+    for x0, x1 in slots:
+        xpts += [x0, x1]; xdm += [0.02, 0.02]
+    if half_space:
+        xpts += [-W / 2 - half_space[0], W / 2 + half_space[0]]; xdm += [0.05, 0.05]
+    sc = Scene(graded_axis(*_dedupe(xpts, xdm), dmax, growth), graded_axis(*_dedupe(ypts, ydm), dmax, growth))
+    bulk = medium if medium is not None else soil
+    sc.fill(bulk, 'soil' if medium is None else 'air')
+    if half_space:
+        d, mat = half_space
+        m = (sc.Y > face_t + d) | (sc.Y < face_b - d) | (np.abs(sc.X) > W / 2 + d)
+        sc.paint(m, mat, 'air')
+    inboard = np.abs(sc.X) < W / 2
+    for x0, x1 in slots:
+        inboard &= ~((sc.X >= x0) & (sc.X < x1))
+    def band(y0, y1, mat, region):
+        sc.paint(inboard & (sc.Y >= y0) & (sc.Y < y1), mat, region)
+    # an air film of uniform thickness that follows the surface: the coat if there is one,
+    # otherwise the mask over the laminate here and over the copper below
+    top0, bot0 = (face_t, face_b) if coat else (H / 2 + tm, -H / 2 - tm)
+    if gap_top > 0: band(H / 2, top0 + gap_top, gap_mat, 'gap')
+    if gap_bot > 0: band(bot0 - gap_bot, -H / 2, gap_mat, 'gap')
+    if coat:
+        band(H / 2, face_t, coat[1], 'coat'); band(face_b, -H / 2, coat[1], 'coat')
+    band(H / 2, H / 2 + tm, MASK, 'mask'); band(-H / 2 - tm, -H / 2, MASK, 'mask')
+    for k, (t, mat) in enumerate(diel):
+        band(zi[k], zi[k + 1], mat, 'fr4')
+    for i, lst in strips.items():
+        z = zi[i]
+        if i == 0:   y0, y1 = z - cu[0], z
+        elif i == n: y0, y1 = z, z + cu[n]
+        elif z < 0:  y0, y1 = z, z + cu[i]
+        else:        y0, y1 = z - cu[i], z
+        for kind, x0, x1 in lst:
+            if i in (0, n):                               # mask covers the top and the edges of the copper
+                g = 0.0 if coat else (gap_top if i == n else gap_bot)
+                if i == n:
+                    if g: sc.rect(x0 - tm - g, x1 + tm + g, y0 + tm, y1 + tm + g, gap_mat, 'gap')
+                    sc.rect(x0 - tm, x1 + tm, y0, y1 + tm, MASK, 'mask')
+                else:
+                    if g: sc.rect(x0 - tm - g, x1 + tm + g, y0 - tm - g, y1 - tm, gap_mat, 'gap')
+                    sc.rect(x0 - tm, x1 + tm, y0 - tm, y1, MASK, 'mask')
+            sc.rect(x0, x1, y0, y1, elec=1 if kind == 'S' else 2)
+    return sc
+
+
+def _dedupe(pts, dm):
+    order = np.argsort(pts)
+    p, d = [], []
+    for i in order:
+        if p and abs(pts[i] - p[-1]) < 1e-9:
+            d[-1] = min(d[-1], dm[i])
+        else:
+            p.append(pts[i]); d.append(dm[i])
+    return p, d
+
+
+# ----------------------------------------------------------------------------
+# Solver
+# ----------------------------------------------------------------------------
+def solve(sc, f):
+    """Return dict: Y [S/m], C [F/m], G [S/m], phi (ny,nx), energy fraction per region."""
+    eps = sc.eps_array(f)
+    nx, ny = sc.nx, sc.ny
+    idx = np.arange(nx * ny).reshape(ny, nx)
+    dx, dy = sc.dx, sc.dy
+    # face conductances: series combination of the two half-cells (exact for
+    # piecewise-constant eps, reduces to the harmonic mean on uniform grids)
+    gx = dy[:, None] / (dx[None, :-1] / (2 * eps[:, :-1]) + dx[None, 1:] / (2 * eps[:, 1:]))
+    gy = dx[None, :] / (dy[:-1, None] / (2 * eps[:-1, :]) + dy[1:, None] / (2 * eps[1:, :]))
+    a = np.concatenate([idx[:, :-1].ravel(), idx[:-1, :].ravel()])
+    b = np.concatenate([idx[:, 1:].ravel(), idx[1:, :].ravel()])
+    g = np.concatenate([gx.ravel(), gy.ravel()])
+    rows = np.concatenate([a, b, a, b]); cols = np.concatenate([a, b, b, a])
+    vals = np.concatenate([g, g, -g, -g])
+    A = sp.csr_matrix((vals, (rows, cols)), shape=(nx * ny, nx * ny))
+    elec = sc.elec.ravel()
+    free = np.where(elec == 0)[0]; fixed = np.where(elec != 0)[0]
+    V = np.zeros(nx * ny, complex); V[elec == 1] = 1.0
+    rhs = -A[free][:, fixed] @ V[fixed]
+    V[free] = spla.spsolve(A[free][:, free].tocsc(), rhs)
+    Q = A @ V                                            # net outward D-flux per cell
+    Qs = Q[elec == 1].sum()                              # charge on sense (V = 1)
+    w = 2 * np.pi * f
+    Y = 1j * w * Qs                                      # S per metre of length
+    phi = V.reshape(ny, nx)
+    # field-energy partition: W = 1/2 sum_faces Re(g)|dphi|^2 (discretely exact,
+    # C = 2W/V^2 for lossless media); each face's energy split between the two
+    # cells' regions -> tells you where the sensitivity actually lives
+    er = eps.real
+    gxr = dy[:, None] / (dx[None, :-1] / (2 * er[:, :-1]) + dx[None, 1:] / (2 * er[:, 1:]))
+    gyr = dx[None, :] / (dy[:-1, None] / (2 * er[:-1, :]) + dy[1:, None] / (2 * er[1:, :]))
+    Wx = 0.5 * gxr * np.abs(phi[:, 1:] - phi[:, :-1])**2
+    Wy = 0.5 * gyr * np.abs(phi[1:, :] - phi[:-1, :])**2
+    Wcell = np.zeros((ny, nx))
+    Wcell[:, :-1] += 0.5 * Wx; Wcell[:, 1:] += 0.5 * Wx
+    Wcell[:-1, :] += 0.5 * Wy; Wcell[1:, :] += 0.5 * Wy
+    frac = {name: float(Wcell[sc.region == k].sum() / Wcell.sum()) for name, k in REGIONS.items()}
+    return dict(Y=Y, C=Y.imag / w, G=Y.real, phi=phi, frac=frac, n=nx * ny)
+
+
+# ----------------------------------------------------------------------------
+# Verification against closed forms
+# ----------------------------------------------------------------------------
+def verify():
+    out = []
+    # two-wire line in a uniform dielectric:  C/L = pi*eps / acosh(s/2r)
+    er = 10.0
+    sc = nail_scene((er, 0, 0), r=1.75, spacing=20.0, L=60.0, dmin=0.02, dmax=1.0)
+    C = solve(sc, 1e6)['C']
+    Ca = np.pi * EPS0 * er / np.arccosh(20.0 / 3.5)
+    out.append(('two-wire line, er=10, L=60mm domain', C, Ca))
+    sc = nail_scene((er, 0, 0), r=1.75, spacing=20.0, L=120.0, dmin=0.02, dmax=2.0)
+    out.append(('two-wire line, er=10, L=120mm domain', solve(sc, 1e6)['C'], Ca))
+    # lossy two-wire line: G/L = pi*sigma / acosh(s/2r)
+    sig = 0.05
+    sc = nail_scene((er, sig, 0), r=1.75, spacing=20.0, L=120.0, dmin=0.02, dmax=2.0)
+    r = solve(sc, 1e6)
+    out.append(('two-wire G, sigma=0.05', r['G'], np.pi * sig / np.arccosh(20.0 / 3.5)))
+    return out
+
+
+if __name__ == '__main__':
+    for name, num, ana in verify():
+        print(f'{name:40s} num={num:.4e} analytic={ana:.4e} err={100*(num/ana-1):+.2f}%')
