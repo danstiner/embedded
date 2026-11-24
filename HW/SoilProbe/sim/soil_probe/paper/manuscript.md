@@ -36,8 +36,9 @@ pore water, to temperature and to the soil–electrode contact, all of which gro
 measurement frequency falls [Kizito et al. 2008; Bogena et al. 2017; Kelleners et al. 2005;
 Chen and Or 2006]. A capacitance sensor operating at 70 MHz was shown to hold about 2 % θ
 with one calibration across mineral soils and solution EC [Kizito et al. 2008], and
-sensor-specific calibration in reference media removes most unit-to-unit spread
-[Bogena et al. 2017; Jones et al. 2005].
+sensor-specific calibration removes most unit-to-unit spread [Bogena et al. 2017]. Homogeneous
+liquids of known permittivity are the recommended media for characterizing such sensors
+[Jones et al. 2005].
 
 Printed-circuit probes built for hobby and small-farm use depart from that practice in several
 ways at once: electrodes on the outer copper layer covered only by solder resist, excitation
@@ -76,8 +77,8 @@ surface term σ_s = 0.02 S m⁻¹. The medium enters the field problem as ε* = 
 
 This baseline substrate has no dispersion of its own. Wet soils show Maxwell–Wagner
 polarization below about 100 MHz that raises the permittivity with temperature and with
-solution conductivity [Chen and Or 2006], and fine-textured soils disperse strongly below
-500 MHz [Kelleners et al. 2005]. We found no published spectra for horticultural potting
+solution conductivity [Chen and Or 2006], and the permittivity of a bentonite varies strongly
+with frequency below 500 MHz [Kelleners et al. 2005]. We found no published spectra for horticultural potting
 substrate, and took the shape of the relaxation from the open Dielectric Database of Organic
 Arctic Soils [Savin et al. 2020]: coaxial-line spectra from 10 MHz to 16 GHz of soils with
 30–90 % organic matter. For the three samples with usable data below 100 MHz (35, 38 and 61 %
