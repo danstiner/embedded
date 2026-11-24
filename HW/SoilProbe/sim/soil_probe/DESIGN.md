@@ -62,7 +62,7 @@ Assumptions I made where nothing was specified:
 
 | Cross-section | C wet/dry | 0.1 mm air gap | 0.1 mm water film | EC x6 | Loss D, wet saline | Fab tolerance |
 |---|---|---|---|---|---|---|
-| 2-layer, mask only, 12 mm board, 1 mm gap | 5.2 | -4.1 | +6.8 | +0.1 | 0.66 | 0.1 |
+| 2-layer, mask only, 12 mm board, 1 mm gap | 5.1 | -4.0 | +4.5 | +0.2 | 0.64 | 0.2 |
 | 2-layer + 0.2 mm dipped coat, 20 mm, 7 mm gap | 5.0 | -1.7 | +1.2 | +0.8 | 0.47 | 1.4 |
 | 4-layer buried, 12 mm, 1 mm gap | 3.5 | -3.5 | +2.8 | +1.3 | 0.35 | 0.5 |
 | **4-layer buried, 20 mm, 7 mm gap** | 5.4 | -1.9 | +1.4 | +0.8 | 0.49 | 0.2 |

@@ -159,55 +159,11 @@ class Scene:
 def pcb_scene(top, bot, soil, W=12.0, gap_top=0.0, gap_bot=0.0, gap_mat=AIR,
               mask=True, coat=None, stack=STACK, medium=None,
               Lx=40.0, Ly=40.0, dmin=0.005, dmax=2.0, growth=1.3):
-    """
-    top/bot : list of ('S'|'G', x0, x1) copper strips on each face (mm)
-    soil    : (er, sigma, tan_d) of the bulk soil filling the domain
-    gap_*   : uniform slab of gap_mat between the board face and the soil
-    coat    : (thickness_mm, material) extra conformal coat over the mask
-    mask    : False => bare (ENIG) copper, no solder resist
-    medium  : override soil with e.g. AIR for an in-air calibration
-    """
-    h, tcu, tm = stack['h_core'], stack['t_cu'], stack['t_mask']
-    tm = tm if mask else 0.0
-    tc = coat[0] if coat else 0.0
-    face = h / 2 + tcu + tm + tc                     # outer surface of the board
-    # --- y interfaces ---
-    ypts = [-Ly, -(face + gap_bot), -face, -(h/2 + tcu + tm), -(h/2 + tcu), -h/2,
-            h/2, h/2 + tcu, h/2 + tcu + tm, face, face + gap_top, Ly]
-    ydm = [dmax, 0.01, 0.01, dmin, dmin, 0.01, 0.01, dmin, dmin, 0.01, 0.01, dmax]
-    ypts, ydm = _dedupe(ypts, ydm)
-    # --- x interfaces ---
-    xpts = [-Lx, -W/2, W/2, Lx]; xdm = [dmax, 0.02, 0.02, dmax]
-    for _, x0, x1 in top + bot:
-        xpts += [x0, x1]; xdm += [0.01, 0.01]
-    xpts, xdm = _dedupe(xpts, xdm)
-    sc = Scene(graded_axis(xpts, xdm, dmax, growth), graded_axis(ypts, ydm, dmax, growth))
-    bulk = medium if medium is not None else soil
-    sc.fill(bulk, 'soil' if medium is None else 'air')
-    # gap slabs (fill the whole band above the FR4 surface so copper recesses fill too)
-    if gap_top > 0: sc.rect(-W/2, W/2, h/2, face + gap_top, gap_mat, 'gap')
-    if gap_bot > 0: sc.rect(-W/2, W/2, -(face + gap_bot), -h/2, gap_mat, 'gap')
-    # core
-    sc.rect(-W/2, W/2, -h/2, h/2, FR4, 'fr4')
-    # copper + conformal layers, top then bottom
-    for strips, sgn in ((top, 1), (bot, -1)):
-        y0, y1 = (h/2, h/2 + tcu) if sgn > 0 else (-(h/2 + tcu), -h/2)
-        if mask:                                  # mask over bare laminate
-            ym0, ym1 = (h/2, h/2 + tm) if sgn > 0 else (-(h/2 + tm), -h/2)
-            sc.rect(-W/2, W/2, ym0, ym1, MASK, 'mask')
-        for kind, x0, x1 in strips:
-            sc.rect(x0, x1, y0, y1, elec=1 if kind == 'S' else 2)
-            if mask:                              # mask over copper
-                ym0, ym1 = (h/2 + tcu, h/2 + tcu + tm) if sgn > 0 else (-(h/2 + tcu + tm), -(h/2 + tcu))
-                sc.rect(x0, x1, ym0, ym1, MASK, 'mask')
-        if coat:                                  # conformal coat over everything
-            yc0, yc1 = (h/2 + tcu + tm, face) if sgn > 0 else (-face, -(h/2 + tcu + tm))
-            sc.rect(-W/2, W/2, yc0, yc1, coat[1], 'coat')
-            # the recess beside copper strips is also coat (coat fills it)
-            yr0, yr1 = (h/2 + tm, h/2 + tcu + tm) if sgn > 0 else (-(h/2 + tcu + tm), -(h/2 + tm))
-            m = (sc.Y >= yr0) & (sc.Y < yr1) & (np.abs(sc.X) < W/2) & (sc.elec == 0)
-            sc.paint(m, coat[1], 'coat')
-    return sc
+    """Two-layer board: top/bot are lists of ('S'|'G', x0, x1) strips; see stack_scene.
+    mask=False is bare (ENIG) copper."""
+    st = dict(dielectrics=[(stack['h_core'], FR4)], cu=[stack['t_cu']] * 2, t_mask=stack['t_mask'] if mask else 0.0)
+    return stack_scene(st, {0: bot, 1: top}, soil, W=W, gap_top=gap_top, gap_bot=gap_bot, gap_mat=gap_mat,
+                       coat=coat, medium=medium, Lx=Lx, Ly=Ly, dmin=dmin, dmax=dmax, growth=growth)
 
 
 def nail_scene(soil, r=1.75, spacing=20.0, coat=0.0, coat_mat=COAT, gap=0.0,
@@ -263,8 +219,9 @@ def stack_scene(stack, strips, soil, W=12.0, slots=(), gap_top=0.0, gap_bot=0.0,
     face_t = H / 2 + top_cu + tm + tc
     face_b = -(H / 2 + bot_cu + tm + tc)
     ypts = [-Ly, face_b - gap_bot, face_b, -H / 2 - bot_cu - tm, -H / 2 - bot_cu,
-            H / 2 + top_cu, H / 2 + top_cu + tm, face_t, face_t + gap_top, Ly]
-    ydm = [dmax, 0.01, 0.01, dmin, dmin, dmin, dmin, 0.01, 0.01, dmax]
+            H / 2 + top_cu, H / 2 + top_cu + tm, face_t, face_t + gap_top, Ly,
+            H / 2 + tm, H / 2 + tm + gap_top, -H / 2 - tm, -H / 2 - tm - gap_bot]
+    ydm = [dmax, 0.01, 0.01, dmin, dmin, dmin, dmin, 0.01, 0.01, dmax, dmin, dmin, dmin, dmin]
     for i, z in enumerate(zi):
         ypts.append(z); ydm.append(dmin if strips.get(i) else 0.02)
         if strips.get(i) and 0 < i < n:
@@ -273,9 +230,12 @@ def stack_scene(stack, strips, soil, W=12.0, slots=(), gap_top=0.0, gap_bot=0.0,
     if half_space:
         ypts += [face_t + half_space[0], face_b - half_space[0]]; ydm += [0.02, 0.02]
     xpts = [-Lx, -W / 2, W / 2, Lx]; xdm = [dmax, 0.02, 0.02, dmax]
-    for lst in strips.values():
+    for i, lst in strips.items():
         for _, x0, x1 in lst:
             xpts += [x0, x1]; xdm += [0.01, 0.01]
+            if i in (0, n) and not coat:                  # mask, and any air film, wrap the copper edges
+                for d in {tm, tm + (gap_top if i == n else gap_bot)} - {0.0}:
+                    xpts += [x0 - d, x1 + d]; xdm += [dmin, dmin]
     for x0, x1 in slots:
         xpts += [x0, x1]; xdm += [0.02, 0.02]
     if half_space:
@@ -292,8 +252,11 @@ def stack_scene(stack, strips, soil, W=12.0, slots=(), gap_top=0.0, gap_bot=0.0,
         inboard &= ~((sc.X >= x0) & (sc.X < x1))
     def band(y0, y1, mat, region):
         sc.paint(inboard & (sc.Y >= y0) & (sc.Y < y1), mat, region)
-    if gap_top > 0: band(H / 2, face_t + gap_top, gap_mat, 'gap')
-    if gap_bot > 0: band(face_b - gap_bot, -H / 2, gap_mat, 'gap')
+    # an air film of uniform thickness that follows the surface: the coat if there is one,
+    # otherwise the mask over the laminate here and over the copper below
+    top0, bot0 = (face_t, face_b) if coat else (H / 2 + tm, -H / 2 - tm)
+    if gap_top > 0: band(H / 2, top0 + gap_top, gap_mat, 'gap')
+    if gap_bot > 0: band(bot0 - gap_bot, -H / 2, gap_mat, 'gap')
     if coat:
         band(H / 2, face_t, coat[1], 'coat'); band(face_b, -H / 2, coat[1], 'coat')
     band(H / 2, H / 2 + tm, MASK, 'mask'); band(-H / 2 - tm, -H / 2, MASK, 'mask')
@@ -306,9 +269,14 @@ def stack_scene(stack, strips, soil, W=12.0, slots=(), gap_top=0.0, gap_bot=0.0,
         elif z < 0:  y0, y1 = z, z + cu[i]
         else:        y0, y1 = z - cu[i], z
         for kind, x0, x1 in lst:
-            if i in (0, n):                               # mask follows the copper profile
-                ym = (y1, y1 + tm) if i == n else (y0 - tm, y0)
-                sc.rect(x0, x1, ym[0], ym[1], MASK, 'mask')
+            if i in (0, n):                               # mask covers the top and the edges of the copper
+                g = 0.0 if coat else (gap_top if i == n else gap_bot)
+                if i == n:
+                    if g: sc.rect(x0 - tm - g, x1 + tm + g, y0 + tm, y1 + tm + g, gap_mat, 'gap')
+                    sc.rect(x0 - tm, x1 + tm, y0, y1 + tm, MASK, 'mask')
+                else:
+                    if g: sc.rect(x0 - tm - g, x1 + tm + g, y0 - tm - g, y1 - tm, gap_mat, 'gap')
+                    sc.rect(x0 - tm, x1 + tm, y0 - tm, y1, MASK, 'mask')
             sc.rect(x0, x1, y0, y1, elec=1 if kind == 'S' else 2)
     return sc
 

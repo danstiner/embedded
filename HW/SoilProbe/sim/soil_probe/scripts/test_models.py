@@ -30,13 +30,13 @@ def test_coplanar_strips_conformal_map():
     assert C == pytest.approx(s.EPS0 * er * ellipk(1 - k**2) / ellipk(k**2), rel=0.03)
 
 
-def test_stack_builder_matches_original_two_layer_builder():
-    st = [('S', -5.5, -0.5), ('G', 0.5, 5.5)]
-    for th in (0.05, 0.45):
-        soil = s.soil_material(th)
-        a = s.solve(s.pcb_scene(st, st, soil, W=12), 70e6)
-        b = s.solve(s.stack_scene(s.OSHPARK_2L, {0: st, 1: st}, soil, W=12), 70e6)
-        assert b['Y'] == pytest.approx(a['Y'], rel=0.005)
+def test_mask_insulates_outer_copper_edges():
+    # in a conductor at low frequency, masked strips are a capacitor (the mask), not a resistor
+    st = [('S', -3.0, -1.0), ('G', 1.0, 3.0)]
+    y = s.solve(s.stack_scene(s.OSHPARK_2L, {1: st}, (80.0, 1.0, 0.0), W=9), 1e3)['Y']
+    assert y.real < 0.05 * y.imag
+    c_mask = s.EPS0 * s.MASK[0] * 2.0 / 0.0152 / 2          # two 2 mm plates in series, F/m
+    assert y.imag / (2 * 3.141592653589793 * 1e3) == pytest.approx(c_mask, rel=0.15)
 
 
 def test_mesh_convergence_and_energy_partition():

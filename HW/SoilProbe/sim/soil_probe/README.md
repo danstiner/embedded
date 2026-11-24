@@ -13,6 +13,7 @@ scripts/
   expected_liquids.py predicted readings in air, solvents, water, salt water
   design_comparison.py nine electrode x readout designs under one calibration and Monte Carlo (paper/)
   organic_soil_spectra.py substrate relaxation from published organic-soil spectra (downloads ~60 MB, needs xlrd)
+  existing_boards.py    the older probe boards under HW/ (front-face strips, FDC1004 / FDC2x12) in the same framework
   run_sweeps.py       earlier survey of outer-layer patterns and nails (background to DESIGN section 4)
   test_models.py      pytest: solver vs closed forms, line limits, end-to-end round trip
 spice/
@@ -45,3 +46,22 @@ pytest -q
 ```
 
 Run the scripts as files, not from stdin: the table builders use multiprocessing.
+
+## The older probe boards (`existing_boards.py`)
+
+Strips on the front face only, under solder mask, OSH Park 2-layer stack. Same substrate,
+calibration and Monte Carlo as `paper/manuscript.md`; RMSE in % VWC.
+
+| Board + readout | RMSE | Salinity | Contact | Notes |
+|---|---|---|---|---|
+| Probe_Parallel9mm, 12mm, OneInch + FDC1004; SoilProbe_FDC1004_Parallel9mm | none | | | 25 kHz reads the mask capacitance: response not monotonic in water content; 10-58 % of readings exceed the chip's 115 pF |
+| Probe_Parallel9mm + FDC2112/2212 breakout (10 uH, 8.0-6.3 MHz) | 5.6 | 4.1 | 3.6 | |
+| Probe_Parallel12mm + FDC2112/2212 breakout | 5.3 | 3.7 | 2.8 | |
+| Probe_ParallelOneInch + FDC2112/2212 breakout | 6.0 | 3.2 | 3.6 | tank loss beyond the drive current in 7 % of readings |
+| Soily (FDC2212, 18 uH, 6.0-4.4 MHz) | 7.1 | 3.9 | 5.0 | same in 5 % |
+| SoilProbe 2026v1 (4-layer, buried, 100 MHz), for reference | 1.2 | 0.3 | 1.2 | |
+
+The FDC1004 model is the idealized charge-transfer reading C + G/2f; the data sheet does not
+specify the chip's behavior with a lossy load. The drive limit is taken as 1.2 V / 1.56 mA.
+On the same 2-layer stack, 5.5 mm strips 7 mm apart on both faces read by the 100 MHz
+oscillator (design G of the manuscript) reach 1.4 %.

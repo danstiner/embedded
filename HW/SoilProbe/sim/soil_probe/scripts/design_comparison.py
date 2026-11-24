@@ -102,7 +102,7 @@ def scene(geom, mat, variant='nom', **kw):
     if variant.startswith('gap'): kw['gap_top'] = int(variant[3:]) / 1000
     if 'coat' in g: kw['coat'] = g['coat']
     st = g['strips']
-    return s.stack_scene(g['stack'], {g['ifc'][0]: st, g['ifc'][1]: st}, mat, W=g['W'], **kw)
+    return s.stack_scene(g['stack'], {i: st for i in g['ifc']}, mat, W=g['W'], **kw)
 
 
 def _solve(a):
@@ -137,7 +137,7 @@ def Lpul(geom):
     g = GEOMS[geom]
     vac = dict(dielectrics=[(t, s.AIR) for t, _ in g['stack']['dielectrics']], cu=g['stack']['cu'], t_mask=0.0)
     st = g['strips']
-    C0 = s.solve(s.stack_scene(vac, {g['ifc'][0]: st, g['ifc'][1]: st}, s.AIR, W=g['W'], Lx=80, Ly=80), 1e6)['C']
+    C0 = s.solve(s.stack_scene(vac, {i: st for i in g['ifc']}, s.AIR, W=g['W'], Lx=80, Ly=80), 1e6)['C']
     return MU0 * s.EPS0 / C0
 
 
@@ -156,7 +156,7 @@ def _rel(f, fr):
 def quarter_wave(geom):
     """Frequency at which the 80 mm strips are a quarter wave long in the water calibration medium."""
     cw = table(geom, 'nom')(np.array([s.water_er(T_REF)]), np.array([0.0]))[0].real
-    return 1 / (4 * LENGTH * np.sqrt(Lpul(geom) * cw))
+    return 1 / (4 * GEOMS[geom].get('length', LENGTH) * np.sqrt(Lpul(geom) * cw))
 
 
 def soil_eps(theta, sigma_w, T, f):
@@ -186,7 +186,7 @@ def feed_Y(geom, er, eim, f, gap=0.0, unit=0.0):
     if np.any(unit): cs = cs + np.asarray(unit) * (table(geom, 'tol')(er, eim) - nom)
     w = 2 * np.pi * f
     Z, Yp = 1j * w * Lpul(geom), 1j * w * cs
-    return np.sqrt(Yp / Z) * np.tanh(np.sqrt(Z * Yp) * LENGTH)
+    return np.sqrt(Yp / Z) * np.tanh(np.sqrt(Z * Yp) * GEOMS[geom].get('length', LENGTH))
 
 
 def observe(readout, Y, f):
@@ -477,27 +477,28 @@ def figures(designs, res, sweep, built):
     fig.tight_layout(rect=(0, 0.07, 1, 1)); fig.savefig(f'{FIGS}/fig2_response.png'); plt.close(fig)
 
     # Fig 3: total RMSE, ranked
-    rows = [(f'{d.key}  {d.label}', res[d.key]['all']['rmse']) for d in designs]
+    rows = [(f'{d.key}  {d.label}', res[d.key]['all']['rmse'] if d.usable else np.inf) for d in designs]
     rows.append(('J  As built: buried 20 mm, full oscillator model, with loss', built['fd']['rmse']))
     rows.sort(key=lambda r: r[1])
     fig, ax = plt.subplots(figsize=(7.2, 3.6))
     y = np.arange(len(rows))[::-1]
-    ax.barh(y, [min(r[1], 20) for r in rows], height=0.62, color=BLUE)
+    ax.barh(y, [r[1] if np.isfinite(r[1]) else 0 for r in rows], height=0.62, color=BLUE)
     for yy, r in zip(y, rows):
-        ax.text(min(r[1], 20) + 0.25, yy, f'{r[1]:.1f}' + (' (off scale)' if r[1] > 20 else ''), va='center', fontsize=8)
+        ax.text(r[1] + 0.25 if np.isfinite(r[1]) else 0.25, yy, f'{r[1]:.1f}' if np.isfinite(r[1]) else 'no usable response', va='center', fontsize=8)
     ax.set_yticks(y); ax.set_yticklabels([r[0] for r in rows], fontsize=8, color=INK)
-    ax.set_xlim(0, 9); ax.set_xlabel('RMSE, % volumetric water content (all sources)'); ax.grid(axis='y', visible=False)
-    fig.tight_layout(); fig.savefig(f'{FIGS}/fig3_rmse.png'); plt.close(fig)
+    ax.set_xlim(0, 17); ax.set_xlabel('RMSE, % volumetric water content (all sources)'); ax.grid(axis='y', visible=False)
+    fig.subplots_adjust(left=0.50, right=0.97, bottom=0.15, top=0.97); fig.savefig(f'{FIGS}/fig3_rmse.png'); plt.close(fig)
 
     # Fig 4: contributions by source, grouped
     fig, ax = plt.subplots(figsize=(7.2, 4.6))
     src = [('EC', BLUE, 'pore-water EC'), ('T', ORANGE, 'temperature'), ('contact', AQUA, 'contact'), ('unit', YELLOW, 'unit tolerance')]
-    y = np.arange(len(designs))[::-1] * 1.0
+    shown = [d for d in designs if d.usable]            # a response that is not monotonic has no error budget
+    y = np.arange(len(shown))[::-1] * 1.0
     for k, (key, c, lab) in enumerate(src):
-        v = [res[d.key][key]['rmse'] for d in designs]
+        v = [res[d.key][key]['rmse'] for d in shown]
         ax.barh(y + (1.5 - k) * 0.19, v, height=0.17, color=c, label=lab)
-    ax.set_yticks(y); ax.set_yticklabels([f'{d.key}  {d.label}' for d in designs], fontsize=8, color=INK)
-    ax.set_xlim(0, 7); ax.set_xlabel('RMSE with only this source varying, % VWC')
+    ax.set_yticks(y); ax.set_yticklabels([f'{d.key}  {d.label}' for d in shown], fontsize=8, color=INK)
+    ax.set_xlim(0, 15); ax.set_xlabel('RMSE with only this source varying, % VWC')
     ax.grid(axis='y', visible=False); ax.legend(fontsize=8, loc='lower right')
     fig.tight_layout(); fig.savefig(f'{FIGS}/fig4_sources.png'); plt.close(fig)
 

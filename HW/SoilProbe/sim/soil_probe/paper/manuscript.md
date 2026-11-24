@@ -12,25 +12,26 @@ transmission-line model of the 80 mm electrodes, an idealized model of each read
 identical two-step calibration, and a paired Monte Carlo evaluation in a peat-based substrate
 under nominal greenhouse conditions (pore-water conductivity 0.3–4 dS m⁻¹, 22 ± 4 °C,
 imperfect contact, manufacturing tolerance). The substrate-specific calibration is assumed
-known. Root-mean-square error ranges from 8–12 % volumetric water content for resist-covered
-electrodes read below 2 MHz to 1.2 % for electrodes buried in the laminate and read by a
-parallel-resonant oscillator at 100 MHz. Below about 10 MHz salinity alone contributes 6 %,
+known. Root-mean-square error ranges from 8–15 % volumetric water content for resist-covered
+electrodes read at 1.5 MHz to 1.2 % for electrodes buried in the laminate and read by a
+parallel-resonant oscillator at 100 MHz; at 25 kHz resist-covered electrodes give no usable
+response. Below about 10 MHz salinity alone contributes 6 %,
 whatever the electrode pattern or circuit, and a thin air layer contributes as much again when
 only solder resist covers the copper. At 75–100 MHz the details decide: a series-resonant
 oscillator carries 1.0 % of salinity error against 0.1–0.3 % for a parallel-resonant one on the
 same electrodes, and a hand-applied coat adds 2.8 % of unit-to-unit error. With frequency and
 readout right, the remaining error is contact; wider electrode spacing and burial under 0.2 mm
-of laminate reduce it from 2.8 to 1.5 and 1.2 %. The usable frequency window is bounded below
+of laminate reduce it from 2.5 to 1.4 and 1.2 %. The usable frequency window is bounded below
 by interfacial polarization and above by the electrodes' quarter-wave resonance in water. A
 substrate relaxation shaped on published spectra of organic soils leaves the ordering
 unchanged; if it follows pore-water conductivity, an assumption, frequency-only designs
-degrade to 1.7–3.3 % and a design that also measures loss holds 1.3–1.4 %. A circuit-level model of the best design gives 1.0–1.2 %.
+degrade to 1.7–3.1 % and a design that also measures loss holds 1.3–1.4 %. A circuit-level model of the best design gives 1.0–1.2 %.
 
 ## 1. Introduction
 
 Dielectric sensors estimate volumetric water content θ from the permittivity of the medium,
-which is dominated by water (relative permittivity 79 at 22 °C against 3–5 for solids)
-[Topp et al. 1980]. Capacitance and frequency-domain sensors are the cheapest members of the
+which is dominated by water (relative permittivity 79 at 22 °C against 3–5 for soil minerals)
+[Topp et al. 1980; Roth et al. 1990]. Capacitance and frequency-domain sensors are the cheapest members of the
 family. Their known weaknesses are sensitivity to the electrical conductivity (EC) of the
 pore water, to temperature and to the soil–electrode contact, all of which grow as the
 measurement frequency falls [Kizito et al. 2008; Bogena et al. 2017; Kelleners et al. 2005;
@@ -73,7 +74,8 @@ with the static permittivity of water ε_w(T) from Malmberg and Maryott [1956]; 
 relaxation near 17 GHz is far above the frequencies considered. Bulk conductivity is
 σ_b = (σ_w θ² + σ_s θ)(1 + 0.02 (T − 25 °C)) with pore-water conductivity σ_w at 25 °C and a
 surface term σ_s = 0.02 S m⁻¹. The medium enters the field problem as ε* = ε_b − j σ_b/(ω ε_0);
-ε_b ranges from 2.9 at θ = 0.05 to 31.9 at θ = 0.55.
+ε_b ranges from 2.9 at θ = 0.05 to 31.9 at θ = 0.55, within 1.4 of the permittivity measured in
+an organic soil of low bulk density over θ = 0.1–0.5 [Topp et al. 1980, their Table 4].
 
 This baseline substrate has no dispersion of its own. Wet soils show Maxwell–Wagner
 polarization below about 100 MHz that raises the permittivity with temperature and with
@@ -98,8 +100,11 @@ with f_r,ref = 1 MHz reproduce the median, the weakest third and the strongest t
 measured ratios. The spectra are power-law-like over 20 MHz–1 GHz and do not identify f_r
 itself; 1 MHz is the lower bound of the fit. Because only the combination a f_r^(1−α) is
 constrained, refitting (a, α) with f_r,ref = 0.1 or 10 MHz gives the same results (Section
-3.8). The database does not vary salinity. Following the Maxwell–Wagner interpretation
-[Chen and Or 2006], f_r is taken proportional to pore-water conductivity; a scenario with f_r
+3.8). The database does not vary salinity. In the Maxwell–Wagner model the
+relaxation frequency is proportional to the conductivity of the solution, and measured spectra
+of saturated sand and sandy loam shift to higher frequency with salinity
+[Chen and Or 2006, their Eq. 7 and Fig. 6]; f_r is therefore taken proportional to pore-water
+conductivity; a scenario with f_r
 independent of salinity brackets the other possibility. Measurements on a sandy soil wetted
 with KCl solutions support the first qualitatively: with distilled water the refractive index
 at 10–30 MHz exceeded that at 390–485 MHz by a nearly constant amount, whereas at 20 dS m⁻¹
@@ -119,7 +124,8 @@ published stack-ups. The solver reproduces the two-wire line capacitance and con
 0.5 % against a grid of half the cell size (`scripts/test_models.py`). Because the medium
 enters only through ε*, each cross-section is tabulated once over ε′ ∈ [1, 85] and
 ε″ ∈ [0, 5 × 10⁵] and interpolated; this covers every frequency and conductivity used.
-Tables are also computed with an air layer of 0.005, 0.01, 0.02, 0.05 and 0.10 mm on one
+The solder resist covers the top and the edges of outer-layer copper. Tables are also computed
+with an air film of 0.005, 0.01, 0.02, 0.05 and 0.10 mm that follows the surface of one
 face, between which the admittance is interpolated piecewise linearly. The dense spacing at
 the thin end matters: the effect is strongly sublinear in thickness for resist-covered
 electrodes, and a single 0.10 mm table would understate that of a 0.02 mm layer by up to
@@ -232,8 +238,9 @@ with a distributed line agrees with the table model within 0.8 % in frequency.
 Fig. 2 shows the normalized reading against water content at three salinities. The two
 megahertz-range amplitude readouts (B, C) saturate above θ ≈ 0.15: wet substrate is a
 conductor at 1.5 MHz, and the divider sees little more than the capacitance of the solder
-resist. The 25 kHz charge readout (A) responds over the whole range, but to conduction: its
-reading exceeds the water calibration point above θ ≈ 0.2 and scales with salinity. The
+resist. The 25 kHz charge readout (A) is saturated throughout: it reads the capacitance of
+the resist plus a conduction term that falls as the substrate gets wetter, so the response is
+not monotonic and cannot be calibrated. The
 10 MHz reading on coated electrodes (D) is the textbook Maxwell–Wagner case, with the three
 salinity curves fanning out by a factor of 1.5 at θ = 0.55. At 75–100 MHz the curves nearly
 coincide; the series-resonant reading (E) retains a visible salinity dependence that the
@@ -243,36 +250,37 @@ parallel-resonant readings (F–I) do not.
 
 **Table 4.** Error in % VWC under the conditions of Table 3. "Ideal contact" omits the air
 layer. The last four columns are the RMSE with only that source varying. The calibration
-residual with no source varying is below 0.05 % for every design.
+residual with no source varying is below 0.05 % for every design except A, whose response is not
+monotonic; its entries are not errors of a calibrated instrument.
 
 <!-- T4 -->
 | | Design | RMSE (95 % interval) | Bias | 95 % within | Ideal contact | EC | T | Contact | Unit |
 |---|---|---|---|---|---|---|---|---|---|
-| A | outer12, 25 kHz charge transfer | 11.2 (11.0–11.4) | -8.8 | 21.0 | 6.3 | 6.3 | 0.5 | 10.6 | 0.1 |
-| B | outer12, 1.5 MHz RC divider | 8.5 (8.3–8.7) | -5.3 | 17.7 | 6.4 | 6.4 | 0.5 | 7.7 | 0.6 |
-| C | idc12, 1.5 MHz RC divider | 12.2 (12.0–12.5) | -9.1 | 24.0 | 6.3 | 6.3 | 0.5 | 12.1 | 0.9 |
+| A | outer12, 25 kHz charge transfer | 32.0 (31.5–32.4) | -28.4 | 51.2 | 32.0 | 32.1 | 32.1 | 31.9 | 32.1 |
+| B | outer12, 1.5 MHz RC divider | 8.2 (8.0–8.4) | -4.8 | 17.2 | 6.4 | 6.5 | 0.5 | 7.3 | 0.6 |
+| C | idc12, 1.5 MHz RC divider | 14.7 (14.5–15.0) | -11.1 | 29.1 | 6.7 | 6.8 | 0.5 | 14.5 | 0.8 |
 | D | coat12, 10 MHz parallel LC | 5.9 (5.7–6.0) | -0.3 | 12.5 | 6.3 | 6.1 | 0.4 | 2.6 | 2.0 |
 | E | coat12, 75 MHz series LC | 3.1 (3.0–3.1) | -0.4 | 6.3 | 3.0 | 1.5 | 0.0 | 1.9 | 2.8 |
-| F | outer12, 100 MHz parallel LC | 2.8 (2.7–2.9) | -2.0 | 5.9 | 0.6 | 0.1 | 0.1 | 2.8 | 0.6 |
-| G | outer20, 100 MHz parallel LC | 1.5 (1.5–1.6) | -1.0 | 3.3 | 0.5 | 0.1 | 0.1 | 1.5 | 0.5 |
+| F | outer12, 100 MHz parallel LC | 2.5 (2.4–2.6) | -1.7 | 5.5 | 0.5 | 0.1 | 0.1 | 2.5 | 0.5 |
+| G | outer20, 100 MHz parallel LC | 1.4 (1.4–1.5) | -0.8 | 3.1 | 0.5 | 0.1 | 0.1 | 1.4 | 0.5 |
 | H | buried20, 100 MHz parallel LC | 1.2 (1.2–1.3) | -0.6 | 2.7 | 0.5 | 0.3 | 0.1 | 1.2 | 0.4 |
 | I | buried20, 100 MHz LC + loss | 1.2 (1.2–1.3) | -0.7 | 2.7 | 0.4 | 0.0 | 0.1 | 1.2 | 0.4 |
 | J | as I, circuit-level model, frequency only | 1.0 | -0.1 | 2.2 | | | | | |
 | J | as I, circuit-level model, with loss | 1.2 | -0.7 | 2.7 | | | | | |
 <!-- /T4 -->
 
-The designs fall into three groups (Fig. 3). Resist-covered electrodes read below 2 MHz (A–C)
-are at 8–12 % VWC, and the coated 10 MHz design (D) at 6 %; the coated, series-resonant design
-at 75 MHz (E) reaches 3 %; the parallel-resonant designs at 100 MHz reach 1.2–2.8 %. The
+The designs fall into three groups (Fig. 3). Resist-covered electrodes read at 1.5 MHz (B, C)
+are at 8–15 % VWC, and at 25 kHz (A) unusable, and the coated 10 MHz design (D) at 6 %; the coated, series-resonant design
+at 75 MHz (E) reaches 3 %; the parallel-resonant designs at 100 MHz reach 1.2–2.5 %. The
 intervals in Table 4 are a few percent of each value, so the groups, and the steps within the
-last group, are resolved: on the same draws F is worse than G by 1.27 % (1.25–1.30), G worse
-than H by 0.30 % (0.29–0.32), and H and I do not differ (0.01 %; 0.00–0.02).
+last group, are resolved: on the same draws F is worse than G by 1.11 % (1.08–1.14), G worse
+than H by 0.17 % (0.16–0.18), and H and I do not differ (0.01 %; 0.00–0.02).
 
 ### 3.3 Error sources
 
-Fig. 4 gives the contribution of each source. In A–D salinity alone accounts for 6.1–6.4 %
-VWC; neither the electrode pattern (B against C) nor the circuit (A against B) changes it. In
-A–C contact is larger still (8–12 %): below a few megahertz the reading is the capacitance of
+Fig. 4 gives the contribution of each source. In B–D salinity alone accounts for 6.1–6.8 %
+VWC; the electrode pattern (B against C) hardly changes it. In
+B and C contact is larger still (7–14 %): below a few megahertz the reading is the capacitance of
 the 15 µm solder resist in series with a conducting medium, and a 20 µm air layer has five
 times the impedance of the resist. A thick coat (D) removes that sensitivity but not the
 salinity error. In E the largest term is the hand-applied coating (2.8 %): the two-point
@@ -291,32 +299,32 @@ reading on three cross-sections as a function of frequency. Up to a few megahert
 flat at 5–6 % VWC. It then falls as conduction current gives way to displacement current;
 insulation delays the fall, because the series capacitance of the insulation and the
 conductance of the medium form a Maxwell–Wagner relaxation: at 10 MHz the resist-covered
-electrodes are at 1.5–2.2 % and the buried electrodes still at 4.8 %. The minimum, 0.1 %, is
-reached near 30–50 MHz for the resist-covered and near 120 MHz for the buried electrodes.
+electrodes are at 2.0–2.8 % and the buried electrodes still at 4.8 %. The minimum, 0.1 %, is
+reached near 40–60 MHz for the resist-covered and near 120 MHz for the buried electrodes.
 Above it the error rises again as loss in the electrically long line couples into the reading
-(0.23 and 0.34 % at 96 MHz for the two resist-covered cross-sections).
+(0.18 and 0.32 % at 96 MHz for the two resist-covered cross-sections).
 
 The upper limit is set by the water calibration point. In water the 80 mm electrodes are a
-quarter wave long at 132, 118 and 163 MHz for the 12 mm and 20 mm resist-covered and the
+quarter wave long at 137, 120 and 163 MHz for the 12 mm and 20 mm resist-covered and the
 buried cross-sections; from there on the feed admittance in water is no longer capacitive,
 the two-point normalization fails, and no usable response exists (no points are drawn in
 Fig. 5). The same open-line resonance, growing with rod length, was observed with a
 frequency-domain sensor read by a network analyzer [Skierucha and Wilczek 2010]. In the wettest substrate the resonance lies higher, at 180–220 MHz. With a margin of
 about 20 % the usable window of an 80 mm probe is roughly 30–100 MHz for resist-covered strips
 and 80–130 MHz for buried strips, whose capacitance per unit length is lower; design G at
-100 MHz sits only 15 % below its limit. Shorter electrodes, or a calibration liquid of lower
+100 MHz sits only 17 % below its limit. Shorter electrodes, or a calibration liquid of lower
 permittivity, move the limit up.
 
 ### 3.5 Electrode spacing and insulation
 
 Comparing F and G isolates electrode spacing at the same frequency and readout: widening the
-gap from 1 to 7 mm on a 20 mm board reduces the contact term from 2.8 to 1.5 % VWC and the
+gap from 1 to 7 mm on a 20 mm board reduces the contact term from 2.5 to 1.4 % VWC and the
 total by the same amount. An interdigitated pattern goes the other way (C against B: contact
-12.1 against 7.7 %), because finer pitch concentrates the field nearer the surface.
+14.5 against 7.3 %), because finer pitch concentrates the field nearer the surface.
 
 Comparing G and H isolates the insulation. Burying the electrodes under 0.2 mm of laminate
-reduces the contact term from 1.5 to 1.2 % and the total from 1.5 to 1.2 %: a 0.02 mm air
-layer lowers the feed capacitance by 4.2 % for the resist-covered and by 2.3 % for the buried
+reduces the contact term from 1.4 to 1.2 % and the total from 1.4 to 1.2 %: a 0.02 mm air
+layer lowers the capacitance per unit length by 3.1 % for the resist-covered and by 2.1 % for the buried
 electrodes at θ = 0.3, because the laminate already separates copper and medium. Burial also
 lowers the tolerance term (0.4 against 0.5 %) and raises the salinity term (0.3 against 0.1 %).
 
@@ -341,8 +349,8 @@ devices (τ = 170 ps) raises the salinity term of the parallel-resonant reading 
 | buried20, 100 MHz, ideal parallel C | 1.2 | 0.1 | 0.4 |
 | buried20, 100 MHz, parallel C + delay | 1.2 | 0.3 | 0.5 |
 | buried20, 100 MHz, series C | 1.5 | 1.0 | 1.1 |
-| outer20, 100 MHz, ideal parallel C | 1.6 | 0.3 | 0.6 |
-| outer20, 100 MHz, series C | 1.7 | 1.0 | 1.1 |
+| outer20, 100 MHz, ideal parallel C | 1.4 | 0.3 | 0.6 |
+| outer20, 100 MHz, series C | 1.6 | 1.0 | 1.1 |
 <!-- /T6 -->
 
 ### 3.7 Loss channel, and sensitivity to the assumptions
@@ -359,12 +367,12 @@ conductivity, which the circuit-level model recovers within about 12 % (68 % of 
 <!-- T5 -->
 | Assumption | A | B | C | D | E | F | G | H | I |
 |---|---|---|---|---|---|---|---|---|---|
-| EC spread, sd of ln = 0.25 | 10.8 | 7.9 | 12.2 | 3.9 | 2.9 | 2.8 | 1.5 | 1.2 | 1.2 |
-| EC spread, sd of ln = 0.5 | 11.2 | 8.5 | 12.2 | 5.9 | 3.1 | 2.8 | 1.5 | 1.2 | 1.2 |
-| EC spread, sd of ln = 1.0 | 12.3 | 9.8 | 12.7 | 8.9 | 3.9 | 2.8 | 1.6 | 1.3 | 1.2 |
-| mean air gap, mm = 0.01 | 10.5 | 7.5 | 11.0 | 5.9 | 2.9 | 2.0 | 1.1 | 0.8 | 0.8 |
-| mean air gap, mm = 0.02 | 11.2 | 8.5 | 12.2 | 5.9 | 3.1 | 2.8 | 1.5 | 1.2 | 1.2 |
-| mean air gap, mm = 0.04 | 11.6 | 9.6 | 13.2 | 6.1 | 3.5 | 3.8 | 2.2 | 1.9 | 1.9 |
+| EC spread, sd of ln = 0.25 | 32.0 | 7.5 | 14.6 | 3.9 | 2.9 | 2.5 | 1.4 | 1.2 | 1.2 |
+| EC spread, sd of ln = 0.5 | 32.0 | 8.2 | 14.7 | 5.9 | 3.1 | 2.5 | 1.4 | 1.2 | 1.2 |
+| EC spread, sd of ln = 1.0 | 32.0 | 9.7 | 15.0 | 8.9 | 3.9 | 2.5 | 1.4 | 1.3 | 1.2 |
+| mean air gap, mm = 0.01 | 31.8 | 7.1 | 12.9 | 5.9 | 2.9 | 1.7 | 0.9 | 0.8 | 0.8 |
+| mean air gap, mm = 0.02 | 32.0 | 8.2 | 14.7 | 5.9 | 3.1 | 2.5 | 1.4 | 1.2 | 1.2 |
+| mean air gap, mm = 0.04 | 32.0 | 9.4 | 16.1 | 6.1 | 3.5 | 3.6 | 2.1 | 1.9 | 1.9 |
 <!-- /T5 -->
 
 The ranking does not change. The low-frequency designs scale with the assumed salinity spread
@@ -379,12 +387,15 @@ relaxation with salinity and temperature produces error. The designs below 10 MH
 change. If the relaxation does not move with salinity, the 100 MHz designs change by 0.2 % or
 less. If it does, the frequency-only designs lose their salinity immunity: the salinity term
 rises from 0.1–0.3 % to 0.8–1.2 % for the weak and median shapes and to 1.5–2.1 % for the
-strong one, and the totals of the 20 mm designs reach 1.7–1.9 % and 2.2–2.4 %. The advantage
-of burial nearly disappears in that case (G 1.9 %, H 1.8 % for the median shape), because the
+strong one, and the totals of the 20 mm designs reach 1.7–1.8 % and 2.1–2.4 %. The advantage
+of burial disappears in that case (G and H both 1.8 % for the median shape), because the
 buried electrodes' own interfacial term adds. Measuring loss (I) recovers most of the
 difference, with totals of 1.3–1.4 %, although its temperature term rises to 0.5–0.7 % because
 loss is itself temperature dependent and the two-dimensional calibration is taken at one
-temperature. Refitting the relaxation with its frequency anchored at 0.1 or 10 MHz instead of
+temperature. Measurements with a 50 MHz sensor that reports both parts of the permittivity
+point the same way: the departure of its water-content relation from the high-frequency one
+grew with the measured loss, which the authors proposed as the basis of a correction
+[Seyfried and Murdock 2004]. Refitting the relaxation with its frequency anchored at 0.1 or 10 MHz instead of
 1 MHz reproduces the median-shape row. The ordering of the three groups is unchanged in every
 scenario.
 
@@ -394,13 +405,13 @@ on measured organic-soil spectra. Design C follows B.
 <!-- T7 -->
 | Relaxation | ε′(100 MHz)/ε′(1 GHz) | A | B | D | E | F | G | H | I |
 |---|---|---|---|---|---|---|---|---|---|
-| none | 1.00 | 11.2 / 6.3 | 8.5 / 6.4 | 5.9 / 6.1 | 3.1 / 1.5 | 2.8 / 0.1 | 1.5 / 0.1 | 1.2 / 0.3 | 1.2 / 0.0 |
-| median shape, f_r ~ EC | 1.19 | 11.2 / 6.3 | 8.6 / 6.3 | 5.6 / 5.6 | 3.4 / 2.2 | 3.1 / 1.0 | 1.9 / 0.9 | 1.8 / 1.2 | 1.4 / 0.7 |
-| weak shape, f_r ~ EC | 1.15 | 11.2 / 6.3 | 8.6 / 6.3 | 5.7 / 5.7 | 3.4 / 2.2 | 3.0 / 0.9 | 1.8 / 0.8 | 1.7 / 1.2 | 1.3 / 0.5 |
-| strong shape, f_r ~ EC | 1.28 | 11.2 / 6.3 | 8.7 / 6.1 | 6.0 / 5.5 | 4.1 / 3.3 | 3.3 / 1.7 | 2.2 / 1.5 | 2.4 / 2.1 | 1.4 / 0.6 |
-| median shape, f_r fixed | 1.19 | 11.2 / 6.3 | 8.6 / 6.3 | 5.5 / 5.5 | 3.1 / 1.5 | 3.0 / 0.1 | 1.7 / 0.2 | 1.4 / 0.3 | 1.3 / 0.0 |
-| median shape, anchor 0.1 MHz | 1.19 | 11.2 / 6.3 | 8.6 / 6.3 | 5.6 / 5.7 | 3.4 / 2.2 | 3.1 / 1.0 | 1.9 / 0.9 | 1.8 / 1.2 | 1.4 / 0.7 |
-| median shape, anchor 10 MHz | 1.19 | 11.2 / 6.3 | 8.5 / 6.3 | 5.6 / 5.6 | 3.4 / 2.1 | 3.1 / 1.0 | 1.9 / 0.9 | 1.8 / 1.2 | 1.4 / 0.7 |
+| none | 1.00 | 32.0 / 32.1 | 8.2 / 6.5 | 5.9 / 6.1 | 3.1 / 1.5 | 2.5 / 0.1 | 1.4 / 0.1 | 1.2 / 0.3 | 1.2 / 0.0 |
+| median shape, f_r ~ EC | 1.19 | 31.9 / 32.1 | 8.3 / 6.4 | 5.6 / 5.6 | 3.4 / 2.2 | 2.9 / 1.0 | 1.8 / 0.9 | 1.8 / 1.2 | 1.4 / 0.7 |
+| weak shape, f_r ~ EC | 1.15 | 31.9 / 32.1 | 8.3 / 6.4 | 5.7 / 5.7 | 3.4 / 2.2 | 2.8 / 0.9 | 1.7 / 0.8 | 1.7 / 1.2 | 1.3 / 0.5 |
+| strong shape, f_r ~ EC | 1.28 | 31.9 / 32.2 | 8.4 / 6.2 | 6.0 / 5.5 | 4.1 / 3.3 | 3.1 / 1.7 | 2.1 / 1.5 | 2.4 / 2.1 | 1.4 / 0.6 |
+| median shape, f_r fixed | 1.19 | 31.9 / 32.1 | 8.3 / 6.4 | 5.5 / 5.5 | 3.1 / 1.5 | 2.7 / 0.1 | 1.5 / 0.2 | 1.4 / 0.3 | 1.3 / 0.0 |
+| median shape, anchor 0.1 MHz | 1.19 | 32.0 / 32.1 | 8.3 / 6.4 | 5.6 / 5.7 | 3.4 / 2.2 | 2.9 / 1.0 | 1.8 / 0.9 | 1.8 / 1.2 | 1.4 / 0.7 |
+| median shape, anchor 10 MHz | 1.19 | 31.9 / 32.1 | 8.3 / 6.4 | 5.6 / 5.6 | 3.4 / 2.1 | 2.9 / 1.0 | 1.8 / 0.9 | 1.8 / 1.2 | 1.4 / 0.7 |
 <!-- /T7 -->
 
 ### 3.9 Circuit-level check
@@ -431,10 +442,17 @@ the wanted one in all media tested.
 
 The comparison assigns the poor accuracy of common low-cost probes to measurement frequency
 and to the thin insulation that goes with outer-layer electrodes, not to their being printed
-circuits: at 25 kHz–2 MHz the reading is a conductance measurement through the solder resist,
-which makes it sensitive both to salinity and to the first tens of micrometers of contact,
-and neither a different pattern nor a better converter helps. A quantitative test of the
-8–12 % prediction against published data is not possible: the most detailed characterization
+circuits: below a few megahertz the wet substrate is a conductor behind the solder resist, so
+the reading is set by the resist and by the first tens of micrometers of contact, at 25 kHz
+entirely so, and neither a different pattern nor a better converter helps. In practice such
+probes still respond to watering, plausibly through the wetted fraction of the contact area,
+which this model of a uniform medium does not represent and which is not a measure of
+volumetric water content. The frequency dependence has
+been measured directly: one sensor read at several frequencies showed a considerable salinity
+effect at 10 MHz in sand, scatter with solution conductivity (1–8 dS m⁻¹) at 33 MHz in
+rockwool, a soilless growing medium, and very little at 66 and 132 MHz, with no further gain
+above about 70 MHz [Kizito et al. 2008]. That is the window of Section 3.4. A quantitative test of the
+8–15 % prediction against published data is not possible: the most detailed characterization
 of such a probe [Placidi et al. 2020] covers one soil at fixed salinity, where it found a
 repeatable response and a strong dependence on sample compaction, which is at least consistent
 with a surface-weighted reading. With the salinity spread halved the simulated errors of the
@@ -451,9 +469,10 @@ operating frequency. The insulation must also be reproducible: a hand-dipped coa
 largest single term of the 75 MHz design.
 
 With those conditions met, a printed-circuit probe is limited by the first tenth of a
-millimeter of soil. The simulated 1.2 % VWC is of the order of the 1–2 % reported for 70 MHz
-and higher-frequency sensors after sensor- and soil-specific calibration
-[Kizito et al. 2008; Bogena et al. 2017], but it rests on an assumed contact distribution
+millimeter of soil; the measured sampling volume of a printed-circuit sensor with 5 cm prongs,
+about 2 × 1 × 9 cm, reaches only some 5 mm from its faces [Sakaki et al. 2008]. The simulated
+1.2 % VWC is of the order of the 1–2 % reported for 70 MHz and higher-frequency sensors after
+laboratory or sensor-specific calibration [Kizito et al. 2008; Bogena et al. 2017], but it rests on an assumed contact distribution
 (Section 4.3) and scales with it (Table 5).
 
 ### 4.2 Design implications
@@ -492,6 +511,13 @@ and higher-frequency sensors after sensor- and soil-specific calibration
   Broadband spectra of peat-based substrate at several pore-water conductivities would settle
   which scenario applies. The circuit-level model (J) was run for the non-dispersive substrate
   only.
+- *Temperature.* The model's temperature dependence is that of free water and of conduction,
+  removed by a linear correction. Measured sensitivities of 50–70 MHz sensors in wet soil are
+  −0.002 to +0.004 θ per kelvin with a sign that depends on the soil
+  [Kizito et al. 2008; Seyfried and Murdock 2004], and the temperature coefficient of the
+  permittivity changes sign near 100 MHz at a frequency that rises with salinity
+  [Chen and Or 2006]. The temperature terms of Table 4 are therefore lower bounds, and the
+  correction has to be determined in the substrate.
 - *Idealized readouts.* Designs A–E are represented by one equation each. Real circuits add
   their own temperature and supply dependence, which would only widen the gap to F–I.
 - *Two dimensions.* End effects and the feed region are absorbed by the two-point calibration
@@ -504,10 +530,10 @@ and higher-frequency sensors after sensor- and soil-specific calibration
 ## 5. Conclusions
 
 In simulation, with the substrate calibration known, the accuracy of printed-circuit
-capacitive probes in potting substrate spans 1.2–12.2 % VWC under identical calibration and
+capacitive probes in potting substrate spans 1.2–14.7 % VWC among designs with a usable response under identical calibration and
 nominal conditions. Measurement frequency and insulation thickness account for most of the
-range: below 2 MHz with only solder resist over the copper, salinity and contact each
-contribute 6–12 %. A reproducible insulation, a parallel-resonant readout, wide electrode
+range: at 1.5 MHz with only solder resist over the copper, salinity and contact each
+contribute 6–14 %, and at 25 kHz there is no usable response. A reproducible insulation, a parallel-resonant readout, wide electrode
 spacing and burial of the electrodes account for the rest. A probe with electrodes buried in a
 four-layer board, read by a parallel-resonant oscillator near 100 MHz and calibrated per unit
 in air and water, is predicted to reach about 1.2 % VWC, limited by soil contact and
@@ -545,7 +571,8 @@ varying.
 
 ![Fig. 4](figures/fig4_sources.png)
 
-**Fig. 4.** Root-mean-square error with one source varying at a time.
+**Fig. 4.** Root-mean-square error with one source varying at a time. Design A is omitted: its response is
+not monotonic.
 
 ![Fig. 5](figures/fig5_frequency.png)
 
@@ -577,5 +604,6 @@ the relaxation term fitted to the median ratios of 24 spectra.
 - Roth, K., Schulin, R., Flühler, H., Attinger, W. (1990). Calibration of time domain reflectometry for water content measurement using a composite dielectric approach. *Water Resour. Res.* 26(10), 2267–2273. doi:10.1029/WR026i010p02267
 - Sakaki, T., Limsuwat, A., Smits, K. M., Illangasekare, T. H. (2008). Empirical two-point α-mixing model for calibrating the ECH2O EC-5 soil moisture sensor in sands. *Water Resour. Res.* 44(4). doi:10.1029/2008WR006870
 - Savin, I., Mironov, V., Muzalevskiy, K., Fomin, S., Karavayskiy, A., Ruzicka, Z., Lukin, Y. (2020). Dielectric database of organic Arctic soils (DDOAS). *Earth Syst. Sci. Data* 12, 3481–3487. doi:10.5194/essd-12-3481-2020. Data: doi:10.5281/zenodo.3819912
+- Seyfried, M. S., Murdock, M. D. (2004). Measurement of soil water content with a 50-MHz soil dielectric sensor. *Soil Sci. Soc. Am. J.* 68(2), 394–403. doi:10.2136/sssaj2004.3940
 - Skierucha, W., Wilczek, A. (2010). A FDR sensor for measuring complex soil dielectric permittivity in the 10–500 MHz frequency range. *Sensors* 10(4), 3314–3329. doi:10.3390/s100403314
 - Topp, G. C., Davis, J. L., Annan, A. P. (1980). Electromagnetic determination of soil water content: Measurements in coaxial transmission lines. *Water Resour. Res.* 16(3), 574–582. doi:10.1029/WR016i003p00574
