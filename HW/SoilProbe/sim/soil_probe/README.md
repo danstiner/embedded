@@ -61,7 +61,9 @@ calibration and Monte Carlo as `paper/manuscript.md`; RMSE in % VWC.
 | Soily (FDC2212, 18 uH, 6.0-4.4 MHz) | 7.1 | 3.9 | 5.0 | same in 5 % |
 | SoilProbe 2026v1 (4-layer, buried, 100 MHz), for reference | 1.2 | 0.3 | 1.2 | |
 
-The FDC1004 model is the idealized charge-transfer reading C + G/2f; the data sheet does not
-specify the chip's behavior with a lossy load. The drive limit is taken as 1.2 V / 1.56 mA.
+Estimates, not data-sheet facts: the FDC1004 is modeled as an ideal charge-transfer reading
+C + G/2f (its behavior with a lossy load is not specified); the FDC2x12 drive limit is taken
+as 1.2 V / 1.56 mA against the probe's loss alone, so with the inductor's own loss the share of
+readings beyond it is a lower bound; 5 pF of stray capacitance is assumed on the tank.
 On the same 2-layer stack, 5.5 mm strips 7 mm apart on both faces read by the 100 MHz
 oscillator (design G of the manuscript) reach 1.4 %.

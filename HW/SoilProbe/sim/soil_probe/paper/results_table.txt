@@ -7,7 +7,7 @@ D Dip-coated strips, 10 MHz parallel LC         0.686    T |  5.85 -0.33  5.84 1
 E Dip-coated strips, 75 MHz series LC           0.432    T |  3.05 -0.44  3.02  6.26  3.04 |  1.54  0.03  1.93  2.75  0.00
 F Outer strips 12 mm, 100 MHz parallel LC       0.111    T |  2.52 -1.69  1.87  5.48  0.54 |  0.10  0.08  2.54  0.54  0.00
 G Outer strips 20 mm, 100 MHz parallel LC       0.070    T |  1.41 -0.83  1.14  3.08  0.49 |  0.13  0.08  1.35  0.48  0.00
-H Buried strips 20 mm, 100 MHz parallel LC      0.218    T |  1.24 -0.65  1.06  2.66  0.50 |  0.31  0.07  1.23  0.38  0.00
+H Buried strips 20 mm, 100 MHz parallel LC      0.218    T |  1.24 -0.64  1.05  2.66  0.50 |  0.31  0.07  1.23  0.38  0.00
 I Buried strips 20 mm, 100 MHz LC + loss        0.218    T |  1.23 -0.69  1.02  2.67  0.41 |  0.04  0.09  1.20  0.41  0.04
 
 controlled readout comparison: RMSE all sources | EC only | ideal contact  [% VWC]
@@ -23,7 +23,7 @@ paired RMSE differences on the same draws [% VWC], 95 % bootstrap interval
   F-G: +1.11 (+1.08 to +1.14)
   G-H: +0.17 (+0.16 to +0.18)
   H-I: +0.01 (-0.00 to +0.02)
-  E-F: +0.53 (+0.45 to +0.62)
+  E-F: +0.53 (+0.45 to +0.61)
 95 % interval of total RMSE: A 31.54-32.38, B 8.01-8.44, C 14.47-15.04, D 5.68-6.03, E 2.96-3.14, F 2.45-2.60, G 1.36-1.46, H 1.18-1.29, I 1.18-1.28
 quarter-wave frequency in the water calibration medium, MHz: outer12 137, idc12 171, coat12 256, outer20 120, buried20 163
 
@@ -47,8 +47,8 @@ total RMSE [% VWC] under changed assumptions:      A      B      C      D      E
 EC spread, sd of ln = 0.25                     31.95   7.50  14.59   3.92   2.86   2.53   1.40   1.25   1.24
 EC spread, sd of ln = 0.5                      31.95   8.22  14.73   5.85   3.05   2.52   1.41   1.24   1.23
 EC spread, sd of ln = 1.0                      31.95   9.73  15.04   8.93   3.92   2.48   1.44   1.25   1.21
-mean air gap, mm = 0.01                        31.83   7.15  12.93   5.87   2.91   1.67   0.94   0.79   0.77
+mean air gap, mm = 0.01                        31.83   7.15  12.93   5.87   2.90   1.67   0.94   0.79   0.77
 mean air gap, mm = 0.02                        31.95   8.22  14.73   5.85   3.05   2.52   1.41   1.24   1.23
-mean air gap, mm = 0.04                        32.03   9.42  16.14   6.13   3.51   3.57   2.06   1.88   1.88
+mean air gap, mm = 0.04                        32.03   9.42  16.14   6.13   3.51   3.57   2.06   1.88   1.87
 
 J as built, full model: frequency only {'bias': -0.12110692041070963, 'sd': 0.9917490948748876, 'rmse': 0.9991161861147705, 'p95': 2.185946099545798}; frequency + detector {'bias': -0.7091073214963203, 'sd': 1.0213802143983826, 'rmse': 1.2434028855379786, 'p95': 2.7354506694968523}

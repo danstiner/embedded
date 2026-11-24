@@ -12,7 +12,7 @@ Every design gets the same treatment:
              unit-to-unit tolerance, all sources together and one at a time
 
 Writes ../results/design_comparison.{txt,json} and the manuscript figures in ../paper/figures."""
-import functools, json, os, sys
+import functools, hashlib, inspect, json, os, sys
 from multiprocessing import Pool
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
@@ -116,13 +116,17 @@ def _solve(a):
 def table(geom, variant):
     """C*'(e', e'') [F/m] interpolator, cached on disk."""
     path = f'{RESULTS}/dc_table_{geom}_{variant}.npz'
-    if os.path.exists(path):
-        Cs = np.load(path)['Cs']
+    # recompute when the scene builder, the cross-section or the grid of media has changed
+    key = hashlib.md5(repr((inspect.getsource(s.stack_scene), s.MASK, sorted((k, repr(v)) for k, v in GEOMS[geom].items() if k != 'label'),
+                            variant, EPS_RE.tolist(), EPS_IM.tolist())).encode()).hexdigest()
+    old = np.load(path) if os.path.exists(path) else {}
+    if 'key' in old and str(old['key']) == key:
+        Cs = old['Cs']
     else:
         with Pool() as p:
             Cs = np.array(p.map(_solve, [(geom, variant, a, b) for a in EPS_RE for b in EPS_IM])).reshape(len(EPS_RE), len(EPS_IM))
         os.makedirs(RESULTS, exist_ok=True)
-        np.savez(path, Cs=Cs)
+        np.savez(path, Cs=Cs, key=key)
     ax = (np.log(EPS_RE), np.log1p(EPS_IM / 2))
     re = RegularGridInterpolator(ax, Cs.real * 1e12, method='cubic')
     im = RegularGridInterpolator(ax, Cs.imag * 1e12, method='cubic')
@@ -393,21 +397,36 @@ def tables_md(designs, res, built, ctl, rob, disp):
     """Markdown bodies of the manuscript's result tables, from the numbers just computed."""
     short = {d.key: f"{d.geom}, {d.label.split(', ', 1)[1]}" for d in designs}
     t4 = ['| | Design | RMSE (95 % interval) | Bias | 95 % within | Ideal contact | EC | T | Contact | Unit |', '|---|---|---|---|---|---|---|---|---|---|']
+    nu = {d.key for d in designs if not d.usable}         # not monotonic: no calibrated estimate, no error
+    num = lambda k, v: 'n.u.' if k in nu else v
     for d in designs:
         r = res[d.key]; a = r['all']
+        if d.key in nu:
+            t4.append(f"| {d.key} | {short[d.key]} | " + ' | '.join(['n.u.'] * 8) + ' |'); continue
         t4.append(f"| {d.key} | {short[d.key]} | {a['rmse']:.1f} ({a['ci'][0]:.1f}–{a['ci'][1]:.1f}) | {a['bias']:+.1f} | {a['p95']:.1f} | "
                   f"{r['ideal_contact']['rmse']:.1f} | {r['EC']['rmse']:.1f} | {r['T']['rmse']:.1f} | {r['contact']['rmse']:.1f} | {r['unit']['rmse']:.1f} |")
     for k, lab in (('f', 'as I, circuit-level model, frequency only'), ('fd', 'as I, circuit-level model, with loss')):
         b = built[k]; t4.append(f"| J | {lab} | {b['rmse']:.1f} | {b['bias']:+.1f} | {b['p95']:.1f} | | | | | |")
     keys = [d.key for d in designs]
     t5 = ['| Assumption | ' + ' | '.join(keys) + ' |', '|---' * (len(keys) + 1) + '|']
-    for k, v in rob.items(): t5.append(f"| {k} | " + ' | '.join(f'{v[x]:.1f}' for x in keys) + ' |')
+    for k, v in rob.items(): t5.append(f"| {k} | " + ' | '.join(num(x, f'{v[x]:.1f}') for x in keys) + ' |')
     t6 = ['| Electrodes, frequency, readout | All sources | EC only | Ideal contact |', '|---|---|---|---|']
     for c in CONTROLS: t6.append(f"| {c[4]} | {ctl[c[0]]['all']:.1f} | {ctl[c[0]]['EC']:.1f} | {ctl[c[0]]['ideal_contact']:.1f} |")
     k7 = [k for k in keys if k != 'C']
     t7 = ["| Relaxation | ε′(100 MHz)/ε′(1 GHz) | " + ' | '.join(k7) + ' |', '|---' * (len(k7) + 2) + '|']
-    for k, v in disp.items(): t7.append(f"| {k} | {v['ratio100']:.2f} | " + ' | '.join(f"{v['rmse'][x][0]:.1f} / {v['rmse'][x][2]:.1f}" for x in k7) + ' |')
-    return dict(T4=t4, T5=t5, T6=t6, T7=t7)
+    for k, v in disp.items(): t7.append(f"| {k} | {v['ratio100']:.2f} | " + ' | '.join(num(x, f"{v['rmse'][x][0]:.1f} / {v['rmse'][x][2]:.1f}") for x in k7) + ' |')
+    # Table 1: line constants from the same tables the results use
+    desc = {'outer12': ('12 mm', 'two 5.0 mm strips, 1 mm apart', 'solder resist', 'resist +33 % (1/3)'),
+            'idc12': ('12 mm', 'six 1 mm fingers, 1 mm apart', 'solder resist', 'resist +33 % (1/3)'),
+            'coat12': ('12 mm', 'as outer12', 'resist + 0.3 mm dipped coat, ε = 3', 'coat +30 % (1)'),
+            'outer20': ('20 mm', 'two 5.5 mm strips, 7 mm apart', 'solder resist', 'resist +33 % (1/3)'),
+            'buried20': ('20 mm', 'two 5.5 mm strips, 7 mm apart, inner layers', '0.20 mm laminate + resist', 'prepreg +10 % (1/3)')}
+    t1 = ['| Key | Board width | Electrodes (both faces) | Insulation to the medium | Manufacturing deviation δ (standard deviation of the unit-to-unit spread, in δ) | L′, nH m⁻¹ | C′ air / θ = 0.3 / water, pF m⁻¹ |', '|---|---|---|---|---|---|---|']
+    for g, dsc in desc.items():
+        c = lambda er, eim: table(g, 'nom')(np.array([er]), np.array([eim]))[0].real * 1e12
+        er, eim = soil_eps(np.array([0.3]), SIGMA_REF, T_REF, 100e6)
+        t1.append(f"| {g} | " + ' | '.join(dsc) + f" | {Lpul(g) * 1e9:.0f} | {c(1.0, 0.0):.0f} / {c(er[0], eim[0]):.0f} / {c(s.water_er(T_REF), 0.0):.0f} |")
+    return dict(T1=t1, T4=t4, T5=t5, T6=t6, T7=t7)
 
 
 def update_manuscript(tables):

@@ -16,7 +16,7 @@ known. Root-mean-square error ranges from 8–15 % volumetric water content for 
 electrodes read at 1.5 MHz to 1.2 % for electrodes buried in the laminate and read by a
 parallel-resonant oscillator at 100 MHz; at 25 kHz resist-covered electrodes give no usable
 response. Below about 10 MHz salinity alone contributes 6 %,
-whatever the electrode pattern or circuit, and a thin air layer contributes as much again when
+whatever the electrode pattern, and a thin air layer contributes as much again when
 only solder resist covers the copper. At 75–100 MHz the details decide: a series-resonant
 oscillator carries 1.0 % of salinity error against 0.1–0.3 % for a parallel-resonant one on the
 same electrodes, and a hand-applied coat adds 2.8 % of unit-to-unit error. With frequency and
@@ -152,13 +152,15 @@ to isolate one change at a time among the high-frequency designs (F–I).
 **Table 1.** Electrode cross-sections. Two-layer boards: 1.52 mm core, 36 µm copper, 15 µm
 solder resist. Four-layer board: electrodes on the inner layers under 0.20 mm prepreg.
 
+<!-- T1 -->
 | Key | Board width | Electrodes (both faces) | Insulation to the medium | Manufacturing deviation δ (standard deviation of the unit-to-unit spread, in δ) | L′, nH m⁻¹ | C′ air / θ = 0.3 / water, pF m⁻¹ |
 |---|---|---|---|---|---|---|
-| outer12 | 12 mm | two 5.0 mm strips, 1 mm apart | solder resist | resist +33 % (1/3) | 361 | 60 / 328 / 1553 |
-| idc12 | 12 mm | six 1 mm fingers, 1 mm apart | solder resist | resist +33 % (1/3) | 121 | 231 / 843 / 3349 |
-| coat12 | 12 mm | as outer12 | resist + 0.3 mm dipped coat, ε = 3 | coat +30 % (1) | 361 | 72 / 218 / 412 |
-| outer20 | 20 mm | two 5.5 mm strips, 7 mm apart | solder resist | resist +33 % (1/3) | 725 | 22 / 183 / 966 |
-| buried20 | 20 mm | two 5.5 mm strips, 7 mm apart, inner layers | 0.20 mm laminate + resist | prepreg +10 % (1/3) | 766 | 20 / 152 / 480 |
+| outer12 | 12 mm | two 5.0 mm strips, 1 mm apart | solder resist | resist +33 % (1/3) | 361 | 61 / 324 / 1445 |
+| idc12 | 12 mm | six 1 mm fingers, 1 mm apart | solder resist | resist +33 % (1/3) | 121 | 233 / 821 / 2755 |
+| coat12 | 12 mm | as outer12 | resist + 0.3 mm dipped coat, ε = 3 | coat +30 % (1) | 361 | 72 / 219 / 412 |
+| outer20 | 20 mm | two 5.5 mm strips, 7 mm apart | solder resist | resist +33 % (1/3) | 725 | 22 / 182 / 939 |
+| buried20 | 20 mm | two 5.5 mm strips, 7 mm apart, inner layers | 0.20 mm laminate + resist | prepreg +10 % (1/3) | 766 | 20 / 153 / 480 |
+<!-- /T1 -->
 
 **Table 2.** Readout models. C and G are the parallel capacitance and conductance at the feed
 at the stated frequency f.
@@ -250,17 +252,17 @@ parallel-resonant readings (F–I) do not.
 
 **Table 4.** Error in % VWC under the conditions of Table 3. "Ideal contact" omits the air
 layer. The last four columns are the RMSE with only that source varying. The calibration
-residual with no source varying is below 0.05 % for every design except A, whose response is not
-monotonic; its entries are not errors of a calibrated instrument.
+residual with no source varying is below 0.05 %. Design A has no usable response (n.u.): its
+reading is not monotonic in water content.
 
 <!-- T4 -->
 | | Design | RMSE (95 % interval) | Bias | 95 % within | Ideal contact | EC | T | Contact | Unit |
 |---|---|---|---|---|---|---|---|---|---|
-| A | outer12, 25 kHz charge transfer | 32.0 (31.5–32.4) | -28.4 | 51.2 | 32.0 | 32.1 | 32.1 | 31.9 | 32.1 |
+| A | outer12, 25 kHz charge transfer | n.u. | n.u. | n.u. | n.u. | n.u. | n.u. | n.u. | n.u. |
 | B | outer12, 1.5 MHz RC divider | 8.2 (8.0–8.4) | -4.8 | 17.2 | 6.4 | 6.5 | 0.5 | 7.3 | 0.6 |
 | C | idc12, 1.5 MHz RC divider | 14.7 (14.5–15.0) | -11.1 | 29.1 | 6.7 | 6.8 | 0.5 | 14.5 | 0.8 |
 | D | coat12, 10 MHz parallel LC | 5.9 (5.7–6.0) | -0.3 | 12.5 | 6.3 | 6.1 | 0.4 | 2.6 | 2.0 |
-| E | coat12, 75 MHz series LC | 3.1 (3.0–3.1) | -0.4 | 6.3 | 3.0 | 1.5 | 0.0 | 1.9 | 2.8 |
+| E | coat12, 75 MHz series LC | 3.1 (3.0–3.1) | -0.4 | 6.3 | 3.0 | 1.5 | 0.0 | 1.9 | 2.7 |
 | F | outer12, 100 MHz parallel LC | 2.5 (2.4–2.6) | -1.7 | 5.5 | 0.5 | 0.1 | 0.1 | 2.5 | 0.5 |
 | G | outer20, 100 MHz parallel LC | 1.4 (1.4–1.5) | -0.8 | 3.1 | 0.5 | 0.1 | 0.1 | 1.4 | 0.5 |
 | H | buried20, 100 MHz parallel LC | 1.2 (1.2–1.3) | -0.6 | 2.7 | 0.5 | 0.3 | 0.1 | 1.2 | 0.4 |
@@ -367,12 +369,12 @@ conductivity, which the circuit-level model recovers within about 12 % (68 % of 
 <!-- T5 -->
 | Assumption | A | B | C | D | E | F | G | H | I |
 |---|---|---|---|---|---|---|---|---|---|
-| EC spread, sd of ln = 0.25 | 32.0 | 7.5 | 14.6 | 3.9 | 2.9 | 2.5 | 1.4 | 1.2 | 1.2 |
-| EC spread, sd of ln = 0.5 | 32.0 | 8.2 | 14.7 | 5.9 | 3.1 | 2.5 | 1.4 | 1.2 | 1.2 |
-| EC spread, sd of ln = 1.0 | 32.0 | 9.7 | 15.0 | 8.9 | 3.9 | 2.5 | 1.4 | 1.3 | 1.2 |
-| mean air gap, mm = 0.01 | 31.8 | 7.1 | 12.9 | 5.9 | 2.9 | 1.7 | 0.9 | 0.8 | 0.8 |
-| mean air gap, mm = 0.02 | 32.0 | 8.2 | 14.7 | 5.9 | 3.1 | 2.5 | 1.4 | 1.2 | 1.2 |
-| mean air gap, mm = 0.04 | 32.0 | 9.4 | 16.1 | 6.1 | 3.5 | 3.6 | 2.1 | 1.9 | 1.9 |
+| EC spread, sd of ln = 0.25 | n.u. | 7.5 | 14.6 | 3.9 | 2.9 | 2.5 | 1.4 | 1.2 | 1.2 |
+| EC spread, sd of ln = 0.5 | n.u. | 8.2 | 14.7 | 5.9 | 3.1 | 2.5 | 1.4 | 1.2 | 1.2 |
+| EC spread, sd of ln = 1.0 | n.u. | 9.7 | 15.0 | 8.9 | 3.9 | 2.5 | 1.4 | 1.3 | 1.2 |
+| mean air gap, mm = 0.01 | n.u. | 7.1 | 12.9 | 5.9 | 2.9 | 1.7 | 0.9 | 0.8 | 0.8 |
+| mean air gap, mm = 0.02 | n.u. | 8.2 | 14.7 | 5.9 | 3.1 | 2.5 | 1.4 | 1.2 | 1.2 |
+| mean air gap, mm = 0.04 | n.u. | 9.4 | 16.1 | 6.1 | 3.5 | 3.6 | 2.1 | 1.9 | 1.9 |
 <!-- /T5 -->
 
 The ranking does not change. The low-frequency designs scale with the assumed salinity spread
@@ -405,13 +407,13 @@ on measured organic-soil spectra. Design C follows B.
 <!-- T7 -->
 | Relaxation | ε′(100 MHz)/ε′(1 GHz) | A | B | D | E | F | G | H | I |
 |---|---|---|---|---|---|---|---|---|---|
-| none | 1.00 | 32.0 / 32.1 | 8.2 / 6.5 | 5.9 / 6.1 | 3.1 / 1.5 | 2.5 / 0.1 | 1.4 / 0.1 | 1.2 / 0.3 | 1.2 / 0.0 |
-| median shape, f_r ~ EC | 1.19 | 31.9 / 32.1 | 8.3 / 6.4 | 5.6 / 5.6 | 3.4 / 2.2 | 2.9 / 1.0 | 1.8 / 0.9 | 1.8 / 1.2 | 1.4 / 0.7 |
-| weak shape, f_r ~ EC | 1.15 | 31.9 / 32.1 | 8.3 / 6.4 | 5.7 / 5.7 | 3.4 / 2.2 | 2.8 / 0.9 | 1.7 / 0.8 | 1.7 / 1.2 | 1.3 / 0.5 |
-| strong shape, f_r ~ EC | 1.28 | 31.9 / 32.2 | 8.4 / 6.2 | 6.0 / 5.5 | 4.1 / 3.3 | 3.1 / 1.7 | 2.1 / 1.5 | 2.4 / 2.1 | 1.4 / 0.6 |
-| median shape, f_r fixed | 1.19 | 31.9 / 32.1 | 8.3 / 6.4 | 5.5 / 5.5 | 3.1 / 1.5 | 2.7 / 0.1 | 1.5 / 0.2 | 1.4 / 0.3 | 1.3 / 0.0 |
-| median shape, anchor 0.1 MHz | 1.19 | 32.0 / 32.1 | 8.3 / 6.4 | 5.6 / 5.7 | 3.4 / 2.2 | 2.9 / 1.0 | 1.8 / 0.9 | 1.8 / 1.2 | 1.4 / 0.7 |
-| median shape, anchor 10 MHz | 1.19 | 31.9 / 32.1 | 8.3 / 6.4 | 5.6 / 5.6 | 3.4 / 2.1 | 2.9 / 1.0 | 1.8 / 0.9 | 1.8 / 1.2 | 1.4 / 0.7 |
+| none | 1.00 | n.u. | 8.2 / 6.5 | 5.9 / 6.1 | 3.1 / 1.5 | 2.5 / 0.1 | 1.4 / 0.1 | 1.2 / 0.3 | 1.2 / 0.0 |
+| median shape, f_r ~ EC | 1.19 | n.u. | 8.3 / 6.4 | 5.6 / 5.6 | 3.4 / 2.2 | 2.9 / 1.0 | 1.8 / 0.9 | 1.8 / 1.2 | 1.4 / 0.7 |
+| weak shape, f_r ~ EC | 1.15 | n.u. | 8.3 / 6.4 | 5.7 / 5.7 | 3.4 / 2.2 | 2.8 / 0.9 | 1.7 / 0.8 | 1.7 / 1.2 | 1.3 / 0.5 |
+| strong shape, f_r ~ EC | 1.28 | n.u. | 8.4 / 6.2 | 6.0 / 5.5 | 4.1 / 3.3 | 3.1 / 1.7 | 2.1 / 1.5 | 2.4 / 2.1 | 1.4 / 0.6 |
+| median shape, f_r fixed | 1.19 | n.u. | 8.3 / 6.4 | 5.5 / 5.5 | 3.1 / 1.5 | 2.7 / 0.1 | 1.5 / 0.2 | 1.4 / 0.3 | 1.3 / 0.0 |
+| median shape, anchor 0.1 MHz | 1.19 | n.u. | 8.3 / 6.4 | 5.6 / 5.7 | 3.4 / 2.2 | 2.9 / 1.0 | 1.8 / 0.9 | 1.8 / 1.2 | 1.4 / 0.7 |
+| median shape, anchor 10 MHz | 1.19 | n.u. | 8.3 / 6.4 | 5.6 / 5.6 | 3.4 / 2.1 | 2.9 / 1.0 | 1.8 / 0.9 | 1.8 / 1.2 | 1.4 / 0.7 |
 <!-- /T7 -->
 
 ### 3.9 Circuit-level check
