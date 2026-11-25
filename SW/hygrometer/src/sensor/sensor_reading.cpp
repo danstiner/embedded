@@ -310,6 +310,14 @@ void sensor_init(sensor_state &state)
 			stcc4_stop_continuous(sensor_bus);
 			present = stcc4_probe(sensor_bus);
 		}
+		if (!present) {
+			/* A reboot mid-command leaves the sensor NACKing its address until the
+			 * command's execution time ends (§3.2): up to 22 s if it was conditioning,
+			 * which every boot starts. Wait that out once; this delays boot only when
+			 * the sensor is busy or absent. */
+			k_msleep(STCC4_CONDITIONING_MS);
+			present = stcc4_probe(sensor_bus);
+		}
 		if (present) {
 			state.have_stcc4 = true;
 			state.stcc4_discards_remaining = STCC4_BYPASS_DISCARDS;
