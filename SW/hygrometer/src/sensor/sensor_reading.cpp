@@ -302,11 +302,13 @@ void sensor_init(sensor_state &state)
 		stcc4_exit_sleep(sensor_bus);
 		bool present = stcc4_probe(sensor_bus);
 		if (!present) {
-			/* A reboot during a continuous-mode warm-up leaves the sensor in continuous
-			 * mode, where get_product_id NACKs. Stop it and retry once — every boot
-			 * therefore lands in the same single-shot state. A reboot mid warm-up thus
-			 * abandons it (rare: needs a battery pull/crash in the window); re-run the
-			 * factory reset if needed. */
+			/* A silent sensor is either busy, NACKing its address until the running
+			 * command finishes (§3.2; the longest is the 22 s conditioning every boot
+			 * starts), or left in continuous mode by a reboot mid warm-up, where
+			 * get_product_id NACKs. Wait out the longest command, stop continuous mode
+			 * and retry once. Every boot thus lands in single-shot; a reboot mid
+			 * warm-up abandons it (re-run the factory reset if needed). */
+			k_msleep(STCC4_CONDITIONING_MS);
 			stcc4_stop_continuous(sensor_bus);
 			present = stcc4_probe(sensor_bus);
 		}
