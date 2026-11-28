@@ -1,0 +1,45 @@
+description: |
+  Resistive water-leak sensor with a symmetric, two-way front end.
+
+  Two identical contacts, A and B. Each reaches its GPIO/SAADC pin through a
+  series resistor, and that pin has a 1 MΩ resistor to a return GPIO of its own.
+  Either side can drive while the other senses: the driving side's pin and
+  return are held high, the sensing side's return is held low, and water
+  between the contacts raises the sensing pin. Reversing the roles reverses the
+  current through the water, which limits electrode corrosion.
+
+  Both pins must be on one GPIO port so one interrupt callback covers either
+  sensing pin.
+
+compatible: "local,leak-sensor-bidir"
+
+properties:
+  a-gpios:
+    type: phandle-array
+    required: true
+    description: Contact A's pin; drives, or senses with an edge interrupt.
+
+  a-return-gpios:
+    type: phandle-array
+    required: true
+    description: Return of contact A's 1 MΩ resistor.
+
+  b-gpios:
+    type: phandle-array
+    required: true
+    description: Contact B's pin; drives, or senses with an edge interrupt.
+
+  b-return-gpios:
+    type: phandle-array
+    required: true
+    description: Return of contact B's 1 MΩ resistor.
+
+  io-channels:
+    type: phandle-array
+    required: true
+    description: SAADC channels on contact A's pin and on contact B's pin, in that order.
+
+  io-channel-names:
+    type: string-array
+    required: true
+    description: Must be "a", "b".

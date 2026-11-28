@@ -1,0 +1,57 @@
+/*
+ * Self-contained emulated two-way leak front end for the unit tests: four GPIOs
+ * and one SAADC channel per contact. leak_bidir.cpp binds against these via the
+ * leak_sensor node.
+ */
+
+#include <zephyr/dt-bindings/adc/adc.h>
+#include <zephyr/dt-bindings/gpio/gpio.h>
+
+/ {
+	test_gpio: gpio_emul {
+		status = "okay";
+		compatible = "zephyr,gpio-emul";
+		rising-edge;
+		falling-edge;
+		high-level;
+		low-level;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+
+	test_adc: adc_emul {
+		status = "okay";
+		compatible = "zephyr,adc-emul";
+		nchannels = <2>;
+		ref-internal-mv = <3300>;
+		#io-channel-cells = <1>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		channel@0 {
+			reg = <0>;
+			zephyr,gain = "ADC_GAIN_1";
+			zephyr,reference = "ADC_REF_INTERNAL";
+			zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+			zephyr,resolution = <12>;
+		};
+
+		channel@1 {
+			reg = <1>;
+			zephyr,gain = "ADC_GAIN_1";
+			zephyr,reference = "ADC_REF_INTERNAL";
+			zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+			zephyr,resolution = <12>;
+		};
+	};
+
+	leak_sensor: leak-sensor {
+		compatible = "local,leak-sensor-bidir";
+		a-gpios        = <&test_gpio 0 GPIO_ACTIVE_HIGH>;
+		a-return-gpios = <&test_gpio 1 GPIO_ACTIVE_HIGH>;
+		b-gpios        = <&test_gpio 2 GPIO_ACTIVE_HIGH>;
+		b-return-gpios = <&test_gpio 3 GPIO_ACTIVE_HIGH>;
+		io-channels = <&test_adc 0>, <&test_adc 1>;
+		io-channel-names = "a", "b";
+	};
+};

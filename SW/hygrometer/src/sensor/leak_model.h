@@ -71,3 +71,20 @@ static inline struct leak_decision leak_decide(int32_t sense_mv, int32_t thresho
 	d.log_change = (d.wet != prev_wet);
 	return d;
 }
+
+/* ---- Two-way front end (leak_bidir.cpp): one reading per current direction ---- */
+
+/** Mean of the two directions' sense voltages (mV), rounded down. */
+static inline int32_t leak_mean_mv(int32_t a_mv, int32_t b_mv)
+{
+	return (a_mv + b_mv) / 2;
+}
+
+/** True when one direction reads at or over @p threshold_mv and the other under a
+ *  quarter of it: water reads alike both ways, so this points at a wrong SAADC
+ *  channel or a broken return. */
+static inline bool leak_directions_disagree(int32_t a_mv, int32_t b_mv, int32_t threshold_mv)
+{
+	int32_t quarter = threshold_mv / 4;
+	return (a_mv >= threshold_mv && b_mv < quarter) || (b_mv >= threshold_mv && a_mv < quarter);
+}

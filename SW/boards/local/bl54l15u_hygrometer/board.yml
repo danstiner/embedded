@@ -10,6 +10,7 @@ board:
     revisions:
     - name: 2026v3
     - name: 2026v4
+    - name: 2026v5
 runners:
   run_once:
     '--recover':

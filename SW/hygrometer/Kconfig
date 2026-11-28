@@ -136,6 +136,17 @@ config APP_LEAK_THRESHOLD_MV
 	  Lower = more sensitive (detects higher water resistance) but closer to
 	  the dry-state noise floor. Confirm against bench measurements.
 
+DT_COMPAT_LOCAL_LEAK_SENSOR_BIDIR := local,leak-sensor-bidir
+
+config APP_LEAK_SENSOR_BIDIR
+	bool
+	default $(dt_compat_enabled,$(DT_COMPAT_LOCAL_LEAK_SENSOR_BIDIR))
+	depends on APP_LEAK_SENSOR
+	help
+	  Set when the devicetree describes the two-way, four-pin leak front end
+	  ("local,leak-sensor-bidir", 2026v5 hardware). Selects the driver that
+	  measures in both directions in place of the one-way driver.
+
 config APP_BUZZER
 	bool "Enable leak buzzer/siren output"
 	default n

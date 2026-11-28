@@ -64,6 +64,8 @@ jobs:
             name: bl54l15u_hygrometer_2026v3
           - board: bl54l15u_hygrometer@2026v4/nrf54l15/cpuapp
             name: bl54l15u_hygrometer_2026v4
+          - board: bl54l15u_hygrometer@2026v5/nrf54l15/cpuapp
+            name: bl54l15u_hygrometer_2026v5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
